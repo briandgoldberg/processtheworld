@@ -186,81 +186,96 @@ const KINDS = ['start','task','decision','subprocess','end'];
 const ss = { get(k){ try { return sessionStorage.getItem(k); } catch { return null; } }, set(k,v){ try { sessionStorage.setItem(k,v); } catch {} } };
 
 /* ---------- Example processes (shown as examples, read-only until you change them) ---------- */
-const EX_HIRE = {
-  id:'ex_hiring', example:true, visibility:'public', title:'Hire a new employee', updatedAt:0,
+const st = (id,lane,label,kind,next=[],extra={}) => ({id,lane,label,kind,uses:[],next:next.map(n=>typeof n==='string'?{to:n}:{to:n[0],label:n[1]}),...extra});
+const EX_EGG = {
+  id:'ex_egg', example:true, visibility:'public', title:'Fry an egg', updatedAt:0,
   maps:{
-    m_root:{ id:'m_root', title:'Hire a new employee', parent:null,
-      lanes:[{id:'l_mgr',name:'Hiring manager',type:'person'},{id:'l_rec',name:'Recruiter',type:'person'},{id:'l_cand',name:'Candidate',type:'person'},{id:'l_ats',name:'Applicant tracking system',type:'system'},{id:'l_hris',name:'HR system (HRIS)',type:'system'}],
+    m_root:{ id:'m_root', title:'Fry an egg', parent:null,
+      lanes:[{id:'e_cook',name:'Cook',type:'person'},{id:'e_stove',name:'Stove',type:'system'}],
       steps:[
-        {id:'s1',lane:'l_mgr',label:'Role approved',kind:'start',uses:[],next:[{to:'s2'}]},
-        {id:'s2',lane:'l_mgr',label:'Write job description',kind:'task',uses:[],next:[{to:'s3'}]},
-        {id:'s3',lane:'l_rec',label:'Post the job',kind:'task',uses:['l_ats'],next:[{to:'s4'}]},
-        {id:'s4',lane:'l_rec',label:'Screen applicants',kind:'subprocess',child:'m_s4',uses:[],next:[{to:'s5'}]},
-        {id:'s5',lane:'l_mgr',label:'Interview loop',kind:'subprocess',child:'m_s5',uses:[],next:[{to:'s6'}]},
-        {id:'s6',lane:'l_mgr',label:'Make an offer?',kind:'decision',uses:[],next:[{to:'s7',label:'Yes'},{to:'s13',label:'No'}]},
-        {id:'s13',lane:'l_rec',label:'Close candidate',kind:'end',uses:['l_ats'],next:[]},
-        {id:'s7',lane:'l_rec',label:'Send offer letter',kind:'task',uses:['l_ats'],next:[{to:'s8'}]},
-        {id:'s8',lane:'l_cand',label:'Accepts offer?',kind:'decision',uses:[],next:[{to:'s9',label:'Yes'},{to:'s13',label:'No'}]},
-        {id:'s9',lane:'l_hris',label:'Create employee record',kind:'task',uses:[],next:[{to:'s10'}]},
-        {id:'s10',lane:'l_hris',label:'Hired',kind:'end',uses:[],next:[]}
+        st('f1','e_cook','Want a fried egg','start',['f2']),
+        st('f2','e_cook','Prepare the pan','subprocess',['f3'],{child:'m_f2'}),
+        st('f3','e_cook','Crack the egg','subprocess',['f4'],{child:'m_f3'}),
+        st('f4','e_stove','Cook until whites set','task',['f5']),
+        st('f5','e_cook','Over easy?','decision',[['f6','Yes'],['f7','No']]),
+        st('f6','e_cook','Flip gently','task',['f7'],{uses:[]}),
+        st('f7','e_cook','Slide onto a plate','task',['f8']),
+        st('f8','e_cook','Turn off the burner','task',['f9'],{uses:['e_stove']}),
+        st('f9','e_cook','Eat','end')
       ]},
-    m_s4:{ id:'m_s4', title:'Screen applicants', parent:{map:'m_root',step:'s4'},
-      lanes:[{id:'a_rec',name:'Recruiter',type:'person'},{id:'a_ats',name:'Applicant tracking system',type:'system'}],
+    m_f2:{ id:'m_f2', title:'Prepare the pan', parent:{map:'m_root',step:'f2'},
+      lanes:[{id:'g_cook',name:'Cook',type:'person'},{id:'g_stove',name:'Stove',type:'system'}],
       steps:[
-        {id:'a1',lane:'a_ats',label:'Application received',kind:'start',uses:[],next:[{to:'a2'}]},
-        {id:'a2',lane:'a_ats',label:'Apply knockout questions',kind:'task',uses:[],next:[{to:'a3'}]},
-        {id:'a3',lane:'a_rec',label:'Review résumés',kind:'task',uses:['a_ats'],next:[{to:'a4'}]},
-        {id:'a4',lane:'a_rec',label:'Meets the bar?',kind:'decision',uses:[],next:[{to:'a5',label:'Yes'},{to:'a6',label:'No'}]},
-        {id:'a5',lane:'a_rec',label:'Phone screen',kind:'subprocess',child:'m_a5',uses:[],next:[{to:'a7'}]},
-        {id:'a6',lane:'a_ats',label:'Send rejection email',kind:'task',uses:[],next:[{to:'a8'}]},
-        {id:'a7',lane:'a_rec',label:'Shortlisted',kind:'end',uses:[],next:[]},
-        {id:'a8',lane:'a_ats',label:'Rejected',kind:'end',uses:[],next:[]}
+        st('g1','g_cook','Put pan on burner','start',['g2']),
+        st('g2','g_cook','Set heat to medium','task',['g3'],{uses:['g_stove']}),
+        st('g3','g_stove','Heat the pan','task',['g4']),
+        st('g4','g_cook','Add butter or oil','task',['g5']),
+        st('g5','g_cook','Butter sizzling?','decision',[['g6','Yes'],['g3','No']]),
+        st('g6','g_cook','Pan ready','end')
       ]},
-    m_a5:{ id:'m_a5', title:'Phone screen', parent:{map:'m_s4',step:'a5'},
-      lanes:[{id:'p_rec',name:'Recruiter',type:'person'},{id:'p_cand',name:'Candidate',type:'person'},{id:'p_cal',name:'Calendar',type:'system'},{id:'p_ats',name:'Applicant tracking system',type:'system'}],
+    m_f3:{ id:'m_f3', title:'Crack the egg', parent:{map:'m_root',step:'f3'},
+      lanes:[{id:'c_cook',name:'Cook',type:'person'}],
       steps:[
-        {id:'p1',lane:'p_rec',label:'Candidate passes review',kind:'start',uses:[],next:[{to:'p2'}]},
-        {id:'p2',lane:'p_rec',label:'Send scheduling link',kind:'task',uses:['p_cal'],next:[{to:'p3'}]},
-        {id:'p3',lane:'p_cand',label:'Pick a time',kind:'task',uses:['p_cal'],next:[{to:'p4'}]},
-        {id:'p4',lane:'p_rec',label:'Run 30-minute call',kind:'task',uses:[],next:[{to:'p5'}]},
-        {id:'p5',lane:'p_rec',label:'Log notes and score',kind:'task',uses:['p_ats'],next:[{to:'p6'}]},
-        {id:'p6',lane:'p_rec',label:'Screen complete',kind:'end',uses:[],next:[]}
+        st('c1','c_cook','Pick up an egg','start',['c2']),
+        st('c2','c_cook','Tap on a flat surface','task',['c3']),
+        st('c3','c_cook','Open shell over the pan','task',['c4']),
+        st('c4','c_cook','Shell in the pan?','decision',[['c5','Yes'],['c6','No']]),
+        st('c5','c_cook','Fish out the shell','subprocess',['c6'],{child:'m_c5'}),
+        st('c6','c_cook','Egg in the pan','end')
       ]},
-    m_s5:{ id:'m_s5', title:'Interview loop', parent:{map:'m_root',step:'s5'},
-      lanes:[{id:'i_mgr',name:'Hiring manager',type:'person'},{id:'i_pan',name:'Interview panel',type:'person'},{id:'i_cand',name:'Candidate',type:'person'},{id:'i_ats',name:'Applicant tracking system',type:'system'}],
+    m_c5:{ id:'m_c5', title:'Fish out the shell', parent:{map:'m_f3',step:'c5'},
+      lanes:[{id:'k_cook',name:'Cook',type:'person'}],
       steps:[
-        {id:'i1',lane:'i_mgr',label:'Passed phone screen',kind:'start',uses:[],next:[{to:'i2'}]},
-        {id:'i2',lane:'i_mgr',label:'Assign interviewers',kind:'task',uses:['i_ats'],next:[{to:'i3'}]},
-        {id:'i3',lane:'i_cand',label:'Attend interviews',kind:'task',uses:[],next:[{to:'i4'}]},
-        {id:'i4',lane:'i_pan',label:'Submit scorecards',kind:'task',uses:['i_ats'],next:[{to:'i5'}]},
-        {id:'i5',lane:'i_mgr',label:'Debrief and decide',kind:'task',uses:[],next:[{to:'i6'}]},
-        {id:'i6',lane:'i_mgr',label:'Recommendation made',kind:'end',uses:[],next:[]}
+        st('k1','k_cook','Spot a shell piece','start',['k2']),
+        st('k2','k_cook','Scoop it with a shell half','task',['k3']),
+        st('k3','k_cook','Got it all?','decision',[['k4','Yes'],['k2','No']]),
+        st('k4','k_cook','Shell removed','end')
       ]}
   },
   chat:[
-    {role:'user',content:'Map how we hire someone. The hiring manager gets the role approved and writes the JD, then a recruiter posts it in our ATS.'},
-    {role:'assistant',content:'Added the hiring manager, the recruiter and your ATS, with the first three steps.',ask:'What happens to applications once they come in?'},
-    {role:'user',content:'Screening is its own process: the ATS filters out knockouts, the recruiter reviews, and good ones get a phone screen.'},
-    {role:'assistant',content:'Made "Screen applicants" a subprocess with its own lanes, and nested "Phone screen" one level below it.',ask:'Who decides whether to make an offer, and what happens if the candidate declines?'}
+    {role:'user',content:'How I fry an egg. First I get the pan ready, then I crack the egg in.'},
+    {role:'assistant',content:'Added you as the cook, the stove, and two subprocesses: "Prepare the pan" and "Crack the egg".',ask:'How do you know the pan is hot enough?'},
+    {role:'user',content:'When the butter sizzles. And if a bit of shell falls in, I scoop it out with the other half of the shell.'},
+    {role:'assistant',content:'Added the sizzle check inside "Prepare the pan", and a "Fish out the shell" layer inside "Crack the egg".',ask:'Do you flip it, or cook it sunny side up?'}
   ],
   events:[]
 };
-const EX_TICKET = {
-  id:'ex_ticket', example:true, visibility:'public', title:'Resolve a support ticket', updatedAt:0,
-  maps:{ m_root:{ id:'m_root', title:'Resolve a support ticket', parent:null,
-    lanes:[{id:'t_cust',name:'Customer',type:'person'},{id:'t_agent',name:'Support agent',type:'person'},{id:'t_eng',name:'Engineer on call',type:'person'},{id:'t_desk',name:'Help desk',type:'system'}],
+const EX_CAR = {
+  id:'ex_car', example:true, visibility:'public', title:'Start a car', updatedAt:0,
+  maps:{ m_root:{ id:'m_root', title:'Start a car', parent:null,
+    lanes:[{id:'d_drv',name:'Driver',type:'person'},{id:'d_key',name:'Key or key fob',type:'system'},{id:'d_car',name:'Car',type:'system'}],
     steps:[
-      {id:'t1',lane:'t_cust',label:'Reports a problem',kind:'start',uses:['t_desk'],next:[{to:'t2'}]},
-      {id:'t2',lane:'t_desk',label:'Create ticket and auto-tag',kind:'task',uses:[],next:[{to:'t3'}]},
-      {id:'t3',lane:'t_agent',label:'Triage and reproduce',kind:'task',uses:['t_desk'],next:[{to:'t4'}]},
-      {id:'t4',lane:'t_agent',label:'Known fix?',kind:'decision',uses:[],next:[{to:'t5',label:'Yes'},{to:'t6',label:'No'}]},
-      {id:'t6',lane:'t_eng',label:'Investigate and patch',kind:'task',uses:[],next:[{to:'t5'}]},
-      {id:'t5',lane:'t_agent',label:'Reply with the fix',kind:'task',uses:['t_desk'],next:[{to:'t7'}]},
-      {id:'t7',lane:'t_cust',label:'Confirms resolved',kind:'end',uses:[],next:[]}
+      st('d1','d_drv','Sit in the driver’s seat','start',['d2']),
+      st('d2','d_drv','Press the brake pedal','task',['d3']),
+      st('d3','d_drv','Push-button start?','decision',[['d4','Yes'],['d5','No']]),
+      st('d4','d_drv','Press Start','task',['d6'],{uses:['d_car']}),
+      st('d6','d_car','Detect the key fob','task',['d7'],{uses:['d_key']}),
+      st('d5','d_drv','Turn the key','task',['d7'],{uses:['d_key']}),
+      st('d7','d_car','Crank the engine','task',['d8']),
+      st('d8','d_drv','Engine running?','decision',[['d9','Yes'],['d2','No']]),
+      st('d9','d_drv','Check dashboard lights','task',['d10']),
+      st('d10','d_drv','Ready to drive','end')
     ]}},
   chat:[], events:[]
 };
-const EXAMPLES = [EX_HIRE, EX_TICKET];
+const EX_TEA = {
+  id:'ex_tea', example:true, visibility:'public', title:'Make a cup of tea', updatedAt:0,
+  maps:{ m_root:{ id:'m_root', title:'Make a cup of tea', parent:null,
+    lanes:[{id:'t_me',name:'Tea maker',type:'person'},{id:'t_kettle',name:'Kettle',type:'system'}],
+    steps:[
+      st('t1','t_me','Want tea','start',['t2']),
+      st('t2','t_me','Fill and switch on kettle','task',['t3','t4'],{uses:['t_kettle']}),
+      st('t3','t_kettle','Boil and click off','task',['t5']),
+      st('t4','t_me','Tea bag in the mug','task',['t5']),
+      st('t5','t_me','Pour the water','task',['t6']),
+      st('t6','t_me','Steep 3–5 minutes','task',['t7']),
+      st('t7','t_me','Milk or sugar?','decision',[['t8','Yes'],['t9','No']]),
+      st('t8','t_me','Add and stir','task',['t9']),
+      st('t9','t_me','Drink','end')
+    ]}},
+  chat:[], events:[]
+};
+const EXAMPLES = [EX_EGG, EX_CAR, EX_TEA];
 
 /* ---------- State ---------- */
 const S = { view:'login', uid:null, name:'', db:null, sample:null, ready:false,
@@ -372,7 +387,7 @@ const RULES = `You are the mapping engine of a process-mapping studio. A person 
 MODEL
 - A process is a tree of maps. "m_root" is the top level. Any step can be a subprocess whose detail lives in its own child map, which can contain subprocesses of its own (drill-down layers).
 - Each map has lanes and steps.
-  - Lane types: "person" (a role or type of user, e.g. "Recruiter", "Customer"; use roles, not personal names unless the user gives them) and "system" (technology: apps, tools, databases, devices).
+  - Lane types: "person" (a role or type of user, e.g. "Cook", "Driver", "Parent"; use roles, not personal names unless the user gives them) and "system" (technology: apps, tools, databases, devices).
   - Step kinds: start, task, decision, subprocess, end. Every step sits in exactly one lane.
   - A person doing something in a tool: put the step in the person's lane and list the tool lane in "uses". Put a step in a system lane only when the technology acts on its own (sends, stores, calculates, triggers).
   - Decisions have one outgoing connection per outcome, each labeled ("Yes"/"No" or the real outcomes).
@@ -381,7 +396,7 @@ MODEL
 CHANGES — reply with ONLY JSON objects, exactly one per line, no code fences, no prose:
 {"op":"rename_process","title":"..."}
 {"op":"rename_map","map":"m_x","title":"..."}
-{"op":"add_lane","map":"m_root","id":"l1","name":"Recruiter","type":"person"}
+{"op":"add_lane","map":"m_root","id":"l1","name":"Cook","type":"person"}
 {"op":"update_lane","map":"m_root","id":"l1","name":"...","type":"system"}
 {"op":"remove_lane","map":"m_root","id":"l1"}
 {"op":"add_step","map":"m_root","id":"s1","lane":"l1","label":"Short verb phrase","kind":"task","uses":["l3"],"after":"s0","after_label":""}
@@ -560,9 +575,9 @@ function renderLogin(app){
     <h1>Explain how work gets done. Watch it become a map.</h1>
     <p>Describe a process in your own words. Each message updates a swim-lane map of the people, steps and technology involved, and any step can open into its own layer of detail.</p>
     <div class="lanes-demo">
-      <div class="p">PERSON <span>Recruiter · Reviews résumés</span></div>
-      <div class="p">PERSON <span>Candidate · Picks an interview time</span></div>
-      <div class="s">SYSTEM <span>Applicant tracking · Sends the rejection email</span></div>
+      <div class="p">PERSON <span>Cook · Cracks the egg into the pan</span></div>
+      <div class="p">PERSON <span>Driver · Presses the brake and Start</span></div>
+      <div class="s">SYSTEM <span>Kettle · Boils the water and clicks off</span></div>
     </div>
     <div><button class="btn primary" id="go">${S.name ? 'Continue as ' + esc(S.name) : 'Continue'}</button></div>
     <p class="hint">You're signed in with your Claude account. Your processes are private unless you publish them.</p>
@@ -615,9 +630,9 @@ function renderHome(app){
 }
 
 const STARTERS = [
-  'Map how we onboard a new hire, from signed offer to their first week.',
-  'How a coffee shop handles a mobile order, from the app to pickup.',
-  'Our month-end close in finance. It has three subprocesses: reconcile accounts, review accruals, and report.'
+  'How I make pancakes from scratch.',
+  'How to change a flat bike tire.',
+  'Doing laundry. It has three parts: sort, wash, and dry and fold.'
 ];
 
 function renderWorkShell(app){
