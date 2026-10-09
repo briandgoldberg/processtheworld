@@ -1405,12 +1405,11 @@ const useAiHTML = () => `<section class="sec use-ai">
 function renderHome(app){
   const sec = (title, sub, inner) => `<section class="sec"><div class="sec-head"><h2>${title}</h2><p>${sub}</p></div>${inner}</section>`;
   app.innerHTML = `
-  <div class="top"><button class="mark linkish-plain" data-home aria-label="Process the World home">${MARK}</button><div class="grow"></div>
+  <div class="top"><button class="mark linkish-plain" data-home aria-label="Process the World home">${MARK}</button><span class="topsub hide-sm">Mapping the world's processes</span><div class="grow"></div>
     ${S.notice ? `<span class="save hide-sm" style="color:var(--danger)">${esc(S.notice)}</span>` : ''}
     <a class="toplink hide-sm" href="/agents.md">For AI agents</a>
     <button class="btn primary" id="new">New<span class="hide-sm"> process</span></button>${signInHTML()}${acctHTML()}</div>
   <div class="home"><div class="home-in">
-    <div class="home-head"><div><div class="label">Process the World${S.me ? ' · Hi, ' + esc(S.me.handle) : ''}</div><h1 class="tagline">The World's Best Process Mapper</h1><p class="tagsub">Our goal is to map the world's processes. Explore what others have mapped, or start your own.</p></div></div>
     ${S.mine.length ? sec('My processes', 'Private unless you share or publish them.', `<div class="cards">${S.mine.map(p => cardHTML(p,'mine')).join('')}</div>`) : ''}
     ${S.shared.length ? sec('Shared with me', 'Processes people invited you to.', `<div class="cards">${S.shared.map(p => cardHTML(p,'shared')).join('')}</div>`) : ''}
     ${sec('Public processes', 'Search, filter by tag, open any of them, like them, or make your own copy.', publicFilterHTML())}
