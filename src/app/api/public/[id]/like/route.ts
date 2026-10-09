@@ -2,11 +2,10 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { fail, json } from "@/lib/http";
 import { userFrom } from "@/lib/identity";
-import { award } from "@/lib/points";
 
 export const dynamic = "force-dynamic";
 
-// Like or unlike a public process. The creator earns a point the first time you like it.
+// Like or unlike a public process.
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const user = await userFrom(req);
@@ -18,7 +17,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     await prisma.like.delete({ where: { id: had.id } });
   } else {
     await prisma.like.create({ data: { publicId: id, userId: user.id } });
-    if (pub.userId !== user.id) await award(pub.userId, "like", `${id}:${user.id}`);
   }
   const likes = await prisma.like.count({ where: { publicId: id } });
   await prisma.publicProcess.update({ where: { id }, data: { likes } });

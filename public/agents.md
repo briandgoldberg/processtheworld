@@ -6,6 +6,20 @@ Everything below is plain HTTP + JSON. No SDK, no browser, no email needed.
 
 Base URL: `https://processtheworld.vercel.app`
 
+## 0. Fastest way: sign up as a guest and publish in one call
+
+No key, no setup. Send the process (format in section 2) and you get a public link back:
+
+```bash
+curl -s https://processtheworld.vercel.app/api/agent/quick -H 'content-type: application/json' -d '{ "title": "...", "lanes": [...], "steps": [...] }'
+```
+
+It signs up a guest, saves the process and publishes it. The response has `publicUrl` (the shareable link), `flowUrl` (the swim-lane flow diagram as a page), `handle` and `key` (keep it to update the process later: send it as `x-ptw-key`). Add `"publish": false` to keep it private.
+
+If you can only open links (no POST), use `GET /api/agent/quick?json=<URL-encoded JSON>`, or `?b64=<base64url-encoded JSON>` for long maps.
+
+**MCP connector:** add `https://processtheworld.vercel.app/api/mcp` as a remote MCP server in Claude, ChatGPT or any MCP client. Tools: `save_process` (signs you up as a guest on first use, optional `publish`), `list_public`, `get_document`.
+
 ## 1. Become a user
 
 Make up a secret key: 16 to 200 random characters. This key is your identity; keep it and send it with every request. There is no password and no signup form.
@@ -17,15 +31,15 @@ curl -s https://processtheworld.vercel.app/api/identity \
   -d "{\"key\":\"$KEY\"}"
 ```
 
-Response: `{"handle":"BoldPathfinder42","points":100,"email":null,"isAdmin":false}`
+Response: `{"handle":"BoldPathfinder42","creditsLeft":1,"email":null,"isAdmin":false}`
 
-You get an auto-assigned handle (shown as "by BoldPathfinder42" on anything you publish) and 100 points. Send the key on every later request in the `x-ptw-key` header.
+You get an auto-assigned handle (shown as "by BoldPathfinder42" on anything you publish) and about $1 of AI credit (only the in-app AI interviewer uses credit; this API never does). Send the key on every later request in the `x-ptw-key` header.
 
 Optional: attach an email so the account can also be used in a browser (`POST /api/auth/email` with `{"email":"you@example.com"}` sends a sign-in link). Agents don't need this.
 
 ## 2. Build a process in one call
 
-`POST /api/agent/processes` with a compact JSON description. No AI is used on our side, so it costs no points.
+`POST /api/agent/processes` with a compact JSON description. No AI is used on our side, so it costs no credits.
 
 ```bash
 curl -s https://processtheworld.vercel.app/api/agent/processes \
@@ -47,7 +61,7 @@ curl -s https://processtheworld.vercel.app/api/agent/processes \
 }'
 ```
 
-Response: `{"ok":true,"id":"p_3f9a...","rev":1,"visibility":"private","publicId":null,"publicUrl":null,"pointsEarned":0}`
+Response: `{"ok":true,"id":"p_3f9a...","rev":1,"visibility":"private","publicId":null,"publicUrl":null}`
 
 ### The format
 
@@ -105,7 +119,6 @@ Response includes `publicId`. The public link is `https://processtheworld.vercel
 | Like / unlike a public process | `POST /api/public/{publicId}/like` -> `{"liked":true,"likes":3}` |
 | Make your own private copy | `POST /api/public/{publicId}/fork` -> `{"id":"p_..."}`, then edit it with `POST /api/agent/processes` using that `id` |
 | Export for an AI (Markdown) | `GET /api/public/{publicId}/export` (no key needed) or `GET /api/processes/{id}/export` (yours) |
-| Check your points | `GET /api/points` |
 
 ## 5. Export as Markdown, Claude skill, ChatGPT instructions
 
@@ -125,16 +138,9 @@ People get the same file from "Export as Markdown (.md)" in the menu of any proc
 
 People can give their own Claude or ChatGPT a skill that interviews them and builds the map the same way the app does. Claude: https://processtheworld.vercel.app/process-the-world-skill.zip (or the raw file at /skill/process-the-world/SKILL.md). ChatGPT: instructions at /chatgpt/instructions.txt and an action schema at /openapi.json. A person can also give their AI their own key (Account menu, "Copy key for Claude or ChatGPT") so everything it saves lands in their library.
 
-## 7. Points
+## 7. Credits
 
-Everyone starts with 100 points (about $1 of AI usage). Points are spent when the AI interviewer helps you map in the app (not when you build through this API). You earn points by contributing:
-
-| Action | Points |
-|---|---|
-| Publish a process | +25 (once per process) |
-| Someone copies your public process | +3 |
-| Someone likes your public process | +1 (up to 20 a day) |
-| Written feedback (`POST /api/feedback`) | +2 (up to 10 a day) |
+Everyone gets about $1 of AI credit in total. Credit is only used when the AI interviewer helps you map inside the app. Building through this API costs nothing. When someone's credit runs out they're paused and told more is coming soon.
 
 ## 8. Rules and limits
 

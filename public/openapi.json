@@ -63,76 +63,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "required": [
-                  "title",
-                  "lanes",
-                  "steps"
-                ],
-                "properties": {
-                  "id": {
-                    "type": "string",
-                    "description": "Id of a process you saved earlier, to update it."
-                  },
-                  "title": {
-                    "type": "string"
-                  },
-                  "publish": {
-                    "type": "boolean"
-                  },
-                  "lanes": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/Lane"
-                    }
-                  },
-                  "steps": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/Step"
-                    }
-                  },
-                  "layers": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "required": [
-                        "id",
-                        "parentStep",
-                        "lanes",
-                        "steps"
-                      ],
-                      "properties": {
-                        "id": {
-                          "type": "string"
-                        },
-                        "title": {
-                          "type": "string"
-                        },
-                        "parentStep": {
-                          "type": "string",
-                          "description": "Id of the main-layer step that opens into this layer."
-                        },
-                        "parentLayer": {
-                          "type": "string",
-                          "description": "Id of another layer, if parentStep is in that layer."
-                        },
-                        "lanes": {
-                          "type": "array",
-                          "items": {
-                            "$ref": "#/components/schemas/Lane"
-                          }
-                        },
-                        "steps": {
-                          "type": "array",
-                          "items": {
-                            "$ref": "#/components/schemas/Step"
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
+                "$ref": "#/components/schemas/Process"
               }
             }
           }
@@ -187,6 +118,41 @@
         "responses": {
           "200": {
             "description": "The document as text."
+          }
+        }
+      }
+    },
+    "/api/agent/quick": {
+      "post": {
+        "operationId": "quickPublish",
+        "summary": "Sign up as a guest, save the process and publish it, all in one call. No setup, no key needed. Returns publicUrl and a key.",
+        "parameters": [
+          {
+            "name": "x-ptw-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Only if you already have a key; otherwise a new guest is created."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Process"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The saved process: id, publicUrl, flowUrl, handle, and key (for a new guest)."
+          },
+          "400": {
+            "description": "invalid_process, with a list of problems to fix."
           }
         }
       }
@@ -273,6 +239,78 @@
                   }
                 }
               ]
+            }
+          }
+        }
+      },
+      "Process": {
+        "type": "object",
+        "required": [
+          "title",
+          "lanes",
+          "steps"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Id of a process you saved earlier, to update it."
+          },
+          "title": {
+            "type": "string"
+          },
+          "publish": {
+            "type": "boolean"
+          },
+          "lanes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Lane"
+            }
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Step"
+            }
+          },
+          "layers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "parentStep",
+                "lanes",
+                "steps"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "parentStep": {
+                  "type": "string",
+                  "description": "Id of the main-layer step that opens into this layer."
+                },
+                "parentLayer": {
+                  "type": "string",
+                  "description": "Id of another layer, if parentStep is in that layer."
+                },
+                "lanes": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Lane"
+                  }
+                },
+                "steps": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Step"
+                  }
+                }
+              }
             }
           }
         }

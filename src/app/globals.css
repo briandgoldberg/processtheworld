@@ -290,6 +290,14 @@ code{font-family:var(--f-mono);font-size:11px}
 /* ---------- Sharing, suggestions, compare ---------- */
 .linkish-plain{border:none;background:none;padding:0;cursor:pointer;color:inherit}
 .vi{flex:none}
+.hero2{text-align:center;display:flex;flex-direction:column;align-items:center;gap:22px;padding:56px 0 8px}
+.hero2 h1{font-size:clamp(46px,9.5vw,112px);line-height:.96;letter-spacing:-.035em;max-width:13ch;margin:0}
+.btn.xl{font-size:24px;padding:18px 52px;border-radius:16px;font-weight:700}
+.goal-line{font-size:clamp(20px,3vw,30px);font-weight:700;margin:6px 0 0}
+.guide-line{font-size:clamp(16px,2vw,19px);color:var(--muted);max-width:620px;margin:0}
+.samples h2,.use-ai h2{font-size:clamp(24px,4vw,36px);text-align:center;letter-spacing:-.02em}
+.use-actions{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.linkish{background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;cursor:pointer;font:inherit}
 .use-ai{text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px}
 .use-ai p{max-width:560px;color:var(--muted)}
 .use-cards{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;width:100%}

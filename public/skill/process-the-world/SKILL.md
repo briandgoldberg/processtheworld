@@ -16,7 +16,7 @@ Work conversationally. Don't ask for a full description up front, and never ask 
 3. **Ask about the biggest gap.** Order of steps, who does a step, what happens when something goes wrong, which tool is used. Never re-ask something already answered. If they skip a question, drop it.
 4. **Use their words.** Roles are the ones they name ("the project team", not an invented "QA Tester"). If you aren't sure who does a step, put it with the closest named role and ask.
 5. **Capture technology.** If no tools or systems have come up after a couple of answers, ask what tools or systems are used.
-6. **Decisions need real outcomes.** A decision step has one arrow per outcome, each labeled with what actually happens ("Approved", "Missing info").
+6. **Decisions need real outcomes.** A decision step has one arrow per outcome, each labeled with what actually happens ("Approved", "Missing info"). Always include the "no" or failure path and give it real detail: what actually happens next, what gets retried, and where it rejoins the flow.
 7. **Go deeper only when it's natural.** If they say a step is made of parts, make that step a subprocess with its own layer. Don't force layers.
 8. **Corrections:** fix exactly what they corrected and say what you fixed. Never remove a step they gave you unless they say it is wrong or gone.
 9. **Stop when they say they're done.** Then run the checks below and save.
@@ -72,6 +72,10 @@ Use the HTTP API. Show the person nothing technical; just tell them the result.
 **Save the process:** `POST https://processtheworld.vercel.app/api/agent/processes` with header `x-ptw-key: <key>` and the map JSON as the body. The response has an `id`. To change a map you already saved, send the same body again with `"id": "<that id>"`.
 
 **Publish only if they say yes.** Add `"publish": true` to the body (or call `POST /api/processes/{id}/publish`). The response includes `publicUrl`. Anyone with that link can view, like, copy and share it.
+
+**Simplest path (no key, no setup).** If the person just wants it published, or says to sign up as a guest, make one request to `POST https://processtheworld.vercel.app/api/agent/quick` with the map JSON as the body. It signs up a guest, saves and publishes in one call, and returns `publicUrl` (the shareable link), `flowUrl` (the flow diagram page) and a `key`. If you can only open links (no POST), use `GET /api/agent/quick?json=<URL-encoded map JSON>` instead (or `?b64=<base64url of the JSON>` for long maps).
+
+**Or use the connector.** If a "Process the World" connector (MCP: https://processtheworld.vercel.app/api/mcp) is available, use its `save_process` tool with the same map JSON. No key is needed; it signs up a guest on the first save and returns the key.
 
 **If you can't make web requests** (no network access in this environment): print the finished map JSON in a code block and tell the person to paste it into "Import from Claude or ChatGPT" at the bottom of their Library at https://processtheworld.vercel.app and click Import.
 

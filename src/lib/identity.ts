@@ -51,7 +51,7 @@ export async function adminFrom(req: Request) {
 
 export const publicUser = (u: { handle: string; email: string | null; emailVerifiedAt: Date | null; points: number }) => ({
   handle: u.handle,
-  points: u.points,
+  creditsLeft: Math.max(0, u.points) / 100,
   email: u.emailVerifiedAt ? u.email : null,
   isAdmin: !!u.emailVerifiedAt && isAdminEmail(u.email),
 });

@@ -3,7 +3,6 @@ import { randomBytes } from "crypto";
 import { prisma } from "@/lib/db";
 import { fail, json } from "@/lib/http";
 import { userFrom } from "@/lib/identity";
-import { award } from "@/lib/points";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +17,5 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const pid = "p_" + randomBytes(9).toString("hex");
   await prisma.process.create({ data: { id: pid, userId: user.id, title: pub.title, status: "done", doc: { ...doc, chat: [], events: [], forkedFrom: id } as any, stepCount: pub.stepCount, depth: pub.depth, laneTypes: pub.laneTypes, forkedFrom: id } });
   await prisma.publicProcess.update({ where: { id }, data: { copies: { increment: 1 } } });
-  if (pub.userId !== user.id) await award(pub.userId, "copy", `${id}:${user.id}`);
   return json({ ok: true, id: pid });
 }

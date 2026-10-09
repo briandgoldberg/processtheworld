@@ -31,11 +31,14 @@ function daily(rows){
 
 async function overview(el){
   const d = await api('/api/admin/overview?days=' + A.days);
+  const cr = await api('/api/admin/credits').catch(() => ({ users:[] }));
+  const credits = `<section class="panel"><h3>Low on credits</h3><p class="hint">People with ${money(cr.lowAtOrBelowUsd ?? 0.25)} or less of their $1 left. Paused people can't use the mapper until you give them more.</p>
+    ${cr.users.length ? `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Who</th><th>Left</th><th>Status</th><th>Last seen</th></tr></thead><tbody>${cr.users.map(u => `<tr><td>${esc(u.email || u.handle)}</td><td>${money(u.leftUsd)}</td><td>${u.paused ? 'Paused' : 'Low'}</td><td>${when(u.lastSeenAt)}</td></tr>`).join('')}</tbody></table></div>` : '<p class="hint">Nobody is low right now.</p>'}</section>`;
   const q = Object.fromEntries(d.questions.map(x => [x.outcome, x.count]));
   const qTotal = (q.answered || 0) + (q.skipped || 0) + (q.ignored || 0);
   const chk = Object.entries(d.checks);
   const rem = Object.fromEntries(d.removals.map(r => [r.verdict, r.count]));
-  el.innerHTML = `
+  el.innerHTML = credits + `
   <div class="kpis">
     <div><span class="label">People</span><b>${d.users}</b><small>${d.verified} with email · ${d.newUsers} new</small></div>
     <div><span class="label">Processes</span><b>${d.processes}</b><small>${d.finished} finished</small></div>

@@ -1,5 +1,4 @@
 import { prisma } from "./db";
-import { award } from "./points";
 
 type Proc = { id: string; title: string; doc: any; stepCount: number; depth: number; laneTypes: string[] };
 
@@ -9,13 +8,12 @@ export async function publishNow(user: { id: string; handle: string }, p: Proc, 
   if (!existing) {
     const pub = await prisma.publicProcess.create({ data: { processId: p.id, userId: user.id, title: p.title, doc: snapshot as any, stepCount: p.stepCount, depth: p.depth, laneTypes: p.laneTypes, authorName: user.handle, mode: "locked" } });
     await prisma.publicVersion.create({ data: { publicId: pub.id, version: 1, title: p.title, doc: snapshot as any } });
-    const earned = await award(user.id, "publish", p.id);
-    return { publicId: pub.id, published: true, earned };
+    return { publicId: pub.id, published: true };
   }
   const v = existing.version + 1;
   await prisma.$transaction([
     prisma.publicProcess.update({ where: { id: existing.id }, data: { doc: snapshot as any, title: p.title, version: v, stepCount: p.stepCount, depth: p.depth, laneTypes: p.laneTypes } }),
     prisma.publicVersion.create({ data: { publicId: existing.id, version: v, title: p.title, doc: snapshot as any } }),
   ]);
-  return { publicId: existing.id, updated: true, earned: 0 };
+  return { publicId: existing.id, updated: true };
 }

@@ -21,8 +21,15 @@ const EX_EGG = {
         st('f2','e_cook','Prepare the pan','subprocess',['f3'],{child:'m_f2'}),
         st('f3','e_cook','Crack the egg','subprocess',['f4'],{child:'m_f3'}),
         st('f4','e_stove','Cook until whites set','task',['f5']),
-        st('f5','e_cook','Over easy?','decision',[['f6','Yes'],['f7','No']]),
-        st('f6','e_cook','Flip gently','task',['f7'],{uses:[]}),
+        st('f5','e_cook','Over easy?','decision',[['f6','Yes'],['n1','No']]),
+        st('f6','e_cook','Flip gently with a spatula','task',['f6a']),
+        st('f6a','e_cook','Yolk still whole?','decision',[['f6b','Yes'],['f6c','No']]),
+        st('f6b','e_cook','Cook 20 seconds, yolk runny','task',['f7']),
+        st('f6c','e_cook','Break it and cook 1 more minute','task',['f7']),
+        st('n1','e_cook','Keep it sunny side up','task',['n2']),
+        st('n2','e_cook','Spoon hot butter over the whites','task',['n3']),
+        st('n3','e_cook','Whites fully set?','decision',[['f7','Yes'],['n4','No']]),
+        st('n4','e_cook','Cover with a lid, 30 seconds','task',['n3']),
         st('f7','e_cook','Slide onto a plate','task',['f8']),
         st('f8','e_cook','Turn off the burner','task',['f9'],{uses:['e_stove']}),
         st('f9','e_cook','Eat','end')
@@ -394,14 +401,8 @@ const ERR = {
   not_configured:'The mapper isn’t set up yet. Try again soon.',
   rate_limited:'Too many requests right now. Wait a moment, then send again.',
   upstream_error:'The mapper was interrupted. Send your message again.',
-  out_of_points:'You’re out of points. Publish a process, vote on suggested changes or give feedback to earn more, then send again.',
+  out_of_credits:'You’re out of credits. You’ll get more soon.',
 };
-/* Points: spend them mapping, earn them contributing */
-const fmtPts = n => Math.max(0, Math.round(n || 0)).toLocaleString();
-async function refreshPoints(){
-  try { const d = await API.get('/api/points'); if (S.me){ S.me.points = d.points; } const el = document.querySelector('.pts'); if (el) el.innerHTML = ptsInner(); } catch {}
-}
-const ptsInner = () => `${ICON.star}<b>${fmtPts(S.me?.points)}</b><span class="hide-sm"> points</span>`;
 function lastUserIndex(p){ for (let i = p.chat.length - 1; i >= 0; i--) if (p.chat[i].role === 'user') return i; return -1; }
 /* Put the map back to how it was before the last message, and take that message out of the conversation */
 function rewindLast(p){
@@ -426,7 +427,7 @@ async function runAI(payload, onLine, ctl){
   try {
     r = await fetch('/api/ai', { method:'POST', headers:{ 'content-type':'application/json', 'x-ptw-key':API.key || '' }, body:JSON.stringify(payload), signal:ctl.signal });
   } catch (e){ throw { code:e?.name === 'AbortError' ? 'cancelled' : 'upstream_error' }; }
-  if (!r.ok){ let d = {}; try { d = await r.json(); } catch {} throw { code:d.code || (r.status === 402 ? 'out_of_points' : r.status === 429 ? 'rate_limited' : 'upstream_error'), message:d.error }; }
+  if (!r.ok){ let d = {}; try { d = await r.json(); } catch {} throw { code:d.code || (r.status === 402 ? 'out_of_credits' : r.status === 429 ? 'rate_limited' : 'upstream_error'), message:d.error }; }
   const id = r.headers.get('x-ai-call-id');
   const reader = r.body.getReader(), dec = new TextDecoder();
   let buf = '', failed = false;
@@ -544,7 +545,7 @@ async function send(text){
   reply.content = humanize(p, reply.content); reply.ask = humanize(p, reply.ask); reply.fixed = humanize(p, reply.fixed);
   reply.pending = false;
   if (!reply.content) reply.content = turn.ops ? 'Updated the map.' : 'I could not turn that into changes. Try describing who does what, in order.';
-  S.busy = false; S.ctl = null; refreshPoints();
+  S.busy = false; S.ctl = null;
   touch(); renderWork();
 
   // Record the turn: the training example.
@@ -743,7 +744,7 @@ async function publish(note, mode){
   try {
     await flush();
     const d = await API.post('/api/processes/' + p.id + '/publish', { note:note || '', mode:mode || undefined });
-    const first = !!d.published; if (d.earned) alertBox(`+${d.earned} points for publishing.`); refreshPoints();
+    const first = !!d.published; 
     p.publicId = d.publicId; if (first) p.publicMode = d.mode || 'collaborative';
     logEvent(p, { who:'human', op:first ? 'publish' : 'publish_update' });
     p.chat.push({ role:'note', content:first ? (p.publicMode === 'locked' ? `Published as is under ${S.me?.handle}. Anyone can open it. To change it, they make their own copy.` : `Published as ${S.me?.handle}. Anyone can open it. People can suggest changes, and changes go live when the votes agree.`)
@@ -948,7 +949,6 @@ function renderCompare(){
 async function vote(id, choice){
   try {
     const d = await API.post('/api/proposals/' + id + '/vote', { choice });
-    refreshPoints(); if (d.earned) alertBox(`+${d.earned} points for voting.`);
     const x = S.compare?.prop; if (x){ x.after = d.after; x.before = d.before; x.myVote = d.myVote; }
     if (d.status === 'accepted'){ alertBox('That change had enough votes and is now live.'); const id2 = pubId(); closeCompare(); openProcess(id2, 'pub'); return; }
     if (d.status === 'rejected'){ alertBox('That change was turned down by the votes.'); closeCompare(); S.panel = 'review'; S.reviewData = null; loadReview(); return; }
@@ -1019,19 +1019,17 @@ function acctHTML(){
     <div class="acct-panel" role="dialog" aria-label="Account">
       <p>Signed in as <b>${esc(me.email)}</b>.</p>
       ${nameForm}
-      <button class="btn sm" data-acct="copykey">Copy key for Claude or ChatGPT</button>
-      <p class="hint pts-ways"><b>Points</b> pay for the AI as you map. Earn more: publish a process +25, someone copies it +3, someone likes it +1, share useful feedback +2.</p>
+      <button class="btn sm" data-acct="copykey">Copy key for Claude or ChatGPT</button>
       ${me.isAdmin ? '<a class="btn sm" href="/admin">Admin dashboard</a>' : ''}
       <button class="btn sm" data-acct="signout">Sign out</button>
     </div>` : `
     <div class="acct-panel" role="dialog" aria-label="Account">
       <p>You're a guest, mapping as <b>${esc(me.handle)}</b>. Your processes are saved to this browser.</p>
-      <button class="btn sm" data-acct="copykey">Copy key for Claude or ChatGPT</button>
-      <p class="hint pts-ways"><b>Points</b> pay for the AI as you map. Earn more: publish a process +25, someone copies it +3, someone likes it +1, share useful feedback +2.</p>
+      <button class="btn sm" data-acct="copykey">Copy key for Claude or ChatGPT</button>
       <p class="hint">Add your email to choose your own username, keep your processes on any device, or sign in.</p>
       ${emailFormHTML('acct')}
     </div>`;
-  return `${me.isAdmin ? '<a class="btn sm admin-link hide-sm" href="/admin">Admin</a>' : ''}<span class="pts" title="Points: spend them mapping, earn them contributing">${ptsInner()}</span><div class="acct"><button class="btn ghost acct-btn" data-acct="toggle" aria-expanded="${S.acct}"><span class="acct-name">${esc(me.handle)}</span> ▾</button>${panel}</div>`;
+  return `${me.isAdmin ? '<a class="btn sm admin-link hide-sm" href="/admin">Admin</a>' : ''}<div class="acct"><button class="btn ghost acct-btn" data-acct="toggle" aria-expanded="${S.acct}"><span class="acct-name">${esc(me.handle)}</span> ▾</button>${panel}</div>`;
 }
 function wireAcct(root){
   root.querySelectorAll('[data-acct]').forEach(b => b.onclick = e => {
@@ -1101,35 +1099,24 @@ function renderLogin(app){
   <div class="top land-top"><button class="mark linkish-plain" data-home>${MARK}</button><div class="grow"></div>
     ${ls.get('ptw_in') ? '<button class="btn sm" id="to-lib">Your library</button>' : ''}${signInHTML()}</div>
   <main class="landing">
-    <section class="hero">
-      <div class="hero-copy">
-        <span class="label">Process the World</span>
-        <h1>Building the best process mapper in the world.</h1>
-        <p class="lead">Built on how humans think. Powered by your feedback.</p>
-        <div class="hero-acts"><button class="btn primary lg" id="go">Try it</button><span class="hint">No account needed.</span></div>
-      </div>
-      <div class="hero-demo" aria-hidden="true">
-        <div class="demo-lane p"><span class="dl-name">Cook</span><span class="dl-step start">Want an egg</span><span class="dl-arrow"></span><span class="dl-step sub">Prepare the pan ↘</span><span class="dl-arrow"></span><span class="dl-step">Crack the egg</span></div>
-        <div class="demo-lane p"><span class="dl-name">Driver</span><span class="dl-step">Press the brake</span><span class="dl-arrow"></span><span class="dl-step dec">Push-button?</span><span class="dl-arrow"></span><span class="dl-step">Press Start</span></div>
-        <div class="demo-lane s"><span class="dl-name">Kettle</span><span class="dl-step">Boil the water</span><span class="dl-arrow"></span><span class="dl-step end">Clicks off</span></div>
-      </div>
+    <section class="hero2">
+      <h1>The Best Process Mapper in the World.</h1>
+      <button class="btn primary xl" id="go">Try it</button>
+      <p class="goal-line">Our goal is to map the world's processes.</p>
+      <p class="guide-line">We guide you through your process, and ask you and your collaborators the questions that fill in the gaps.</p>
     </section>
-    <section class="goal">
-      <h2>Our goal: map the world's processes.</h2>
-      <p>Contribute to earn points. Spend them as you build. Start with $1 free.</p>
-    </section>
-    <section class="examples-land">
-      <h2>Try an example</h2>
+    <section class="samples">
+      <h2>Jump into a sample</h2>
       <div class="cards">${EXAMPLES.map(p => cardHTML(p, 'ex')).join('')}</div>
     </section>
     <section class="use-ai">
-      <h2>Use it from your own AI.</h2>
-      <p>Give Claude or ChatGPT our skill. It interviews you and builds the map the same way.</p>
-      <div class="use-cards">
-        <div class="use-card"><b>Claude</b><a class="btn primary sm" href="/process-the-world-skill.zip" download>Download the skill</a><span class="hint">Settings, Capabilities, Skills, upload the zip.</span></div>
-        <div class="use-card"><b>ChatGPT</b><span class="prop-acts"><button class="btn primary sm" data-copy-url="/chatgpt/instructions.txt">Copy instructions</button><button class="btn sm" data-copy-text="https://processtheworld.vercel.app/openapi.json">Copy action URL</button></span><span class="hint">New GPT: paste the instructions, import the action.</span></div>
+      <h2>Build from Claude or ChatGPT.</h2>
+      <p>Map, view and publish processes from your own AI.</p>
+      <div class="use-actions">
+        <a class="btn primary lg" href="/process-the-world-skill.zip" download>Get the Claude skill</a>
+        <button class="btn primary lg" data-copy-url="/chatgpt/instructions.txt">Get the ChatGPT skill</button>
       </div>
-      <p class="hint">Then say: “Use the Process the World skill to map how we onboard a customer.”</p>
+      <p class="hint">Claude: upload the zip in Settings, Capabilities, Skills. ChatGPT: paste it into a new GPT, then <button class="linkish" data-copy-text="https://processtheworld.vercel.app/openapi.json">copy the action URL</button>. Or add our connector: <button class="linkish" data-copy-text="https://processtheworld.vercel.app/api/mcp">copy the MCP URL</button>.</p>
     </section>
     ${footHTML()}
   </main>`;
