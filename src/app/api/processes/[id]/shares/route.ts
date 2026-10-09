@@ -4,7 +4,7 @@ import { body, fail, hashIp, isEmail, json, str, token } from "@/lib/http";
 import { userFrom } from "@/lib/identity";
 import { accessTo } from "@/lib/access";
 import { limited } from "@/lib/rateLimit";
-import { sendInviteEmail, sendShareNotice } from "@/lib/email";
+import { appUrl, sendInviteEmail, sendShareNotice } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 type Ctx = { params: Promise<{ id: string }> };
@@ -21,7 +21,7 @@ export async function GET(req: NextRequest, { params }: Ctx) {
   ]);
   return json({
     owner: owner?.handle, canManage: role === "owner",
-    people: rows.map(s => ({ id: s.id, name: s.user?.handle || s.email, role: s.role, pending: !s.acceptedAt, you: s.userId === user.id })),
+    people: rows.map(s => ({ id: s.id, name: s.user?.handle || s.email, role: s.role, pending: !s.acceptedAt, you: s.userId === user.id, ...(role === "owner" && !s.acceptedAt && s.token ? { link: `${appUrl()}/invite?token=${s.token}` } : {}) })),
   });
 }
 

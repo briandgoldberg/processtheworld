@@ -786,6 +786,7 @@ function shareHTML(){
       <span class="pname">${esc(x.name)}${x.you ? ' <span class="hint">(you)</span>' : ''}${x.pending ? ' <span class="pill">Invited</span>' : ''}</span>
       ${d.canManage ? `<select data-role-for="${esc(x.id)}" aria-label="Access for ${esc(x.name)}"><option value="edit" ${x.role === 'edit' ? 'selected' : ''}>Can edit</option><option value="view" ${x.role === 'view' ? 'selected' : ''}>Can view</option></select>`
         : `<span class="hint">${x.role === 'view' ? 'Can view' : 'Can edit'}</span>`}
+      ${x.link ? `<button class="btn sm" data-act="copylink" data-link="${esc(x.link)}">Copy invite link</button>` : ''}
       ${d.canManage || x.you ? `<button class="btn ghost sm" data-act="unshare" data-id="${esc(x.id)}" aria-label="Remove ${esc(x.name)}">✕</button>` : ''}
     </li>`).join('');
   return `<div class="sheet">${head}
@@ -793,7 +794,7 @@ function shareHTML(){
       <div class="row-in"><input id="inv-who" name="who" required placeholder="username or name@example.com" autocomplete="off">
       <select name="role" aria-label="Access"><option value="edit">Can edit</option><option value="view">Can view</option></select>
       <button class="btn primary sm">Invite</button></div>
-      <p class="hint">People without an account get an email invite. Accepting it signs them up.</p></form>` : '<p class="hint">Only the owner can invite people.</p>'}
+      <p class="hint">People without an account get an email invite. Accepting it signs them up. If the email doesn't arrive, copy the invite link below and send it yourself.</p></form>` : '<p class="hint">Only the owner can invite people.</p>'}
     ${msg}
     <p class="label">People with access</p>
     <ul class="people"><li class="person"><span class="pname">${esc(d.owner)}</span><span class="hint">Owner</span></li>${people}</ul>
@@ -1349,6 +1350,11 @@ async function onAction(e){
     case 'withdraw': withdraw(b.dataset.id); return;
     case 'endcompare': closeCompare(); S.panel = 'review'; break;
     case 'unshare': unshare(b.dataset.id); return;
+    case 'copylink': {
+      const link = b.dataset.link;
+      try { await navigator.clipboard.writeText(link); S.panelMsg = 'Invite link copied. Send it any way you like; it works once.'; }
+      catch { S.panelMsg = 'Copy this invite link: ' + link; }
+      break; }
   }
   renderPanel(); renderTopActions();
 }
