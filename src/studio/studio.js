@@ -1449,7 +1449,7 @@ function renderWork(fromStream){
   const t = $('#title'); if (document.activeElement !== t) t.value = p.title === 'Untitled process' ? '' : p.title;
   t.readOnly = !!S.compare;
   renderTopActions();
-  const wa = $('#wacct'); wa.innerHTML = acctHTML(); wireAcct(wa);
+  const wa = $('#wacct'); wa.innerHTML = signInHTML() + acctHTML(); wireAcct(wa); wireSignIn(wa); wireEmailForm(wa);
   $('#work').dataset.tab = S.tab;
   $('#work').classList.toggle('comparing', !!S.compare);
   document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === S.tab));
