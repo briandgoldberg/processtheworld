@@ -290,6 +290,12 @@ code{font-family:var(--f-mono);font-size:11px}
 /* ---------- Sharing, suggestions, compare ---------- */
 .linkish-plain{border:none;background:none;padding:0;cursor:pointer;color:inherit}
 .vi{flex:none}
+.use-ai{text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px}
+.use-ai p{max-width:560px;color:var(--muted)}
+.use-cards{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;width:100%}
+.use-card{flex:1 1 260px;max-width:340px;border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px;align-items:center;background:var(--surface)}
+.imp{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.imp textarea{width:100%;font-family:var(--mono,monospace);font-size:12.5px}
 .like.on{color:var(--danger,#c0392b);border-color:currentColor}
 .like.on svg{fill:currentColor}
 .foot{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:center;font-size:13px;color:var(--muted);padding:24px 0 8px}

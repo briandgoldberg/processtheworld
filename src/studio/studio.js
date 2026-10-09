@@ -1018,12 +1018,14 @@ function acctHTML(){
     <div class="acct-panel" role="dialog" aria-label="Account">
       <p>Signed in as <b>${esc(me.email)}</b>.</p>
       ${nameForm}
+      <button class="btn sm" data-acct="copykey">Copy key for Claude or ChatGPT</button>
       <p class="hint pts-ways"><b>Points</b> pay for the AI as you map. Earn more: publish a process +25, someone copies it +3, someone likes it +1, share useful feedback +2.</p>
       ${me.isAdmin ? '<a class="btn sm" href="/admin">Admin dashboard</a>' : ''}
       <button class="btn sm" data-acct="signout">Sign out</button>
     </div>` : `
     <div class="acct-panel" role="dialog" aria-label="Account">
       <p>You're a guest, mapping as <b>${esc(me.handle)}</b>. Your processes are saved to this browser.</p>
+      <button class="btn sm" data-acct="copykey">Copy key for Claude or ChatGPT</button>
       <p class="hint pts-ways"><b>Points</b> pay for the AI as you map. Earn more: publish a process +25, someone copies it +3, someone likes it +1, share useful feedback +2.</p>
       <p class="hint">Add your email to choose your own username, keep your processes on any device, or sign in.</p>
       ${emailFormHTML('acct')}
@@ -1034,6 +1036,7 @@ function wireAcct(root){
   root.querySelectorAll('[data-acct]').forEach(b => b.onclick = e => {
     e.stopPropagation();
     if (b.dataset.acct === 'toggle'){ S.acct = !S.acct; S.signin = false; render(); return; }
+    if (b.dataset.acct === 'copykey'){ navigator.clipboard.writeText(API.key || '').then(() => alertBox('Key copied. Give it to Claude or ChatGPT so it saves processes to your library. Keep it private.')).catch(() => alertBox('Could not copy.')); return; }
     if (b.dataset.acct === 'signout'){ ls.del('ptw_key'); ls.del('ptw_in'); location.href = '/'; }
   });
   root.querySelectorAll('[data-name-form]').forEach(f => f.onsubmit = async e => {
@@ -1118,6 +1121,15 @@ function renderLogin(app){
       <h2>Try an example</h2>
       <div class="cards">${EXAMPLES.map(p => cardHTML(p, 'ex')).join('')}</div>
     </section>
+    <section class="use-ai">
+      <h2>Use it from your own AI.</h2>
+      <p>Give Claude or ChatGPT our skill. It interviews you and builds the map the same way.</p>
+      <div class="use-cards">
+        <div class="use-card"><b>Claude</b><a class="btn primary sm" href="/process-the-world-skill.zip" download>Download the skill</a><span class="hint">Settings, Capabilities, Skills, upload the zip.</span></div>
+        <div class="use-card"><b>ChatGPT</b><span class="prop-acts"><button class="btn primary sm" data-copy-url="/chatgpt/instructions.txt">Copy instructions</button><button class="btn sm" data-copy-text="https://processtheworld.vercel.app/openapi.json">Copy action URL</button></span><span class="hint">New GPT: paste the instructions, import the action.</span></div>
+      </div>
+      <p class="hint">Then say: “Use the Process the World skill to map how we onboard a customer.”</p>
+    </section>
     ${footHTML()}
   </main>`;
   const enter = () => { ls.set('ptw_in','1'); S.view = 'home'; render(); };
@@ -1125,12 +1137,35 @@ function renderLogin(app){
   const tl = $('#to-lib'); if (tl) tl.onclick = enter;
   wireSignIn(app);
   app.querySelectorAll('[data-open]').forEach(b => b.onclick = () => { ls.set('ptw_in','1'); openProcess(b.dataset.open, b.dataset.kind); });
-  wireEmailForm(app); wireInterest(app);
+  wireEmailForm(app); wireInterest(app); wireCopy(app);
 }
 const MARK = '<i>PW</i>Process the World';
 const footHTML = () => `<footer class="foot"><details class="sf"><summary>Salesforce connector: get early access</summary>
   <form data-interest><input name="email" type="email" required placeholder="you@company.com" autocomplete="email" aria-label="Email"><button class="btn primary sm">Notify me</button><span class="hint" data-imsg role="status"></span></form></details>
   <a href="/agents.md">For AI agents</a></footer>`;
+function wireCopy(root){
+  root.querySelectorAll('[data-copy-url],[data-copy-text]').forEach(b => b.onclick = async () => {
+    try {
+      const text = b.dataset.copyText || await fetch(b.dataset.copyUrl).then(r => r.text());
+      await navigator.clipboard.writeText(text);
+      const old = b.textContent; b.textContent = 'Copied'; setTimeout(() => { b.textContent = old; }, 1600);
+    } catch { alertBox('Could not copy. Open ' + (b.dataset.copyUrl || b.dataset.copyText) + ' and copy it by hand.'); }
+  });
+}
+function wireImport(root){
+  const f = root.querySelector('[data-import]'); if (!f) return;
+  f.onsubmit = async e => {
+    e.preventDefault();
+    const msg = f.querySelector('[data-imsg]'), btn = f.querySelector('button');
+    let data;
+    try { data = JSON.parse(f.elements.json.value.trim().replace(/^```(?:json)?/, '').replace(/```$/, '')); }
+    catch { msg.textContent = 'That is not valid JSON. Paste the whole map your AI gave you.'; return; }
+    btn.disabled = true; msg.textContent = 'Importing…';
+    try { const d = await API.post('/api/agent/processes', data); track('import_ai', {}, d.id); await loadMine(); openProcess(d.id, 'mine'); }
+    catch (err){ msg.textContent = err.message; }
+    btn.disabled = false;
+  };
+}
 function wireInterest(root){
   root.querySelectorAll('[data-interest]').forEach(f => f.onsubmit = async e => {
     e.preventDefault();
@@ -1178,10 +1213,12 @@ function renderHome(app){
       `<div class="empty"><b style="color:var(--ink)">No processes yet</b><span>Start one and describe it in your own words, or open a public one below.</span><button class="btn" id="new2">New process</button></div>`)}
     ${S.shared.length ? sec('Shared with me', 'Processes people invited you to.', `<div class="cards">${S.shared.map(p => cardHTML(p,'shared')).join('')}</div>`) : ''}
     ${sec('Public processes', 'Open any of these, like them, or make your own copy.', `<div class="cards">${S.pub.map(p => cardHTML(p,'pub')).join('')}${EXAMPLES.map(p => cardHTML(p,'ex')).join('')}</div>`)}
+    <section class="sec"><details class="sf"><summary>Import from Claude or ChatGPT</summary>
+      <form data-import class="imp"><textarea name="json" rows="6" required placeholder="Paste the process JSON your AI gave you" aria-label="Process JSON"></textarea><div class="prop-acts"><button class="btn primary sm">Import</button><span class="hint" data-imsg role="status"></span></div></form></details></section>
     ${footHTML()}
   </div></div>`;
   $('#new').onclick = startNew; const n2 = $('#new2'); if (n2) n2.onclick = startNew;
-  wireAcct(app); wireSignIn(app); wireInterest(app);
+  wireAcct(app); wireSignIn(app); wireInterest(app); wireImport(app);
   app.querySelectorAll('[data-del]').forEach(b => b.onclick = () => { S.confirmDel = b.dataset.del; render(); });
   app.querySelectorAll('[data-del-no]').forEach(b => b.onclick = () => { S.confirmDel = null; render(); });
   app.querySelectorAll('[data-del-yes]').forEach(b => b.onclick = () => deleteProcess(b.dataset.delYes));
