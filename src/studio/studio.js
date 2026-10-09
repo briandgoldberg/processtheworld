@@ -1,6 +1,7 @@
 
 import { exportMarkdown } from '@/lib/exportMd';
 import { claudeSkill, chatgptInstructions, skillSlug } from '@/lib/agentExport';
+import { flowHtml } from '@/lib/flowHtml';
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rid = p => p + Math.random().toString(36).slice(2, 9);
@@ -1383,7 +1384,7 @@ function menuHTML(p){
   else if (k === 'public'){ items.push(['copy', 'Make my own copy'], ['tweet', 'Share on X'], ['copypub', 'Copy link']); }
   else if (k === 'view'){ items.push(['copy', 'Make a private copy'], ['leave', 'Remove from my list', 'danger']); }
   else items.push(['copy', 'Make a copy']);
-  if (k !== 'compare') items.unshift(['export', 'Export as Markdown (.md)'], ['copyskill', 'Copy as Claude skill'], ['copygpt', 'Copy as ChatGPT instructions']);
+  if (k !== 'compare') items.unshift(['export', 'Export as Markdown (.md)'], ['exportflow', 'Export flow (.html)'], ['copyskill', 'Copy as Claude skill'], ['copygpt', 'Copy as ChatGPT instructions']);
   return `<div class="menu" role="menu">${items.map(([a, l, c]) => `<button role="menuitem" class="menu-item${c ? ' ' + c : ''}" data-act="${a}">${esc(l)}</button>`).join('')}</div>`;
 }
 function renderPanel(){
@@ -1445,6 +1446,16 @@ async function onAction(e){
       else { const r = chatgptInstructions(doc); text = r.text; msg = r.trimmed ? 'Copied, trimmed to ChatGPT’s 8,000 character limit. Export as Markdown and add it to the GPT as a knowledge file for the rest.' : 'Copied. Paste it into your GPT’s Instructions.'; }
       try { await navigator.clipboard.writeText(text); alertBox(msg); } catch { alertBox('Could not copy. Use Export as Markdown instead.'); }
       track(a === 'copyskill' ? 'copy_claude_skill' : 'copy_chatgpt', {}, q.id);
+      S.panel = null; renderPanel(); return; }
+    case 'exportflow': {
+      const q = S.real || p;
+      const html = flowHtml({ title:q.title, maps:q.maps }, { author:q.publishedBy, url:q.publicId ? pubLink(q.publicId) : undefined });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([html], { type:'text/html' }));
+      a.download = ((q.title || 'process').replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '').toLowerCase() || 'process') + '-flow.html';
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+      track('export_flow', {}, q.id);
+      alertBox('Saved the flow as an HTML file. Open it in any browser.');
       S.panel = null; renderPanel(); return; }
     case 'export': {
       const q = S.real || p;

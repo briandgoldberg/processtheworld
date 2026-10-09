@@ -113,7 +113,11 @@ The export is one Markdown file with: a summary, how to read it, every layer as 
 
 ```bash
 curl -s https://processtheworld.vercel.app/api/public/$PUBLIC_ID/export > process.md
+# your own, private or public:
+curl -s https://processtheworld.vercel.app/api/processes/$ID/export -H "x-ptw-key: $KEY" > process.md
 ```
+
+Add `?format=html` for the swim-lane flow diagram as a self-contained HTML page (the same picture the app draws), `?format=skill` for a Claude skill (SKILL.md), or `?format=gpt` for ChatGPT custom-GPT instructions.
 
 People get the same file from "Export as Markdown (.md)" in the menu of any process in the app. The same menu has **Copy as Claude skill** (a ready-to-save SKILL.md that tells Claude how to follow the process) and **Copy as ChatGPT instructions** (custom-GPT instructions, kept under the 8,000 character limit).
 

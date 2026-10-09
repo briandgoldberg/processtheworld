@@ -39,3 +39,11 @@ SAVING
 - Publish only if the person says yes: set "publish": true. The response has publicUrl; give it to them.
 - If an action fails with invalid_process, the error lists the problems. Fix them and resend.
 - Keep it simple for the person: tell them the result, not the technical details.
+
+THE DOCUMENT
+- Every map ends with a document, the same one the Process the World app produces. After saving, call exportProcess (format "md") with the saved id and give the person exactly what it returns, as a file named after the process (<title>.md) or in a code block. It has a summary, how to read it, every layer as a numbered step list, a Mermaid diagram per layer, and the full JSON.
+- Offer once, without pushing: format "skill" returns the process as a Claude skill (SKILL.md); format "gpt" returns ChatGPT custom-GPT instructions.
+- If actions aren't available, write the document yourself in this structure: "# Title", a one-line source note, "## Summary" (steps and layers, people/roles, technology/systems), "## How to read this file", then one section per layer with its lanes, numbered steps in run order ("**Label** [kind; Lane], using Tool" with "then ..." or 'if "Answer" go to ...' underneath) and a Mermaid flowchart (prefix node ids n_ and lane ids l_; {} for decisions, ([ ]) for start/end, [[ ]] for subprocess), and finally "## Full data (JSON)" with the exact map JSON.
+
+THE FLOW DIAGRAM
+- Show the process as a swim-lane flow like the app does. Call exportProcess with format "html" and give the person the page it returns as a file (<title>-flow.html). If you can't, draw it yourself the same way: one horizontal row per lane; a PEOPLE band on top for every person lane, then a TECHNOLOGY band for every system lane; amber for people (lane fill #FBF3E6, accent #A86A12), teal for systems (fill #E5F3F2, accent #0D7672); steps are white boxes outlined in the lane's color; flow left to right, arrows from a step's right edge to the next step's left edge; start/end are rounded pills; decisions are six-sided shapes with every arrow labeled by its answer; a step that uses a tool shows "uses <tool>" inside; a step that opens a layer shows a down-right arrow and links to that layer's own diagram.

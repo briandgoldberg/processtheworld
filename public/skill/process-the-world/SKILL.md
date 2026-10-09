@@ -75,8 +75,77 @@ Use the HTTP API. Show the person nothing technical; just tell them the result.
 
 **If you can't make web requests** (no network access in this environment): print the finished map JSON in a code block and tell the person to paste it into "Import from Claude or ChatGPT" at the bottom of their Library at https://processtheworld.vercel.app and click Import.
 
+## Write the document
+
+Every map ends with a document, the same one the Process the World app produces. Don't write your own style.
+
+**Fetch it** (normal case): after saving, `GET https://processtheworld.vercel.app/api/processes/{id}/export` with the `x-ptw-key` header. It returns the finished Markdown: summary, how to read it, every layer as a numbered step list, a Mermaid flow diagram per layer, and the full JSON. Give it to the person exactly as returned, as a file named after the process (`<title>.md`) or in a code block.
+
+**The flow diagram.** Show the process as a swim-lane flow, like the app does: `GET https://processtheworld.vercel.app/api/processes/{id}/export?format=html` returns one self-contained HTML page with the diagram. Show it to the person as a file (`<title>-flow.html`) or, if you can render artifacts, as an artifact. If you can't fetch it, draw it yourself the same way (below).
+
+**Other formats on request** (offer once, don't push): add `?format=skill` to get the process as a Claude skill (a SKILL.md that tells Claude how to follow it), or `?format=gpt` to get ChatGPT custom-GPT instructions.
+
+**If you can't make web requests**, write the document yourself in exactly this structure:
+
+```markdown
+# <Process title>
+
+> A process map exported from Process the World (https://processtheworld.vercel.app).
+> It describes who does what, in what order, and with which technology.
+
+## Summary
+
+- <N> steps across <M> layers
+- People / roles: <names>
+- Technology / systems: <names>
+
+## How to read this file
+
+- A process is made of layers. The main layer is the top level; a step of kind subprocess opens a detail layer.
+- Lanes are people/roles or technology/systems. Each step belongs to one lane; "using" lists tools a person uses.
+- Step kinds: start, task, decision (arrows carry the answer as a label), subprocess, end.
+
+## <Process title>
+
+Lanes:
+- <Lane name>: person / role   (or: technology / system)
+
+Steps, in the order they run:
+
+1. **<Step label>** [<kind>; <Lane name>], using <tool lane>
+   - then <next step label>
+2. **<Decision label>** [decision; <Lane name>]
+   - if "<answer>" go to <step label>; if "<answer>" go to <step label>
+
+```mermaid
+flowchart LR
+  ...one subgraph per lane, one node per step, one arrow per "next"...
+```
+
+### <Layer title> (detail of step "<parent step label>")
+(same: lanes, numbered steps, mermaid)
+
+## Full data (JSON)
+
+```json
+<the exact map JSON you saved>
+```
+```
+
+Order steps as they run (starts first, then follow the arrows). In Mermaid, prefix node ids with `n_` and lane ids with `l_` (bare `start` and `end` break Mermaid), use `{ }` for decisions, `([ ])` for start/end, `[[ ]]` for subprocess, and put the answer on the arrow: `n_a -->|"Yes"| n_b`.
+
+## Draw the flow like we do
+
+When you draw the flow yourself (an artifact, SVG or HTML), copy the app's look exactly:
+- **Swim lanes, not a plain flowchart.** One horizontal row per lane. A "PEOPLE" band on top holding every person lane, then a "TECHNOLOGY" band below holding every system lane. Lane names sit in a left column.
+- **Colors.** Person lanes and their steps use amber (lane fill #FBF3E6, accent #A86A12). System lanes and steps use teal (lane fill #E5F3F2, accent #0D7672). Steps are white boxes with a 1.5px outline in the lane's accent color.
+- **Left to right.** A step goes one column to the right of its latest predecessor; steps that share a lane and column stack. Arrows run from a step's right edge to the next step's left edge; loops back curve under the boxes.
+- **Shapes.** Start and end: fully rounded pills with a thicker outline. Decisions: six-sided diamond-ish shape with each outgoing arrow labeled with its answer. Tasks: rounded rectangles.
+- **Tools.** A person step that uses a tool shows a small "uses <tool>" line inside the box.
+- **Layers.** A step that opens into a layer shows ↘ in its corner and links to that layer's own diagram, which has a "back" link and the same lanes. One diagram per layer, with the layer title above it.
+
 ## Other things you can do
 
-- Export any process as Markdown for another AI: `GET /api/public/{publicId}/export` (public) or `GET /api/processes/{id}/export` with the key header.
+- Export a public process as Markdown: `GET /api/public/{publicId}/export` (no key needed; also takes `?format=skill` or `?format=gpt`).
 - Browse what others published: `GET /api/public`. Make your own copy of one: `POST /api/public/{publicId}/fork`.
 - Full API reference: https://processtheworld.vercel.app/agents.md

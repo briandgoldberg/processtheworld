@@ -1,0 +1,174 @@
+// Draws a process as the same swim-lane flow the app shows: People lanes on
+// top, Technology lanes below, steps flowing left to right, one diagram per
+// layer. The result is one self-contained HTML file (inline SVG, no scripts).
+// The layout matches layout() in src/studio/studio.js.
+
+type Lane = { id: string; name: string; type?: string };
+type Next = { to: string; label?: string; map?: string };
+type Step = { id: string; lane: string; label: string; kind?: string; uses?: string[]; next?: Next[]; child?: string };
+type MapT = { id: string; title?: string; parent?: { map: string; step: string } | null; lanes: Lane[]; steps: Step[] };
+type Doc = { title?: string; maps: Record<string, MapT> };
+
+const L = { HEAD: 150, COL: 196, BOXW: 158, BOXH: 60, ROWGAP: 16, PADX: 28, PADY: 16, BAND: 22 };
+const esc = (s: unknown) => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] as string));
+const clean = (s: unknown) => String(s ?? "").replace(/\s+/g, " ").trim();
+
+function wrap(text: string, max: number, lines: number): string[] {
+  const words = clean(text).split(" "), out: string[] = [];
+  let cur = "";
+  for (const w of words) {
+    if ((cur + " " + w).trim().length > max && cur) { out.push(cur); cur = w; } else cur = (cur + " " + w).trim();
+  }
+  if (cur) out.push(cur);
+  if (out.length > lines) { out.length = lines; out[lines - 1] = out[lines - 1].replace(/.{0,2}$/, "") + "…"; }
+  return out;
+}
+
+function layout(m: MapT) {
+  const ids = new Set(m.steps.map(s => s.id));
+  const preds: Record<string, string[]> = {};
+  m.steps.forEach(s => (preds[s.id] = []));
+  m.steps.forEach(s => (s.next || []).forEach(n => { if (!n.map && ids.has(n.to)) preds[n.to].push(s.id); }));
+  const col: Record<string, number> = {}, visiting = new Set<string>();
+  const depth = (id: string): number => {
+    if (id in col) return col[id];
+    if (visiting.has(id)) return -1;
+    visiting.add(id);
+    let d = 0;
+    for (const p of preds[id]) { const pd = depth(p); if (pd >= 0) d = Math.max(d, pd + 1); }
+    visiting.delete(id);
+    col[id] = d;
+    return d;
+  };
+  m.steps.forEach(s => depth(s.id));
+  const laneIds = new Set(m.lanes.map(l => l.id));
+  const lanes: Lane[] = [...m.lanes.filter(l => l.type !== "system"), ...m.lanes.filter(l => l.type === "system")];
+  if (m.steps.some(s => !laneIds.has(s.lane))) lanes.push({ id: "__none", name: "Unassigned", type: "person" });
+  const laneOf = (s: Step) => (laneIds.has(s.lane) ? s.lane : "__none");
+  const slot: Record<string, number> = {}, rowOf: Record<string, number> = {}, rows: Record<string, number> = {};
+  m.steps.forEach(s => {
+    const k = laneOf(s) + "|" + col[s.id];
+    rowOf[s.id] = slot[k] = (slot[k] ?? -1) + 1;
+    rows[laneOf(s)] = Math.max(rows[laneOf(s)] || 1, rowOf[s.id] + 1);
+  });
+  const maxCol = Math.max(0, ...Object.values(col));
+  const width = L.HEAD + L.PADX * 2 + (maxCol + 1) * L.COL;
+  const firstSys = lanes.findIndex(l => l.type === "system");
+  let y = 0;
+  const laneY: Record<string, number> = {}, laneH: Record<string, number> = {}, bands: { y: number; t: string }[] = [];
+  lanes.forEach((l, i) => {
+    if (i === 0 && l.type !== "system") { bands.push({ y, t: "People" }); y += L.BAND; }
+    if (i === firstSys) { bands.push({ y, t: "Technology" }); y += L.BAND; }
+    laneY[l.id] = y;
+    laneH[l.id] = (rows[l.id] || 1) * (L.BOXH + L.ROWGAP) + L.PADY * 2 - L.ROWGAP + 8;
+    y += laneH[l.id];
+  });
+  const pos: Record<string, { x: number; y: number }> = {};
+  m.steps.forEach(s => { pos[s.id] = { x: L.HEAD + L.PADX + col[s.id] * L.COL, y: laneY[laneOf(s)] + L.PADY + rowOf[s.id] * (L.BOXH + L.ROWGAP) }; });
+  return { lanes, laneY, laneH, bands, pos, width, height: y, col, laneOf };
+}
+
+function svgFor(m: MapT, doc: Doc): string {
+  const g = layout(m);
+  const laneById = new Map(m.lanes.map(l => [l.id, l]));
+  const out: string[] = [];
+  out.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${g.width} ${Math.max(g.height, 80) + 8}" width="${g.width}" height="${Math.max(g.height, 80) + 8}" role="img" aria-label="${esc(clean(m.title))}">`);
+  out.push(`<defs><marker id="ah-${esc(m.id)}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--muted)"/></marker></defs>`);
+  g.bands.forEach(b => out.push(`<text x="12" y="${b.y + 15}" class="band">${b.t.toUpperCase()}</text>`));
+  g.lanes.forEach(l => {
+    const sys = l.type === "system";
+    out.push(`<rect x="0" y="${g.laneY[l.id]}" width="${g.width}" height="${g.laneH[l.id]}" class="lane ${sys ? "sys" : "per"}"/>`);
+    wrap(l.name, 16, 3).forEach((t, i, a) => out.push(`<text x="12" y="${g.laneY[l.id] + g.laneH[l.id] / 2 + (i - (a.length - 1) / 2) * 15 + 4}" class="lanename ${sys ? "sys" : "per"}">${esc(t)}</text>`));
+  });
+  // edges first so boxes sit on top
+  const edgeLabels: string[] = [];
+  for (const s of m.steps) {
+    const a = g.pos[s.id];
+    for (const n of s.next || []) {
+      if (n.map || !g.pos[n.to]) continue;
+      const b = g.pos[n.to];
+      let d: string, lx: number, ly: number;
+      if (g.col[n.to] > g.col[s.id]) {
+        const x1 = a.x + L.BOXW, y1 = a.y + L.BOXH / 2, x2 = b.x, y2 = b.y + L.BOXH / 2, mx = (x1 + x2) / 2;
+        d = `M${x1} ${y1} C${mx} ${y1} ${mx} ${y2} ${x2} ${y2}`; lx = mx; ly = (y1 + y2) / 2;
+      } else {
+        const x1 = a.x + L.BOXW / 2, y1 = a.y + L.BOXH, x2 = b.x + L.BOXW / 2, y2 = b.y + L.BOXH, dy = 34;
+        d = `M${x1} ${y1} C${x1} ${y1 + dy} ${x2} ${y2 + dy} ${x2} ${y2}`; lx = (x1 + x2) / 2; ly = Math.max(y1, y2) + dy * 0.75;
+      }
+      out.push(`<path d="${d}" class="edge" marker-end="url(#ah-${esc(m.id)})"/>`);
+      if (n.label) {
+        const t = clean(n.label).slice(0, 22), w = t.length * 6.2 + 10;
+        edgeLabels.push(`<rect x="${lx - w / 2}" y="${ly - 9}" width="${w}" height="16" rx="8" class="elbg"/><text x="${lx}" y="${ly + 3}" class="el" text-anchor="middle">${esc(t)}</text>`);
+      }
+    }
+  }
+  for (const s of m.steps) {
+    const p = g.pos[s.id], lane = laneById.get(s.lane);
+    const sys = lane?.type === "system", kind = s.kind || "task";
+    const cls = `node ${sys ? "sys" : "per"} ${kind}`;
+    const rx = kind === "start" || kind === "end" ? L.BOXH / 2 : 10;
+    const cx = p.x + L.BOXW / 2;
+    const uses = (s.uses || []).map(u => clean(laneById.get(u)?.name)).filter(Boolean);
+    const lines = wrap(s.label, 22, uses.length ? 2 : 3);
+    const total = lines.length + (uses.length ? 0.8 : 0);
+    let y0 = p.y + L.BOXH / 2 - (total * 14) / 2 + 11;
+    let shape: string;
+    if (kind === "decision") {
+      const c = 14;
+      shape = `<polygon class="${cls}" points="${p.x + c},${p.y} ${p.x + L.BOXW - c},${p.y} ${p.x + L.BOXW},${p.y + L.BOXH / 2} ${p.x + L.BOXW - c},${p.y + L.BOXH} ${p.x + c},${p.y + L.BOXH} ${p.x},${p.y + L.BOXH / 2}"/>`;
+    } else shape = `<rect class="${cls}" x="${p.x}" y="${p.y}" width="${L.BOXW}" height="${L.BOXH}" rx="${rx}"/>`;
+    let txt = lines.map((t, i) => `<text x="${cx}" y="${y0 + i * 14}" class="nt" text-anchor="middle">${esc(t)}</text>`).join("");
+    if (uses.length) txt += `<text x="${cx}" y="${y0 + lines.length * 14 + 2}" class="nu" text-anchor="middle">${esc(wrap("uses " + uses.join(", "), 28, 1)[0])}</text>`;
+    const jump = (s.next || []).filter(n => n.map && doc.maps[n.map]).map(n => `<text x="${cx}" y="${p.y + L.BOXH + 12}" class="nu" text-anchor="middle">→ ${esc(wrap(clean(doc.maps[n.map!].title) || n.map!, 24, 1)[0])}</text>`).join("");
+    let node = shape + txt + jump;
+    if (s.child && doc.maps[s.child]) node = `<a href="#${esc(s.child)}">${shape}${txt}<text x="${p.x + L.BOXW - 8}" y="${p.y + 14}" class="drill" text-anchor="end">↘</text></a>`;
+    out.push(`<g>${node}</g>`);
+  }
+  out.push(edgeLabels.join(""));
+  out.push("</svg>");
+  return out.join("");
+}
+
+const CSS = `
+:root{--bg:#F3F5F8;--surface:#fff;--ink:#141C27;--muted:#5A6573;--line:#D7DDE5;--accent:#2448C9;--person:#A86A12;--person-bg:#FBF3E6;--system:#0D7672;--system-bg:#E5F3F2}
+@media (prefers-color-scheme:dark){:root{--bg:#0F141B;--surface:#171E28;--ink:#E7ECF2;--muted:#98A3B2;--line:#2C3746;--accent:#7C9BFF;--person:#E3A548;--person-bg:#2A2216;--system:#4CC2BC;--system-bg:#14292A}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1200px;margin:0 auto;padding:24px 16px 48px}
+h1{font-size:28px;margin:0 0 4px}h2{font-size:18px;margin:32px 0 8px}h2 small{font-weight:400;color:var(--muted);font-size:13px;margin-left:8px}
+p.sub{color:var(--muted);margin:0 0 8px}a{color:var(--accent)}
+.board{overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+svg{display:block}svg text{font-family:inherit}
+.lane.per{fill:var(--person-bg)}.lane.sys{fill:var(--system-bg)}.lane{stroke:var(--line)}
+.band{font-size:10px;letter-spacing:.08em;font-weight:700;fill:var(--muted)}
+.lanename{font-size:12px;font-weight:700}.lanename.per{fill:var(--person)}.lanename.sys{fill:var(--system)}
+.edge{fill:none;stroke:var(--muted);stroke-width:1.4}
+.node{fill:var(--surface);stroke-width:1.5}.node.per{stroke:var(--person)}.node.sys{stroke:var(--system)}
+.node.start,.node.end{stroke-width:2.5}.node.decision{stroke-dasharray:none;fill:var(--surface)}.node.subprocess{stroke-width:2.5}
+.nt{font-size:12px;font-weight:600;fill:var(--ink)}.nu{font-size:10px;fill:var(--muted)}.drill{font-size:14px;font-weight:700;fill:var(--accent)}
+.elbg{fill:var(--surface);stroke:var(--line)}.el{font-size:10px;fill:var(--ink)}
+footer{margin-top:32px;color:var(--muted);font-size:12px}
+`;
+
+export function flowHtml(doc: Doc, opts: { author?: string; url?: string } = {}): string {
+  const maps = doc.maps || {};
+  const root = maps.m_root || Object.values(maps)[0];
+  const title = clean(doc.title || root?.title) || "Process";
+  const all = Object.values(maps);
+  const order = [root, ...all.filter(m => m !== root)].filter(Boolean);
+  const steps = all.reduce((n, m) => n + m.steps.length, 0);
+  const sections = order.map(m => {
+    const parent = m.parent ? maps[m.parent.map] : null;
+    const pstep = parent?.steps.find(s => s.id === m.parent!.step);
+    const head = m === root ? esc(title) : esc(clean(m.title) || m.id);
+    const sub = parent ? `<small>detail of “${esc(clean(pstep?.label))}” · <a href="#${esc(parent.id)}">back</a></small>` : "";
+    return `<section id="${esc(m.id)}"><h2>${head} ${sub}</h2><div class="board">${svgFor(m, doc)}</div></section>`;
+  }).join("\n");
+  return `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)} | Process the World</title><style>${CSS}</style></head>
+<body><main>
+<h1>${esc(title)}</h1>
+<p class="sub">${steps} steps across ${all.length} layer${all.length === 1 ? "" : "s"}${opts.author ? ` · by ${esc(opts.author)}` : ""}. Steps with ↘ open into a detail layer below.</p>
+${sections}
+<footer>Made with <a href="${esc(opts.url || "https://processtheworld.vercel.app")}">Process the World</a></footer>
+</main></body></html>`;
+}

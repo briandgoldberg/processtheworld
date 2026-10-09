@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { fail } from "@/lib/http";
-import { exportMarkdown } from "@/lib/exportMd";
+import { renderDoc } from "@/lib/render";
 
 export const dynamic = "force-dynamic";
 
@@ -10,6 +10,5 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const { id } = await params;
   const r = await prisma.publicProcess.findUnique({ where: { id } });
   if (!r) return fail("Not found.", 404);
-  const md = exportMarkdown(r.doc as any, { author: r.authorName, url: `${new URL(req.url).origin}/p/${id}` });
-  return new Response(md, { headers: { "content-type": "text/markdown; charset=utf-8", "cache-control": "no-store" } });
+  return renderDoc(r.doc, req.nextUrl.searchParams.get("format"), { author: r.authorName, url: `${new URL(req.url).origin}/p/${id}` });
 }

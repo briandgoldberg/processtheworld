@@ -5,7 +5,11 @@
     "description": "Create and publish swim-lane process maps.",
     "version": "1.0.0"
   },
-  "servers": [{ "url": "https://processtheworld.vercel.app" }],
+  "servers": [
+    {
+      "url": "https://processtheworld.vercel.app"
+    }
+  ],
   "paths": {
     "/api/identity": {
       "post": {
@@ -17,13 +21,26 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["key"],
-                "properties": { "key": { "type": "string", "minLength": 16, "maxLength": 200, "description": "A random secret of 32 or more characters you make up." } }
+                "required": [
+                  "key"
+                ],
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "minLength": 16,
+                    "maxLength": 200,
+                    "description": "A random secret of 32 or more characters you make up."
+                  }
+                }
               }
             }
           }
         },
-        "responses": { "200": { "description": "The account's handle and points." } }
+        "responses": {
+          "200": {
+            "description": "The account's handle and points."
+          }
+        }
       }
     },
     "/api/agent/processes": {
@@ -31,7 +48,15 @@
         "operationId": "saveProcess",
         "summary": "Save a process map. Include id to update one you already saved; publish true to make it public.",
         "parameters": [
-          { "name": "x-ptw-key", "in": "header", "required": true, "schema": { "type": "string" }, "description": "The account key (the person's own, or the one you created)." }
+          {
+            "name": "x-ptw-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The account key (the person's own, or the one you created)."
+          }
         ],
         "requestBody": {
           "required": true,
@@ -39,25 +64,71 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["title", "lanes", "steps"],
+                "required": [
+                  "title",
+                  "lanes",
+                  "steps"
+                ],
                 "properties": {
-                  "id": { "type": "string", "description": "Id of a process you saved earlier, to update it." },
-                  "title": { "type": "string" },
-                  "publish": { "type": "boolean" },
-                  "lanes": { "type": "array", "items": { "$ref": "#/components/schemas/Lane" } },
-                  "steps": { "type": "array", "items": { "$ref": "#/components/schemas/Step" } },
+                  "id": {
+                    "type": "string",
+                    "description": "Id of a process you saved earlier, to update it."
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "publish": {
+                    "type": "boolean"
+                  },
+                  "lanes": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Lane"
+                    }
+                  },
+                  "steps": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Step"
+                    }
+                  },
                   "layers": {
                     "type": "array",
                     "items": {
                       "type": "object",
-                      "required": ["id", "parentStep", "lanes", "steps"],
+                      "required": [
+                        "id",
+                        "parentStep",
+                        "lanes",
+                        "steps"
+                      ],
                       "properties": {
-                        "id": { "type": "string" },
-                        "title": { "type": "string" },
-                        "parentStep": { "type": "string", "description": "Id of the main-layer step that opens into this layer." },
-                        "parentLayer": { "type": "string", "description": "Id of another layer, if parentStep is in that layer." },
-                        "lanes": { "type": "array", "items": { "$ref": "#/components/schemas/Lane" } },
-                        "steps": { "type": "array", "items": { "$ref": "#/components/schemas/Step" } }
+                        "id": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "parentStep": {
+                          "type": "string",
+                          "description": "Id of the main-layer step that opens into this layer."
+                        },
+                        "parentLayer": {
+                          "type": "string",
+                          "description": "Id of another layer, if parentStep is in that layer."
+                        },
+                        "lanes": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Lane"
+                          }
+                        },
+                        "steps": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Step"
+                          }
+                        }
                       }
                     }
                   }
@@ -66,7 +137,58 @@
             }
           }
         },
-        "responses": { "200": { "description": "The saved process: id, visibility, publicUrl." }, "400": { "description": "invalid_process, with a list of problems to fix." } }
+        "responses": {
+          "200": {
+            "description": "The saved process: id, visibility, publicUrl."
+          },
+          "400": {
+            "description": "invalid_process, with a list of problems to fix."
+          }
+        }
+      }
+    },
+    "/api/processes/{id}/export": {
+      "get": {
+        "operationId": "exportProcess",
+        "summary": "Get the finished document for a process you saved.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "md",
+                "html",
+                "skill",
+                "gpt"
+              ]
+            },
+            "description": "md (default): the Markdown document. html: the swim-lane flow diagram as a self-contained HTML page. skill: a Claude SKILL.md. gpt: ChatGPT custom-GPT instructions."
+          },
+          {
+            "name": "x-ptw-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The document as text."
+          }
+        }
       }
     }
   },
@@ -74,28 +196,82 @@
     "schemas": {
       "Lane": {
         "type": "object",
-        "required": ["id", "name"],
+        "required": [
+          "id",
+          "name"
+        ],
         "properties": {
-          "id": { "type": "string" },
-          "name": { "type": "string" },
-          "type": { "type": "string", "enum": ["person", "system"] }
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "person",
+              "system"
+            ]
+          }
         }
       },
       "Step": {
         "type": "object",
-        "required": ["id", "lane", "label"],
+        "required": [
+          "id",
+          "lane",
+          "label"
+        ],
         "properties": {
-          "id": { "type": "string" },
-          "lane": { "type": "string", "description": "Id of the lane that does this step." },
-          "label": { "type": "string" },
-          "kind": { "type": "string", "enum": ["start", "task", "decision", "subprocess", "end"] },
-          "uses": { "type": "array", "items": { "type": "string" }, "description": "Lane ids of tools used in this step." },
+          "id": {
+            "type": "string"
+          },
+          "lane": {
+            "type": "string",
+            "description": "Id of the lane that does this step."
+          },
+          "label": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "start",
+              "task",
+              "decision",
+              "subprocess",
+              "end"
+            ]
+          },
+          "uses": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Lane ids of tools used in this step."
+          },
           "next": {
             "type": "array",
             "items": {
               "oneOf": [
-                { "type": "string" },
-                { "type": "object", "required": ["to"], "properties": { "to": { "type": "string" }, "label": { "type": "string" } } }
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "to"
+                  ],
+                  "properties": {
+                    "to": {
+                      "type": "string"
+                    },
+                    "label": {
+                      "type": "string"
+                    }
+                  }
+                }
               ]
             }
           }
