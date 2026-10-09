@@ -1007,7 +1007,7 @@ function acctHTML(){
 function wireAcct(root){
   root.querySelectorAll('[data-acct]').forEach(b => b.onclick = e => {
     e.stopPropagation();
-    if (b.dataset.acct === 'toggle'){ S.acct = !S.acct; render(); return; }
+    if (b.dataset.acct === 'toggle'){ S.acct = !S.acct; S.signin = false; render(); return; }
     if (b.dataset.acct === 'signout'){ ls.del('ptw_key'); ls.del('ptw_in'); location.href = '/'; }
   });
   root.querySelectorAll('[data-name-form]').forEach(f => f.onsubmit = async e => {
@@ -1029,6 +1029,24 @@ function emailFormHTML(p){
     <p class="hint" data-email-msg role="status">New here? This saves your processes. Been here before? It signs you in.</p>
   </form>`;
 }
+/* "Sign in": you're already a member, so just your email */
+function signInHTML(){
+  if (S.me?.email) return '';
+  return `<div class="signin"><button class="btn ghost sm" data-signin aria-expanded="${!!S.signin}">Sign in</button>${S.signin ? `
+    <div class="acct-panel signin-panel" role="dialog" aria-label="Sign in">
+      <form data-email-form data-mode="signin" class="acct-form" novalidate>
+        <label class="label" for="si-email">Email</label>
+        <input id="si-email" name="email" type="email" required placeholder="you@example.com" autocomplete="email">
+        <input name="handle" type="hidden" value="">
+        <button class="btn primary">Send me a sign-in link</button>
+        <p class="hint" data-email-msg role="status">We'll email you a link. No password needed.</p>
+      </form>
+    </div>` : ''}</div>`;
+}
+function wireSignIn(root){
+  root.querySelectorAll('[data-signin]').forEach(b => b.onclick = e => { e.stopPropagation(); S.signin = !S.signin; S.acct = false; render(); setTimeout(() => $('#si-email')?.focus(), 0); });
+}
+document.addEventListener('click', e => { if (S.signin && !e.target.closest('.signin')){ S.signin = false; render(); } });
 function wireEmailForm(root){
   root.querySelectorAll('[data-email-form]').forEach(f => f.onsubmit = async e => {
     e.preventDefault();
@@ -1040,7 +1058,7 @@ function wireEmailForm(root){
     try {
       await flush();
       await API.post('/api/auth/email', { email, handle });
-      msg.textContent = `Check ${email} for a link. It may land in spam.`; track('email_link_requested');
+      msg.textContent = f.dataset.mode === 'signin' ? `If ${email} has an account, a sign-in link is on its way. It may land in spam.` : `Check ${email} for a link. It may land in spam.`; track('email_link_requested', { mode:f.dataset.mode || 'save' });
       f.elements.email.value = ''; f.elements.handle.value = '';
     } catch (err){ msg.textContent = err.message; }
     btn.disabled = false;
@@ -1051,7 +1069,7 @@ document.addEventListener('click', e => { if (S.acct && !e.target.closest('.acct
 function renderLogin(app){
   app.innerHTML = `
   <div class="top land-top"><button class="mark linkish-plain" data-home>${MARK}</button><div class="grow"></div>
-    ${ls.get('ptw_in') ? '<button class="btn sm" id="to-lib">Your library</button>' : '<a class="btn ghost sm" href="#start">Sign in</a>'}</div>
+    ${ls.get('ptw_in') ? '<button class="btn sm" id="to-lib">Your library</button>' : ''}${signInHTML()}</div>
   <main class="landing">
     <section class="hero">
       <div class="hero-copy">
@@ -1086,6 +1104,7 @@ function renderLogin(app){
   const enter = () => { ls.set('ptw_in','1'); S.view = 'home'; render(); };
   $('#go').onclick = () => { enter(); startNew(); };
   const tl = $('#to-lib'); if (tl) tl.onclick = enter;
+  wireSignIn(app);
   app.querySelectorAll('[data-open]').forEach(b => b.onclick = () => { ls.set('ptw_in','1'); openProcess(b.dataset.open, b.dataset.kind); });
   wireEmailForm(app);
 }
@@ -1120,7 +1139,7 @@ function renderHome(app){
   app.innerHTML = `
   <div class="top"><button class="mark linkish-plain" data-home aria-label="Process the World home">${MARK}</button><div class="grow"></div>
     ${S.notice ? `<span class="save hide-sm" style="color:var(--danger)">${esc(S.notice)}</span>` : ''}
-    <button class="btn primary" id="new">New<span class="hide-sm"> process</span></button>${acctHTML()}</div>
+    <button class="btn primary" id="new">New<span class="hide-sm"> process</span></button>${signInHTML()}${acctHTML()}</div>
   <div class="home"><div class="home-in">
     <div class="home-head"><div><div class="label">Library</div><h1>${S.me ? 'Hi, ' + esc(S.me.handle) : 'Your processes'}</h1></div></div>
     ${sec('My processes', 'Private unless you share or publish them.', S.mine.length ? `<div class="cards">${S.mine.map(p => cardHTML(p,'mine')).join('')}</div>` :
@@ -1129,7 +1148,7 @@ function renderHome(app){
     ${sec('Public processes', 'Open any of these. Suggest improvements, or vote on other people’s suggestions.', `<div class="cards">${S.pub.map(p => cardHTML(p,'pub')).join('')}${EXAMPLES.map(p => cardHTML(p,'ex')).join('')}</div>`)}
   </div></div>`;
   $('#new').onclick = startNew; const n2 = $('#new2'); if (n2) n2.onclick = startNew;
-  wireAcct(app);
+  wireAcct(app); wireSignIn(app);
   app.querySelectorAll('[data-del]').forEach(b => b.onclick = () => { S.confirmDel = b.dataset.del; render(); });
   app.querySelectorAll('[data-del-no]').forEach(b => b.onclick = () => { S.confirmDel = null; render(); });
   app.querySelectorAll('[data-del-yes]').forEach(b => b.onclick = () => deleteProcess(b.dataset.delYes));

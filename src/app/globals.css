@@ -407,3 +407,5 @@ code{font-family:var(--f-mono);font-size:11px}
   .lane-head{width:84px}
   .wprimary .btn[data-act="review"]{display:none}
 }
+.signin{position:relative}
+.signin-panel{width:min(320px,calc(100vw - 32px))}
