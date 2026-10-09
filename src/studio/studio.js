@@ -1602,7 +1602,7 @@ function onZoomClick(e){
   if (b.dataset.z === 'in') setZoom(S.zoom * 1.25);
   else if (b.dataset.z === 'out') setZoom(S.zoom / 1.25);
   else if (b.dataset.z === 'reset') setZoom(1);
-  else if (b.dataset.z === 'fit'){ S.zoomAuto = true; renderBoard(); }
+  else if (b.dataset.z === 'fit'){ S.zoomAuto = true; S.fitFull = true; renderBoard(); S.fitFull = false; }
   else if (b.dataset.detail){ S.detail = b.dataset.detail; updateZoomCtl(); }
   else if (b.dataset.tool){ S.tool = b.dataset.tool; updateZoomCtl(); }
   else if ('play' in b.dataset) playWalk();
@@ -1686,7 +1686,7 @@ function renderBoard(){
   b.style.width = g.width + 'px'; b.style.height = g.height + 'px';
   const zkey = S.cur.id + '|' + m.id; S.drawNow = false; if (S.zoomKey !== zkey){ S.zoomKey = zkey; S.zoomAuto = true; S.drawNow = true; stopPlay(); }
   const sc0 = $('#scroller');
-  if (S.zoomAuto && sc0 && sc0.clientWidth > 80) S.zoom = Math.max(ZMIN, Math.min(1, (sc0.clientWidth - 12) / g.width));
+  if (S.zoomAuto && sc0 && sc0.clientWidth > 80){ const fitW = (sc0.clientWidth - 12) / g.width; S.zoom = Math.max(ZMIN, Math.min(1, S.fitFull ? fitW : Math.max(0.65, fitW))); }
   b.style.zoom = S.zoom; updateZoomCtl();
   let html = '';
   g.bands.forEach(bd => html += `<div class="band" style="top:${bd.y}px;width:${g.width}px">${bd.t}</div>`);
