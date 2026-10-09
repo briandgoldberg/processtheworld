@@ -156,6 +156,13 @@ svg.edges path{fill:none;stroke:var(--edge);stroke-width:1.5}
 .xlink:hover{background:var(--accent-soft);color:var(--accent)}
 .xlink.in{color:var(--muted)}
 .step .back{font-size:11px;color:var(--muted);font-weight:500}
+.chk-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.chk{display:flex;flex-direction:column;gap:6px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.chk:last-child{border-bottom:none;padding-bottom:0}
+.chk-acts{display:flex;flex-wrap:wrap;gap:6px}
+.btn.sm{padding:4px 9px;font-size:12px}
+.linkish{border:none;background:none;padding:0;color:var(--accent);font:inherit;text-decoration:underline}
+.inspector.checks{width:340px}
 .pill.warn{background:var(--warn);color:var(--warn-ink);border-color:var(--warn);cursor:pointer}
 .edit-last{align-self:flex-end;border:none;background:none;color:var(--muted);font-size:12px;padding:0 4px;margin-top:-6px;text-decoration:underline}
 .msg .fixed{display:block;margin-top:6px;font-size:12px;color:var(--ok)}
@@ -449,28 +456,33 @@ function incomingLinks(p, mapId, stepId){
   })));
   return out;
 }
+const issueKey = i => i.map + '|' + (i.step || '') + '|' + i.kind;
 function findIssues(p){
+  const dismissed = new Set(p.dismissed || []);
+  return rawIssues(p).map(i => ({ ...i, key:issueKey(i), at:i.at || i.map })).filter(i => !dismissed.has(i.key));
+}
+function rawIssues(p){
   const out = [];
   for (const m of Object.values(p.maps)){
-    if (!m.steps.length){ if (m.parent) out.push({ map:m.id, step:m.parent.step, pmap:m.parent.map, text:`“${m.title}” has no steps yet` }); continue; }
+    if (!m.steps.length){ if (m.parent) out.push({ kind:'sub_empty', map:m.id, at:m.parent.map, step:m.parent.step, text:`“${m.title}” has no steps yet` }); continue; }
     const laneIds = new Set(m.lanes.map(l => l.id));
     const into = new Set();
     m.steps.forEach(s => s.next.forEach(n => { if (isInternal(n, m)) into.add(n.to); }));
     const names = {};
-    m.lanes.forEach(l => { const k = l.name.trim().toLowerCase(); if (names[k]) out.push({ map:m.id, text:`Two lanes are named “${l.name}”` }); names[k] = 1; });
+    m.lanes.forEach(l => { const k = l.name.trim().toLowerCase(); if (names[k]) out.push({ kind:'dup_lane:' + k, map:m.id, text:`Two lanes are named “${l.name}”` }); names[k] = 1; });
     m.steps.forEach(s => {
       const outs = s.next.length;
       const internalIn = into.has(s.id) || incomingLinks(p, m.id, s.id).length;
-      if (s.kind !== 'start' && !internalIn && m.steps.length > 1) out.push({ map:m.id, step:s.id, text:`Nothing leads to “${s.label}”` });
-      if (s.kind !== 'end' && !outs) out.push({ map:m.id, step:s.id, text:`“${s.label}” doesn't lead anywhere` });
+      if (s.kind !== 'start' && !internalIn && m.steps.length > 1) out.push({ kind:'no_incoming', map:m.id, step:s.id, text:`Nothing leads to “${s.label}”` });
+      if (s.kind !== 'end' && !outs) out.push({ kind:'dead_end', map:m.id, step:s.id, text:`“${s.label}” doesn't lead anywhere` });
       if (s.kind === 'decision'){
-        if (outs < 2) out.push({ map:m.id, step:s.id, text:`Decision “${s.label}” needs at least two outcomes` });
-        else if (s.next.some(n => !n.label)) out.push({ map:m.id, step:s.id, text:`Label each outcome of “${s.label}”` });
-      } else if (outs > 1 && s.next.every(n => !n.label)) out.push({ map:m.id, step:s.id, text:`“${s.label}” splits into ${outs} paths. Is it a decision, or do they happen at the same time?` });
-      if (!laneIds.has(s.lane)) out.push({ map:m.id, step:s.id, text:`No one is assigned to “${s.label}”` });
-      if (s.kind === 'subprocess' && !s.child) out.push({ map:m.id, step:s.id, text:`“${s.label}” has no detail yet` });
+        if (outs < 2) out.push({ kind:'decision_outcomes', map:m.id, step:s.id, text:`Decision “${s.label}” needs at least two outcomes` });
+        else if (s.next.some(n => !n.label)) out.push({ kind:'decision_labels', map:m.id, step:s.id, text:`Label each outcome of “${s.label}”` });
+      } else if (outs > 1 && s.next.every(n => !n.label)) out.push({ kind:'split', map:m.id, step:s.id, text:`“${s.label}” splits into ${outs} paths. Is it a decision, or do they happen at the same time?` });
+      if (!laneIds.has(s.lane)) out.push({ kind:'no_lane', map:m.id, step:s.id, text:`No one is assigned to “${s.label}”` });
+      if (s.kind === 'subprocess' && !s.child) out.push({ kind:'sub_no_child', map:m.id, step:s.id, text:`“${s.label}” has no detail yet` });
     });
-    if (!m.steps.some(s => s.kind === 'start') && m.steps.length > 1) out.push({ map:m.id, text:`“${m.title}” has no starting point` });
+    if (!m.steps.some(s => s.kind === 'start') && m.steps.length > 1) out.push({ kind:'no_start', map:m.id, text:`“${m.title}” has no starting point` });
   }
   return out;
 }
@@ -708,6 +720,58 @@ function resolveProposal(msgIndex, accept){
   tidy(p); touch(); renderWork();
 }
 
+/* The person reviews a check: it's right as is, or the AI should fix it */
+function issueAction(key, act){
+  const p0 = S.cur; const it = findIssues(p0).find(i => i.key === key);
+  if (act === 'restore'){ ensureOwned(); const p = S.cur; logEvent(p, { who:'human', op:'check_restored', count:(p.dismissed||[]).length }); p.dismissed = []; touch(); renderWork(); return; }
+  if (!it) return;
+  if (act === 'go'){ jumpTo(it.at, it.step); return; }
+  ensureOwned(); const p = S.cur;
+  if (act === 'ok'){
+    (p.dismissed ||= []).push(key);
+    logEvent(p, { who:'human', op:'check_dismissed', kind:it.kind, map:it.map, id:it.step || null, text:it.text });
+    touch(); renderWork(); return;
+  }
+  if (act === 'decision'){
+    const s = p.maps[it.map]?.steps.find(x => x.id === it.step); if (!s) return;
+    logEvent(p, { who:'human', op:'check_made_decision', kind:it.kind, map:it.map, id:s.id, before:s.kind, after:'decision' });
+    s.kind = 'decision'; touch(); renderWork();
+    prefill(`“${s.label}” is a decision. The outcomes are: `); return;
+  }
+  if (act === 'fix'){
+    logEvent(p, { who:'human', op:'check_sent_to_ai', kind:it.kind, map:it.map, id:it.step || null });
+    S.checksOpen = false; renderWork();
+    prefill(`Please fix this: ${it.text} `); return;
+  }
+}
+function prefill(text){
+  S.tab = 'chat'; renderWork();
+  const msg = $('#msg'); msg.value = text; msg.focus(); msg.setSelectionRange(msg.value.length, msg.value.length);
+}
+function issueRowHTML(i, compact){
+  return `<li class="chk">
+    <span>${esc(i.text)}</span>
+    <span class="chk-acts">
+      ${!compact && i.step ? `<button class="btn ghost sm" data-chk="go" data-key="${esc(i.key)}">Show</button>` : ''}
+      ${i.kind === 'split' ? `<button class="btn sm" data-chk="ok" data-key="${esc(i.key)}">They happen at the same time</button><button class="btn sm" data-chk="decision" data-key="${esc(i.key)}">Make it a decision</button>`
+        : `<button class="btn sm" data-chk="ok" data-key="${esc(i.key)}">It's right as is</button>`}
+      <button class="btn sm" data-chk="fix" data-key="${esc(i.key)}">Ask AI to fix</button>
+    </span></li>`;
+}
+function renderChecks(){
+  const box = $('#checks'); if (!box) return;
+  if (!S.checksOpen){ box.innerHTML = ''; return; }
+  const p = S.cur, all = findIssues(p), here = all.filter(i => i.map === curMap().id || i.at === curMap().id);
+  const elsewhere = all.filter(i => !here.includes(i));
+  const nd = (p.dismissed || []).length;
+  box.innerHTML = `<div class="inspector checks" role="dialog" aria-label="Things to check">
+    <div class="ins-head"><span class="label">To check in “${esc(curMap().id === 'm_root' ? p.title : curMap().title)}”</span><button class="btn ghost" data-chk="close" aria-label="Close">✕</button></div>
+    ${here.length ? `<ul class="chk-list">${here.map(i => issueRowHTML(i)).join('')}</ul>` : '<p class="hint">Nothing to check on this layer.</p>'}
+    ${elsewhere.length ? `<p class="hint">${elsewhere.length} more in other layers: ${[...new Set(elsewhere.map(i => p.maps[i.at]?.title || ''))].map(t => esc(t)).join(', ')}.</p>` : ''}
+    <p class="hint">Marking an item “right as is” teaches the checker when it was wrong.${nd ? ` ${nd} marked right · <button class="linkish" data-chk="restore" data-key="">Show them again</button>` : ''}</p>
+  </div>`;
+}
+
 /* Finish / resume */
 function finish(){
   if (S.busy) return;
@@ -749,7 +813,7 @@ function serialize(p){
   const st = stats(p);
   return { id:p.id, title:p.title, visibility:p.visibility, ownerId:p.ownerId || S.uid, updatedAt:p.updatedAt,
     stepCount:st.steps, depth:st.depth, laneTypes:st.lanes.map(l=>l.type).slice(0,8),
-    status:p.status || 'interviewing', maps:p.maps, undo:keptUndo(p), chat:p.chat.filter(x=>!x.pending).slice(-40), events:(p.events||[]).slice(-300) };
+    status:p.status || 'interviewing', dismissed:(p.dismissed || []).slice(-200), maps:p.maps, undo:keptUndo(p), chat:p.chat.filter(x=>!x.pending).slice(-40), events:(p.events||[]).slice(-300) };
 }
 function refFor(p){ return p.visibility === 'public' ? S.db.collection('public').doc(p.id) : S.db.collection('data/users/' + S.uid).doc(p.id); }
 function touch(){ if (!S.cur || S.cur.example) return; S.cur.updatedAt = Date.now(); dirty = true; clearTimeout(saveTimer); saveTimer = setTimeout(flush, 900); setSave('Unsaved changes'); }
@@ -922,6 +986,7 @@ function renderWorkShell(app){
       <div class="crumbs" id="crumbs"></div>
       <div class="scroller" id="scroller"><div class="board" id="board"></div></div>
       <div id="inspector"></div>
+      <div id="checks"></div>
     </section>
   </div>`;
   $('#back').onclick = () => { flush(); S.view = 'home'; S.cur = null; render(); };
@@ -940,9 +1005,15 @@ function renderWorkShell(app){
     const j = e.target.closest('[data-jump]'); if (j) jumpTo(j.dataset.jump, j.dataset.step);
   };
   $('#board').onclick = onBoardClick;
+  const onChk = e => {
+    const b = e.target.closest('[data-chk]'); if (!b) return;
+    if (b.dataset.chk === 'close'){ S.checksOpen = false; renderWork(); return; }
+    issueAction(b.dataset.key, b.dataset.chk);
+  };
+  $('#checks').onclick = onChk; $('#inspector').addEventListener('click', onChk);
   $('#crumbs').onclick = e => {
     const c = e.target.closest('[data-depth]'); if (c){ S.path = S.path.slice(0, +c.dataset.depth + 1); S.sel = null; renderWork(); return; }
-    const is = e.target.closest('[data-issue]'); if (is){ S.sel = is.dataset.issue || null; S.tab = 'map'; renderWork(); document.querySelector(`[data-step="${CSS.escape(S.sel || '')}"]`)?.scrollIntoView({block:'center', inline:'center', behavior:'smooth'}); return; }
+    if (e.target.closest('[data-checks]')){ S.checksOpen = !S.checksOpen; if (S.checksOpen) S.sel = null; renderWork(); return; }
     const v = e.target.closest('[data-pub]'); if (!v) return;
     if (v.dataset.pub === 'ask'){ S.confirmPublic = true; renderWork(); }
     else if (v.dataset.pub === 'yes') makePublic();
@@ -963,7 +1034,8 @@ function renderWork(fromStream){
   document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === S.tab));
   $('#stop').hidden = !S.busy; $('#sendb').disabled = S.busy;
   const fb = $('#finish'); fb.textContent = p.status === 'done' ? 'Resume interview' : 'Finish map'; fb.disabled = S.busy;
-  renderMsgs(); renderCrumbs(); renderBoard(); renderInspector();
+  if (S.checksOpen && !findIssues(p).length) S.checksOpen = false;
+  renderMsgs(); renderCrumbs(); renderBoard(); renderInspector(); renderChecks();
   if (S.fresh.size){ const f = S.fresh; setTimeout(() => { f.forEach(id => document.querySelector(`[data-step="${CSS.escape(id)}"]`)?.classList.remove('fresh')); }, 1700); S.fresh = new Set(); }
 }
 
@@ -1001,7 +1073,7 @@ function renderCrumbs(){
   const p = S.cur, ev = p.events || [];
   const ai = ev.filter(e => e.who === 'ai').length;
   const hu = ev.filter(e => e.who === 'human' && (e.op !== 'chat_feedback' || e.type === 'correction' || e.type === 'confusion')).length;
-  const here = findIssues(p).filter(i => i.map === curMap().id);
+  const here = findIssues(p).filter(i => i.map === curMap().id || i.at === curMap().id);
   const totalDepth = stats(p).depth;
   const crumbs = S.path.map((id, i) => {
     const m = p.maps[id]; const last = i === S.path.length - 1;
@@ -1013,7 +1085,7 @@ function renderCrumbs(){
   $('#crumbs').innerHTML = `${crumbs}
     <span class="depth" title="Layer ${S.path.length} of ${totalDepth}">${Array.from({length:Math.max(totalDepth,S.path.length)},(_,i)=>`<b class="${i < S.path.length ? 'on' : ''}"></b>`).join('')}</span>
     <span class="spacer"></span>
-    ${here.length ? `<button class="pill warn" data-issue="${esc(here[0].step || '')}" title="${esc(here.map(i => i.text).join('\n'))}">${here.length} to check</button>` : ''}
+    ${here.length ? `<button class="pill warn" data-checks aria-expanded="${S.checksOpen ? 'true' : 'false'}">${here.length} to check</button>` : ''}
     <span class="signal" title="Every AI change and human correction is kept as learning signal">${ai} AI changes · ${hu} corrections</span>
     ${pub}`;
 }
@@ -1105,7 +1177,7 @@ function onBoardClick(e){
   const d = e.target.closest('[data-drill]'); if (d){ e.stopPropagation(); drill(d.dataset.drill); return; }
   const j = e.target.closest('[data-jump]'); if (j){ e.stopPropagation(); jumpTo(j.dataset.jump, j.dataset.step); return; }
   const st = e.target.closest('[data-step]');
-  S.sel = st ? st.dataset.step : null; renderBoard(); renderInspector();
+  S.sel = st ? st.dataset.step : null; if (S.sel) S.checksOpen = false; renderBoard(); renderInspector(); renderChecks();
 }
 document.addEventListener('keydown', e => {
   const st = e.target.closest?.('[data-step]');
@@ -1129,6 +1201,7 @@ function renderInspector(){
     <div class="row"><label class="label" for="i-lane">Lane</label><select id="i-lane">${m.lanes.map(l => `<option value="${esc(l.id)}" ${l.id === s.lane ? 'selected' : ''}>${esc(l.name)} (${l.type === 'system' ? 'technology' : 'person'})</option>`).join('')}${m.lanes.some(l=>l.id===s.lane)?'':'<option selected>Unassigned</option>'}</select></div>
     <div class="row"><label class="label" for="i-kind">Type</label><select id="i-kind">${KINDS.map(k => `<option ${k === s.kind ? 'selected' : ''}>${k}</option>`).join('')}</select></div>
     <div class="acts"><button class="btn primary" id="i-drill">${s.child ? 'Open subprocess ↘' : 'Break into a subprocess'}</button><button class="btn danger" id="i-del">Delete step</button></div>
+    ${(() => { const mine = findIssues(S.cur).filter(i => i.map === m.id && i.step === s.id); return mine.length ? `<div class="row"><span class="label">To check</span><ul class="chk-list">${mine.map(i => issueRowHTML(i, true)).join('')}</ul></div>` : ''; })()}
     <div class="row"><span class="label">Did the AI get this wrong?</span>
       <div class="chips">${CORRECTIONS.map(c => `<button class="chip" data-corr="${c[0]}">${c[1]}</button>`).join('')}</div>
       <p class="hint">Corrections are logged as training signal, then you finish the sentence in the conversation.</p></div>
