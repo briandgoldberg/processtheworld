@@ -51,6 +51,7 @@ model EmailToken {
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   email     String
   kind      String // "verify" | "signin"
+  handle    String? // username chosen when the email was entered; applied on confirm
   token     String    @unique
   createdAt DateTime  @default(now())
   usedAt    DateTime?

@@ -762,12 +762,8 @@ function acctHTML(){
       <button class="btn sm" data-acct="signout">Sign out on this device</button>
     </div>` : `
     <div class="acct-panel" role="dialog" aria-label="Account">
-      <p>You're mapping as <b>${esc(me.handle)}</b>. Your maps are saved to this browser.</p>
-      <form data-form="save" class="acct-form"><label class="label" for="acct-save">Keep them on any device</label>
-        <div class="row-in"><input id="acct-save" type="email" required placeholder="you@example.com" autocomplete="email"><button class="btn primary sm">Email me a link</button></div></form>
-      <form data-form="signin" class="acct-form"><label class="label" for="acct-in">Already saved your maps? Sign in</label>
-        <div class="row-in"><input id="acct-in" type="email" required placeholder="you@example.com" autocomplete="email"><button class="btn sm">Send sign-in link</button></div></form>
-      <p class="hint" id="acct-msg" role="status"></p>
+      <p>You're mapping as <b>${esc(me.handle)}</b>. Add your email to keep your processes on any device, or to sign in.</p>
+      ${emailFormHTML('acct')}
     </div>`;
   return `${me.isAdmin ? '<a class="btn sm admin-link" href="/admin">Admin dashboard</a>' : ''}<div class="acct"><button class="btn ghost acct-btn" data-acct="toggle" aria-expanded="${S.acct}">${esc(me.email ? me.email.split('@')[0] : me.handle)} ▾</button>${panel}</div>`;
 }
@@ -777,13 +773,32 @@ function wireAcct(root){
     if (b.dataset.acct === 'toggle'){ S.acct = !S.acct; render(); return; }
     if (b.dataset.acct === 'signout'){ ls.del('ptw_key'); location.href = '/'; }
   });
-  root.querySelectorAll('[data-form]').forEach(f => f.onsubmit = async e => {
+  wireEmailForm(root);
+}
+/* One box for signing up and signing in: email, plus an optional username */
+function emailFormHTML(p){
+  return `<form data-email-form class="acct-form" novalidate>
+    <label class="label" for="${p}-email">Email</label>
+    <input id="${p}-email" name="email" type="email" required placeholder="you@example.com" autocomplete="email">
+    <label class="label" for="${p}-handle">Username <span class="opt">(optional)</span></label>
+    <input id="${p}-handle" name="handle" type="text" placeholder="${esc(S.me?.handle || 'Pick a username')}" autocomplete="username" maxlength="24" pattern="[A-Za-z0-9._-]{3,24}">
+    <button class="btn primary">Email me a link</button>
+    <p class="hint" data-email-msg role="status">New here? This saves your processes. Been here before? It signs you in.</p>
+  </form>`;
+}
+function wireEmailForm(root){
+  root.querySelectorAll('[data-email-form]').forEach(f => f.onsubmit = async e => {
     e.preventDefault();
-    const input = f.querySelector('input'), msg = $('#acct-msg'), btn = f.querySelector('button');
+    const msg = f.querySelector('[data-email-msg]'), btn = f.querySelector('button');
+    const email = f.elements.email.value.trim(), handle = f.elements.handle.value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ msg.textContent = 'Enter a valid email address.'; f.elements.email.focus(); return; }
+    if (handle && !/^[A-Za-z0-9._-]{3,24}$/.test(handle)){ msg.textContent = 'Usernames are 3–24 letters, numbers, dots, dashes or underscores.'; f.elements.handle.focus(); return; }
     btn.disabled = true;
     try {
-      if (f.dataset.form === 'save'){ await flush(); await API.post('/api/auth/save-email', { email:input.value }); msg.textContent = 'Check your inbox for a link to confirm.'; track('email_save_requested'); }
-      else { await API.post('/api/auth/sign-in', { email:input.value }); msg.textContent = 'If that email has saved maps, a sign-in link is on its way.'; }
+      await flush();
+      await API.post('/api/auth/email', { email, handle });
+      msg.textContent = `Check ${email} for a link. It may land in spam.`; track('email_link_requested');
+      f.elements.email.value = ''; f.elements.handle.value = '';
     } catch (err){ msg.textContent = err.message; }
     btn.disabled = false;
   });
@@ -801,18 +816,11 @@ function renderLogin(app){
       <div class="p">PERSON <span>Driver · Presses the brake and Start</span></div>
       <div class="s">SYSTEM <span>Kettle · Boils the water and clicks off</span></div>
     </div>
-    <div class="login-acts"><button class="btn primary" id="go">Start mapping</button></div>
-    <p class="hint">No sign-up needed. ${S.me ? `You'll map as <b>${esc(S.me.handle)}</b>.` : ''} Add your email any time to keep your maps across devices.</p>
-    <form id="login-in" class="acct-form"><label class="label" for="li-email">Saved your maps before? Sign in</label>
-      <div class="row-in"><input id="li-email" type="email" required placeholder="you@example.com" autocomplete="email"><button class="btn">Send sign-in link</button></div>
-      <p class="hint" id="li-msg" role="status"></p></form>
+    <div class="login-box">${emailFormHTML('li')}</div>
+    <button class="linkish" id="go">Or start mapping without an email</button>
   </div></div>`;
   $('#go').onclick = () => { ls.set('ptw_in','1'); S.view = 'home'; render(); };
-  $('#login-in').onsubmit = async e => {
-    e.preventDefault();
-    try { await API.post('/api/auth/sign-in', { email:$('#li-email').value }); $('#li-msg').textContent = 'If that email has saved maps, a sign-in link is on its way.'; }
-    catch (err){ $('#li-msg').textContent = err.message; }
-  };
+  wireEmailForm(app);
 }
 
 function cardHTML(p, kind){
@@ -1274,7 +1282,7 @@ function renderToast(){
 }
 
 /* ---------- Boot ---------- */
-const ALERTS = { saved:'Email confirmed. Your maps now follow you to any device.', 'signed-in':'Signed in. Your maps are here.', 'link-invalid':'That link expired or was already used. Request a new one from the account menu.', 'email-taken':'That email already has saved maps. Use “Sign in” instead.' };
+const ALERTS = { saved:'Email confirmed. Your processes now follow you to any device.', 'signed-in':'Signed in. Your processes are here.', 'link-invalid':'That link expired or was already used. Request a new one from the account menu.', 'email-taken':'That email is already in use. Enter it again to get a sign-in link.' };
 export async function mount(root){
   root.innerHTML = '<div id="app"></div>';
   let key = ls.get('ptw_key'); if (!key || key.length < 16){ key = freshKey(); ls.set('ptw_key', key); }

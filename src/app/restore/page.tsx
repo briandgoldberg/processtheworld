@@ -21,7 +21,7 @@ export default function Restore() {
     <div className="login"><div className="login-card">
       <div className="mark"><i>PW</i>Process the World</div>
       <h1>Sign in on this device</h1>
-      <p>Your saved maps will open here. Anything you made on this device without signing in moves into your account.</p>
+      <p>Your saved processes will open here. Anything you made on this device without signing in moves into your account.</p>
       <div><button className="btn primary" onClick={go} disabled={state === "busy"}>{state === "busy" ? "Signing in…" : "Continue"}</button></div>
       {msg && <p role="alert" style={{ color: "var(--danger)" }}>{msg} <a href="/">Back to Process the World</a></p>}
     </div></div>

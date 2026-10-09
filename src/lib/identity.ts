@@ -54,3 +54,14 @@ export const publicUser = (u: { handle: string; email: string | null; emailVerif
   email: u.emailVerifiedAt ? u.email : null,
   isAdmin: !!u.emailVerifiedAt && isAdminEmail(u.email),
 });
+
+// Usernames people choose: 3-24 letters, numbers, dots, dashes or underscores.
+export function cleanHandle(v: unknown): string | null {
+  const s = String(v ?? "").trim();
+  if (!s) return null;
+  return /^[A-Za-z0-9._-]{3,24}$/.test(s) ? s : "";
+}
+export async function handleTaken(handle: string, exceptUserId?: string) {
+  const u = await prisma.user.findFirst({ where: { handle: { equals: handle, mode: "insensitive" } }, select: { id: true } });
+  return !!u && u.id !== exceptUserId;
+}

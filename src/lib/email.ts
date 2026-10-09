@@ -20,7 +20,7 @@ async function send(to: string, subject: string, lead: string, label: string, ur
 }
 
 export const sendVerifyEmail = (to: string, token: string) =>
-  send(to, "Save your Process the World maps", "Confirm your email to keep your process maps across devices. No password, just this link.", "Save my maps", `${appUrl()}/api/auth/verify?token=${token}`);
+  send(to, "Save your processes on Process the World", "Confirm your email to keep your processes on any device. No password, just this link.", "Save my processes", `${appUrl()}/api/auth/verify?token=${token}`);
 
 export const sendSignInEmail = (to: string, token: string) =>
-  send(to, "Sign in to Process the World", "Use this link to sign in and get your process maps back. It works once and expires in 30 minutes.", "Sign in", `${appUrl()}/restore?token=${token}`);
+  send(to, "Sign in to Process the World", "Use this link to sign in and get your processes back. It works once and expires in 30 minutes.", "Sign in", `${appUrl()}/restore?token=${token}`);

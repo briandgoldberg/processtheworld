@@ -282,3 +282,7 @@ a.btn{text-decoration:none;color:inherit}
 .turn .tags{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .ops{margin:0;padding-left:16px;display:flex;flex-direction:column;gap:3px;font-size:12px;word-break:break-word}
 code{font-family:var(--f-mono);font-size:11px}
+.login-box{max-width:420px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px}
+.acct-form input{border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:8px 10px;width:100%}
+.acct-form .btn{align-self:flex-start;margin-top:4px}
+.acct-form .opt{text-transform:none;letter-spacing:0;font-weight:500}

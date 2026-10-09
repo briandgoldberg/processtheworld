@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { handleTaken } from "@/lib/identity";
 
 export const dynamic = "force-dynamic";
 
@@ -13,9 +14,10 @@ export async function GET(req: NextRequest) {
     // Re-check at confirm time: two browsers could race to claim the same email.
     const owner = await prisma.user.findUnique({ where: { email: row.email } });
     if (owner && owner.id !== row.userId && owner.emailVerifiedAt) return NextResponse.redirect(new URL("/?alert=email-taken", req.url));
+    const newHandle = row.handle && !(await handleTaken(row.handle, row.userId)) ? row.handle : undefined;
     await prisma.$transaction([
       ...(owner && owner.id !== row.userId ? [prisma.user.update({ where: { id: owner.id }, data: { email: null } })] : []),
-      prisma.user.update({ where: { id: row.userId }, data: { email: row.email, emailVerifiedAt: new Date() } }),
+      prisma.user.update({ where: { id: row.userId }, data: { email: row.email, emailVerifiedAt: new Date(), ...(newHandle ? { handle: newHandle } : {}) } }),
       prisma.emailToken.update({ where: { id: row.id }, data: { usedAt: new Date() } }),
     ]);
   }
