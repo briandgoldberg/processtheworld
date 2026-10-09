@@ -6,7 +6,19 @@ People explain, demonstrate, record or upload everyday processes. AI turns that 
 
 **Vision:** once the learning loop is proven, apply it to the enterprise: AI interviews employees, observes how work is actually done, and keeps a living representation of how the organization operates. The processes change. The intelligence doesn't.
 
-## MVP (prototype/)
+## The app
+
+A Next.js app (same stack as WaitingForPower: Next.js, Prisma, Postgres, Resend, Vercel). The mapper UI lives in `src/studio/studio.js`; the server owns the engine prompts (`src/lib/engine/prompts.ts`) and calls Claude (`ANTHROPIC_MODEL`, default Haiku 5.5).
+
+- **Login like WaitingForPower:** every browser gets a random key and an anonymous handle (e.g. "AmberOtter42"). Adding an email (magic link) keeps maps across devices; an emailed sign-in link restores them on a new device and moves anything made there anonymously into the account. Hashed IPs are used only for rate limits.
+- **Public processes:** "Make public" publishes a read-only snapshot "Published by" the handle. Opening one and changing anything makes a private copy.
+- **Feedback, kept quiet:** hover thumbs on replies, "Skip this question", one finish rating per map, one check-in per browser, and an always-available Feedback box in the bottom-right corner that captures what's on screen.
+- **Admin dashboard (`/admin`):** for verified emails in `ADMIN_EMAILS`. Overview metrics, feedback inbox, every session with its transcript, AI changes and actions, product suggestions (seeded from review, plus "Suggest changes from recent data"), and a JSONL training export.
+- **Training database** (`prisma/schema.prisma`): every turn with the map before and after, every AI change with before/after and the human verdict, every interview question and its information gain, every self-check, every AI call (prompt, output, tokens, cost), and all feedback, tagged with the engine version.
+
+Setup: see `.env.example`.
+
+## Prototype (prototype/)
 
 `prototype/index.html` is a single-page prototype that runs as a Claude artifact (it uses the artifact runtime for AI calls, identity and storage, so it does not run standalone in a browser).
 

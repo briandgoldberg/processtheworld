@@ -1,0 +1,279 @@
+// Process the World — application + training database.
+//
+// Two jobs share this schema:
+//  1. Run the app: people, their processes, sign-in tokens, rate limits.
+//  2. Record the learning signal for a future in-house model. Every mapping
+//     turn is stored with the map before and after, every AI change with its
+//     before/after, every question the interviewer asked and whether it paid
+//     off, every self-check, every AI call (prompt, raw output, tokens, cost),
+//     and every piece of feedback. Rows carry the engine version that
+//     produced them so changes can be compared over time.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- People ----------
+
+model User {
+  id              String    @id @default(cuid())
+  // Random key the browser keeps in localStorage. Never a password; it is
+  // upgraded to a durable profile only if the person verifies an email.
+  anonKey         String    @unique
+  handle          String    @unique // auto-assigned, e.g. "AmberOtter42"
+  email           String?   @unique // set only after the emailed link is clicked
+  emailVerifiedAt DateTime?
+  firstIpHash     String?
+  createdAt       DateTime  @default(now())
+  lastSeenAt      DateTime  @default(now())
+
+  processes  Process[]
+  published  PublicProcess[]
+  tokens     EmailToken[]
+  turns      Turn[]
+  aiCalls    AiCall[]
+  events     Event[]
+  feedback   Feedback[]
+}
+
+model EmailToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  email     String
+  kind      String // "verify" | "signin"
+  token     String    @unique
+  createdAt DateTime  @default(now())
+  usedAt    DateTime?
+
+  @@index([email, createdAt])
+}
+
+// ---------- The work ----------
+
+model Process {
+  id        String   @id // client-generated
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  status    String   @default("interviewing") // interviewing | done
+  doc       Json // full process: maps, chat, events, undo point
+  stepCount Int      @default(0)
+  depth     Int      @default(1)
+  laneTypes String[] @default([])
+  forkedFrom String? // the public process this was copied from
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  public    PublicProcess?
+  turns     Turn[]
+  questions Question[]
+  events    Event[]
+  feedback  Feedback[]
+
+  @@index([userId, updatedAt])
+}
+
+// A published, read-only snapshot of someone's process. Opening it and
+// changing anything makes a private copy (Process.forkedFrom).
+model PublicProcess {
+  id          String   @id @default(cuid())
+  processId   String   @unique
+  process     Process  @relation(fields: [processId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  authorName  String // the handle shown as "Published by"
+  title       String
+  doc         Json
+  stepCount   Int      @default(0)
+  depth       Int      @default(1)
+  laneTypes   String[] @default([])
+  copies      Int      @default(0)
+  publishedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([updatedAt])
+}
+
+// ---------- Training signal ----------
+
+// One message from the person and everything the engine did about it.
+model Turn {
+  id            String   @id @default(cuid())
+  processId     String
+  process       Process  @relation(fields: [processId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  seq           Int // position in the conversation
+  engineVersion String
+  model         String
+  mapId         String // the layer the person was viewing
+  userText      String
+  retyped       Boolean  @default(false) // a near-copy that replaced the previous message
+  // What the engine said back
+  replySay      String?
+  replyAsk      String?
+  // How the engine classified the person's message
+  feedbackType     String? // new_info | answer | correction | confusion | done | other
+  feedbackCategory String? // missing_step | missing_link | wrong_order | wrong_role | ...
+  feedbackAbout    String?
+  // Counts
+  opsApplied       Int     @default(0)
+  removalsProposed Int     @default(0)
+  checksFound      Int     @default(0) // new problems after the main pass
+  checksRepaired   Int     @default(0) // fixed by the repair pass
+  // Snapshots: the supervised pair (what was there, what it became)
+  mapBefore     Json
+  mapAfter      Json
+  checksBefore  Json?
+  checksAfter   Json?
+  // Later outcome of this turn, filled in when the person acts on it
+  outcome       String? // kept | edited_message | retyped | undone
+  mainCallId    String?
+  repairCallId  String?
+  error         String?
+  createdAt     DateTime @default(now())
+
+  ops       Op[]
+  questions Question[] @relation("AskedIn")
+  answers   Question[] @relation("AnsweredIn")
+
+  @@index([processId, seq])
+  @@index([createdAt])
+}
+
+// Every change the AI made, with the object before and after it.
+model Op {
+  id       String  @id @default(cuid())
+  turnId   String
+  turn     Turn    @relation(fields: [turnId], references: [id], onDelete: Cascade)
+  seq      Int
+  pass     String // main | repair
+  op       String // add_step | connect | link | remove_step | ...
+  mapId    String?
+  targetId String?
+  result   String // applied | proposed_removal | merged_duplicate | ignored
+  payload  Json // exactly what the model emitted
+  before   Json?
+  after    Json?
+  // Filled in when a person later accepts or reverses it
+  humanVerdict String? // kept | removed | edited | reverted
+
+  @@index([turnId])
+  @@index([op, result])
+}
+
+// Interview questions and whether they paid off. Information gain is the
+// number of map changes the answer produced: the training signal for the
+// interviewer.
+model Question {
+  id             String   @id @default(cuid())
+  processId      String
+  process        Process  @relation(fields: [processId], references: [id], onDelete: Cascade)
+  askedTurnId    String
+  askedTurn      Turn     @relation("AskedIn", fields: [askedTurnId], references: [id], onDelete: Cascade)
+  text           String
+  answeredTurnId String?
+  answeredTurn   Turn?    @relation("AnsweredIn", fields: [answeredTurnId], references: [id], onDelete: SetNull)
+  outcome        String? // answered | skipped | ignored
+  infoGain       Int?
+  createdAt      DateTime @default(now())
+
+  @@index([processId])
+}
+
+// Every model call, as sent and as received.
+model AiCall {
+  id            String   @id @default(cuid())
+  userId        String?
+  user          User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  processId     String?
+  mode          String // map | repair | suggest
+  model         String
+  engineVersion String
+  promptHash    String
+  system        String
+  prompt        String
+  output        String   @default("")
+  inputTokens   Int      @default(0)
+  outputTokens  Int      @default(0)
+  cacheRead     Int      @default(0)
+  cacheWrite    Int      @default(0)
+  costUsd       Float    @default(0)
+  latencyMs     Int      @default(0)
+  stopReason    String?
+  error         String?
+  createdAt     DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([processId])
+}
+
+// Human and system actions outside the AI turn: edits, check reviews,
+// Keep/Remove decisions, finish, resume, thumbs, skips.
+model Event {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  processId String?
+  process   Process? @relation(fields: [processId], references: [id], onDelete: Cascade)
+  turnId    String?
+  who       String // human | system
+  type      String
+  data      Json?
+  engineVersion String?
+  createdAt DateTime @default(now())
+
+  @@index([type, createdAt])
+  @@index([processId])
+}
+
+// Explicit feedback: the Feedback button, reply thumbs, finish ratings,
+// first-session check-ins.
+model Feedback {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  processId String?
+  process   Process? @relation(fields: [processId], references: [id], onDelete: SetNull)
+  turnId    String?
+  kind      String // button | reply | finish | checkin
+  rating    Int? // reply: 1 / -1; finish: 1-5
+  reasons   String[] @default([])
+  text      String?
+  context   Json? // screen, layer, selected step, recent messages
+  status    String   @default("new") // new | reviewed | done
+  createdAt DateTime @default(now())
+
+  @@index([status, createdAt])
+}
+
+// Product suggestions shown on the admin dashboard.
+model Suggestion {
+  id        String   @id @default(cuid())
+  title     String
+  body      String
+  source    String // analysis | generated
+  evidence  Json?
+  status    String   @default("open") // open | planned | done | dismissed
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ---------- Operations ----------
+
+model RequestLog {
+  id        String   @id @default(cuid())
+  endpoint  String
+  ipHash    String?
+  userId    String?
+  createdAt DateTime @default(now())
+
+  @@index([endpoint, ipHash, createdAt])
+  @@index([endpoint, userId, createdAt])
+}
