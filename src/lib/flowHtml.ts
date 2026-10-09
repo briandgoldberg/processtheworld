@@ -24,23 +24,38 @@ function wrap(text: string, max: number, lines: number): string[] {
   return out;
 }
 
-function layout(m: MapT) {
+/**
+ * Which column each step sits in. Arrows that loop back (a retry, a "no, revise")
+ * are ignored, so a loop never drags its steps to the start: columns follow the
+ * forward flow. Shared by the app and the exported flow.
+ */
+export function columnsOf(m: { steps: { id: string; next?: { to: string; map?: string }[] }[] }, internal: (n: { to: string; map?: string }) => boolean = n => !n.map): Record<string, number> {
   const ids = new Set(m.steps.map(s => s.id));
+  const out: Record<string, string[]> = {};
+  const hasPred = new Set<string>();
+  m.steps.forEach(s => {
+    out[s.id] = (s.next || []).filter(n => internal(n) && ids.has(n.to)).map(n => n.to);
+    out[s.id].forEach(t => hasPred.add(t));
+  });
+  const back = new Set<string>(), state: Record<string, number> = {};
+  const dfs = (id: string) => {
+    state[id] = 1;
+    for (const t of out[id]) { if (state[t] === 1) back.add(id + ">" + t); else if (!state[t]) dfs(t); }
+    state[id] = 2;
+  };
+  m.steps.filter(s => !hasPred.has(s.id)).forEach(s => { if (!state[s.id]) dfs(s.id); });
+  m.steps.forEach(s => { if (!state[s.id]) dfs(s.id); });
   const preds: Record<string, string[]> = {};
   m.steps.forEach(s => (preds[s.id] = []));
-  m.steps.forEach(s => (s.next || []).forEach(n => { if (!n.map && ids.has(n.to)) preds[n.to].push(s.id); }));
-  const col: Record<string, number> = {}, visiting = new Set<string>();
-  const depth = (id: string): number => {
-    if (id in col) return col[id];
-    if (visiting.has(id)) return -1;
-    visiting.add(id);
-    let d = 0;
-    for (const p of preds[id]) { const pd = depth(p); if (pd >= 0) d = Math.max(d, pd + 1); }
-    visiting.delete(id);
-    col[id] = d;
-    return d;
-  };
+  m.steps.forEach(s => out[s.id].forEach(t => { if (!back.has(s.id + ">" + t)) preds[t].push(s.id); }));
+  const col: Record<string, number> = {};
+  const depth = (id: string): number => (id in col ? col[id] : (col[id] = preds[id].reduce((d, p) => Math.max(d, depth(p) + 1), 0)));
   m.steps.forEach(s => depth(s.id));
+  return col;
+}
+
+function layout(m: MapT) {
+  const col = columnsOf(m);
   const laneIds = new Set(m.lanes.map(l => l.id));
   const lanes: Lane[] = [...m.lanes.filter(l => l.type !== "system"), ...m.lanes.filter(l => l.type === "system")];
   if (m.steps.some(s => !laneIds.has(s.lane))) lanes.push({ id: "__none", name: "Unassigned", type: "person" });

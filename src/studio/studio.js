@@ -1,7 +1,7 @@
 
 import { exportMarkdown } from '@/lib/exportMd';
 import { claudeSkill, chatgptInstructions, skillSlug } from '@/lib/agentExport';
-import { flowHtml } from '@/lib/flowHtml';
+import { flowHtml, columnsOf } from '@/lib/flowHtml';
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rid = p => p + Math.random().toString(36).slice(2, 9);
@@ -965,17 +965,7 @@ let rsz = 0; addEventListener('resize', () => { clearTimeout(rsz); rsz = setTime
 /* ---------- Layout ---------- */
 const L = { HEAD:150, COL:196, BOXW:158, BOXH:60, ROWGAP:16, PADX:28, PADY:16, BAND:22 };
 function layout(m){
-  const ids = new Set(m.steps.map(s => s.id));
-  const preds = {}; m.steps.forEach(s => preds[s.id] = []);
-  m.steps.forEach(s => s.next.forEach(n => { if (isInternal(n, m) && ids.has(n.to)) preds[n.to].push(s.id); }));
-  const col = {}, visiting = new Set();
-  const depth = id => {
-    if (id in col) return col[id]; if (visiting.has(id)) return -1;
-    visiting.add(id); let d = 0;
-    for (const p of preds[id]){ const pd = depth(p); if (pd >= 0) d = Math.max(d, pd + 1); }
-    visiting.delete(id); col[id] = d; return d;
-  };
-  m.steps.forEach(s => depth(s.id));
+  const col = columnsOf(m, n => isInternal(n, m));
   const laneIds = new Set(m.lanes.map(l => l.id));
   let lanes = [...m.lanes.filter(l => l.type !== 'system'), ...m.lanes.filter(l => l.type === 'system')];
   if (m.steps.some(s => !laneIds.has(s.lane))) lanes.push({ id:'__none', name:'Unassigned', type:'person' });
