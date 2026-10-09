@@ -38,7 +38,8 @@ async function overview(el){
   const qTotal = (q.answered || 0) + (q.skipped || 0) + (q.ignored || 0);
   const chk = Object.entries(d.checks);
   const rem = Object.fromEntries(d.removals.map(r => [r.verdict, r.count]));
-  el.innerHTML = credits + `
+  const adopt = `<section class="panel"><h3>Put your name on the starter library</h3><p class="hint">The processes my agents built are published under temporary guest accounts. This moves all of them onto your account and names it. Run it again after new ones are added.</p><div class="row-in"><input id="adopt-name" value="Brian" maxlength="24" aria-label="Username"><button class="btn primary sm" data-adopt>Move them to my account</button></div><p class="hint" id="adopt-msg" role="status"></p></section>`;
+  el.innerHTML = adopt + credits + `
   <div class="kpis">
     <div><span class="label">People</span><b>${d.users}</b><small>${d.verified} with email · ${d.newUsers} new</small></div>
     <div><span class="label">Processes</span><b>${d.processes}</b><small>${d.finished} finished</small></div>
@@ -162,6 +163,7 @@ export function mountAdmin(root){
     const g = e.target.closest('[data-goto]'); if (g){ A.tab = g.dataset.goto; return draw(); }
     const fs = e.target.closest('[data-fbs]'); if (fs){ A.fbStatus = fs.dataset.fbs; return draw(); }
     const fset = e.target.closest('[data-fbset]'); if (fset){ await api('/api/admin/feedback', { method:'PATCH', body:JSON.stringify({ id:fset.dataset.id, status:fset.dataset.fbset }) }); return draw(); }
+    if (e.target.closest('[data-adopt]')){ const msg = $('#adopt-msg'); msg.textContent = 'Working…'; try { const r = await api('/api/admin/adopt', { method:'POST', body:JSON.stringify({ handle:$('#adopt-name').value }) }); msg.textContent = 'Done. ' + r.published + ' public and ' + r.processes + ' total processes now belong to “' + r.name + '”.'; } catch (err){ msg.textContent = err.message || 'Could not do that.'; } return; }
     const o = e.target.closest('[data-open]'); if (o){ A.tab = 'sessions'; A.session = o.dataset.open; return draw(); }
     if (e.target.closest('[data-back]')){ A.session = null; return draw(); }
     const s = e.target.closest('[data-sug]'); if (s){ await api('/api/admin/suggestions', { method:'PATCH', body:JSON.stringify({ id:s.dataset.id, status:s.dataset.sug }) }); return draw(); }

@@ -1313,8 +1313,8 @@ function cardHTML(p, kind){
     badge = p.proposalFor ? '<span class="pill ex">Suggestion</span>' : visPill(p.publicId, p.shareCount, p.publicMode);
   } else if (kind === 'shared'){
     badge = `<span class="pill sh">${p.role === 'view' ? 'Can view' : 'Can edit'}</span>`; by = `<span class="by">Shared by ${esc(p.owner)}</span>`;
-  } else if (kind === 'ex'){ badge = '<span class="pill ex">Example</span>'; by = '<span class="by">By Process the World</span>'; }
-  else { badge = '<span class="pill pub">Public</span>'; by = `<span class="by">Published by ${esc(p.processId && S.mine.some(m => m.id === p.processId) ? 'you' : p.authorName)}${p.likes ? ` · ${ICON.heart}${p.likes}` : ''}</span>`; }
+  } else if (kind === 'ex'){ badge = ''; by = '<span class="by">By Process the World</span>'; }
+  else { badge = ''; by = `<span class="by">Published by ${esc(p.processId && S.mine.some(m => m.id === p.processId) ? 'you' : p.authorName)}${p.likes ? ` · ${ICON.heart}${p.likes}` : ''}</span>`; }
   return `<div class="card-wrap">${del}<button class="card" data-open="${esc(p.id)}" data-kind="${kind}">
     <div class="card-top">${badge}<span class="mono card-when${kind === 'mine' ? ' has-x' : ''}">${esc(when)}</span></div>
     <h3>${esc(p.title || 'Untitled process')}</h3>
@@ -1581,8 +1581,8 @@ function kindOf(p){
 function visHTML(p){
   const k = kindOf(S.real || p);
   const q = S.real || p;
-  if (k === 'example') return '<span class="pill ex">Example</span>';
-  if (k === 'public' || k === 'compare') return `<span class="pill pub">${ICON.globe}Public${q.publicMode === 'locked' ? ' · as is' : ''}</span><span class="by hide-sm">by ${esc(q.publishedBy)} · v${q.version || 1}</span>`;
+  if (k === 'example') return '';
+  if (k === 'public' || k === 'compare') return `<span class="by">by ${esc(q.publishedBy)} · v${q.version || 1}</span>`;
   if (k === 'view') return `<span class="pill">View only</span><span class="by hide-sm">shared by ${esc(q.owner)}</span>`;
   if (k === 'draft') return `<span class="pill ex">Suggestion</span><span class="by hide-sm">for “${esc(q.suggestTitle || 'a public process')}”</span>`;
   if (k === 'shared') return `<span class="pill sh">${ICON.people}Shared</span><span class="by hide-sm">by ${esc(q.owner)}</span>`;
