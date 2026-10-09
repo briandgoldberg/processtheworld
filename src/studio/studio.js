@@ -1344,8 +1344,7 @@ const SORTS = {
 function feedCardHTML(p){
   const mine = p.processId && S.mine.some(m => m.id === p.processId);
   const tags = (p.tags || []).slice(0, 3).map(t => `<span>${esc(t)}</span>`).join('');
-  return `<article class="fcard"><button class="fthumb" data-open="${esc(p.id)}" data-kind="pub" aria-label="Open ${esc(p.title)}"><img src="/p/${esc(p.id)}/opengraph-image" alt="" loading="lazy" width="1200" height="630"></button>
-    <div class="fbody"><button class="ftitle" data-open="${esc(p.id)}" data-kind="pub">${esc(p.title)}</button>
+  return `<article class="fcard"><div class="fbody"><button class="ftitle" data-open="${esc(p.id)}" data-kind="pub">${esc(p.title)}</button>
       <div class="fby">by ${esc(mine ? 'you' : p.authorName)}${p.publishedAt ? ' · ' + ago(p.publishedAt) : ''}</div>
       ${tags ? `<div class="ctags">${tags}</div>` : ''}
       <div class="ffoot"><button class="flike${p.liked ? ' on' : ''}" data-like="${esc(p.id)}" aria-pressed="${!!p.liked}" aria-label="Like">${ICON.heart}<b>${p.likes || 0}</b></button><button class="fcom" data-comment="${esc(p.id)}" aria-label="Comments">${ICON.comment}<b>${p.commentCount || 0}</b></button><span class="fstats">${p.stepCount} steps · ${p.depth} ${p.depth === 1 ? 'layer' : 'layers'}</span></div></div></article>`;
