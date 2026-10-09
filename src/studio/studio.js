@@ -1411,8 +1411,7 @@ function renderHome(app){
     <button class="btn primary" id="new">New<span class="hide-sm"> process</span></button>${signInHTML()}${acctHTML()}</div>
   <div class="home"><div class="home-in">
     <div class="home-head"><div><div class="label">Process the World${S.me ? ' · Hi, ' + esc(S.me.handle) : ''}</div><h1 class="tagline">The World's Best Process Mapper</h1><p class="tagsub">Our goal is to map the world's processes. Explore what others have mapped, or start your own.</p></div></div>
-    ${sec('My processes', 'Private unless you share or publish them.', S.mine.length ? `<div class="cards">${S.mine.map(p => cardHTML(p,'mine')).join('')}</div>` :
-      `<div class="empty"><b style="color:var(--ink)">No processes yet</b><span>Start one and describe it, talk it through, or explore what others have published below.</span><button class="btn" id="new2">New process</button></div>`)}
+    ${S.mine.length ? sec('My processes', 'Private unless you share or publish them.', `<div class="cards">${S.mine.map(p => cardHTML(p,'mine')).join('')}</div>`) : ''}
     ${S.shared.length ? sec('Shared with me', 'Processes people invited you to.', `<div class="cards">${S.shared.map(p => cardHTML(p,'shared')).join('')}</div>`) : ''}
     ${sec('Public processes', 'Search, filter by tag, open any of them, like them, or make your own copy.', publicFilterHTML())}
     ${useAiHTML()}
