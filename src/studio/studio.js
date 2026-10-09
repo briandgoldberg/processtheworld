@@ -998,8 +998,8 @@ function acctHTML(){
       <button class="btn sm" data-acct="signout">Sign out</button>
     </div>` : `
     <div class="acct-panel" role="dialog" aria-label="Account">
-      ${nameForm}
-      <p class="hint">Your processes are saved to this browser. Add your email to keep them on any device, or to sign in.</p>
+      <p>You're a guest, mapping as <b>${esc(me.handle)}</b>. Your processes are saved to this browser.</p>
+      <p class="hint">Add your email to choose your own username, keep your processes on any device, or sign in.</p>
       ${emailFormHTML('acct')}
     </div>`;
   return `${me.isAdmin ? '<a class="btn sm admin-link hide-sm" href="/admin">Admin</a>' : ''}<div class="acct"><button class="btn ghost acct-btn" data-acct="toggle" aria-expanded="${S.acct}"><span class="acct-name">${esc(me.handle)}</span> ▾</button>${panel}</div>`;

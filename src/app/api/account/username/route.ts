@@ -10,6 +10,7 @@ export const dynamic = "force-dynamic";
 export async function POST(req: NextRequest) {
   const user = await userFrom(req);
   if (!user) return fail("Reload the page to continue.", 401);
+  if (!user.emailVerifiedAt) return fail("Add your email to choose a username.", 403, "guest");
   const b = await body(req);
   const handle = cleanHandle(b?.handle);
   if (!handle) return fail("Usernames are 3–24 letters, numbers, dots, dashes or underscores.");
