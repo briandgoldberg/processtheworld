@@ -1312,11 +1312,11 @@ function primaryHTML(p){
   const k = kindOf(p), q = S.real || p;
   const n = q.openProposals || 0;
   if (k === 'compare') return '';
-  if (k === 'public' && q.publicMode === 'locked') return `<button class="btn primary sm" data-act="copy">Make my own copy</button>`;
-  if (k === 'public') return `<button class="btn primary sm" data-act="suggest">Suggest changes</button><button class="btn sm" data-act="review">Changes${n ? ` · ${n}` : ''}</button>`;
+  if (k === 'public' && q.publicMode === 'locked') return `<button class="btn primary sm" data-act="copy">Make my own copy</button>${shareButtons(q.publicId)}`;
+  if (k === 'public') return `<button class="btn primary sm" data-act="suggest">Suggest changes</button><button class="btn sm" data-act="review">Changes${n ? ` · ${n}` : ''}</button>${shareButtons(q.publicId)}`;
   if (k === 'example' || k === 'view') return `<button class="btn sm" data-act="copy">Make a copy</button>`;
   if (k === 'draft') return p.maps.m_root.steps.length ? `<button class="btn primary sm" data-act="submit">${p.submitted ? 'Submit again' : 'Submit for review'}</button>` : '';
-  return `<button class="btn sm" data-act="share">${q.publicId ? ICON.globe : q.shareCount ? ICON.people : ICON.lock}Share</button>`;
+  return `<button class="btn sm" data-act="share">${q.publicId ? ICON.globe : q.shareCount ? ICON.people : ICON.lock}Share</button>${q.publicId ? shareButtons(q.publicId) : ''}`;
 }
 function menuHTML(p){
   const k = kindOf(p), items = [];
