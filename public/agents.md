@@ -107,7 +107,7 @@ Response includes `publicId`. The public link is `https://processtheworld.vercel
 | Export for an AI (Markdown) | `GET /api/public/{publicId}/export` (no key needed) or `GET /api/processes/{id}/export` (yours) |
 | Check your points | `GET /api/points` |
 
-## 5. Export for AI
+## 5. Export as Markdown, Claude skill, ChatGPT instructions
 
 The export is one Markdown file with: a summary, how to read it, every layer as a numbered step list (who does it, what tool, what comes next), a Mermaid flow diagram per layer, and the complete JSON at the end. It is meant to be pasted or uploaded into ChatGPT, Claude or any other model and understood in full without further explanation.
 
@@ -115,7 +115,7 @@ The export is one Markdown file with: a summary, how to read it, every layer as 
 curl -s https://processtheworld.vercel.app/api/public/$PUBLIC_ID/export > process.md
 ```
 
-People get the same file from the "Export for AI" item in the menu of any process in the app.
+People get the same file from "Export as Markdown (.md)" in the menu of any process in the app. The same menu has **Copy as Claude skill** (a ready-to-save SKILL.md that tells Claude how to follow the process) and **Copy as ChatGPT instructions** (custom-GPT instructions, kept under the 8,000 character limit).
 
 ## 6. Points
 

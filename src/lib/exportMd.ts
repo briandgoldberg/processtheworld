@@ -5,13 +5,13 @@
 type Lane = { id: string; name: string; type: "person" | "system" | string };
 type Next = { to: string; label?: string; map?: string };
 type Step = { id: string; lane: string; label: string; kind?: string; uses?: string[]; next?: Next[]; child?: string };
-type MapT = { id: string; title?: string; parent?: { map: string; step: string } | null; lanes: Lane[]; steps: Step[] };
+export type MapT = { id: string; title?: string; parent?: { map: string; step: string } | null; lanes: Lane[]; steps: Step[] };
 type Doc = { title?: string; maps: Record<string, MapT> };
 
 const clean = (s: unknown) => String(s ?? "").replace(/\s+/g, " ").trim();
 
 /** Steps in the order the process runs: starts first, then follow the arrows, then anything left over. */
-function ordered(m: MapT): Step[] {
+export function ordered(m: MapT): Step[] {
   const byId = new Map(m.steps.map(s => [s.id, s]));
   const seen = new Set<string>(), out: Step[] = [];
   const visit = (id: string) => {

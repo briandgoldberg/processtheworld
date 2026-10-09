@@ -1,5 +1,6 @@
 
 import { exportMarkdown } from '@/lib/exportMd';
+import { claudeSkill, chatgptInstructions, skillSlug } from '@/lib/agentExport';
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rid = p => p + Math.random().toString(36).slice(2, 9);
@@ -1345,7 +1346,7 @@ function menuHTML(p){
   else if (k === 'public'){ items.push(['copy', 'Make my own copy'], ['tweet', 'Share on X'], ['copypub', 'Copy link']); }
   else if (k === 'view'){ items.push(['copy', 'Make a private copy'], ['leave', 'Remove from my list', 'danger']); }
   else items.push(['copy', 'Make a copy']);
-  if (k !== 'compare') items.unshift(['export', 'Export for AI']);
+  if (k !== 'compare') items.unshift(['export', 'Export as Markdown (.md)'], ['copyskill', 'Copy as Claude skill'], ['copygpt', 'Copy as ChatGPT instructions']);
   return `<div class="menu" role="menu">${items.map(([a, l, c]) => `<button role="menuitem" class="menu-item${c ? ' ' + c : ''}" data-act="${a}">${esc(l)}</button>`).join('')}</div>`;
 }
 function renderPanel(){
@@ -1400,6 +1401,14 @@ async function onAction(e){
       try { const d = await API.post('/api/public/' + q.publicId + '/like', {}); q.liked = d.liked; q.likes = d.likes; track(d.liked ? 'like' : 'unlike', { publicId:q.publicId }); }
       catch (e){ alertBox(e.message); }
       break; }
+    case 'copyskill': case 'copygpt': {
+      const q = S.real || p, doc = { title:q.title, maps:q.maps };
+      let text, msg;
+      if (a === 'copyskill'){ text = claudeSkill(doc); msg = 'Copied. Save it as SKILL.md in a folder named ' + skillSlug(doc) + ', then add the folder to Claude as a skill.'; }
+      else { const r = chatgptInstructions(doc); text = r.text; msg = r.trimmed ? 'Copied, trimmed to ChatGPT’s 8,000 character limit. Export as Markdown and add it to the GPT as a knowledge file for the rest.' : 'Copied. Paste it into your GPT’s Instructions.'; }
+      try { await navigator.clipboard.writeText(text); alertBox(msg); } catch { alertBox('Could not copy. Use Export as Markdown instead.'); }
+      track(a === 'copyskill' ? 'copy_claude_skill' : 'copy_chatgpt', {}, q.id);
+      S.panel = null; renderPanel(); return; }
     case 'export': {
       const q = S.real || p;
       const md = exportMarkdown({ title:q.title, maps:q.maps }, { url:q.publicId ? pubLink(q.publicId) : undefined, author:q.publishedBy });
@@ -1408,7 +1417,7 @@ async function onAction(e){
       a.download = ((q.title || 'process').replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '').toLowerCase() || 'process') + '.md';
       document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
       track('export_ai', {}, q.id);
-      alertBox('Saved as Markdown. Upload it to ChatGPT or Claude.');
+      alertBox('Saved as a Markdown (.md) file. Upload it to ChatGPT or Claude.');
       S.panel = null; renderPanel(); return; }
     case 'tweet': {
       const q = S.real || p, t = (q.title && q.title !== 'Untitled process') ? q.title : 'a process';
