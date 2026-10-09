@@ -100,7 +100,7 @@ const EXAMPLES = [EX_EGG, EX_CAR, EX_TEA];
 
 /* ---------- State ---------- */
 const S = { view:'login', me:null, ready:false,
-  mine:[], pub:[], cur:null, path:['m_root'], sel:null, busy:false, ctl:null,
+  mine:[], shared:[], pub:[], cur:null, real:null, compare:null, panel:null, panelMsg:'', path:['m_root'], sel:null, busy:false, ctl:null,
   fresh:new Set(), save:'', tab:'chat', deep:false, confirmPub:false, confirmDel:null, acct:false, notice:'', toast:'',
   sessionTurns:0, askedThisSession:false, lastTurnId:null };
 
@@ -169,16 +169,30 @@ async function sendEvents(){
 /* Opening an example or someone's public process is read-only; the first change makes a private copy */
 function ensureOwned(){
   const p = S.cur; if (!readOnly(p)) return;
-  const copy = clone(p);
-  const from = p.readonly ? `“${p.title}” by ${p.publishedBy}` : 'this example';
-  delete copy.example; delete copy.readonly; delete copy.publishedBy; delete copy.publicId; delete copy.mine;
+  if (S.compare) closeCompare();
+  const q = S.cur;
+  const copy = clone(q);
+  const from = q.example ? 'this example' : `“${q.title}” by ${q.publishedBy || q.owner}`;
+  for (const k of ['example','readonly','publishedBy','publicId','mine','role','owner','rev','version','openProposals','viewShare','shareCount']) delete copy[k];
   copy.id = rid('p'); copy.events = []; copy.undo = null; copy.rating = null;
-  if (p.readonly){ copy.forkedFrom = p.publicId; API.post('/api/public/' + p.publicId, {}).catch(()=>{}); }
+  if (q.publicId && !q.viewShare){ copy.forkedFrom = q.publicId; API.post('/api/public/' + q.publicId, {}).catch(()=>{}); }
   copy.chat = (copy.chat || []).concat([{ role:'note', content:`Saved your own private copy of ${from}.` }]);
   S.cur = copy;
-  track('copy_made', { from:p.publicId || p.id, example:!!p.example }, copy.id);
+  track('copy_made', { from:q.publicId || q.id, example:!!q.example }, copy.id);
 }
-
+/* "Suggest changes" on a public process: a private draft tied to the version it started from */
+function startSuggestion(){
+  const q = S.real || S.cur; if (!q?.publicId || !q.readonly) return;
+  if (S.compare) closeCompare();
+  const d = clone(S.cur);
+  for (const k of ['readonly','publishedBy','mine','role','owner','rev','openProposals','viewShare','example']) delete d[k];
+  d.id = rid('p'); d.events = []; d.undo = null; d.rating = null; d.status = 'interviewing';
+  d.proposalFor = q.publicId; d.proposalBase = q.version || 1; d.suggestTitle = q.title; d.suggestAuthor = q.publishedBy; delete d.publicId;
+  d.chat = [{ role:'note', content:`You're suggesting changes to “${q.title}” by ${q.publishedBy}. Describe or make your changes, then choose “Submit for review”. Other people will compare before and after and vote.` }];
+  S.cur = d; S.sel = null; S.panel = null; dirty = true;
+  track('suggestion_started', { publicId:q.publicId }, d.id);
+  flush(); renderWork();
+}
 /* ---------- Apply one AI or human change ---------- */
 /* A "turn" carries what this AI turn may and may not do:
    pre       — step keys (map|id) that existed before the turn; the AI can only PROPOSE removing these
@@ -651,10 +665,19 @@ function keptUndo(p){
 function serialize(p){
   const st = stats(p);
   return { id:p.id, title:p.title, updatedAt:p.updatedAt, stepCount:st.steps, depth:st.depth, laneTypes:st.lanes.map(l=>l.type).slice(0,8),
-    status:p.status || 'interviewing', forkedFrom:p.forkedFrom || null, rating:p.rating ?? null, dismissed:(p.dismissed || []).slice(-200),
+    status:p.status || 'interviewing', forkedFrom:p.forkedFrom || null, proposalFor:p.proposalFor || null, proposalBase:p.proposalBase ?? null,
+    suggestTitle:p.suggestTitle || null, suggestAuthor:p.suggestAuthor || null, submitted:p.submitted || null,
+    rating:p.rating ?? null, dismissed:(p.dismissed || []).slice(-200),
     maps:p.maps, undo:keptUndo(p), chat:p.chat.filter(x=>!x.pending).slice(-40), events:(p.events||[]).slice(-300) };
 }
 function touch(){ if (!S.cur || readOnly(S.cur)) return; S.cur.updatedAt = Date.now(); dirty = true; clearTimeout(saveTimer); saveTimer = setTimeout(flush, 900); setSave('Unsaved changes'); }
+/* Load a saved process the way the server describes it (who owns it, your role) */
+function fromServer(id, d){
+  const p = { ...d.doc, id, rev:d.rev, role:d.role, owner:d.owner, publicId:d.publicId || null, proposalFor:d.proposalFor || d.doc.proposalFor || null, proposalBase:d.proposalBase ?? d.doc.proposalBase ?? null };
+  if (d.role === 'view'){ p.readonly = true; p.viewShare = true; p.publishedBy = d.owner; }
+  p.chat = p.chat || []; p.events = p.events || [];
+  return p;
+}
 async function flush(){
   if (savePromise){ await savePromise; if (!dirty) return; }
   const p = S.cur; if (!p || readOnly(p) || !dirty) return;
@@ -662,39 +685,66 @@ async function flush(){
   savePromise = (async () => {
     setSave('Saving…');
     try {
-      await API.put('/api/processes/' + p.id, { doc:serialize(p) });
-      setSave('Saved');
-      const row = { id:p.id, title:p.title, status:p.status, ...stats(p), stepCount:stats(p).steps, laneTypes:stats(p).lanes.map(l => l.type), updatedAt:p.updatedAt, publicId:p.publicId || null };
-      S.mine = [row, ...S.mine.filter(x => x.id !== p.id)];
-    } catch (e){ dirty = true; setSave(e?.status === 413 ? 'Too large to save' : 'Not saved — will retry'); clearTimeout(saveTimer); saveTimer = setTimeout(flush, 5000); }
+      const d = await API.put('/api/processes/' + p.id, { doc:serialize(p), baseRev:p.rev || 0 });
+      p.rev = d.rev; setSave('Saved');
+      if (!p.role || p.role === 'owner'){
+        const row = { id:p.id, title:p.title, status:p.status, stepCount:stats(p).steps, depth:stats(p).depth, laneTypes:stats(p).lanes.map(l => l.type), updatedAt:p.updatedAt, publicId:p.publicId || null, proposalFor:p.proposalFor || null, shareCount:p.shareCount || 0 };
+        S.mine = [row, ...S.mine.filter(x => x.id !== p.id)];
+      }
+    } catch (e){
+      if (e?.status === 409 && e.code !== 'outdated'){ await reloadCurrent('Someone else changed this process while you were editing, so it was reloaded with their version.'); return; }
+      dirty = true; setSave(e?.status === 413 ? 'Too large to save' : e?.status === 403 ? 'View only' : 'Not saved — will retry');
+      if (e?.status !== 403 && e?.status !== 413){ clearTimeout(saveTimer); saveTimer = setTimeout(flush, 5000); }
+    }
   })();
   try { await savePromise; } finally { savePromise = null; }
 }
+async function reloadCurrent(note){
+  const p = S.cur; if (!p) return;
+  try {
+    const d = await API.get('/api/processes/' + p.id);
+    const fresh = fromServer(p.id, d);
+    fresh.shareCount = p.shareCount;
+    S.cur = fresh; dirty = false;
+    S.path = S.path.filter(id => fresh.maps[id]); if (!S.path.length) S.path = ['m_root'];
+    if (note) fresh.chat.push({ role:'note', content:note });
+    setSave('Saved'); renderWork();
+  } catch {}
+}
+/* While a shared process is open, pick up other people's saves */
+setInterval(async () => {
+  const p = S.cur;
+  if (S.view !== 'work' || !p || S.busy || dirty || savePromise || readOnly(p) || document.hidden) return;
+  if (!(p.role === 'edit' || (p.shareCount || 0) > 0)) return;
+  try { const d = await API.get('/api/processes/' + p.id + '?rev=1'); if (S.cur === p && d.rev > (p.rev || 0)) reloadCurrent('Updated with the latest changes from people you share this with.'); } catch {}
+}, 15000);
 async function deleteProcess(id){
   S.confirmDel = null;
   if (S.cur?.id === id){ clearTimeout(saveTimer); dirty = false; }
-  S.mine = S.mine.filter(x => x.id !== id);
-  S.pub = S.pub.filter(x => x.processId !== id && x.id !== S.cur?.publicId);
+  S.mine = S.mine.filter(x => x.id !== id); S.shared = S.shared.filter(x => x.id !== id);
+  S.pub = S.pub.filter(x => x.processId !== id);
   if (S.cur?.id === id){ S.cur = null; S.view = 'home'; }
   render();
   try { await API.del('/api/processes/' + id); } catch { S.notice = 'Could not delete that process. Try again.'; render(); }
 }
-async function publish(){
+async function publish(note){
   const p = S.cur; if (!p || readOnly(p) || S.busy) return;
-  S.confirmPub = false; dirty = true;
+  S.panel = null; dirty = true;
   try {
     await flush();
-    const d = await API.post('/api/processes/' + p.id + '/publish', {});
-    const first = !p.publicId;
+    const d = await API.post('/api/processes/' + p.id + '/publish', { note:note || '' });
+    const first = !!d.published;
     p.publicId = d.publicId;
     logEvent(p, { who:'human', op:first ? 'publish' : 'publish_update' });
-    p.chat.push({ role:'note', content:first ? `Published as ${S.me?.handle}. Anyone can open a read-only copy; changes they make stay private to them.` : 'Updated the published version.' });
+    p.chat.push({ role:'note', content:first ? `Published as ${S.me?.handle}. Anyone can open it. People can suggest changes, and changes go live when the votes agree.`
+      : 'Your update was submitted as a suggested change to the public version. It goes live when the votes agree.' });
     touch(); loadPublic();
   } catch (e){ p.chat.push({ role:'note', content:'Could not publish: ' + (e?.message || 'try again.') }); }
-  renderWork();
+  S.tab = 'chat'; renderWork();
 }
 async function unpublish(){
   const p = S.cur; if (!p?.publicId) return;
+  S.panel = null;
   try {
     await API.del('/api/processes/' + p.id + '/publish');
     p.publicId = null; logEvent(p, { who:'human', op:'unpublish' });
@@ -702,9 +752,191 @@ async function unpublish(){
   } catch {}
   renderWork();
 }
-async function loadMine(){ try { S.mine = (await API.get('/api/processes')).processes; } catch {} if (S.view === 'home') render(); }
+async function submitSuggestion(note){
+  const p = S.cur; if (!p?.proposalFor) return;
+  try {
+    dirty = true; await flush();
+    const d = await API.post('/api/public/' + p.proposalFor + '/proposals', { processId:p.id, note });
+    p.submitted = d.proposalId; S.panel = null;
+    logEvent(p, { who:'human', op:'proposal_submitted', proposalId:d.proposalId });
+    p.chat.push({ role:'note', content:'Submitted for review. People can now compare before and after and vote. You can keep editing and submit again; the newest submission replaces the earlier one.' });
+    touch();
+  } catch (e){ S.panelMsg = e.message; }
+  S.tab = 'chat'; renderWork();
+}
+async function loadMine(){ try { const d = await API.get('/api/processes'); S.mine = d.processes; S.shared = d.shared || []; } catch {} if (S.view === 'home') render(); }
 async function loadPublic(){ try { S.pub = (await API.get('/api/public')).processes; } catch {} if (S.view === 'home') render(); }
+/* ---------- Sharing ---------- */
+const RULE_SHORT = 'A change goes live when “after is better” leads by 2 votes; the person who suggested it counts as one.';
+async function loadShares(){
+  const p = S.cur;
+  try { S.shareData = await API.get('/api/processes/' + p.id + '/shares'); }
+  catch (e){ S.shareData = { error:e.status === 404 ? 'Save the process first, then share it.' : e.message, people:[] }; }
+  p.shareCount = (S.shareData.people || []).length;
+  if (S.panel === 'share') renderPanel();
+  renderTopActions();
+}
+function shareHTML(){
+  const d = S.shareData, close = '<button class="btn ghost sm" data-act="close" aria-label="Close">✕</button>';
+  const head = `<div class="ins-head"><span class="label">Share “${esc(S.cur.title)}”</span>${close}</div>`;
+  if (!d) return `<div class="sheet">${head}<p class="hint">Loading…</p></div>`;
+  if (d.error) return `<div class="sheet">${head}<p class="hint">${esc(d.error)}</p></div>`;
+  const msg = S.panelMsg ? `<p class="hint panel-msg" role="status">${esc(S.panelMsg)}</p>` : '';
+  const people = d.people.map(x => `<li class="person">
+      <span class="pname">${esc(x.name)}${x.you ? ' <span class="hint">(you)</span>' : ''}${x.pending ? ' <span class="pill">Invited</span>' : ''}</span>
+      ${d.canManage ? `<select data-role-for="${esc(x.id)}" aria-label="Access for ${esc(x.name)}"><option value="edit" ${x.role === 'edit' ? 'selected' : ''}>Can edit</option><option value="view" ${x.role === 'view' ? 'selected' : ''}>Can view</option></select>`
+        : `<span class="hint">${x.role === 'view' ? 'Can view' : 'Can edit'}</span>`}
+      ${d.canManage || x.you ? `<button class="btn ghost sm" data-act="unshare" data-id="${esc(x.id)}" aria-label="Remove ${esc(x.name)}">✕</button>` : ''}
+    </li>`).join('');
+  return `<div class="sheet">${head}
+    ${d.canManage ? `<form data-form="invite" class="invite"><label class="label" for="inv-who">Invite by username or email</label>
+      <div class="row-in"><input id="inv-who" name="who" required placeholder="username or name@example.com" autocomplete="off">
+      <select name="role" aria-label="Access"><option value="edit">Can edit</option><option value="view">Can view</option></select>
+      <button class="btn primary sm">Invite</button></div>
+      <p class="hint">People without an account get an email invite. Accepting it signs them up.</p></form>` : '<p class="hint">Only the owner can invite people.</p>'}
+    ${msg}
+    <p class="label">People with access</p>
+    <ul class="people"><li class="person"><span class="pname">${esc(d.owner)}</span><span class="hint">Owner</span></li>${people}</ul>
+  </div>`;
+}
+async function invite(f){
+  const who = f.elements.who.value.trim(), role = f.elements.role.value;
+  if (!who) return;
+  try {
+    await flush();
+    const d = await API.post('/api/processes/' + S.cur.id + '/shares', { who, role });
+    S.panelMsg = d.added ? `Added ${d.added}. It's in their “Shared with me”.` : `Invite sent to ${d.invited}.`;
+    track('shared', { by:who.includes('@') ? 'email' : 'username', role });
+    S.shareData = null; await loadShares();
+  } catch (e){ S.panelMsg = e.message; renderPanel(); }
+}
+async function setRole(id, role){ try { await API.call('/api/processes/' + S.cur.id + '/shares/' + id, { method:'PATCH', body:JSON.stringify({ role }) }); S.panelMsg = 'Updated.'; } catch (e){ S.panelMsg = e.message; } S.shareData = null; loadShares(); }
+async function unshare(id){
+  const me = S.shareData?.people.find(x => x.id === id)?.you;
+  try { await API.del('/api/processes/' + S.cur.id + '/shares/' + id); } catch (e){ S.panelMsg = e.message; }
+  if (me){ S.panel = null; S.view = 'home'; S.cur = null; loadMine(); render(); return; }
+  S.shareData = null; loadShares();
+}
 
+/* ---------- Public collaboration: suggestions, compare, vote ---------- */
+function pubId(){ return (S.real || S.cur)?.publicId; }
+async function loadReview(){
+  try { S.reviewData = await API.get('/api/public/' + pubId() + '/proposals?status=open'); }
+  catch (e){ S.reviewData = { error:e.message, proposals:[] }; }
+  const q = S.real || S.cur; if (q) q.openProposals = S.reviewData.proposals?.length || 0;
+  if (S.panel === 'review') renderPanel(); renderTopActions();
+}
+function ago(t){ const s = (Date.now() - new Date(t).getTime()) / 1000; return s < 60 ? 'just now' : s < 3600 ? Math.round(s / 60) + 'm ago' : s < 86400 ? Math.round(s / 3600) + 'h ago' : Math.round(s / 86400) + 'd ago'; }
+function reviewHTML(){
+  const d = S.reviewData, close = '<button class="btn ghost sm" data-act="close" aria-label="Close">✕</button>';
+  const head = `<div class="ins-head"><span class="label">Suggested changes</span>${close}</div>`;
+  if (!d) return `<div class="sheet">${head}<p class="hint">Loading…</p></div>`;
+  if (d.error) return `<div class="sheet">${head}<p class="hint">${esc(d.error)}</p></div>`;
+  return `<div class="sheet">${head}<p class="hint">${esc(d.rule)}</p>
+    ${d.proposals.length ? `<ul class="props">${d.proposals.map(x => `<li class="prop-card">
+      <p><b>${esc(x.note)}</b></p>
+      <p class="hint">by ${esc(x.mine ? 'you' : x.author)} · ${ago(x.createdAt)} · ${diffMaps(x.mapsBefore, x.mapsAfter).items.length} differences</p>
+      <p class="tally"><span>After is better: <b>${x.after}</b></span><span>Before is better: <b>${x.before}</b></span>${x.myVote ? `<span class="hint">You voted ${x.myVote === 'after' ? 'after' : 'before'}</span>` : ''}</p>
+      <div class="prop-acts"><button class="btn primary sm" data-act="compare" data-id="${esc(x.id)}">Compare and vote</button></div>
+    </li>`).join('')}</ul>` : '<p>No suggested changes right now. Use “Suggest changes” to propose one.</p>'}
+  </div>`;
+}
+async function loadHistory(){
+  try { S.historyData = await API.get('/api/public/' + pubId() + '/history'); } catch (e){ S.historyData = { error:e.message }; }
+  if (S.panel === 'history') renderPanel();
+}
+function historyHTML(){
+  const d = S.historyData, close = '<button class="btn ghost sm" data-act="close" aria-label="Close">✕</button>';
+  const head = `<div class="ins-head"><span class="label">Version history</span>${close}</div>`;
+  if (!d) return `<div class="sheet">${head}<p class="hint">Loading…</p></div>`;
+  if (d.error) return `<div class="sheet">${head}<p class="hint">${esc(d.error)}</p></div>`;
+  const byId = Object.fromEntries((d.decided || []).map(x => [x.id, x]));
+  return `<div class="sheet">${head}<ul class="props">${d.versions.map(v => `<li class="prop-card"><p><b>Version ${v.version}</b> <span class="hint">${new Date(v.createdAt).toLocaleDateString()}</span></p>
+      <p class="hint">${v.proposalId && byId[v.proposalId] ? `${esc(byId[v.proposalId].note)} · suggested by ${esc(byId[v.proposalId].author)}` : v.version === 1 ? 'First published' : 'Accepted change'}</p></li>`).join('')}</ul>
+    ${(d.decided || []).filter(x => x.status === 'rejected').length ? `<p class="label">Turned down</p><ul class="props">${d.decided.filter(x => x.status === 'rejected').map(x => `<li class="prop-card"><p>${esc(x.note)}</p><p class="hint">by ${esc(x.author)}</p></li>`).join('')}</ul>` : ''}
+  </div>`;
+}
+/* What changed between two versions, in words, plus marks for the board */
+function diffMaps(before, after){
+  before = before || {}; after = after || {};
+  const items = [], marks = { before:{}, after:{} };
+  const mark = (side, map, id, kind) => { (marks[side][map] ||= {})[id] = kind; };
+  const nameOf = (maps, mapId) => mapId === 'm_root' ? 'the main flow' : '“' + (maps[mapId]?.title || 'a layer') + '”';
+  for (const id of new Set([...Object.keys(before), ...Object.keys(after)])){
+    const a = before[id], b = after[id];
+    if (!a){ items.push({ k:'add', t:`New layer ${nameOf(after, id)}` }); (b.steps || []).forEach(s => mark('after', id, s.id, 'add')); continue; }
+    if (!b){ items.push({ k:'rem', t:`Removed layer ${nameOf(before, id)}` }); continue; }
+    const where = id === 'm_root' ? '' : ` in ${nameOf(after, id)}`;
+    const la = Object.fromEntries((a.lanes || []).map(l => [l.id, l])), lb = Object.fromEntries((b.lanes || []).map(l => [l.id, l]));
+    for (const l of b.lanes || []) if (!la[l.id] && !(a.lanes || []).some(x => x.name === l.name)) items.push({ k:'add', t:`New lane “${l.name}”${where}` });
+    for (const l of a.lanes || []) if (!lb[l.id] && !(b.lanes || []).some(x => x.name === l.name)) items.push({ k:'rem', t:`Removed lane “${l.name}”${where}` });
+    const sa = Object.fromEntries((a.steps || []).map(s => [s.id, s])), sb = Object.fromEntries((b.steps || []).map(s => [s.id, s]));
+    for (const s of b.steps || []){
+      const o = sa[s.id];
+      if (!o){ items.push({ k:'add', t:`Added “${s.label}”${where}` }); mark('after', id, s.id, 'add'); continue; }
+      const ch = [];
+      if (o.label !== s.label) ch.push(`renamed “${o.label}” to “${s.label}”`);
+      if (o.lane !== s.lane) ch.push(`moved “${s.label}” to ${lb[s.lane]?.name || 'another lane'}`);
+      if (o.kind !== s.kind) ch.push(`made “${s.label}” a ${s.kind}`);
+      const key = st => (st.next || []).map(n => (n.map || '') + '>' + n.to + ':' + (n.label || '')).sort().join('|');
+      if (key(o) !== key(s)) ch.push(`changed what follows “${s.label}”`);
+      if (ch.length){ ch.forEach(t => items.push({ k:'chg', t:t[0].toUpperCase() + t.slice(1) + where })); mark('after', id, s.id, 'chg'); mark('before', id, s.id, 'chg'); }
+    }
+    for (const s of a.steps || []) if (!sb[s.id]){ items.push({ k:'rem', t:`Removed “${s.label}”${where}` }); mark('before', id, s.id, 'rem'); }
+  }
+  return { items, marks };
+}
+function openCompare(id){
+  const x = S.reviewData?.proposals.find(p => p.id === id); if (!x) return;
+  if (!S.real) S.real = S.cur;
+  S.compare = { prop:x, side:'after', diff:diffMaps(x.mapsBefore, x.mapsAfter) };
+  S.panel = null; S.sel = null; S.tab = 'map';
+  track('compare_opened', { proposalId:id }, null);
+  applyCompareSide();
+}
+function applyCompareSide(){
+  const c = S.compare, base = S.real;
+  S.cur = { ...base, maps:clone(c.side === 'after' ? c.prop.mapsAfter : c.prop.mapsBefore), readonly:true, chat:base.chat, events:[] };
+  renderWork();
+}
+function closeCompare(){ if (S.real) S.cur = S.real; S.real = null; S.compare = null; if (S.view === 'work') renderWork(); }
+function renderCompare(){
+  const el = $('#compare'); if (!el) return;
+  const c = S.compare; if (!c){ el.innerHTML = ''; return; }
+  const x = c.prop, items = c.diff.items;
+  el.innerHTML = `<div class="cmp">
+    <div class="cmp-head"><div class="cmp-note"><span class="label">Suggested change</span><b>${esc(x.note)}</b><span class="hint">by ${esc(x.mine ? 'you' : x.author)}</span></div>
+      <button class="btn ghost sm" data-act="endcompare">← All changes</button></div>
+    <div class="cmp-row">
+      <div class="seg-toggle" role="group" aria-label="Which version to show">
+        <button class="${c.side === 'before' ? 'on' : ''}" data-act="side" data-side="before" aria-pressed="${c.side === 'before'}">Before</button>
+        <button class="${c.side === 'after' ? 'on' : ''}" data-act="side" data-side="after" aria-pressed="${c.side === 'after'}">After</button>
+      </div>
+      ${x.mine ? `<span class="hint">You suggested this, so your vote counts for “after”.</span><button class="btn ghost sm danger" data-act="withdraw" data-id="${esc(x.id)}">Withdraw</button>`
+        : `<div class="votes"><button class="btn sm${x.myVote === 'before' ? ' primary' : ''}" data-act="vote" data-choice="before" data-id="${esc(x.id)}" aria-pressed="${x.myVote === 'before'}">Before is better</button>
+           <button class="btn sm${x.myVote === 'after' ? ' primary' : ''}" data-act="vote" data-choice="after" data-id="${esc(x.id)}" aria-pressed="${x.myVote === 'after'}">After is better</button></div>`}
+      <span class="tally"><span>After <b>${x.after}</b></span><span>Before <b>${x.before}</b></span></span>
+    </div>
+    <details class="cmp-diff" ${items.length <= 4 ? 'open' : ''}><summary>${items.length} difference${items.length === 1 ? '' : 's'}</summary>
+      <ul>${items.slice(0, 40).map(i => `<li class="d-${i.k}">${esc(i.t)}</li>`).join('') || '<li>No differences in the steps.</li>'}</ul></details>
+  </div>`;
+}
+async function vote(id, choice){
+  try {
+    const d = await API.post('/api/proposals/' + id + '/vote', { choice });
+    const x = S.compare?.prop; if (x){ x.after = d.after; x.before = d.before; x.myVote = d.myVote; }
+    if (d.status === 'accepted'){ alertBox('That change had enough votes and is now live.'); const id2 = pubId(); closeCompare(); openProcess(id2, 'pub'); return; }
+    if (d.status === 'rejected'){ alertBox('That change was turned down by the votes.'); closeCompare(); S.panel = 'review'; S.reviewData = null; loadReview(); return; }
+    if (d.status === 'superseded'){ alertBox('The public version changed in the meantime, so this suggestion is out of date.'); closeCompare(); S.panel = 'review'; S.reviewData = null; loadReview(); return; }
+    renderCompare();
+  } catch (e){ alertBox(e.message); }
+}
+async function withdraw(id){
+  try { await API.post('/api/proposals/' + id + '/withdraw', {}); alertBox('Suggestion withdrawn.'); } catch {}
+  closeCompare(); S.panel = 'review'; S.reviewData = null; loadReview(); renderPanel();
+}
+
+let rsz = 0; addEventListener('resize', () => { clearTimeout(rsz); rsz = setTimeout(() => { if (S.view === 'work' && S.cur) renderBoard(); }, 150); });
 /* ---------- Layout ---------- */
 const L = { HEAD:150, COL:196, BOXW:158, BOXH:60, ROWGAP:16, PADX:28, PADY:16, BAND:22 };
 function layout(m){
@@ -755,27 +987,38 @@ function render(){
 /* ---------- Account: anonymous handle, optional email ---------- */
 function acctHTML(){
   const me = S.me; if (!me) return '';
+  const nameForm = `<form data-name-form class="acct-form"><label class="label" for="acct-name">Username</label>
+      <div class="row-in"><input id="acct-name" name="handle" value="${esc(me.handle)}" maxlength="24" autocomplete="username" aria-describedby="acct-name-msg"><button class="btn sm">Save</button></div>
+      <p class="hint" id="acct-name-msg" data-name-msg role="status"></p></form>`;
   const panel = !S.acct ? '' : me.email ? `
     <div class="acct-panel" role="dialog" aria-label="Account">
-      <p>Signed in as <b>${esc(me.email)}</b>. You map as <b>${esc(me.handle)}</b>.</p>
+      <p>Signed in as <b>${esc(me.email)}</b>.</p>
+      ${nameForm}
       ${me.isAdmin ? '<a class="btn sm" href="/admin">Admin dashboard</a>' : ''}
       <button class="btn sm" data-acct="signout">Sign out</button>
     </div>` : `
     <div class="acct-panel" role="dialog" aria-label="Account">
-      <p>You're mapping as <b>${esc(me.handle)}</b>. Add your email to keep your processes on any device, or to sign in.</p>
+      ${nameForm}
+      <p class="hint">Your processes are saved to this browser. Add your email to keep them on any device, or to sign in.</p>
       ${emailFormHTML('acct')}
     </div>`;
-  return `${me.isAdmin ? '<a class="btn sm admin-link" href="/admin">Admin dashboard</a>' : ''}<div class="acct"><button class="btn ghost acct-btn" data-acct="toggle" aria-expanded="${S.acct}">${esc(me.email ? me.email.split('@')[0] : me.handle)} ▾</button>${panel}</div>`;
+  return `${me.isAdmin ? '<a class="btn sm admin-link hide-sm" href="/admin">Admin</a>' : ''}<div class="acct"><button class="btn ghost acct-btn" data-acct="toggle" aria-expanded="${S.acct}"><span class="acct-name">${esc(me.handle)}</span> ▾</button>${panel}</div>`;
 }
 function wireAcct(root){
   root.querySelectorAll('[data-acct]').forEach(b => b.onclick = e => {
     e.stopPropagation();
     if (b.dataset.acct === 'toggle'){ S.acct = !S.acct; render(); return; }
-    if (b.dataset.acct === 'signout'){ ls.del('ptw_key'); location.href = '/'; }
+    if (b.dataset.acct === 'signout'){ ls.del('ptw_key'); ls.del('ptw_in'); location.href = '/'; }
+  });
+  root.querySelectorAll('[data-name-form]').forEach(f => f.onsubmit = async e => {
+    e.preventDefault(); e.stopPropagation();
+    const v = f.elements.handle.value.trim(), msg = f.querySelector('[data-name-msg]');
+    if (!/^[A-Za-z0-9._-]{3,24}$/.test(v)){ msg.textContent = 'Usernames are 3–24 letters, numbers, dots, dashes or underscores.'; return; }
+    try { S.me = await API.post('/api/account/username', { handle:v }); msg.textContent = 'Saved.'; track('username_changed'); setTimeout(() => { if (S.acct) render(); }, 900); }
+    catch (err){ msg.textContent = err.message; }
   });
   wireEmailForm(root);
 }
-/* One box for signing up and signing in: email, plus an optional username */
 function emailFormHTML(p){
   return `<form data-email-form class="acct-form" novalidate>
     <label class="label" for="${p}-email">Email</label>
@@ -807,37 +1050,64 @@ document.addEventListener('click', e => { if (S.acct && !e.target.closest('.acct
 
 function renderLogin(app){
   app.innerHTML = `
-  <div class="top"><div class="mark"><i>PW</i>Process the World</div></div>
-  <div class="login"><div class="login-card">
-    <h1>Explain how work gets done. Watch it become a map.</h1>
-    <p>Describe a process in your own words. Each message updates a swim-lane map of the people, steps and technology involved, and any step can open into its own layer of detail.</p>
-    <div class="lanes-demo">
-      <div class="p">PERSON <span>Cook · Cracks the egg into the pan</span></div>
-      <div class="p">PERSON <span>Driver · Presses the brake and Start</span></div>
-      <div class="s">SYSTEM <span>Kettle · Boils the water and clicks off</span></div>
-    </div>
-    <div class="login-box">${emailFormHTML('li')}</div>
-    <button class="linkish" id="go">Or start mapping without an email</button>
-  </div></div>`;
-  $('#go').onclick = () => { ls.set('ptw_in','1'); S.view = 'home'; render(); };
+  <div class="top land-top"><button class="mark linkish-plain" data-home>${MARK}</button><div class="grow"></div>
+    ${ls.get('ptw_in') ? '<button class="btn sm" id="to-lib">Your library</button>' : '<a class="btn ghost sm" href="#start">Sign in</a>'}</div>
+  <main class="landing">
+    <section class="hero">
+      <div class="hero-copy">
+        <span class="label">Process the World</span>
+        <h1>Explain how anything gets done. Watch it become a map.</h1>
+        <p class="lead">Describe a process in your own words. An AI interviewer builds a swim-lane map of the people, steps and technology as you talk, and asks about whatever is missing.</p>
+        <div class="hero-acts"><button class="btn primary lg" id="go">Start mapping now</button><span class="hint">No account needed. You'll map as <b>${esc(S.me?.handle || 'an explorer')}</b>.</span></div>
+      </div>
+      <div class="hero-demo" aria-hidden="true">
+        <div class="demo-lane p"><span class="dl-name">Cook</span><span class="dl-step start">Want an egg</span><span class="dl-arrow"></span><span class="dl-step sub">Prepare the pan ↘</span><span class="dl-arrow"></span><span class="dl-step">Crack the egg</span></div>
+        <div class="demo-lane p"><span class="dl-name">Driver</span><span class="dl-step">Press the brake</span><span class="dl-arrow"></span><span class="dl-step dec">Push-button?</span><span class="dl-arrow"></span><span class="dl-step">Press Start</span></div>
+        <div class="demo-lane s"><span class="dl-name">Kettle</span><span class="dl-step">Boil the water</span><span class="dl-arrow"></span><span class="dl-step end">Clicks off</span></div>
+      </div>
+    </section>
+    <section class="start" id="start">
+      <div class="start-card"><h2>Keep your processes</h2><p>Enter your email to save your processes and use them on any device. Already have an account? The same box signs you in.</p>${emailFormHTML('li')}</div>
+    </section>
+    <section class="how">
+      <h2>How it works</h2>
+      <ol class="steps3">
+        <li><b>Describe it</b><span>Type or dictate how something gets done, in your own words. The interviewer asks one good question at a time.</span></li>
+        <li><b>Watch the map build</b><span>People and technology get their own lanes. Any step can open into its own layer of detail.</span></li>
+        <li><b>Share it or open it up</b><span>Keep it private, share it with the people involved, or make it public so others can suggest improvements and vote on them.</span></li>
+      </ol>
+    </section>
+    <section class="examples-land">
+      <h2>Try an example</h2>
+      <div class="cards">${EXAMPLES.map(p => cardHTML(p, 'ex')).join('')}</div>
+    </section>
+    <footer class="land-foot"><span>Every correction teaches the system how processes really work.</span></footer>
+  </main>`;
+  const enter = () => { ls.set('ptw_in','1'); S.view = 'home'; render(); };
+  $('#go').onclick = () => { enter(); startNew(); };
+  const tl = $('#to-lib'); if (tl) tl.onclick = enter;
+  app.querySelectorAll('[data-open]').forEach(b => b.onclick = () => { ls.set('ptw_in','1'); openProcess(b.dataset.open, b.dataset.kind); });
   wireEmailForm(app);
 }
+const MARK = '<i>PW</i>Process the World';
+function startNew(){ S.cur = newProcess(); S.path = ['m_root']; S.sel = null; S.view = 'work'; S.tab = 'chat'; S.panel = null; track('process_started', {}, S.cur.id); render(); }
 
 function cardHTML(p, kind){
   const st = p.stepCount != null ? { steps:p.stepCount, depth:p.depth } : stats(p);
   const types = p.laneTypes || (p.maps?.m_root?.lanes || []).map(l => l.type);
   const when = p.updatedAt ? new Date(p.updatedAt).toLocaleDateString(undefined,{month:'short',day:'numeric'}) : '';
   const del = kind === 'mine' ? (S.confirmDel === p.id
-    ? `<div class="card-del"><span>Delete “${esc(p.title || 'Untitled process')}”? This can't be undone${p.publicId ? ', and the public copy goes too' : ''}.</span><span class="prop-acts"><button class="btn danger sm" data-del-yes="${esc(p.id)}">Delete</button><button class="btn sm" data-del-no>Cancel</button></span></div>`
+    ? `<div class="card-del"><span>Delete “${esc(p.title || 'Untitled process')}”? This can't be undone${p.publicId ? ', and the public version goes too' : ''}.</span><span class="prop-acts"><button class="btn danger sm" data-del-yes="${esc(p.id)}">Delete</button><button class="btn sm" data-del-no>Cancel</button></span></div>`
     : `<button class="card-x" data-del="${esc(p.id)}" aria-label="Delete ${esc(p.title || 'process')}" title="Delete">Delete</button>`) : '';
-  const badge = kind === 'mine' ? (p.publicId ? '<span class="pill pub">Public</span>' : '<span class="pill">Private</span>')
-    : p.example ? '<span class="pill ex">Example</span>' : '<span class="pill pub">Public</span>';
-  const by = kind === 'pub' ? `<span class="by">Published by ${esc(p.processId && S.mine.some(m => m.id === p.processId) ? 'you' : p.authorName)}</span>` : p.example ? '<span class="by">By Process the World</span>' : '';
+  let badge, by = '';
+  if (kind === 'mine'){
+    badge = p.proposalFor ? '<span class="pill ex">Suggestion</span>' : p.publicId ? '<span class="pill pub">Public</span>' : p.shareCount ? `<span class="pill sh">Shared · ${p.shareCount}</span>` : '<span class="pill">Private</span>';
+  } else if (kind === 'shared'){
+    badge = `<span class="pill sh">${p.role === 'view' ? 'Can view' : 'Can edit'}</span>`; by = `<span class="by">Shared by ${esc(p.owner)}</span>`;
+  } else if (kind === 'ex'){ badge = '<span class="pill ex">Example</span>'; by = '<span class="by">By Process the World</span>'; }
+  else { badge = '<span class="pill pub">Public</span>'; by = `<span class="by">Published by ${esc(p.processId && S.mine.some(m => m.id === p.processId) ? 'you' : p.authorName)}${p.openProposals ? ` · ${p.openProposals} to review` : ''}</span>`; }
   return `<div class="card-wrap">${del}<button class="card" data-open="${esc(p.id)}" data-kind="${kind}">
-    <div style="display:flex;justify-content:space-between;gap:8px;align-items:center">
-      ${badge}
-      <span class="mono" style="color:var(--muted);${kind === 'mine' ? 'margin-right:58px' : ''}">${esc(when)}</span>
-    </div>
+    <div class="card-top">${badge}<span class="mono card-when${kind === 'mine' ? ' has-x' : ''}">${esc(when)}</span></div>
     <h3>${esc(p.title || 'Untitled process')}</h3>
     ${by}
     <div class="spark">${types.slice(0,8).map(t => `<b class="${t==='system'?'s':''}"></b>`).join('') || '<b style="background:var(--line)"></b>'}</div>
@@ -846,50 +1116,48 @@ function cardHTML(p, kind){
 }
 
 function renderHome(app){
+  const sec = (title, sub, inner) => `<section class="sec"><div class="sec-head"><h2>${title}</h2><p>${sub}</p></div>${inner}</section>`;
   app.innerHTML = `
-  <div class="top"><div class="mark"><i>PW</i>Process the World</div><div class="grow"></div>
-    ${S.notice ? `<span class="save" style="color:var(--danger)">${esc(S.notice)}</span>` : ''}
-    <button class="btn primary" id="new">New process</button>${acctHTML()}</div>
+  <div class="top"><button class="mark linkish-plain" data-home aria-label="Process the World home">${MARK}</button><div class="grow"></div>
+    ${S.notice ? `<span class="save hide-sm" style="color:var(--danger)">${esc(S.notice)}</span>` : ''}
+    <button class="btn primary" id="new">New<span class="hide-sm"> process</span></button>${acctHTML()}</div>
   <div class="home"><div class="home-in">
     <div class="home-head"><div><div class="label">Library</div><h1>${S.me ? 'Hi, ' + esc(S.me.handle) : 'Your processes'}</h1></div></div>
-    <section class="sec">
-      <div class="sec-head"><h2>My processes</h2><p>Private to you unless you publish them.</p></div>
-      ${S.mine.length ? `<div class="cards">${S.mine.map(p => cardHTML(p,'mine')).join('')}</div>` :
-        `<div class="empty"><b style="color:var(--ink)">No processes yet</b><span>Start one and describe it in your own words, or open a public one below and make it your own.</span><button class="btn" id="new2">New process</button></div>`}
-    </section>
-    <section class="sec">
-      <div class="sec-head"><h2>Public processes</h2><p>Open any of these to explore. Changing one makes your own private copy.</p></div>
-      <div class="cards">${S.pub.map(p => cardHTML(p,'pub')).join('')}${EXAMPLES.map(p => cardHTML(p,'ex')).join('')}</div>
-    </section>
+    ${sec('My processes', 'Private unless you share or publish them.', S.mine.length ? `<div class="cards">${S.mine.map(p => cardHTML(p,'mine')).join('')}</div>` :
+      `<div class="empty"><b style="color:var(--ink)">No processes yet</b><span>Start one and describe it in your own words, or open a public one below.</span><button class="btn" id="new2">New process</button></div>`)}
+    ${S.shared.length ? sec('Shared with me', 'Processes people invited you to.', `<div class="cards">${S.shared.map(p => cardHTML(p,'shared')).join('')}</div>`) : ''}
+    ${sec('Public processes', 'Open any of these. Suggest improvements, or vote on other people’s suggestions.', `<div class="cards">${S.pub.map(p => cardHTML(p,'pub')).join('')}${EXAMPLES.map(p => cardHTML(p,'ex')).join('')}</div>`)}
   </div></div>`;
-  const start = () => { S.cur = newProcess(); S.path = ['m_root']; S.sel = null; S.view = 'work'; S.tab = 'chat'; track('process_started', {}, S.cur.id); render(); };
-  $('#new').onclick = start; const n2 = $('#new2'); if (n2) n2.onclick = start;
+  $('#new').onclick = startNew; const n2 = $('#new2'); if (n2) n2.onclick = startNew;
   wireAcct(app);
   app.querySelectorAll('[data-del]').forEach(b => b.onclick = () => { S.confirmDel = b.dataset.del; render(); });
   app.querySelectorAll('[data-del-no]').forEach(b => b.onclick = () => { S.confirmDel = null; render(); });
   app.querySelectorAll('[data-del-yes]').forEach(b => b.onclick = () => deleteProcess(b.dataset.delYes));
   app.querySelectorAll('[data-open]').forEach(b => b.onclick = () => openProcess(b.dataset.open, b.dataset.kind));
 }
+document.addEventListener('click', e => { if (e.target.closest('[data-home]')){ if (S.view === 'work') flush(); S.compare = null; S.real = null; S.cur = null; S.view = 'login'; render(); window.scrollTo(0, 0); } });
+
 async function openProcess(id, kind){
   let p = null;
   try {
     if (kind === 'ex') p = clone(EXAMPLES.find(x => x.id === id));
     else if (kind === 'pub'){
       const d = await API.get('/api/public/' + id);
-      if (S.mine.some(m => m.id === d.processId)) return openProcess(d.processId, 'mine');
-      p = { ...d.doc, id:'pub_' + id, readonly:true, publishedBy:d.authorName, publicId:id };
+      p = { ...d.doc, id:'pub_' + id, readonly:true, publishedBy:d.authorName, publicId:id, version:d.version, openProposals:d.openProposals };
       track('public_opened', { publicId:id }, null);
     } else {
       const d = await API.get('/api/processes/' + id);
-      p = { ...d.doc, publicId:d.publicId || null };
+      p = fromServer(id, d);
+      const row = (kind === 'shared' ? S.shared : S.mine).find(x => x.id === id);
+      p.shareCount = row?.shareCount || 0;
     }
   } catch { S.notice = 'Could not open that process. Try again.'; render(); return; }
   if (!p) return;
   p.chat = p.chat || []; p.events = p.events || [];
-  S.cur = p; S.path = ['m_root']; S.sel = null; S.view = 'work'; S.checksOpen = false; S.confirmPub = false; S.confirmDel = null;
+  S.compare = null; S.real = null;
+  S.cur = p; S.path = ['m_root']; S.sel = null; S.view = 'work'; S.checksOpen = false; S.panel = null; S.confirmDel = null;
   S.tab = p.maps.m_root.steps.length ? 'map' : 'chat'; render();
 }
-
 const STARTERS = [
   'How I make pancakes from scratch.',
   'How to change a flat bike tire.',
@@ -898,48 +1166,44 @@ const STARTERS = [
 
 function renderWorkShell(app){
   app.innerHTML = `
-  <div class="top">
-    <button class="btn ghost" id="back" aria-label="Back to library">← Library</button>
+  <div class="top work-top">
+    <button class="btn ghost" id="back" aria-label="Back to library">←<span class="hide-sm"> Library</span></button>
     <div class="grow"><input class="title-in" id="title" aria-label="Process name"></div>
-    <span id="vis"></span>
-    <span class="save" id="save"></span>
-    <span id="wpub"></span>
-    <span id="wdel"></span>
+    <span id="vis" class="vis"></span>
+    <span class="save hide-sm" id="save"></span>
+    <span id="wprimary" class="wprimary"></span>
+    <span class="wmenu-wrap"><button class="btn ghost" id="wmenu-btn" aria-label="More actions" aria-haspopup="true">⋯</button></span>
     <span id="wacct"></span>
   </div>
+  <div id="wpanel"></div>
   <div class="tabs" id="tabs"><button data-tab="chat">Conversation</button><button data-tab="map">Map</button></div>
   <div class="work" id="work">
     <aside class="chat">
       <div class="msgs" id="msgs"></div>
       <div class="composer">
-        <textarea id="msg" placeholder="Describe the process in your own words… (tip: use your keyboard's dictation to talk instead of type)" aria-label="Describe the process"></textarea>
+        <textarea id="msg" placeholder="Describe the process in your own words… (tip: use your keyboard's dictation to talk)" aria-label="Describe the process"></textarea>
         <div class="composer-row">
-          <label class="toggle"><input type="checkbox" id="deep"> Deeper thinking (slower)</label>
-          <div style="display:flex;gap:8px"><button class="btn" id="finish">Finish map</button><button class="btn" id="stop" hidden>Stop</button><button class="btn primary" id="sendb">Send</button></div>
+          <label class="toggle"><input type="checkbox" id="deep"> Deeper thinking</label>
+          <div class="composer-acts"><button class="btn" id="finish">Finish map</button><button class="btn" id="stop" hidden>Stop</button><button class="btn primary" id="sendb">Send</button></div>
         </div>
       </div>
     </aside>
     <section class="canvas-wrap">
+      <div id="compare"></div>
       <div class="crumbs" id="crumbs"></div>
       <div class="scroller" id="scroller"><div class="board" id="board"></div></div>
       <div id="inspector"></div>
       <div id="checks"></div>
     </section>
   </div>`;
-  $('#back').onclick = () => { flush(); S.view = 'home'; S.cur = null; S.confirmDel = null; render(); };
-  $('#wpub').onclick = e => { const b = e.target.closest('[data-wpub]'); if (!b) return;
-    const a = b.dataset.wpub;
-    if (a === 'ask'){ S.confirmPub = true; renderWork(); }
-    else if (a === 'no'){ S.confirmPub = false; renderWork(); }
-    else if (a === 'yes' || a === 'update') publish();
-    else if (a === 'unpublish') unpublish(); };
-  $('#wdel').onclick = e => { const b = e.target.closest('[data-wdel]'); if (!b) return;
-    if (b.dataset.wdel === 'ask'){ S.confirmDel = S.cur.id; renderWork(); }
-    else if (b.dataset.wdel === 'no'){ S.confirmDel = null; renderWork(); }
-    else deleteProcess(S.cur.id); };
+  $('#back').onclick = () => { flush(); if (S.compare) closeCompare(); S.view = 'home'; S.cur = null; S.confirmDel = null; S.panel = null; loadMine(); loadPublic(); render(); };
+  $('#wmenu-btn').onclick = e => { e.stopPropagation(); S.panel = S.panel === 'menu' ? null : 'menu'; S.panelMsg = ''; renderPanel(); };
+  $('#wprimary').onclick = onAction; $('#wpanel').onclick = onAction; $('#compare').onclick = onAction;
+  $('#wpanel').addEventListener('submit', onPanelSubmit);
+  $('#wpanel').addEventListener('change', onPanelChange);
   $('#title').onchange = e => { ensureOwned(); const v = e.target.value.trim() || 'Untitled process'; logEvent(S.cur,{who:'human',op:'rename_process',before:S.cur.title,after:v}); S.cur.title = v; S.cur.maps.m_root.title = v; touch(); renderWork(); };
   const msg = $('#msg');
-  msg.onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); send(msg.value); } };
+  msg.onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey && !matchMedia('(max-width: 820px)').matches){ e.preventDefault(); send(msg.value); } };
   $('#sendb').onclick = () => send(msg.value);
   $('#stop').onclick = () => S.ctl?.abort();
   $('#finish').onclick = () => S.cur?.status === 'done' ? resume() : finish();
@@ -956,6 +1220,7 @@ function renderWorkShell(app){
     const fr = e.target.closest('[data-frate]'); if (fr){ rateFinish(+fr.dataset.frate); return; }
     const fw = e.target.closest('[data-fwhy]'); if (fw){ finishReason(fw.dataset.fwhy, fw); return; }
     const ci = e.target.closest('[data-checkin]'); if (ci){ checkin(ci.dataset.checkin); return; }
+    const a = e.target.closest('[data-act]'); if (a){ onAction(e); }
   };
   $('#board').onclick = onBoardClick;
   const onChk = e => {
@@ -970,32 +1235,143 @@ function renderWorkShell(app){
   };
   renderWork();
 }
+document.addEventListener('click', e => {
+  if (S.panel === 'menu' && !e.target.closest('#wpanel') && !e.target.closest('#wmenu-btn')){ S.panel = null; renderPanel(); }
+});
+
+/* What kind of process is open decides the buttons */
+function kindOf(p){
+  if (S.compare) return 'compare';
+  if (p.example) return 'example';
+  if (p.readonly && p.viewShare) return 'view';
+  if (p.readonly) return 'public';
+  if (p.proposalFor) return 'draft';
+  if (p.role === 'edit') return 'shared';
+  return 'owned';
+}
+function visHTML(p){
+  const k = kindOf(S.real || p);
+  const q = S.real || p;
+  if (k === 'example') return '<span class="pill ex">Example</span>';
+  if (k === 'public' || k === 'compare') return `<span class="pill pub">Public</span><span class="by hide-sm">by ${esc(q.publishedBy)} · v${q.version || 1}</span>`;
+  if (k === 'view') return `<span class="pill">View only</span><span class="by hide-sm">shared by ${esc(q.owner)}</span>`;
+  if (k === 'draft') return `<span class="pill ex">Suggestion</span><span class="by hide-sm">for “${esc(q.suggestTitle || 'a public process')}”</span>`;
+  if (k === 'shared') return `<span class="pill sh">Shared</span><span class="by hide-sm">by ${esc(q.owner)}</span>`;
+  return q.publicId ? '<span class="pill pub">Public</span>' : (q.shareCount ? `<span class="pill sh">Shared · ${q.shareCount}</span>` : '<span class="pill">Private</span>');
+}
+function primaryHTML(p){
+  const k = kindOf(p), q = S.real || p;
+  const n = q.openProposals || 0;
+  if (k === 'compare') return '';
+  if (k === 'public') return `<button class="btn primary sm" data-act="suggest">Suggest changes</button><button class="btn sm" data-act="review">Changes${n ? ` · ${n}` : ''}</button>`;
+  if (k === 'example' || k === 'view') return `<button class="btn sm" data-act="copy">Make a copy</button>`;
+  if (k === 'draft') return p.maps.m_root.steps.length ? `<button class="btn primary sm" data-act="submit">${p.submitted ? 'Submit again' : 'Submit for review'}</button>` : '';
+  return `<button class="btn sm" data-act="share">Share</button>`;
+}
+function menuHTML(p){
+  const k = kindOf(p), items = [];
+  if (k === 'owned'){
+    if (p.publicId){ items.push(['update', 'Update public version…'], ['openpublic', 'View public version'], ['unpublish', 'Unpublish']); }
+    else if (p.maps.m_root.steps.length) items.push(['publish', 'Make public…']);
+    items.push(['share', 'Share…'], ['delete', 'Delete', 'danger']);
+  } else if (k === 'shared'){ items.push(['share', 'People with access'], ['copy', 'Make a private copy'], ['leave', 'Remove from my list', 'danger']); }
+  else if (k === 'draft'){ items.push(['openpublic', 'View the public version'], ['delete', 'Discard this suggestion', 'danger']); }
+  else if (k === 'public'){ items.push(['review', 'Suggested changes'], ['history', 'Version history'], ['copy', 'Make a private copy']); }
+  else if (k === 'view'){ items.push(['copy', 'Make a private copy'], ['leave', 'Remove from my list', 'danger']); }
+  else items.push(['copy', 'Make a copy']);
+  return `<div class="menu" role="menu">${items.map(([a, l, c]) => `<button role="menuitem" class="menu-item${c ? ' ' + c : ''}" data-act="${a}">${esc(l)}</button>`).join('')}</div>`;
+}
+function renderPanel(){
+  const el = $('#wpanel'); if (!el) return;
+  const p = S.cur, msg = S.panelMsg ? `<p class="hint panel-msg" role="status">${esc(S.panelMsg)}</p>` : '';
+  if (!S.panel){ el.innerHTML = ''; return; }
+  const close = '<button class="btn ghost sm" data-act="close" aria-label="Close">✕</button>';
+  let html = '';
+  if (S.panel === 'menu') html = menuHTML(p);
+  else if (S.panel === 'publish') html = `<form class="sheet" data-form="publish"><div class="ins-head"><span class="label">Make public</span>${close}</div>
+      <p>Anyone can open it as <b>${esc(S.me?.handle || 'you')}</b>'s process. People can suggest changes, and a change goes live when the votes agree. Your conversation stays private.</p>
+      <div class="prop-acts"><button class="btn primary sm">Publish</button></div>${msg}</form>`;
+  else if (S.panel === 'update' || S.panel === 'submit') html = `<form class="sheet" data-form="${S.panel}"><div class="ins-head"><span class="label">${S.panel === 'update' ? 'Update the public version' : 'Submit for review'}</span>${close}</div>
+      <p>${S.panel === 'update' ? 'Your changes become a suggestion on the public version, like anyone else’s. ' : ''}People compare before and after and vote. ${esc(RULE_SHORT)}</p>
+      <label class="label" for="pnote">What did you change?</label><textarea id="pnote" name="note" rows="3" required maxlength="500" placeholder="e.g. Added the step where the pan is preheated"></textarea>
+      <div class="prop-acts"><button class="btn primary sm">Submit</button></div>${msg}</form>`;
+  else if (S.panel === 'delete') html = `<div class="sheet"><div class="ins-head"><span class="label">${p.proposalFor ? 'Discard this suggestion?' : 'Delete this process?'}</span>${close}</div>
+      <p>This can't be undone${p.publicId ? ', and the public version goes too' : ''}.</p><div class="prop-acts"><button class="btn danger sm" data-act="delete-yes">Delete</button><button class="btn sm" data-act="close">Cancel</button></div></div>`;
+  else if (S.panel === 'share') html = shareHTML();
+  else if (S.panel === 'review') html = reviewHTML();
+  else if (S.panel === 'history') html = historyHTML();
+  el.innerHTML = `<div class="wpanel-in ${S.panel === 'menu' ? 'is-menu' : 'is-sheet'}">${html}</div>`;
+  if (S.panel === 'share' && !S.shareData) loadShares();
+  setTimeout(() => el.querySelector('textarea, input:not([type=hidden])')?.focus(), 0);
+}
+async function onAction(e){
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  e.stopPropagation();
+  const a = b.dataset.act, p = S.cur;
+  S.panelMsg = '';
+  switch (a){
+    case 'close': S.panel = null; break;
+    case 'suggest': S.panel = null; startSuggestion(); return;
+    case 'copy': S.panel = null; ensureOwned(); renderWork(); flushSoon(); return;
+    case 'review': S.panel = 'review'; S.reviewData = null; loadReview(); break;
+    case 'history': S.panel = 'history'; S.historyData = null; loadHistory(); break;
+    case 'publish': S.panel = 'publish'; break;
+    case 'update': S.panel = 'update'; break;
+    case 'submit': S.panel = 'submit'; break;
+    case 'share': S.panel = 'share'; S.shareData = null; break;
+    case 'delete': S.panel = 'delete'; break;
+    case 'delete-yes': S.panel = null; deleteProcess(p.id); return;
+    case 'leave': S.panel = null; deleteProcess(p.id); return;
+    case 'unpublish': unpublish(); return;
+    case 'openpublic': S.panel = null; openProcess(p.publicId || p.proposalFor, 'pub'); return;
+    case 'compare': openCompare(b.dataset.id); return;
+    case 'side': if (S.compare){ S.compare.side = b.dataset.side; applyCompareSide(); } return;
+    case 'vote': vote(b.dataset.id, b.dataset.choice); return;
+    case 'withdraw': withdraw(b.dataset.id); return;
+    case 'endcompare': closeCompare(); S.panel = 'review'; break;
+    case 'unshare': unshare(b.dataset.id); return;
+  }
+  renderPanel(); renderTopActions();
+}
+function flushSoon(){ dirty = true; flush(); }
+async function onPanelSubmit(e){
+  e.preventDefault();
+  const f = e.target, kind = f.dataset.form, btn = f.querySelector('button.primary');
+  if (btn) btn.disabled = true;
+  if (kind === 'publish') await publish();
+  else if (kind === 'update'){ const n = f.elements.note.value.trim(); if (!n){ S.panelMsg = 'Add a short note about what you changed.'; renderPanel(); return; } await publish(n); }
+  else if (kind === 'submit'){ const n = f.elements.note.value.trim(); if (!n){ S.panelMsg = 'Add a short note about what you changed.'; renderPanel(); return; } await submitSuggestion(n); renderPanel(); }
+  else if (kind === 'invite') await invite(f);
+  if (btn) btn.disabled = false;
+}
+function onPanelChange(e){
+  const s = e.target.closest('[data-role-for]'); if (s) setRole(s.dataset.roleFor, s.value);
+}
+function renderTopActions(){
+  const p = S.cur; if (!p || !$('#wprimary')) return;
+  $('#vis').innerHTML = visHTML(p);
+  $('#wprimary').innerHTML = primaryHTML(p);
+  $('#save').textContent = S.compare ? '' : readOnly(p) ? (kindOf(p) === 'public' ? 'Changes make a copy or a suggestion' : 'Changes make a private copy') : S.save;
+}
 
 function renderWork(fromStream){
   if (S.view !== 'work' || !S.cur) return;
   const p = S.cur;
-  // validate path
   S.path = S.path.filter(id => p.maps[id]); if (!S.path.length) S.path = ['m_root'];
   const t = $('#title'); if (document.activeElement !== t) t.value = p.title;
-  $('#vis').innerHTML = p.example ? '<span class="pill ex">Example</span>' : p.readonly ? `<span class="pill pub">Public</span> <span class="by">Published by ${esc(p.publishedBy)}</span>` : p.publicId ? '<span class="pill pub">Public</span>' : '<span class="pill">Private</span>';
-  $('#save').textContent = readOnly(p) ? 'Changes make a private copy' : S.save;
-  $('#wpub').innerHTML = readOnly(p) ? '' : S.confirmPub
-    ? `<span class="hint">Publish a read-only copy as ${esc(S.me?.handle || 'you')}? Your conversation stays private.</span> <button class="btn primary sm" data-wpub="yes">Publish</button> <button class="btn sm" data-wpub="no">Cancel</button>`
-    : p.publicId ? `<button class="btn sm" data-wpub="update" title="Replace the public copy with this version">Update public copy</button> <button class="btn ghost sm" data-wpub="unpublish">Unpublish</button>`
-    : p.maps.m_root.steps.length ? `<button class="btn sm" data-wpub="ask">Make public</button>` : '';
+  t.readOnly = !!S.compare;
+  renderTopActions();
   const wa = $('#wacct'); wa.innerHTML = acctHTML(); wireAcct(wa);
-  $('#wdel').innerHTML = readOnly(p) ? '' : S.confirmDel === p.id
-    ? `<span class="hint">Delete this process?</span> <button class="btn danger sm" data-wdel="yes">Delete</button> <button class="btn sm" data-wdel="no">Cancel</button>`
-    : `<button class="btn ghost danger sm" data-wdel="ask">Delete</button>`;
   $('#work').dataset.tab = S.tab;
+  $('#work').classList.toggle('comparing', !!S.compare);
   document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === S.tab));
-  $('#stop').hidden = !S.busy; $('#sendb').disabled = S.busy;
-  const fb = $('#finish'); fb.textContent = p.status === 'done' ? 'Resume interview' : 'Finish map'; fb.disabled = S.busy;
+  $('#stop').hidden = !S.busy; $('#sendb').disabled = S.busy || !!S.compare;
+  const fb = $('#finish'); fb.textContent = p.status === 'done' ? 'Resume' : 'Finish map'; fb.disabled = S.busy || readOnly(p);
   if (S.checksOpen && !findIssues(p).length) S.checksOpen = false;
-  renderMsgs(); renderCrumbs(); renderBoard(); renderInspector(); renderChecks();
+  renderMsgs(); renderCompare(); renderCrumbs(); renderBoard(); renderInspector(); renderChecks();
+  if (!fromStream) renderPanel();
   if (S.fresh.size){ const f = S.fresh; setTimeout(() => { f.forEach(id => document.querySelector(`[data-step="${CSS.escape(id)}"]`)?.classList.remove('fresh')); }, 1700); S.fresh = new Set(); }
 }
-
 function renderMsgs(){
   const p = S.cur, el = $('#msgs');
   const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
@@ -1047,6 +1423,7 @@ function renderCrumbs(){
 }
 
 function renderBoard(){
+  L.HEAD = innerWidth <= 420 ? 84 : innerWidth <= 820 ? 96 : 150; // matches the lane header width in CSS
   const m = curMap(), b = $('#board');
   if (!m.steps.length && !m.lanes.length){
     b.style.width = '100%'; b.style.height = '100%';
@@ -1092,7 +1469,8 @@ function renderBoard(){
     const outs = s.next.filter(n => !isInternal(n, m)).map(n => { const tm = P.maps[n.map], ts = tm?.steps.find(x => x.id === n.to); return ts ? `<button class="xlink" data-jump="${esc(tm.id)}" data-step="${esc(ts.id)}" title="${esc(n.label || '')}">↗ ${esc(ts.label)} · ${esc(tm.id === 'm_root' ? 'main flow' : tm.title)}</button>` : ''; }).join('');
     const ins = incomingLinks(P, m.id, s.id).map(r => `<button class="xlink in" data-jump="${esc(r.map)}" data-step="${esc(r.step.id)}">↙ from ${esc(P.maps[r.map].title)}</button>`).join('');
     const back = s.kind === 'end' && parentStep && !s.next.length ? `<span class="back">↩ continues after “${esc(parentStep.label)}”</span>` : '';
-    html += `<div class="step ${s.kind}${S.sel === s.id ? ' sel' : ''}${S.fresh.has(s.id) ? ' fresh' : ''}${s.proposedRemove ? ' proposed' : ''}" data-step="${esc(s.id)}" role="button" tabindex="0" style="left:${q.x}px;top:${q.y}px">
+    const dm = S.compare?.diff.marks[S.compare.side]?.[m.id]?.[s.id];
+    html += `<div class="step ${s.kind}${S.sel === s.id ? ' sel' : ''}${S.fresh.has(s.id) ? ' fresh' : ''}${s.proposedRemove ? ' proposed' : ''}${dm ? ' diff-' + dm : ''}" data-step="${esc(s.id)}" role="button" tabindex="0" style="left:${q.x}px;top:${q.y}px">
       ${issueAt[s.id] ? `<span class="warn-dot" title="${esc(issueAt[s.id].join('\n'))}" aria-label="${esc(issueAt[s.id].join('. '))}">!</span>` : ''}
       ${s.proposedRemove ? '<span class="k rm">Remove?</span>' : ''}
       ${s.kind === 'decision' ? '<span class="k">◇ decision</span>' : s.kind === 'subprocess' ? '<span class="k">▤ subprocess</span>' : ''}
@@ -1282,7 +1660,7 @@ function renderToast(){
 }
 
 /* ---------- Boot ---------- */
-const ALERTS = { saved:'Email confirmed. Your processes now follow you to any device.', 'signed-in':'Signed in. Your processes are here.', 'link-invalid':'That link expired or was already used. Request a new one from the account menu.', 'email-taken':'That email is already in use. Enter it again to get a sign-in link.' };
+const ALERTS = { invited:'Invite accepted. You’ll find the process under “Shared with me”.', saved:'Email confirmed. Your processes now follow you to any device.', 'signed-in':'Signed in. Your processes are here.', 'link-invalid':'That link expired or was already used. Request a new one from the account menu.', 'email-taken':'That email is already in use. Enter it again to get a sign-in link.' };
 export async function mount(root){
   root.innerHTML = '<div id="app"></div>';
   let key = ls.get('ptw_key'); if (!key || key.length < 16){ key = freshKey(); ls.set('ptw_key', key); }

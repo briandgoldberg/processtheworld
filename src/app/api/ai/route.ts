@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
-import { prisma } from "@/lib/db";
 import { body, fail, hashIp } from "@/lib/http";
 import { userFrom } from "@/lib/identity";
+import { accessTo, canEdit } from "@/lib/access";
 import { limited } from "@/lib/rateLimit";
 import { mapPrompt, repairPrompt } from "@/lib/engine/prompts";
 import { mapModel, streamAndLog } from "@/lib/ai";
@@ -23,8 +23,8 @@ export async function POST(req: NextRequest) {
   const mode = b.mode === "repair" ? "repair" : "map";
   const processId = typeof b.processId === "string" ? b.processId.slice(0, 64) : null;
   if (processId) {
-    const p = await prisma.process.findUnique({ where: { id: processId }, select: { userId: true } });
-    if (p && p.userId !== user.id) return fail("Not your process.", 403);
+    const { process: p, role } = await accessTo(processId, user.id);
+    if (p && !canEdit(role)) return fail("You can view this process but not edit it.", 403);
   }
   const { system, text } = mode === "repair" ? repairPrompt(b) : mapPrompt(b);
   const { id, stream } = await streamAndLog({ userId: user.id, processId, mode, model: mapModel() }, system, text);

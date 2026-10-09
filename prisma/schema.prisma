@@ -38,6 +38,10 @@ model User {
 
   processes  Process[]
   published  PublicProcess[]
+  shares     Share[]    @relation("ShareUser")
+  invited    Share[]    @relation("ShareInviter")
+  proposals  Proposal[]
+  votes      Vote[]
   tokens     EmailToken[]
   turns      Turn[]
   aiCalls    AiCall[]
@@ -72,10 +76,15 @@ model Process {
   depth     Int      @default(1)
   laneTypes String[] @default([])
   forkedFrom String? // the public process this was copied from
+  // A draft suggestion for a public process: which one, and the version it started from
+  proposalFor  String?
+  proposalBase Int?
+  rev       Int      @default(1) // bumps on every save, so two editors can't overwrite each other
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   public    PublicProcess?
+  shares    Share[]
   turns     Turn[]
   questions Question[]
   events    Event[]
@@ -99,10 +108,86 @@ model PublicProcess {
   depth       Int      @default(1)
   laneTypes   String[] @default([])
   copies      Int      @default(0)
+  version     Int      @default(1)
   publishedAt DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  proposals Proposal[]
+  versions  PublicVersion[]
+
   @@index([updatedAt])
+}
+
+// Every version a public process has had. Version 1 is what was published.
+model PublicVersion {
+  id         String        @id @default(cuid())
+  publicId   String
+  public     PublicProcess @relation(fields: [publicId], references: [id], onDelete: Cascade)
+  version    Int
+  title      String
+  doc        Json
+  proposalId String? // the accepted suggestion that produced it
+  createdAt  DateTime      @default(now())
+
+  @@unique([publicId, version])
+}
+
+// A suggested change to a public process. People compare before and after
+// and vote; consensus decides (see src/lib/consensus.ts). Every vote is a
+// human preference between two versions of a process: training data.
+model Proposal {
+  id             String        @id @default(cuid())
+  publicId       String
+  public         PublicProcess @relation(fields: [publicId], references: [id], onDelete: Cascade)
+  authorId       String
+  author         User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  draftProcessId String?
+  note           String
+  baseVersion    Int
+  before         Json // maps of the public version it would replace
+  after          Json // the suggested maps
+  title          String
+  status         String        @default("open") // open | accepted | rejected | superseded | withdrawn
+  decidedAt      DateTime?
+  createdAt      DateTime      @default(now())
+
+  votes Vote[]
+
+  @@index([publicId, status])
+}
+
+model Vote {
+  id         String   @id @default(cuid())
+  proposalId String
+  proposal   Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  choice     String // after | before
+  reason     String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([proposalId, userId])
+}
+
+// Sharing a process with specific people: an existing member (userId), or an
+// email address that hasn't signed up yet (email + token, until accepted).
+model Share {
+  id          String    @id @default(cuid())
+  processId   String
+  process     Process   @relation(fields: [processId], references: [id], onDelete: Cascade)
+  userId      String?
+  user        User?     @relation("ShareUser", fields: [userId], references: [id], onDelete: Cascade)
+  email       String?
+  role        String    @default("edit") // edit | view
+  invitedById String
+  invitedBy   User      @relation("ShareInviter", fields: [invitedById], references: [id], onDelete: Cascade)
+  token       String?   @unique
+  createdAt   DateTime  @default(now())
+  acceptedAt  DateTime?
+
+  @@unique([processId, userId])
+  @@index([email])
 }
 
 // ---------- Training signal ----------

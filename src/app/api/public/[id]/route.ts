@@ -8,7 +8,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   const { id } = await params;
   const r = await prisma.publicProcess.findUnique({ where: { id } });
   if (!r) return fail("Not found.", 404);
-  return json({ id: r.id, processId: r.processId, authorName: r.authorName, publishedAt: r.publishedAt, updatedAt: r.updatedAt, doc: r.doc });
+  const open = await prisma.proposal.count({ where: { publicId: id, status: "open" } });
+  return json({ id: r.id, processId: r.processId, authorName: r.authorName, publishedAt: r.publishedAt, updatedAt: r.updatedAt, version: r.version, openProposals: open, doc: r.doc });
 }
 
 // Counts a copy when someone turns a public process into their own.

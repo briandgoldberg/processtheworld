@@ -24,3 +24,9 @@ export const sendVerifyEmail = (to: string, token: string) =>
 
 export const sendSignInEmail = (to: string, token: string) =>
   send(to, "Sign in to Process the World", "Use this link to sign in and get your processes back. It works once and expires in 30 minutes.", "Sign in", `${appUrl()}/restore?token=${token}`);
+
+export const sendInviteEmail = (to: string, inviter: string, title: string, token: string) =>
+  send(to, `${inviter} shared “${title}” with you`, `${inviter} invited you to work on the process “${title}” on Process the World. Accepting creates your account; no password needed.`, "Accept the invite", `${appUrl()}/invite?token=${token}`);
+
+export const sendShareNotice = (to: string, inviter: string, title: string) =>
+  send(to, `${inviter} shared “${title}” with you`, `${inviter} shared the process “${title}” with you on Process the World. You'll find it under “Shared with me”.`, "Open Process the World", `${appUrl()}/`);

@@ -55,6 +55,11 @@ async function overview(el){
     <section class="panel"><h3>Self-checks people reviewed</h3>
       ${chk.length ? `<table class="tbl"><thead><tr><th>Check</th><th>“Right as is”</th><th>Sent to fix</th><th>Checker right</th></tr></thead><tbody>${chk.map(([k, v]) => `<tr><td>${esc(k)}</td><td>${v.dismissed}</td><td>${v.fixed}</td><td>${pct(v.fixed, v.fixed + v.dismissed)}</td></tr>`).join('')}</tbody></table>` : '<p class="hint">No checks reviewed yet.</p>'}</section>
     <section class="panel"><h3>Proposed removals</h3><p>${rem.removed || 0} removed · ${rem.kept || 0} kept · ${rem.pending || 0} waiting</p><p class="hint">Kept means the AI was wrong to remove the step.</p></section>
+    <section class="panel"><h3>Community</h3>
+      <p>${d.community.published} public processes · ${d.community.shares} new shares</p>
+      <p>Suggested changes: ${d.community.proposals.map(p => esc(p.status) + ' ' + p.count).join(' · ') || 'none yet'}</p>
+      <p>Votes: ${d.community.votes.map(v => (v.choice === 'after' ? 'after is better ' : 'before is better ') + v.count).join(' · ') || 'none yet'}</p>
+      <p class="hint">Each vote is a human preference between two versions of a process.</p></section>
     <section class="panel"><h3>Everything people did</h3>${bars(d.events.slice(0, 14), r => r.type.replace(/_/g, ' '), r => r.count)}</section>
   </div>`;
 }
@@ -128,7 +133,8 @@ function training(el){
       <li><b>Self-check results</b> before and after, and which checks people marked right or sent to fix.</li>
       <li><b>Every AI call:</b> instructions, prompt, raw output, tokens, cost, latency and engine version.</li>
     </ul>
-    <p><button class="btn primary sm" data-export>Download turns (JSONL)</button></p>
+    <p>Every vote on a suggested change to a public process is stored as a preference pair: the version before, the version after, and which one people judged better.</p>
+    <p class="seg"><button class="btn primary sm" data-export="turns">Download turns (JSONL)</button><button class="btn sm" data-export="votes">Download preference pairs (JSONL)</button></p>
     <p class="hint">Deleting a process deletes its training records too.</p></section>`;
 }
 
@@ -157,11 +163,12 @@ export function mountAdmin(root){
     if (e.target.closest('[data-back]')){ A.session = null; return draw(); }
     const s = e.target.closest('[data-sug]'); if (s){ await api('/api/admin/suggestions', { method:'PATCH', body:JSON.stringify({ id:s.dataset.id, status:s.dataset.sug }) }); return draw(); }
     if (e.target.closest('[data-gen]')){ A.busy = true; draw(); try { await api('/api/admin/suggestions', { method:'POST', body:'{}' }); } catch (err){ alert(err.message); } A.busy = false; return draw(); }
-    if (e.target.closest('[data-export]')){
-      const r = await fetch('/api/admin/export', { headers:{ 'x-ptw-key':key() } });
+    const ex = e.target.closest('[data-export]'); if (ex){
+      const kind = ex.dataset.export;
+      const r = await fetch('/api/admin/export' + (kind === 'votes' ? '?kind=votes' : ''), { headers:{ 'x-ptw-key':key() } });
       if (!r.ok) return;
       const url = URL.createObjectURL(await r.blob()); const a = document.createElement('a');
-      a.href = url; a.download = 'processtheworld-turns.jsonl'; a.click(); setTimeout(() => URL.revokeObjectURL(url), 2000);
+      a.href = url; a.download = 'processtheworld-' + kind + '.jsonl'; a.click(); setTimeout(() => URL.revokeObjectURL(url), 2000);
     }
   });
   root.addEventListener('change', e => { if (e.target.id === 'days'){ A.days = +e.target.value; draw(); } });

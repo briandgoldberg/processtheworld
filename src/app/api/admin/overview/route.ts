@@ -28,6 +28,12 @@ export async function GET(req: NextRequest) {
     prisma.feedback.count({ where: { status: "new" } }),
     prisma.op.groupBy({ by: ["humanVerdict"], where: { result: "proposed_removal", turn: w }, _count: true }),
   ]);
+  const [proposals, votes, shares, published] = await Promise.all([
+    prisma.proposal.groupBy({ by: ["status"], where: w, _count: true }),
+    prisma.vote.groupBy({ by: ["choice"], where: w, _count: true }),
+    prisma.share.count({ where: w }),
+    prisma.publicProcess.count(),
+  ]);
   const checks = await prisma.event.findMany({ where: { ...w, type: { in: ["check_dismissed", "check_sent_to_ai", "check_made_decision"] } }, select: { type: true, data: true }, take: 5000 });
   const byKind: Record<string, { dismissed: number; fixed: number }> = {};
   for (const c of checks) {
@@ -49,6 +55,7 @@ export async function GET(req: NextRequest) {
     checks: byKind,
     removals: removals.map(r => ({ verdict: r.humanVerdict || "pending", count: r._count })),
     newFeedback,
+    community: { published, shares, proposals: proposals.map(p => ({ status: p.status, count: p._count })), votes: votes.map(v => ({ choice: v.choice, count: v._count })) },
     daily: daily.map(d => ({ day: d.day, turns: Number(d.turns) })),
   });
 }

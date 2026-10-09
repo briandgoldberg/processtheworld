@@ -10,6 +10,12 @@ export const maxDuration = 120;
 // AI's changes and how people judged them.
 export async function GET(req: NextRequest) {
   if (!(await adminFrom(req))) return fail("Admins only.", 403);
+  if (req.nextUrl.searchParams.get("kind") === "votes") {
+    // Preference pairs: two versions of a process and which one people judged better.
+    const props = await prisma.proposal.findMany({ orderBy: { createdAt: "asc" }, take: 5000, include: { votes: { select: { choice: true, reason: true, createdAt: true } } } });
+    const lines = props.map(p => JSON.stringify({ id: p.id, publicId: p.publicId, note: p.note, status: p.status, baseVersion: p.baseVersion, before: p.before, after: p.after, votes: p.votes, after_votes: p.votes.filter(v => v.choice === "after").length + 1, before_votes: p.votes.filter(v => v.choice === "before").length }));
+    return new Response(lines.join("\n") + "\n", { headers: { "content-type": "application/x-ndjson", "content-disposition": `attachment; filename="processtheworld-votes-${new Date().toISOString().slice(0, 10)}.jsonl"` } });
+  }
   const turns = await prisma.turn.findMany({ orderBy: { createdAt: "asc" }, take: 5000, include: { ops: { orderBy: { seq: "asc" } }, questions: true } });
   const lines = turns.map(t => JSON.stringify({
     id: t.id, processId: t.processId, seq: t.seq, engineVersion: t.engineVersion, model: t.model, layer: t.mapId,

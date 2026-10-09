@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { body, fail, json, str } from "@/lib/http";
 import { userFrom } from "@/lib/identity";
+import { accessTo, canEdit } from "@/lib/access";
 import { ENGINE_VERSION } from "@/lib/engine/prompts";
 import { mapModel } from "@/lib/ai";
 
@@ -19,8 +20,8 @@ export async function POST(req: NextRequest) {
   const b = await body(req);
   if (!b) return fail("Invalid request body.");
   const processId = str(b.processId, 64);
-  const proc = await prisma.process.findUnique({ where: { id: processId }, select: { userId: true } });
-  if (!proc || proc.userId !== user.id) return fail("Save the process first.", 409);
+  const { process: proc, role } = await accessTo(processId, user.id);
+  if (!proc || !canEdit(role)) return fail("Save the process first.", 409);
   if (JSON.stringify(b).length > 1_500_000) return fail("Turn too large.", 413);
 
   const fb = (b.feedback && typeof b.feedback === "object" ? b.feedback : {}) as Record<string, unknown>;

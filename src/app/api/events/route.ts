@@ -15,7 +15,10 @@ export async function POST(req: NextRequest) {
   const list = Array.isArray(b?.events) ? (b!.events as any[]).slice(0, 50) : [];
   if (!list.length) return json({ ok: true });
   const ids = [...new Set(list.map(e => str(e?.processId, 64)).filter(Boolean))];
-  const mine = new Set((await prisma.process.findMany({ where: { id: { in: ids }, userId: user.id }, select: { id: true } })).map(p => p.id));
+  const mine = new Set([
+    ...(await prisma.process.findMany({ where: { id: { in: ids }, userId: user.id }, select: { id: true } })).map(p => p.id),
+    ...(await prisma.share.findMany({ where: { processId: { in: ids }, userId: user.id, acceptedAt: { not: null } }, select: { processId: true } })).map(s => s.processId),
+  ]);
   const rows = list.map(e => ({
     userId: user.id, processId: mine.has(str(e?.processId, 64)) ? str(e.processId, 64) : null, turnId: str(e?.turnId, 40) || null,
     who: e?.who === "system" ? "system" : "human", type: str(e?.type, 60), data: e?.data ?? undefined, engineVersion: ENGINE_VERSION,

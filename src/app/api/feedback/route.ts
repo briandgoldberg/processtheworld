@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { body, fail, hashIp, json, str } from "@/lib/http";
 import { userFrom } from "@/lib/identity";
+import { accessTo } from "@/lib/access";
 import { limited } from "@/lib/rateLimit";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +15,7 @@ export async function POST(req: NextRequest) {
   if (await limited("feedback", hashIp(req), user.id, 60, 300)) return fail("Thanks, that's plenty for now.", 429);
   const kind = ["button", "reply", "finish", "checkin"].includes(String(b.kind)) ? String(b.kind) : "button";
   const processId = str(b.processId, 64);
-  const own = processId ? await prisma.process.findFirst({ where: { id: processId, userId: user.id }, select: { id: true } }) : null;
+  const own = processId && (await accessTo(processId, user.id)).role ? { id: processId } : null;
   const rating = Number.isFinite(Number(b.rating)) ? Math.max(-1, Math.min(5, Math.round(Number(b.rating)))) : null;
   const text = str(b.text, 4000).trim() || null;
   const reasons = Array.isArray(b.reasons) ? b.reasons.slice(0, 8).map(r => str(r, 60)) : [];
