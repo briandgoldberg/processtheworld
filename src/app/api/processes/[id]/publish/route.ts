@@ -19,11 +19,22 @@ export async function POST(req: NextRequest, { params }: Ctx) {
   const b = await body(req);
   if (!p.public) {
     const snapshot = { title: p.title, maps: d.maps, status: d.status || "interviewing", chat: [], events: [] };
-    const pub = await prisma.publicProcess.create({ data: { processId: id, userId: user.id, title: p.title, doc: snapshot as any, stepCount: p.stepCount, depth: p.depth, laneTypes: p.laneTypes, authorName: user.handle } });
+    const mode = b?.mode === "locked" ? "locked" : "collaborative";
+    const pub = await prisma.publicProcess.create({ data: { processId: id, userId: user.id, title: p.title, doc: snapshot as any, stepCount: p.stepCount, depth: p.depth, laneTypes: p.laneTypes, authorName: user.handle, mode } });
     await prisma.publicVersion.create({ data: { publicId: pub.id, version: 1, title: p.title, doc: snapshot as any } });
-    return json({ ok: true, publicId: pub.id, published: true });
+    return json({ ok: true, publicId: pub.id, published: true, mode });
   }
   const pub = p.public;
+  if (pub.mode === "locked") {
+    // Published as is: the creator's updates go live directly as a new version.
+    const v = pub.version + 1;
+    const snapshot = { title: p.title, maps: d.maps, status: d.status || "interviewing", chat: [], events: [] };
+    await prisma.$transaction([
+      prisma.publicProcess.update({ where: { id: pub.id }, data: { doc: snapshot as any, title: p.title, version: v, stepCount: p.stepCount, depth: p.depth, laneTypes: p.laneTypes } }),
+      prisma.publicVersion.create({ data: { publicId: pub.id, version: v, title: p.title, doc: snapshot as any } }),
+    ]);
+    return json({ ok: true, publicId: pub.id, updated: true });
+  }
   const open = await prisma.proposal.findFirst({ where: { publicId: pub.id, authorId: user.id, draftProcessId: id, status: "open" } });
   if (open) await prisma.proposal.update({ where: { id: open.id }, data: { status: "withdrawn", decidedAt: new Date() } });
   const prop = await prisma.proposal.create({

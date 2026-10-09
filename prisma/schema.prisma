@@ -109,6 +109,8 @@ model PublicProcess {
   laneTypes   String[] @default([])
   copies      Int      @default(0)
   version     Int      @default(1)
+  // "collaborative": changes are suggested and decided by votes. "locked": published as is; others copy it to change it.
+  mode        String   @default("collaborative")
   publishedAt DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

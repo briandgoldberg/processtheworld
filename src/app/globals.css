@@ -289,6 +289,13 @@ code{font-family:var(--f-mono);font-size:11px}
 
 /* ---------- Sharing, suggestions, compare ---------- */
 .linkish-plain{border:none;background:none;padding:0;cursor:pointer;color:inherit}
+.vi{flex:none}
+.pubbox{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
+.pubbox .label{display:flex;align-items:center;gap:6px}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:10px;cursor:pointer}
+.opt:has(input:checked){border-color:var(--accent)}
+.opt span{display:flex;flex-direction:column;gap:2px}
+.opt small{color:var(--muted);font-size:12.5px;line-height:1.35}
 .pill.sh{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 40%,transparent)}
 .vis{display:inline-flex;align-items:center;gap:6px;min-width:0}
 .wprimary{display:inline-flex;gap:6px;flex-wrap:wrap}

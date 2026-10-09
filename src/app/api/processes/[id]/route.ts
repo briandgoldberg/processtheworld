@@ -17,10 +17,10 @@ export async function GET(req: NextRequest, { params }: Ctx) {
   if (!p || !role) return fail("Not found.", 404);
   if (req.nextUrl.searchParams.get("rev")) return json({ rev: p.rev }); // cheap check for newer saves
   const [pub, owner] = await Promise.all([
-    prisma.publicProcess.findUnique({ where: { processId: id }, select: { id: true, version: true } }),
+    prisma.publicProcess.findUnique({ where: { processId: id }, select: { id: true, version: true, mode: true } }),
     role === "owner" ? null : prisma.user.findUnique({ where: { id: p.userId }, select: { handle: true } }),
   ]);
-  return json({ doc: p.doc, rev: p.rev, role, owner: owner?.handle ?? null, publicId: pub?.id ?? null, proposalFor: p.proposalFor, proposalBase: p.proposalBase });
+  return json({ doc: p.doc, rev: p.rev, role, owner: owner?.handle ?? null, publicId: pub?.id ?? null, publicMode: pub?.mode ?? null, proposalFor: p.proposalFor, proposalBase: p.proposalBase });
 }
 
 // Save. Sends the revision it started from; if someone else saved in between,

@@ -35,6 +35,7 @@ export async function POST(req: NextRequest, { params }: Ctx) {
   const b = await body(req);
   const pub = await prisma.publicProcess.findUnique({ where: { id } });
   if (!pub) return fail("Not found.", 404);
+  if (pub.mode === "locked") return fail("This process was published as is. Make your own copy to change it.", 403);
   const draft = await prisma.process.findUnique({ where: { id: str(b?.processId, 64) } });
   if (!draft || draft.userId !== user.id || draft.proposalFor !== id) return fail("Start from “Suggest changes” on the public process.");
   if (draft.proposalBase !== pub.version) return fail("The public process changed since you started. Start a new suggestion from the latest version.", 409, "outdated");
