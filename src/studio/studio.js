@@ -776,7 +776,7 @@ async function submitSuggestion(note){
   } catch (e){ S.panelMsg = e.message; }
   S.tab = 'chat'; renderWork();
 }
-async function loadMine(){ try { const d = await API.get('/api/processes'); S.mine = d.processes; S.shared = d.shared || []; } catch {} if (S.view === 'home') render(); }
+async function loadMine(){ try { const d = await API.get('/api/processes'); S.mine = d.processes; S.shared = d.shared || []; } catch {} if (S.view === 'home' || S.view === 'login') render(); }
 async function loadPublic(){ try { S.pub = (await API.get('/api/public')).processes; } catch {} if (S.view === 'home') render(); }
 /* ---------- Sharing ---------- */
 const RULE_SHORT = 'A change goes live when “after is better” leads by 2 votes; the person who suggested it counts as one.';
@@ -1085,6 +1085,12 @@ function wireEmailForm(root){
 }
 document.addEventListener('click', e => { if (S.acct && !e.target.closest('.acct')){ S.acct = false; render(); } });
 
+/* The landing page's samples: a few of the best published maps, or the built-in examples until they load */
+const FEATURED = ['Your Immune System vs. a Cold Virus', 'Quote, sell, service, renew', 'A workday: drive to work', 'Photosynthesis', 'How a lightning bolt', 'Lead to customer', 'The life and death of a star', 'Quote to cash'];
+function sampleCards(){
+  const feat = FEATURED.map(t => (S.pub || []).find(p => p.title.startsWith(t))).filter(Boolean).slice(0, 6);
+  return feat.length >= 3 ? feat.map(p => cardHTML(p, 'pub')).join('') : EXAMPLES.map(p => cardHTML(p, 'ex')).join('');
+}
 function renderLogin(app){
   app.innerHTML = `
   <div class="top land-top"><button class="mark linkish-plain" data-home>${MARK}</button><div class="grow"></div>
@@ -1098,7 +1104,7 @@ function renderLogin(app){
     </section>
     <section class="samples">
       <h2>Jump into a sample</h2>
-      <div class="cards">${EXAMPLES.map(p => cardHTML(p, 'ex')).join('')}</div>
+      <div class="cards">${sampleCards()}</div>
     </section>
     <section class="use-ai">
       <h2>Build from Claude or ChatGPT.</h2>
