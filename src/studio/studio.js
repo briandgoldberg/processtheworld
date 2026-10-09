@@ -769,7 +769,7 @@ function acctHTML(){
         <div class="row-in"><input id="acct-in" type="email" required placeholder="you@example.com" autocomplete="email"><button class="btn sm">Send sign-in link</button></div></form>
       <p class="hint" id="acct-msg" role="status"></p>
     </div>`;
-  return `<div class="acct"><button class="btn ghost acct-btn" data-acct="toggle" aria-expanded="${S.acct}">${esc(me.email ? me.email.split('@')[0] : me.handle)} ▾</button>${panel}</div>`;
+  return `${me.isAdmin ? '<a class="btn sm admin-link" href="/admin">Admin dashboard</a>' : ''}<div class="acct"><button class="btn ghost acct-btn" data-acct="toggle" aria-expanded="${S.acct}">${esc(me.email ? me.email.split('@')[0] : me.handle)} ▾</button>${panel}</div>`;
 }
 function wireAcct(root){
   root.querySelectorAll('[data-acct]').forEach(b => b.onclick = e => {

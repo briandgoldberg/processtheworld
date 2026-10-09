@@ -31,10 +31,11 @@ export async function userFrom(req: Request) {
   return prisma.user.findUnique({ where: { anonKey: key } });
 }
 
+// The admin dashboard belongs to one person. Deliberately not configurable,
+// so nobody with access to the hosting settings can add themselves.
+const ADMIN_EMAIL = "briandgoldberg@gmail.com";
 export function isAdminEmail(email: string | null | undefined): boolean {
-  if (!email) return false;
-  const list = (process.env.ADMIN_EMAILS || "briandgoldberg@gmail.com").split(",").map(s => s.trim().toLowerCase()).filter(Boolean);
-  return list.includes(email.toLowerCase());
+  return !!email && email.trim().toLowerCase() === ADMIN_EMAIL;
 }
 
 export async function adminFrom(req: Request) {
