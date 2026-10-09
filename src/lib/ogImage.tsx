@@ -54,7 +54,7 @@ export async function renderOg(publicId: string) {
           <div style={{ width: 40, height: 40, borderRadius: 11, background: "#2448C9", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 19 }}>PW</div>
           Process the World
         </div>
-        <div style={{ display: "flex", fontSize: title.length > 60 ? 46 : 58, fontWeight: 800, lineHeight: 1.05, letterSpacing: -1.5, marginTop: 22, maxHeight: 130, overflow: "hidden" }}>{title}</div>
+        <div style={{ display: "flex", fontSize: title.length > 70 ? 40 : title.length > 38 ? 48 : 60, fontWeight: 800, lineHeight: 1.1, letterSpacing: -1.5, marginTop: 22, maxHeight: 150, overflow: "hidden" }}>{title}</div>
         <div style={{ display: "flex", fontSize: 26, color: "#5A6573", marginTop: 12 }}>{stats}</div>
         {svg ? (
           <div style={{ display: "flex", marginTop: 22, background: "#fff", border: "2px solid #D7DDE5", borderRadius: 18, padding: 0, width: 1100, height: 330 }}>
