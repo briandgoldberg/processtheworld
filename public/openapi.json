@@ -243,7 +243,7 @@
           },
           "link": {
             "type": "string",
-            "description": "Id of a published process. The step becomes a link to that whole process, so you can build bigger processes from published ones."
+            "description": "Id of another process: a published one (publicId) or one you saved or that is shared with you (id). The step becomes a link to that whole process."
           }
         }
       },

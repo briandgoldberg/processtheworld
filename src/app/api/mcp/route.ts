@@ -21,7 +21,7 @@ const STEP = {
   properties: {
     id: { type: "string" }, lane: { type: "string", description: "Id of the lane that does this step." }, label: { type: "string", description: "2 to 5 words; a question for decisions." },
     kind: { type: "string", enum: ["start", "task", "decision", "subprocess", "end"] },
-    link: { type: "string", description: "Id of a published process (from list_public or an earlier publish). The step becomes a link to that whole process, so you can build bigger processes out of published ones." },
+    link: { type: "string", description: "Id of another process: a published one (from list_public or an earlier publish), or one you saved (the id save_process returned). The step becomes a link to that whole process, so you can build bigger processes out of smaller ones." },
     uses: { type: "array", items: { type: "string" }, description: "Lane ids of tools used in this step." },
     next: { type: "array", description: "Where it goes next: step id strings, or {to, label} (label the answer for decisions).", items: { oneOf: [{ type: "string" }, { type: "object", required: ["to"], properties: { to: { type: "string" }, label: { type: "string" } } }] } },
   },

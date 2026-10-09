@@ -1620,7 +1620,7 @@ function renderBoard(){
       ${s.kind === 'decision' ? '<span class="k">◇ decision</span>' : s.kind === 'subprocess' ? (s.link ? '<span class="k">↗ linked process</span>' : '<span class="k">▤ subprocess</span>') : ''}
       <span>${esc(s.label)}</span>
       ${s.uses?.length ? `<span class="uses">${s.uses.filter(u => laneName[u]).map(u => `<span>${esc(laneName[u])}</span>`).join('')}</span>` : ''}
-      ${s.link ? `<button class="open" data-link="${esc(s.link.id)}">Open ${esc(s.link.title || 'process')} ↗</button>` : s.kind === 'subprocess' ? `<button class="open" data-drill="${esc(s.id)}">${s.child ? 'Open · ' + kids + ' steps' : 'Open · empty'} ↘</button>` : ''}
+      ${s.link ? `<button class="open" data-link="${esc(s.link.id)}" data-scope="${esc(s.link.scope || 'public')}">Open ${esc(s.link.title || 'process')} ↗</button>` : s.kind === 'subprocess' ? `<button class="open" data-drill="${esc(s.id)}">${s.child ? 'Open · ' + kids + ' steps' : 'Open · empty'} ↘</button>` : ''}
       ${back}${outs || ins ? `<span class="xlinks">${outs}${ins}</span>` : ''}
     </div>`;
   });
@@ -1652,7 +1652,7 @@ function drill(stepId){
   S.sel = null; S.tab = 'map'; renderWork();
 }
 function onBoardClick(e){
-  const lk = e.target.closest('[data-link]'); if (lk){ e.stopPropagation(); openProcess(lk.dataset.link, 'pub'); return; }
+  const lk = e.target.closest('[data-link]'); if (lk){ e.stopPropagation(); openProcess(lk.dataset.link, lk.dataset.scope === 'private' ? 'mine' : 'pub'); return; }
   const d = e.target.closest('[data-drill]'); if (d){ e.stopPropagation(); drill(d.dataset.drill); return; }
   const j = e.target.closest('[data-jump]'); if (j){ e.stopPropagation(); jumpTo(j.dataset.jump, j.dataset.step); return; }
   const st = e.target.closest('[data-step]');
@@ -1671,6 +1671,13 @@ const CORRECTIONS = [
   ['too_vague','Too vague', s => `“${s.label}” is too vague. What really happens is `],
   ['has_parts','This has parts', s => `“${s.label}” is really made of these subprocesses: `],
 ];
+/* The processes a step can link to: your saved ones, ones shared with you, and published ones */
+function linkOptions(s){
+  const cur = S.cur?.id, opt = (scope, x) => `<option value="${scope}:${esc(x.id)}" ${s.link?.id === x.id ? 'selected' : ''}>${esc(x.title || 'Untitled process')}</option>`;
+  const group = (name, scope, list) => list.length ? `<optgroup label="${name}">${list.map(x => opt(scope, x)).join('')}</optgroup>` : '';
+  const mine = S.mine.filter(x => x.id !== cur && !x.proposalFor), shared = S.shared.filter(x => x.id !== cur && !x.proposalFor);
+  return group('My processes', 'proc', mine) + group('Shared with me', 'proc', shared) + group('Published', 'pub', S.pub);
+}
 function renderInspector(){
   const box = $('#inspector'); const m = curMap(); const s = m.steps.find(x => x.id === S.sel);
   if (!s){ box.innerHTML = ''; return; }
@@ -1679,7 +1686,7 @@ function renderInspector(){
     <div class="row"><label class="label" for="i-label">Name</label><input id="i-label" value="${esc(s.label)}"></div>
     <div class="row"><label class="label" for="i-lane">Lane</label><select id="i-lane">${m.lanes.map(l => `<option value="${esc(l.id)}" ${l.id === s.lane ? 'selected' : ''}>${esc(l.name)} (${l.type === 'system' ? 'technology' : 'person'})</option>`).join('')}${m.lanes.some(l=>l.id===s.lane)?'':'<option selected>Unassigned</option>'}</select></div>
     <div class="row"><label class="label" for="i-kind">Type</label><select id="i-kind">${KINDS.map(k => `<option ${k === s.kind ? 'selected' : ''}>${k}</option>`).join('')}</select></div>
-    <div class="row"><label class="label" for="i-link">Linked process</label><select id="i-link"><option value="">None</option>${S.pub.map(x => `<option value="${esc(x.id)}" ${s.link?.id === x.id ? 'selected' : ''}>${esc(x.title)}</option>`).join('')}</select><p class="hint">Connect this step to a published process to build a bigger one.</p></div>
+    <div class="row"><label class="label" for="i-link">Linked process</label><select id="i-link"><option value="">None</option>${linkOptions(s)}</select><p class="hint">Connect this step to a process you can open, saved or published, to build a bigger one.</p></div>
     <div class="acts"><button class="btn primary" id="i-drill">${s.link ? 'Open linked process ↗' : s.child ? 'Open subprocess ↘' : 'Break into a subprocess'}</button><button class="btn danger" id="i-del">Delete step</button></div>
     ${(() => { const mine = findIssues(S.cur).filter(i => i.map === m.id && i.step === s.id); return mine.length ? `<div class="row"><span class="label">To check</span><ul class="chk-list">${mine.map(i => issueRowHTML(i, true)).join('')}</ul></div>` : ''; })()}
     <div class="row"><span class="label">Did the AI get this wrong?</span>
@@ -1696,10 +1703,11 @@ function renderInspector(){
   $('#i-lane').onchange = e => edit('lane', e.target.value);
   $('#i-kind').onchange = e => edit('kind', e.target.value);
   $('#i-link').onchange = e => {
-    const pr = S.pub.find(x => x.id === e.target.value);
+    const v = e.target.value, [scope, lid] = v.split(':');
+    const pr = v ? [...S.pub, ...S.mine, ...S.shared].find(x => x.id === lid) : null;
     ensureOwned(); const mm = curMap(), st = mm.steps.find(x => x.id === S.sel); if (!st) return;
     logEvent(S.cur, { who:'human', op:'edit_link', map:mm.id, id:st.id, before:st.link?.id || null, after:pr?.id || null });
-    if (pr){ st.link = { id:pr.id, title:pr.title }; st.kind = 'subprocess'; } else delete st.link;
+    if (pr){ st.link = { id:pr.id, title:pr.title, scope:scope === 'pub' ? 'public' : 'private' }; st.kind = 'subprocess'; } else delete st.link;
     touch(); renderWork();
   };
   $('#i-drill').onclick = () => s.link ? openProcess(s.link.id, 'pub') : drill(s.id);

@@ -2,6 +2,7 @@ import { randomBytes } from "crypto";
 import { prisma } from "./db";
 import { buildDoc } from "./agentDoc";
 import { publishNow } from "./publish";
+import { accessTo } from "./access";
 
 type Result = { status: number; body: Record<string, unknown> };
 
@@ -9,14 +10,20 @@ type Result = { status: number; body: Record<string, unknown> };
 export async function saveForUser(user: { id: string; handle: string }, b: Record<string, any>, origin: string): Promise<Result> {
   const { doc, errors } = buildDoc(b);
   if (!doc) return { status: 400, body: { error: "The process has problems: " + errors.slice(0, 12).join("; "), code: "invalid_process" } };
-  // Steps that link to another published process: check it exists and remember its title.
+  // Steps that link to another process: a published one, or a saved one this person can open.
   const linked: any[] = Object.values(doc.maps as Record<string, any>).flatMap((m: any) => m.steps.filter((s: any) => s.link));
   if (linked.length) {
-    const found = await prisma.publicProcess.findMany({ where: { id: { in: [...new Set(linked.map((s: any) => s.link.id))] } }, select: { id: true, title: true } });
-    const titles = new Map(found.map(f => [f.id, f.title]));
-    const missing = linked.filter((s: any) => !titles.has(s.link.id));
-    if (missing.length) return { status: 400, body: { error: "The process has problems: step \"" + missing[0].id + "\" links to a published process that doesn't exist (" + missing[0].link.id + ")", code: "invalid_process" } };
-    linked.forEach((s: any) => { s.link.title = titles.get(s.link.id); });
+    const ids = [...new Set(linked.map((s: any) => s.link.id as string))];
+    const pubs = new Map((await prisma.publicProcess.findMany({ where: { id: { in: ids } }, select: { id: true, title: true } })).map(f => [f.id, f.title]));
+    const priv = new Map<string, string>();
+    for (const id of ids.filter(i => !pubs.has(i))) {
+      const { process: p, role } = await accessTo(id, user.id);
+      if (p && role && !p.proposalFor) priv.set(id, p.title);
+    }
+    const bad = linked.find((s: any) => !pubs.has(s.link.id) && !priv.has(s.link.id));
+    if (bad) return { status: 400, body: { error: "The process has problems: step \"" + bad.id + "\" links to \"" + bad.link.id + "\", which isn't a published process or one of your saved or shared processes", code: "invalid_process" } };
+    if (typeof b.id === "string" && linked.some((s: any) => s.link.id === b.id)) return { status: 400, body: { error: "The process has problems: a process can't link to itself", code: "invalid_process" } };
+    linked.forEach((s: any) => { s.link.title = pubs.get(s.link.id) ?? priv.get(s.link.id); s.link.scope = pubs.has(s.link.id) ? "public" : "private"; });
   }
   if (JSON.stringify(doc).length > 900_000) return { status: 413, body: { error: "This process is too large." } };
 

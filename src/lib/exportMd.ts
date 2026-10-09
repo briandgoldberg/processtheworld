@@ -4,7 +4,7 @@
 
 type Lane = { id: string; name: string; type: "person" | "system" | string };
 type Next = { to: string; label?: string; map?: string };
-type Step = { id: string; lane: string; label: string; kind?: string; uses?: string[]; next?: Next[]; child?: string; link?: { id: string; title?: string } };
+type Step = { id: string; lane: string; label: string; kind?: string; uses?: string[]; next?: Next[]; child?: string; link?: { id: string; title?: string; scope?: string } };
 export type MapT = { id: string; title?: string; parent?: { map: string; step: string } | null; lanes: Lane[]; steps: Step[] };
 type Doc = { title?: string; maps: Record<string, MapT> };
 
@@ -63,7 +63,7 @@ function section(m: MapT, doc: Doc, level: string): string {
       const target = n.map ? `${doc.maps[n.map]?.steps.find(x => x.id === n.to)?.label ?? n.to} (in layer "${clean(doc.maps[n.map]?.title) || n.map}")` : clean(m.steps.find(x => x.id === n.to)?.label) || n.to;
       return n.label ? `if "${clean(n.label)}" go to ${target}` : `then ${target}`;
     });
-    lines.push(`${i + 1}. **${clean(s.label)}** [${s.kind || "task"}; ${laneName(s.lane)}; id \`${s.id}\`]${uses.length ? `, using ${uses.join(", ")}` : ""}${s.child && doc.maps[s.child] ? `, opens the detail layer "${clean(doc.maps[s.child].title) || s.child}"` : ""}${s.link ? `, links to the published process "${clean(s.link.title) || s.link.id}" (https://processtheworld.vercel.app/p/${s.link.id}; full text at https://processtheworld.vercel.app/api/public/${s.link.id}/export)` : ""}`);
+    lines.push(`${i + 1}. **${clean(s.label)}** [${s.kind || "task"}; ${laneName(s.lane)}; id \`${s.id}\`]${uses.length ? `, using ${uses.join(", ")}` : ""}${s.child && doc.maps[s.child] ? `, opens the detail layer "${clean(doc.maps[s.child].title) || s.child}"` : ""}${s.link ? (s.link.scope === "private" ? `, links to the saved process "${clean(s.link.title) || s.link.id}" (not public; open it in Process the World)` : `, links to the published process "${clean(s.link.title) || s.link.id}" (https://processtheworld.vercel.app/p/${s.link.id}; full text at https://processtheworld.vercel.app/api/public/${s.link.id}/export)`) : ""}`);
     if (next.length) lines.push(`   - ${next.join("; ")}`);
     else if (s.kind !== "end") lines.push("   - (no next step recorded)");
   });
