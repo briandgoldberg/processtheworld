@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Process the World",
+  title: "Process the World: The World's Best Process Mapper",
   description: "Describe a process in your own words and watch it become a swim-lane map of the people, steps and technology involved.",
 };
 export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover" };
