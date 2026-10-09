@@ -48,6 +48,7 @@ Keep labels short: 2 to 5 words, a verb first for tasks, a question for decision
 }
 ```
 
+- **Tags:** add `"tags": ["sales", "quoting"]` (up to 8 short lowercase labels) so people can find the process. Pick a broad area plus a specific topic.
 - **Lanes:** `type` is `person` (a role or type of user) or `system` (software, device, tool). Lane and step ids start with a letter and use letters, digits, `-`, `_`. Step ids need only be unique within their layer.
 - **Steps:** `kind` is `start`, `task`, `decision`, `subprocess` or `end`. Every step sits in exactly one lane. A person using a tool: the step goes in the person's lane and the tool's lane id goes in `uses`. Put a step in a system lane only when the technology acts on its own.
 - **link:** a step can carry `"link": "<process id>"` to point at a whole other process, published or one of your saved or shared ones (kind becomes subprocess). Use it to combine processes: save or publish the parts, then build the bigger one from steps that link to them. Check `GET /api/public` first; reuse what exists instead of redrawing it.

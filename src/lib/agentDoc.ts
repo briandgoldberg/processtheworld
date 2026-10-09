@@ -1,6 +1,8 @@
 // A compact format for agents to describe a process. Converted here into the
 // full document the app stores, with every reference checked so the map renders.
 
+import { cleanTags } from "./tags";
+
 type In = Record<string, any>;
 const KINDS = ["start", "task", "decision", "subprocess", "end"];
 const clip = (v: unknown, n: number) => String(v ?? "").trim().slice(0, n);
@@ -66,6 +68,6 @@ export function buildDoc(input: In): { doc?: In; errors: string[] } {
   const depth = (id: string, n = 1): number => { const p = maps[id]?.parent; return p ? depth(p.map, n + 1) : n; };
   return {
     errors,
-    doc: { title, status: "done", maps, chat: [], events: [], stepCount: all.reduce((n, m) => n + m.steps.length, 0), depth: Math.max(...all.map(m => depth(m.id))), laneTypes: [...new Set(maps.m_root.lanes.map((l: In) => l.type))] },
+    doc: { title, status: "done", tags: cleanTags(input.tags), maps, chat: [], events: [], stepCount: all.reduce((n, m) => n + m.steps.length, 0), depth: Math.max(...all.map(m => depth(m.id))), laneTypes: [...new Set(maps.m_root.lanes.map((l: In) => l.type))] },
   };
 }

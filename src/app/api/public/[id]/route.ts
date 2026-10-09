@@ -12,7 +12,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const open = 0;
   const me = await userFrom(req);
   const liked = me ? !!(await prisma.like.findUnique({ where: { publicId_userId: { publicId: id, userId: me.id } } })) : false;
-  return json({ id: r.id, processId: r.processId, authorName: r.authorName, publishedAt: r.publishedAt, updatedAt: r.updatedAt, version: r.version, mode: r.mode, likes: r.likes, liked, openProposals: open, doc: r.doc });
+  return json({ id: r.id, processId: r.processId, authorName: r.authorName, publishedAt: r.publishedAt, updatedAt: r.updatedAt, version: r.version, mode: r.mode, tags: r.tags, likes: r.likes, liked, openProposals: open, doc: r.doc });
 }
 
 // Counts a copy when someone turns a public process into their own.

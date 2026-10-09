@@ -2,6 +2,7 @@
 import { exportMarkdown } from '@/lib/exportMd';
 import { claudeSkill, chatgptInstructions, skillSlug } from '@/lib/agentExport';
 import { flowHtml, columnsOf } from '@/lib/flowHtml';
+import { cleanTag, cleanTags } from '@/lib/tags';
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rid = p => p + Math.random().toString(36).slice(2, 9);
@@ -12,7 +13,7 @@ const ss = { get(k){ try { return sessionStorage.getItem(k); } catch { return nu
 /* ---------- Example processes (shown as examples, read-only until you change them) ---------- */
 const st = (id,lane,label,kind,next=[],extra={}) => ({id,lane,label,kind,uses:[],next:next.map(n=>typeof n==='string'?{to:n}:{to:n[0],label:n[1]}),...extra});
 const EX_EGG = {
-  id:'ex_egg', example:true, visibility:'public', title:'Fry an egg', updatedAt:0,
+  id:'ex_egg', example:true, visibility:'public', title:'Fry an egg', updatedAt:0, tags:['daily life','cooking'],
   maps:{
     m_root:{ id:'m_root', title:'Fry an egg', parent:null,
       lanes:[{id:'e_cook',name:'Cook',type:'person'},{id:'e_stove',name:'Stove',type:'system'}],
@@ -72,7 +73,7 @@ const EX_EGG = {
   events:[]
 };
 const EX_CAR = {
-  id:'ex_car', example:true, visibility:'public', title:'Start a car', updatedAt:0,
+  id:'ex_car', example:true, visibility:'public', title:'Start a car', updatedAt:0, tags:['daily life','driving'],
   maps:{ m_root:{ id:'m_root', title:'Start a car', parent:null,
     lanes:[{id:'d_drv',name:'Driver',type:'person'},{id:'d_key',name:'Key or key fob',type:'system'},{id:'d_car',name:'Car',type:'system'}],
     steps:[
@@ -90,7 +91,7 @@ const EX_CAR = {
   chat:[], events:[]
 };
 const EX_TEA = {
-  id:'ex_tea', example:true, visibility:'public', title:'Make a cup of tea', updatedAt:0,
+  id:'ex_tea', example:true, visibility:'public', title:'Make a cup of tea', updatedAt:0, tags:['daily life','cooking'],
   maps:{ m_root:{ id:'m_root', title:'Make a cup of tea', parent:null,
     lanes:[{id:'t_me',name:'Tea maker',type:'person'},{id:'t_kettle',name:'Kettle',type:'system'}],
     steps:[
@@ -110,7 +111,7 @@ const EXAMPLES = [EX_EGG, EX_CAR, EX_TEA];
 
 /* ---------- State ---------- */
 const S = { view:'login', me:null, ready:false,
-  zoom:1, zoomAuto:true, detail:'auto', zoomKey:'', tool:'select', space:false, playing:false, playNow:null, playSeen:{}, drawNow:false,
+  q:'', tag:'', zoom:1, zoomAuto:true, detail:'auto', zoomKey:'', tool:'select', space:false, playing:false, playNow:null, playSeen:{}, drawNow:false,
   mine:[], shared:[], pub:[], cur:null, real:null, compare:null, panel:null, panelMsg:'', path:['m_root'], sel:null, busy:false, ctl:null,
   fresh:new Set(), save:'', tab:'chat', deep:false, confirmPub:false, confirmDel:null, acct:false, notice:'', toast:'',
   sessionTurns:0, askedThisSession:false, lastTurnId:null };
@@ -677,7 +678,7 @@ function keptUndo(p){
 function serialize(p){
   const st = stats(p);
   return { id:p.id, title:p.title, updatedAt:p.updatedAt, stepCount:st.steps, depth:st.depth, laneTypes:st.lanes.map(l=>l.type).slice(0,8),
-    status:p.status || 'interviewing', forkedFrom:p.forkedFrom || null, proposalFor:p.proposalFor || null, proposalBase:p.proposalBase ?? null,
+    tags:cleanTags(p.tags), status:p.status || 'interviewing', forkedFrom:p.forkedFrom || null, proposalFor:p.proposalFor || null, proposalBase:p.proposalBase ?? null,
     suggestTitle:p.suggestTitle || null, suggestAuthor:p.suggestAuthor || null, submitted:p.submitted || null,
     rating:p.rating ?? null, dismissed:(p.dismissed || []).slice(-200),
     maps:p.maps, undo:keptUndo(p), chat:p.chat.filter(x=>!x.pending).slice(-40), events:(p.events||[]).slice(-300) };
@@ -1181,11 +1182,44 @@ function cardHTML(p, kind){
     <div class="card-top">${badge}<span class="mono card-when${kind === 'mine' ? ' has-x' : ''}">${esc(when)}</span></div>
     <h3>${esc(p.title || 'Untitled process')}</h3>
     ${by}
+    ${(p.tags || []).length ? `<div class="ctags">${p.tags.slice(0, 3).map(t => `<span>${esc(t)}</span>`).join('')}</div>` : ''}
     <div class="spark">${types.slice(0,8).map(t => `<b class="${t==='system'?'s':''}"></b>`).join('') || '<b style="background:var(--line)"></b>'}</div>
     <div class="meta"><span>${st.steps} steps</span><span>${st.depth} ${st.depth === 1 ? 'layer' : 'layers'}</span><span>${types.filter(t=>t!=='system').length} people · ${types.filter(t=>t==='system').length} tech</span></div>
   </button></div>`;
 }
 
+/* Search and tag filter for the public processes */
+function allTags(){
+  const c = {};
+  [...(S.pub || []), ...EXAMPLES].forEach(p => (p.tags || []).forEach(t => { c[t] = (c[t] || 0) + 1; }));
+  return Object.entries(c).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+}
+function publicMatches(p){
+  const needle = S.q.trim().toLowerCase();
+  if (S.tag && !(p.tags || []).includes(S.tag)) return false;
+  return !needle || (p.title + ' ' + (p.authorName || '') + ' ' + (p.tags || []).join(' ')).toLowerCase().includes(needle);
+}
+function publicCardsHTML(){
+  const list = [...(S.pub || []).filter(publicMatches).map(p => cardHTML(p, 'pub')), ...EXAMPLES.filter(publicMatches).map(p => cardHTML(p, 'ex'))];
+  return list.length ? list.join('') : '<div class="empty"><b style="color:var(--ink)">Nothing matches</b><span>Try a different word, or clear the tag.</span></div>';
+}
+function tagPillsHTML(){
+  const tags = allTags().slice(0, 16);
+  return `<button class="tagpill${S.tag ? '' : ' on'}" data-ptag="">All</button>` + tags.map(([t, n]) => `<button class="tagpill${S.tag === t ? ' on' : ''}" data-ptag="${esc(t)}">${esc(t)} <small>${n}</small></button>`).join('');
+}
+function publicFilterHTML(){
+  return `<div class="pfilter"><input id="psearch" type="search" placeholder="Search public processes" value="${esc(S.q)}" aria-label="Search public processes" autocomplete="off"><div class="pills" id="ppills">${tagPillsHTML()}</div></div><div class="cards" id="pcards">${publicCardsHTML()}</div>`;
+}
+function wirePublicFilter(root){
+  const inp = root.querySelector('#psearch'); if (!inp) return;
+  const refresh = () => {
+    root.querySelector('#ppills').innerHTML = tagPillsHTML();
+    const c = root.querySelector('#pcards'); c.innerHTML = publicCardsHTML();
+    c.querySelectorAll('[data-open]').forEach(b => b.onclick = () => openProcess(b.dataset.open, b.dataset.kind));
+  };
+  inp.oninput = () => { S.q = inp.value; refresh(); };
+  root.querySelector('#ppills').onclick = e => { const b = e.target.closest('[data-ptag]'); if (!b) return; S.tag = b.dataset.ptag; refresh(); };
+}
 function renderHome(app){
   const sec = (title, sub, inner) => `<section class="sec"><div class="sec-head"><h2>${title}</h2><p>${sub}</p></div>${inner}</section>`;
   app.innerHTML = `
@@ -1197,13 +1231,13 @@ function renderHome(app){
     ${sec('My processes', 'Private unless you share or publish them.', S.mine.length ? `<div class="cards">${S.mine.map(p => cardHTML(p,'mine')).join('')}</div>` :
       `<div class="empty"><b style="color:var(--ink)">No processes yet</b><span>Start one and describe it in your own words, or open a public one below.</span><button class="btn" id="new2">New process</button></div>`)}
     ${S.shared.length ? sec('Shared with me', 'Processes people invited you to.', `<div class="cards">${S.shared.map(p => cardHTML(p,'shared')).join('')}</div>`) : ''}
-    ${sec('Public processes', 'Open any of these, like them, or make your own copy.', `<div class="cards">${S.pub.map(p => cardHTML(p,'pub')).join('')}${EXAMPLES.map(p => cardHTML(p,'ex')).join('')}</div>`)}
+    ${sec('Public processes', 'Search, filter by tag, open any of them, like them, or make your own copy.', publicFilterHTML())}
     <section class="sec"><details class="sf"><summary>Import from Claude or ChatGPT</summary>
       <form data-import class="imp"><textarea name="json" rows="6" required placeholder="Paste the process JSON your AI gave you" aria-label="Process JSON"></textarea><div class="prop-acts"><button class="btn primary sm">Import</button><span class="hint" data-imsg role="status"></span></div></form></details></section>
     ${footHTML()}
   </div></div>`;
   $('#new').onclick = startNew; const n2 = $('#new2'); if (n2) n2.onclick = startNew;
-  wireAcct(app); wireSignIn(app); wireInterest(app); wireImport(app);
+  wireAcct(app); wireSignIn(app); wireInterest(app); wireImport(app); wirePublicFilter(app);
   app.querySelectorAll('[data-del]').forEach(b => b.onclick = () => { S.confirmDel = b.dataset.del; render(); });
   app.querySelectorAll('[data-del-no]').forEach(b => b.onclick = () => { S.confirmDel = null; render(); });
   app.querySelectorAll('[data-del-yes]').forEach(b => b.onclick = () => deleteProcess(b.dataset.delYes));
@@ -1250,6 +1284,7 @@ function renderWorkShell(app){
     <span id="wacct"></span>
   </div>
   <div id="wpanel"></div>
+  <div id="tagbar" class="tagbar"></div>
   <div id="pubbar"></div>
   <div class="tabs" id="tabs"><button data-tab="chat">Conversation</button><button data-tab="map">Map</button></div>
   <div class="work" id="work">
@@ -1274,7 +1309,9 @@ function renderWorkShell(app){
   </div>`;
   $('#back').onclick = () => { flush(); if (S.compare) closeCompare(); S.view = 'home'; S.cur = null; S.confirmDel = null; S.panel = null; loadMine(); loadPublic(); render(); };
   $('#wmenu-btn').onclick = e => { e.stopPropagation(); S.panel = S.panel === 'menu' ? null : 'menu'; S.panelMsg = ''; renderPanel(); };
-  $('#wprimary').onclick = onAction; $('#pubbar').onclick = onAction; $('#wpanel').onclick = onAction; $('#compare').onclick = onAction;
+  $('#wprimary').onclick = onAction; $('#pubbar').onclick = onAction;
+  $('#tagbar').addEventListener('submit', e => { const f = e.target.closest('[data-tagform]'); if (!f) return; e.preventDefault(); addTag(f.elements.tag.value); });
+  $('#tagbar').addEventListener('click', e => { const b = e.target.closest('[data-untag]'); if (b) removeTag(b.dataset.untag); }); $('#wpanel').onclick = onAction; $('#compare').onclick = onAction;
   $('#wpanel').addEventListener('submit', onPanelSubmit);
   $('#wpanel').addEventListener('change', onPanelChange);
   $('#title').onchange = e => { ensureOwned(); const v = e.target.value.trim() || 'Untitled process'; logEvent(S.cur,{who:'human',op:'rename_process',before:S.cur.title,after:v}); S.cur.title = v; S.cur.maps.m_root.title = v; touch(); renderWork(); };
@@ -1493,6 +1530,28 @@ function onPanelChange(e){
   const s = e.target.closest('[data-role-for]'); if (s) setRole(s.dataset.roleFor, s.value);
 }
 /* Public processes get a link of their own; people arriving from it are invited to edit or build their own */
+function tagbarHTML(p){
+  if (S.compare) return '';
+  const k = kindOf(p), q = S.real || p, tags = q.tags || [];
+  const editable = k === 'owned' || k === 'shared';
+  const pills = tags.map(t => `<span class="tagpill on">${esc(t)}${editable ? `<button data-untag="${esc(t)}" aria-label="Remove tag ${esc(t)}">✕</button>` : ''}</span>`).join('');
+  const add = editable && tags.length < 8 ? `<form data-tagform class="tagform"><input name="tag" list="taglist" placeholder="+ add a tag" maxlength="24" autocomplete="off" aria-label="Add a tag"><datalist id="taglist">${allTags().slice(0, 40).map(([t]) => `<option value="${esc(t)}">`).join('')}</datalist></form>` : '';
+  return pills + add;
+}
+let tagTimer = 0;
+function tagsChanged(){
+  const p = S.cur; touch(); renderTopActions();
+  document.querySelector('#tagbar input')?.focus();
+  if (p.publicId){ clearTimeout(tagTimer); tagTimer = setTimeout(() => { flush().then(() => API.post('/api/processes/' + p.id + '/publish', {})).then(loadPublic).catch(() => {}); }, 1500); }
+}
+function addTag(v){
+  const p = S.cur, t = cleanTag(v); if (!p || !t || readOnly(p)) return;
+  p.tags = cleanTags([...(p.tags || []), t]); logEvent(p, { who:'human', op:'add_tag', tag:t }); tagsChanged();
+}
+function removeTag(t){
+  const p = S.cur; if (!p || readOnly(p)) return;
+  p.tags = (p.tags || []).filter(x => x !== t); tagsChanged();
+}
 const pubLink = id => id.startsWith('ex_') ? location.origin + '/?example=' + id : location.origin + '/p/' + id;
 function shareButtons(id){
   if (!id) return '';
@@ -1509,6 +1568,7 @@ function pubbarHTML(p){
 function renderTopActions(){
   const p = S.cur; if (!p || !$('#wprimary')) return;
   $('#pubbar').innerHTML = pubbarHTML(p);
+  if (!document.activeElement?.closest?.('#tagbar')) $('#tagbar').innerHTML = tagbarHTML(p);
   $('#vis').innerHTML = visHTML(p);
   $('#wprimary').innerHTML = primaryHTML(p);
   $('#save').textContent = S.compare ? '' : readOnly(p) ? (kindOf(p) === 'public' ? 'Changes make a copy or a suggestion' : 'Changes make a private copy') : S.save;

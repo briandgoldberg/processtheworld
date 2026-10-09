@@ -117,6 +117,7 @@ model PublicProcess {
   mode        String   @default("collaborative")
   likes       Int      @default(0)
   likedBy     Like[]
+  tags        String[] @default([])
   publishedAt DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

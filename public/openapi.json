@@ -156,6 +156,35 @@
           }
         }
       }
+    },
+    "/api/public": {
+      "get": {
+        "operationId": "listPublic",
+        "summary": "Search published processes by text or tag.",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tag",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Published processes with id, title, author, tags, steps and likes."
+          }
+        }
+      }
     }
   },
   "components": {
@@ -316,6 +345,14 @@
                 }
               }
             }
+          },
+          "tags": {
+            "type": "array",
+            "maxItems": 8,
+            "items": {
+              "type": "string"
+            },
+            "description": "Up to 8 short lowercase tags (sales, science, daily life) so people can find the process."
           }
         }
       }

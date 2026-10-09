@@ -7,6 +7,7 @@ import { saveForUser } from "@/lib/agentSave";
 import { newGuest } from "@/lib/guest";
 import { renderDoc } from "@/lib/render";
 import { accessTo } from "@/lib/access";
+import { cleanTag } from "@/lib/tags";
 
 export const dynamic = "force-dynamic";
 
@@ -37,6 +38,7 @@ const TOOLS = [
         key: { type: "string", description: "Account key from an earlier save_process call. Omit to sign up as a guest." },
         id: { type: "string", description: "Id of a process you saved before, to update it." },
         title: { type: "string" },
+        tags: { type: "array", items: { type: "string" }, description: "Up to 8 short lowercase tags (e.g. sales, science, daily life) so people can find it." },
         publish: { type: "boolean", description: "true to publish it to everyone (a shareable link is returned)." },
         lanes: { type: "array", items: LANE }, steps: { type: "array", items: STEP },
         layers: { type: "array", description: "Detail maps that open from a step.", items: { type: "object", required: ["id", "parentStep", "lanes", "steps"], properties: { id: { type: "string" }, title: { type: "string" }, parentStep: { type: "string" }, parentLayer: { type: "string" }, lanes: { type: "array", items: LANE }, steps: { type: "array", items: STEP } } } },
@@ -45,8 +47,8 @@ const TOOLS = [
   },
   {
     name: "list_public",
-    description: "List published processes (title, author, steps, likes, id).",
-    inputSchema: { type: "object", properties: {} },
+    description: "List published processes (title, author, tags, steps, likes, id). Search with q, or filter by one tag.",
+    inputSchema: { type: "object", properties: { q: { type: "string", description: "Search title, author or tag." }, tag: { type: "string" } } },
   },
   {
     name: "get_document",
@@ -74,7 +76,9 @@ async function callTool(req: NextRequest, name: string, a: Record<string, any>) 
     return text(JSON.stringify({ ...r.body, handle: user.handle, ...(newKey ? { key: newKey, note: "Keep this key and pass it as 'key' to update this process later." } : {}) }, null, 2));
   }
   if (name === "list_public") {
-    const rows = await prisma.publicProcess.findMany({ orderBy: { updatedAt: "desc" }, take: 50, select: { id: true, title: true, authorName: true, stepCount: true, likes: true } });
+    const q = String(a.q || "").trim().slice(0, 80), tag = cleanTag(a.tag);
+    const where: any = { AND: [...(tag ? [{ tags: { has: tag } }] : []), ...(q ? [{ OR: [{ title: { contains: q, mode: "insensitive" } }, { authorName: { contains: q, mode: "insensitive" } }, { tags: { has: cleanTag(q) } }] }] : [])] };
+    const rows = await prisma.publicProcess.findMany({ where, orderBy: { updatedAt: "desc" }, take: 50, select: { id: true, title: true, authorName: true, tags: true, stepCount: true, likes: true } });
     return text(JSON.stringify(rows.map(r => ({ ...r, url: `${origin}/p/${r.id}` })), null, 2));
   }
   if (name === "get_document") {
