@@ -10,7 +10,7 @@ People explain, demonstrate, record or upload everyday processes. AI turns that 
 
 `prototype/index.html` is a single-page prototype that runs as a Claude artifact (it uses the artifact runtime for AI calls, identity and storage, so it does not run standalone in a browser).
 
-- **Sign in → Library.** *My processes* are private; *Public processes* are shared maps anyone can improve.
+- **Sign in → Library.** *My processes* are private (with delete); *Examples* open read-only and become a private copy when changed. Public processes are parked for now.
 - **Live mapping.** Describe a process in the conversation panel. The AI streams changes to the map one operation at a time and asks one follow-up question per turn.
 - **Swim lanes.** Lanes are typed: **People** (roles / user types) and **Technology** (systems and tools). A person using a tool shows the tool as a chip on the step; a system acting on its own gets a step in its own lane.
 - **Drill-down.** Any step can be a subprocess with its own map, lanes and steps, nested to any depth. Breadcrumbs move between layers.

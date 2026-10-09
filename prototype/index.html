@@ -75,6 +75,12 @@ h1,h2,h3{font-family:var(--f-display);font-weight:700;margin:0;text-wrap:balance
 .sec-head h2{font-size:18px}
 .sec-head p{margin:0;color:var(--muted)}
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.card-wrap{position:relative;display:flex;min-width:0}
+.card-wrap .card{flex:1}
+.card-x{position:absolute;top:10px;right:10px;z-index:1;border:1px solid transparent;background:transparent;color:var(--muted);font-size:12px;font-weight:600;border-radius:6px;padding:2px 8px}
+.card-x:hover{color:var(--danger);border-color:var(--danger)}
+.card-del{position:absolute;inset:0;z-index:2;background:var(--surface);border:1px solid var(--danger);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;justify-content:center;gap:10px}
+.btn.ghost.danger{border-color:transparent}
 .card{border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:10px;text-align:left;min-width:0}
 .card:hover{border-color:var(--accent)}
 .card h3{font-size:16px}
@@ -832,6 +838,18 @@ async function flush(){
   saving = false;
   if (dirty) flush();
 }
+async function deleteProcess(id){
+  S.confirmDel = null;
+  if (S.cur?.id === id){ clearTimeout(saveTimer); dirty = false; }
+  const doc = [...S.mine, ...S.local].find(x => x.id === id) || (S.cur?.id === id ? S.cur : null);
+  S.mine = S.mine.filter(x => x.id !== id); S.local = S.local.filter(x => x.id !== id);
+  if (S.cur?.id === id){ S.cur = null; S.view = 'home'; }
+  render();
+  if (S.db && S.uid && doc){
+    try { await S.db.collection(doc.visibility === 'public' ? 'public' : 'data/users/' + S.uid).doc(id).delete(); }
+    catch { S.notice = 'Could not delete that process. Try again.'; render(); }
+  }
+}
 async function makePublic(){
   const p = S.cur; if (!p || p.visibility === 'public') return;
   ensureOwned();
@@ -907,7 +925,7 @@ function renderLogin(app){
       <div class="s">SYSTEM <span>Kettle · Boils the water and clicks off</span></div>
     </div>
     <div><button class="btn primary" id="go">${S.name ? 'Continue as ' + esc(S.name) : 'Continue'}</button></div>
-    <p class="hint">You're signed in with your Claude account. Your processes are private unless you publish them.</p>
+    <p class="hint">You're signed in with your Claude account. Your processes are private to you.</p>
   </div></div>`;
   $('#go').onclick = () => { ss.set('ps_in','1'); S.view = 'home'; render(); };
 }
@@ -916,23 +934,25 @@ function cardHTML(p, kind){
   const st = p.stepCount != null ? { steps:p.stepCount, depth:p.depth } : stats(p);
   const types = p.laneTypes || (p.maps?.m_root?.lanes || []).map(l => l.type);
   const when = p.updatedAt ? new Date(p.updatedAt).toLocaleDateString(undefined,{month:'short',day:'numeric'}) : '';
-  return `<button class="card" data-open="${esc(p.id)}" data-kind="${kind}">
+  const del = kind === 'mine' ? (S.confirmDel === p.id
+    ? `<div class="card-del"><span>Delete “${esc(p.title || 'Untitled process')}”? This can't be undone.</span><span class="prop-acts"><button class="btn danger sm" data-del-yes="${esc(p.id)}">Delete</button><button class="btn sm" data-del-no>Cancel</button></span></div>`
+    : `<button class="card-x" data-del="${esc(p.id)}" aria-label="Delete ${esc(p.title || 'process')}" title="Delete">Delete</button>`) : '';
+  return `<div class="card-wrap">${del}<button class="card" data-open="${esc(p.id)}" data-kind="${kind}">
     <div style="display:flex;justify-content:space-between;gap:8px;align-items:center">
-      ${p.example ? '<span class="pill ex">Example</span>' : p.visibility === 'public' ? '<span class="pill pub">Public</span>' : '<span class="pill">Private</span>'}
-      <span class="mono" style="color:var(--muted)">${esc(when)}</span>
+      ${p.example ? '<span class="pill ex">Example</span>' : '<span class="pill">Private</span>'}
+      <span class="mono" style="color:var(--muted);${kind === 'mine' ? 'margin-right:58px' : ''}">${esc(when)}</span>
     </div>
     <h3>${esc(p.title || 'Untitled process')}</h3>
     <div class="spark">${types.slice(0,8).map(t => `<b class="${t==='system'?'s':''}"></b>`).join('') || '<b style="background:var(--line)"></b>'}</div>
     <div class="meta"><span>${st.steps} steps</span><span>${st.depth} ${st.depth === 1 ? 'layer' : 'layers'}</span><span>${types.filter(t=>t!=='system').length} people · ${types.filter(t=>t==='system').length} tech</span></div>
-  </button>`;
+  </button></div>`;
 }
 
 function renderHome(app){
-  const mine = S.db && S.uid ? S.mine : S.local.filter(p => p.visibility !== 'public');
-  const pub = [...(S.db ? S.pub : S.local.filter(p => p.visibility === 'public')), ...EXAMPLES];
+  const mine = S.db && S.uid ? S.mine : S.local;
   app.innerHTML = `
   <div class="top"><div class="mark"><i>PW</i>Process the World</div><div class="grow"></div>
-    ${!S.db && S.ready ? '<span class="save">This view can\'t save — processes last until you close the page</span>' : ''}
+    ${S.notice ? `<span class="save" style="color:var(--danger)">${esc(S.notice)}</span>` : !S.db && S.ready ? '<span class="save">This view can\'t save — processes last until you close the page</span>' : ''}
     <button class="btn primary" id="new">New process</button></div>
   <div class="home"><div class="home-in">
     <div class="home-head"><div><div class="label">Library</div><h1>${S.name ? 'Welcome back, ' + esc(S.name.split(' ')[0]) : 'Your processes'}</h1></div></div>
@@ -942,14 +962,17 @@ function renderHome(app){
         `<div class="empty"><b style="color:var(--ink)">No private processes yet</b><span>Start one and describe it out loud, or open an example below and make it your own.</span><button class="btn" id="new2">New process</button></div>`}
     </section>
     <section class="sec">
-      <div class="sec-head"><h2>Public processes</h2><p>Shared maps anyone can review, correct and extend.</p></div>
-      <div class="cards">${pub.map(p => cardHTML(p,'pub')).join('')}</div>
+      <div class="sec-head"><h2>Examples</h2><p>Open one to explore. Changing it makes your own private copy.</p></div>
+      <div class="cards">${EXAMPLES.map(p => cardHTML(p,'ex')).join('')}</div>
     </section>
   </div></div>`;
   const start = () => { S.cur = newProcess(); S.path = ['m_root']; S.sel = null; S.view = 'work'; S.tab = 'chat'; render(); };
   $('#new').onclick = start; const n2 = $('#new2'); if (n2) n2.onclick = start;
+  app.querySelectorAll('[data-del]').forEach(b => b.onclick = () => { S.confirmDel = b.dataset.del; render(); });
+  app.querySelectorAll('[data-del-no]').forEach(b => b.onclick = () => { S.confirmDel = null; render(); });
+  app.querySelectorAll('[data-del-yes]').forEach(b => b.onclick = () => deleteProcess(b.dataset.delYes));
   app.querySelectorAll('[data-open]').forEach(b => b.onclick = () => {
-    const id = b.dataset.open; const all = [...S.mine, ...S.pub, ...S.local, ...EXAMPLES];
+    const id = b.dataset.open; const all = [...S.mine, ...S.local, ...EXAMPLES];
     const p = all.find(x => x.id === id); if (!p) return;
     S.cur = clone(p); S.cur.chat = S.cur.chat || []; S.cur.events = S.cur.events || [];
     S.path = ['m_root']; S.sel = null; S.view = 'work'; S.tab = S.cur.maps.m_root.steps.length ? 'map' : 'chat'; render();
@@ -969,6 +992,7 @@ function renderWorkShell(app){
     <div class="grow"><input class="title-in" id="title" aria-label="Process name"></div>
     <span id="vis"></span>
     <span class="save" id="save"></span>
+    <span id="wdel"></span>
   </div>
   <div class="tabs" id="tabs"><button data-tab="chat">Conversation</button><button data-tab="map">Map</button></div>
   <div class="work" id="work">
@@ -989,7 +1013,11 @@ function renderWorkShell(app){
       <div id="checks"></div>
     </section>
   </div>`;
-  $('#back').onclick = () => { flush(); S.view = 'home'; S.cur = null; render(); };
+  $('#back').onclick = () => { flush(); S.view = 'home'; S.cur = null; S.confirmDel = null; render(); };
+  $('#wdel').onclick = e => { const b = e.target.closest('[data-wdel]'); if (!b) return;
+    if (b.dataset.wdel === 'ask'){ S.confirmDel = S.cur.id; renderWork(); }
+    else if (b.dataset.wdel === 'no'){ S.confirmDel = null; renderWork(); }
+    else deleteProcess(S.cur.id); };
   $('#title').onchange = e => { ensureOwned(); const v = e.target.value.trim() || 'Untitled process'; logEvent(S.cur,{who:'human',op:'rename_process',before:S.cur.title,after:v}); S.cur.title = v; S.cur.maps.m_root.title = v; touch(); renderWork(); };
   const msg = $('#msg');
   msg.onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); send(msg.value); } };
@@ -1028,8 +1056,11 @@ function renderWork(fromStream){
   // validate path
   S.path = S.path.filter(id => p.maps[id]); if (!S.path.length) S.path = ['m_root'];
   const t = $('#title'); if (document.activeElement !== t) t.value = p.title;
-  $('#vis').innerHTML = p.example ? '<span class="pill ex">Example</span>' : p.visibility === 'public' ? '<span class="pill pub">Public</span>' : '<span class="pill">Private</span>';
+  $('#vis').innerHTML = p.example ? '<span class="pill ex">Example</span>' : '<span class="pill">Private</span>';
   $('#save').textContent = p.example ? 'Changes make a private copy' : S.save;
+  $('#wdel').innerHTML = p.example ? '' : S.confirmDel === p.id
+    ? `<span class="hint">Delete this process?</span> <button class="btn danger sm" data-wdel="yes">Delete</button> <button class="btn sm" data-wdel="no">Cancel</button>`
+    : `<button class="btn ghost danger sm" data-wdel="ask">Delete</button>`;
   $('#work').dataset.tab = S.tab;
   document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === S.tab));
   $('#stop').hidden = !S.busy; $('#sendb').disabled = S.busy;
@@ -1079,9 +1110,7 @@ function renderCrumbs(){
     const m = p.maps[id]; const last = i === S.path.length - 1;
     return (i ? '<span class="sep">/</span>' : '') + `<button class="crumb${last ? ' cur' : ''}" ${last ? 'aria-current="page"' : `data-depth="${i}"`}>${esc(i === 0 ? p.title : m.title)}</button>`;
   }).join('');
-  const pub = p.visibility === 'public' ? '' : S.confirmPublic
-    ? `<span class="hint">Anyone with access can view and edit.</span><button class="btn primary" data-pub="yes">Publish</button><button class="btn ghost" data-pub="no">Cancel</button>`
-    : `<button class="btn" data-pub="ask">Make public</button>`;
+  const pub = '';
   $('#crumbs').innerHTML = `${crumbs}
     <span class="depth" title="Layer ${S.path.length} of ${totalDepth}">${Array.from({length:Math.max(totalDepth,S.path.length)},(_,i)=>`<b class="${i < S.path.length ? 'on' : ''}"></b>`).join('')}</span>
     <span class="spacer"></span>
@@ -1238,9 +1267,6 @@ render();
     S.db = db;
     db.collection('data/users/' + S.uid).orderBy('updatedAt','desc').limit(100).onSnapshot(snap => {
       S.mine = snap.docs.map(d => d.data()); if (S.view === 'home') render();
-    }, () => {});
-    db.collection('public').orderBy('updatedAt','desc').limit(100).onSnapshot(snap => {
-      S.pub = snap.docs.map(d => d.data()); if (S.view === 'home') render();
     }, () => {});
   }
   if (S.view !== 'work') render();
