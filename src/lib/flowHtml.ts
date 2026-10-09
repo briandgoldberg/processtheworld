@@ -88,7 +88,7 @@ function svgFor(m: MapT, doc: Doc): string {
   const laneById = new Map(m.lanes.map(l => [l.id, l]));
   const out: string[] = [];
   out.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${g.width} ${Math.max(g.height, 80) + 8}" width="${g.width}" height="${Math.max(g.height, 80) + 8}" role="img" aria-label="${esc(clean(m.title))}">`);
-  out.push(`<defs><marker id="ah-${esc(m.id)}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--muted)"/></marker></defs>`);
+  out.push(`<defs>${(["", "yes", "no"] as const).map(t => `<marker id="ah${t}-${esc(m.id)}" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M1 1L11 6L1 11L3.5 6z" class="ah ${t}"/></marker>`).join("")}</defs>`);
   g.bands.forEach(b => out.push(`<text x="12" y="${b.y + 15}" class="band">${b.t.toUpperCase()}</text>`));
   g.lanes.forEach(l => {
     const sys = l.type === "system";
@@ -110,10 +110,11 @@ function svgFor(m: MapT, doc: Doc): string {
         const x1 = a.x + L.BOXW / 2, y1 = a.y + L.BOXH, x2 = b.x + L.BOXW / 2, y2 = b.y + L.BOXH, dy = 34;
         d = `M${x1} ${y1} C${x1} ${y1 + dy} ${x2} ${y2 + dy} ${x2} ${y2}`; lx = (x1 + x2) / 2; ly = Math.max(y1, y2) + dy * 0.75;
       }
-      out.push(`<path d="${d}" class="edge" marker-end="url(#ah-${esc(m.id)})"/>`);
-      if (n.label) {
-        const t = clean(n.label).slice(0, 22), w = t.length * 6.2 + 10;
-        edgeLabels.push(`<rect x="${lx - w / 2}" y="${ly - 9}" width="${w}" height="16" rx="8" class="elbg"/><text x="${lx}" y="${ly + 3}" class="el" text-anchor="middle">${esc(t)}</text>`);
+      const lab = clean(n.label), tone = /^(yes|y|ok|okay|approved?|pass(ed)?|true|done|found|clear(ed)?|success|accept(ed)?|signed|match(es)?|resolved|enough|ready)\b/i.test(lab) ? "yes" : /^(no|n|not|fail(ed)?|reject(ed)?|denied|false|retry|missing|wait|too|stuck|nothing|blocked|cancel(led)?)\b/i.test(lab) ? "no" : "";
+      out.push(`<path d="${d}" class="edge ${tone}${g.col[n.to] <= g.col[s.id] ? " back" : ""}" marker-end="url(#ah${tone}-${esc(m.id)})"/>`);
+      if (lab) {
+        const t = (tone === "yes" ? "✓ " : tone === "no" ? "✕ " : "") + lab.slice(0, 22), w = t.length * 6.6 + 14;
+        edgeLabels.push(`<rect x="${lx - w / 2}" y="${ly - 10}" width="${w}" height="19" rx="9.5" class="elbg ${tone}"/><text x="${lx}" y="${ly + 3.5}" class="el ${tone}" text-anchor="middle">${esc(t)}</text>`);
       }
     }
   }
@@ -146,8 +147,8 @@ function svgFor(m: MapT, doc: Doc): string {
 }
 
 const CSS = `
-:root{--bg:#F3F5F8;--surface:#fff;--ink:#141C27;--muted:#5A6573;--line:#D7DDE5;--accent:#2448C9;--person:#A86A12;--person-bg:#FBF3E6;--system:#0D7672;--system-bg:#E5F3F2}
-@media (prefers-color-scheme:dark){:root{--bg:#0F141B;--surface:#171E28;--ink:#E7ECF2;--muted:#98A3B2;--line:#2C3746;--accent:#7C9BFF;--person:#E3A548;--person-bg:#2A2216;--system:#4CC2BC;--system-bg:#14292A}}
+:root{--edge:#2F3B4C;--ok:#1E7B47;--no:#C2410C;--bg:#F3F5F8;--surface:#fff;--ink:#141C27;--muted:#5A6573;--line:#D7DDE5;--accent:#2448C9;--person:#A86A12;--person-bg:#FBF3E6;--system:#0D7672;--system-bg:#E5F3F2}
+@media (prefers-color-scheme:dark){:root{--edge:#AEBBCD;--ok:#5BD08F;--no:#FF9A6B;--bg:#0F141B;--surface:#171E28;--ink:#E7ECF2;--muted:#98A3B2;--line:#2C3746;--accent:#7C9BFF;--person:#E3A548;--person-bg:#2A2216;--system:#4CC2BC;--system-bg:#14292A}}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
 main{max-width:1200px;margin:0 auto;padding:24px 16px 48px}
 h1{font-size:28px;margin:0 0 4px}h2{font-size:18px;margin:32px 0 8px}h2 small{font-weight:400;color:var(--muted);font-size:13px;margin-left:8px}
@@ -157,11 +158,14 @@ svg{display:block}svg text{font-family:inherit}
 .lane.per{fill:var(--person-bg)}.lane.sys{fill:var(--system-bg)}.lane{stroke:var(--line)}
 .band{font-size:10px;letter-spacing:.08em;font-weight:700;fill:var(--muted)}
 .lanename{font-size:12px;font-weight:700}.lanename.per{fill:var(--person)}.lanename.sys{fill:var(--system)}
-.edge{fill:none;stroke:var(--muted);stroke-width:1.4}
+.edge{fill:none;stroke:var(--edge);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}.edge.yes{stroke:var(--ok)}.edge.no{stroke:var(--no)}.edge.back{stroke-dasharray:7 5}.ah{fill:var(--edge)}.ah.yes{fill:var(--ok)}.ah.no{fill:var(--no)}
 .node{fill:var(--surface);stroke-width:1.5}.node.per{stroke:var(--person)}.node.sys{stroke:var(--system)}
 .node.start,.node.end{stroke-width:2.5}.node.decision{stroke-dasharray:none;fill:var(--surface)}.node.subprocess{stroke-width:2.5}
 .nt{font-size:12px;font-weight:600;fill:var(--ink)}.nu{font-size:10px;fill:var(--muted)}.drill{font-size:14px;font-weight:700;fill:var(--accent)}
-.elbg{fill:var(--surface);stroke:var(--line)}.el{font-size:10px;fill:var(--ink)}
+.elbg{fill:var(--surface);stroke:var(--edge);stroke-width:1.5}.elbg.yes{stroke:var(--ok)}.elbg.no{stroke:var(--no)}.el{font-size:11px;font-weight:700;fill:var(--ink)}.el.yes{fill:var(--ok)}.el.no{fill:var(--no)}
+.node{stroke-width:1.6}.node.start{fill:color-mix(in srgb,var(--ok) 12%,var(--surface));stroke:var(--ok)}.node.end{fill:color-mix(in srgb,var(--accent) 10%,var(--surface));stroke:var(--accent)}.node.decision{fill:color-mix(in srgb,#E8A317 14%,var(--surface));stroke:#E8A317}
+.bar{display:flex;gap:8px;align-items:center;margin:8px 0}.bar button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:6px 12px;font:inherit;font-weight:600;cursor:pointer}
+.board{cursor:grab}.board.panning{cursor:grabbing;user-select:none}.fsmode{position:fixed;inset:0;background:var(--bg);overflow:auto;z-index:9;padding:16px}
 footer{margin-top:32px;color:var(--muted);font-size:12px}
 `;
 
@@ -184,7 +188,25 @@ export function flowHtml(doc: Doc, opts: { author?: string; url?: string } = {})
 <body><main>
 <h1>${esc(title)}</h1>
 <p class="sub">${steps} steps across ${all.length} layer${all.length === 1 ? "" : "s"}${opts.author ? ` · by ${esc(opts.author)}` : ""}. Steps with ↘ open into a detail layer below; steps with ↗ open another published process.</p>
+<div class="bar"><button id="fs">Full screen</button><button id="zo">−</button><button id="zi">+</button><span class="sub">Drag to move around. Ctrl + scroll to zoom.</span></div>
 ${sections}
 <footer>Made with <a href="${esc(opts.url || "https://processtheworld.vercel.app")}">Process the World</a></footer>
-</main></body></html>`;
+</main>
+<script>
+(function(){
+  var z=1,main=document.querySelector("main");
+  function apply(){document.querySelectorAll("svg").forEach(function(s){s.style.zoom=z;});}
+  document.getElementById("zi").onclick=function(){z=Math.min(2,z*1.25);apply();};
+  document.getElementById("zo").onclick=function(){z=Math.max(.3,z/1.25);apply();};
+  document.getElementById("fs").onclick=function(){if(document.fullscreenElement){document.exitFullscreen();}else if(document.documentElement.requestFullscreen){document.documentElement.requestFullscreen();}else{main.classList.toggle("fsmode");}};
+  document.addEventListener("wheel",function(e){if(!(e.ctrlKey||e.metaKey))return;e.preventDefault();z=Math.max(.3,Math.min(2,z*(e.deltaY<0?1.1:1/1.1)));apply();},{passive:false});
+  document.querySelectorAll(".board").forEach(function(b){
+    var p=null;
+    b.addEventListener("pointerdown",function(e){if(e.target.closest("a"))return;p={x:e.clientX,y:e.clientY,l:b.scrollLeft,t:b.scrollTop};b.setPointerCapture(e.pointerId);b.classList.add("panning");});
+    b.addEventListener("pointermove",function(e){if(!p)return;b.scrollLeft=p.l-(e.clientX-p.x);b.scrollTop=p.t-(e.clientY-p.y);});
+    function end(){p=null;b.classList.remove("panning");}
+    b.addEventListener("pointerup",end);b.addEventListener("pointercancel",end);
+  });
+})();
+</script></body></html>`;
 }

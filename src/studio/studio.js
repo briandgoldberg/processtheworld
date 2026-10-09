@@ -110,7 +110,7 @@ const EXAMPLES = [EX_EGG, EX_CAR, EX_TEA];
 
 /* ---------- State ---------- */
 const S = { view:'login', me:null, ready:false,
-  zoom:1, zoomAuto:true, detail:'auto', zoomKey:'',
+  zoom:1, zoomAuto:true, detail:'auto', zoomKey:'', tool:'select', space:false, playing:false, playNow:null, playSeen:{}, drawNow:false,
   mine:[], shared:[], pub:[], cur:null, real:null, compare:null, panel:null, panelMsg:'', path:['m_root'], sel:null, busy:false, ctl:null,
   fresh:new Set(), save:'', tab:'chat', deep:false, confirmPub:false, confirmDel:null, acct:false, notice:'', toast:'',
   sessionTurns:0, askedThisSession:false, lastTurnId:null };
@@ -1280,6 +1280,7 @@ function renderWorkShell(app){
   $('#deep').checked = S.deep; $('#deep').onchange = e => S.deep = e.target.checked;
   $('#zoomctl').onclick = onZoomClick;
   $('#scroller').addEventListener('wheel', onBoardWheel, { passive:false });
+  wirePan($('#scroller'));
   $('#tabs').onclick = e => { const t = e.target.closest('[data-tab]'); if (!t) return; S.tab = t.dataset.tab; renderWork(); };
   $('#msgs').onclick = e => {
     const b = e.target.closest('[data-starter]'); if (b){ send(b.dataset.starter); return; }
@@ -1319,6 +1320,11 @@ const ICON = {
   star:   ico('<path d="M8 1.8l1.9 3.9 4.3.6-3.1 3 .7 4.3L8 11.6l-3.8 2 .7-4.3-3.1-3 4.3-.6z"/>'),
   link:   ico('<path d="M6.8 9.2a3 3 0 004.2 0l2-2a3 3 0 00-4.2-4.2l-.7.7"/><path d="M9.2 6.8a3 3 0 00-4.2 0l-2 2a3 3 0 004.2 4.2l.7-.7"/>'),
   heart:  ico('<path d="M8 13.6S2.2 10 2.2 6.1A3.1 3.1 0 018 4.6a3.1 3.1 0 015.8 1.5C13.8 10 8 13.6 8 13.6z"/>'),
+  hand:   ico('<path d="M6 8V3.5a1 1 0 012 0V7m0-3a1 1 0 012 0v3m0-2a1 1 0 012 0v3.5m0-1a1 1 0 012 0V10a5 5 0 01-5 5H8.5a3.5 3.5 0 01-2.8-1.4L2.6 9.8a1 1 0 011.6-1.2L6 10.5V8"/>'),
+  play:   ico('<path d="M4.5 3l8 5-8 5z"/>'),
+  stop:   ico('<rect x="4" y="4" width="8" height="8" rx="1"/>'),
+  full:   ico('<path d="M2.5 6V2.5H6M10 2.5h3.5V6M13.5 10v3.5H10M6 13.5H2.5V10"/>'),
+  pointer: ico('<path d="M3.5 2.5l8 4-3.4 1.2L6.9 11z"/>'),
   globe:  ico('<circle cx="8" cy="8" r="6"/><path d="M2 8h12M8 2c2 1.8 2.8 3.8 2.8 6S10 12.2 8 14M8 2C6 3.8 5.2 5.8 5.2 8S6 12.2 8 14"/>')
 };
 const visPill = (publicId, shareCount, mode) => publicId ? `<span class="pill pub">${ICON.globe}Public${mode === 'locked' ? ' · as is' : ''}</span>` : shareCount ? `<span class="pill sh">${ICON.people}Shared · ${shareCount}</span>` : `<span class="pill">${ICON.lock}Private</span>`;
@@ -1572,12 +1578,15 @@ function renderCrumbs(){
 
 /* Zoom: zoom out for the simple picture, zoom in for every detail */
 const ZMIN = 0.25, ZMAX = 1.75;
+function isFull(){ const w = document.querySelector('.canvas-wrap'); return !!(document.fullscreenElement || w?.classList.contains('fs')); }
 function updateZoomCtl(){
   const el = $('#zoomctl'), sc = $('#scroller'); if (!el) return;
-  if (sc){ sc.dataset.detail = S.detail || 'auto'; sc.dataset.low = S.zoom < 0.55 ? '1' : '0'; }
   const d = S.detail || 'auto';
-  el.innerHTML = `<button data-z="out" aria-label="Zoom out" title="Zoom out">−</button><button data-z="reset" class="zv" aria-label="Reset to 100%" title="Reset to 100%">${Math.round(S.zoom * 100)}%</button><button data-z="in" aria-label="Zoom in" title="Zoom in">+</button><button data-z="fit" title="Fit the whole map on screen">Fit</button>
-    <span class="zsep"></span><button data-detail="simple" class="${d === 'simple' ? 'on' : ''}" title="Names only">Simple</button><button data-detail="full" class="${d === 'full' ? 'on' : ''}" title="Tools, links and labels">Detailed</button>`;
+  if (sc){ sc.dataset.detail = d; sc.dataset.low = S.zoom < 0.55 ? '1' : '0'; sc.classList.toggle('hand', S.tool === 'hand'); }
+  el.innerHTML = `<button data-tool="select" class="${S.tool === 'select' ? 'on' : ''}" aria-label="Select tool" title="Select (V)">${ICON.pointer}</button><button data-tool="hand" class="${S.tool === 'hand' ? 'on' : ''}" aria-label="Hand tool: drag to move around" title="Hand: drag to move around (hold Space)">${ICON.hand}</button>
+    <span class="zsep"></span><button data-z="out" aria-label="Zoom out" title="Zoom out">−</button><button data-z="reset" class="zv" aria-label="Reset to 100%" title="Reset to 100%">${Math.round(S.zoom * 100)}%</button><button data-z="in" aria-label="Zoom in" title="Zoom in">+</button><button data-z="fit" title="Fit the whole map on screen">Fit</button>
+    <span class="zsep"></span><button data-detail="simple" class="${d === 'simple' ? 'on' : ''}" title="Names only">Simple</button><button data-detail="full" class="${d === 'full' ? 'on' : ''}" title="Tools, links and labels">Detailed</button>
+    <span class="zsep"></span><button data-play class="${S.playing ? 'on' : ''}" title="Walk through the process, step by step">${S.playing ? ICON.stop + 'Stop' : ICON.play + 'Play'}</button><button data-fs aria-label="Full screen" title="Full screen">${ICON.full}</button>`;
 }
 function setZoom(z, cx, cy){
   const sc = $('#scroller'), b = $('#board'); if (!sc || !b) return;
@@ -1595,6 +1604,69 @@ function onZoomClick(e){
   else if (b.dataset.z === 'reset') setZoom(1);
   else if (b.dataset.z === 'fit'){ S.zoomAuto = true; renderBoard(); }
   else if (b.dataset.detail){ S.detail = b.dataset.detail; updateZoomCtl(); }
+  else if (b.dataset.tool){ S.tool = b.dataset.tool; updateZoomCtl(); }
+  else if ('play' in b.dataset) playWalk();
+  else if ('fs' in b.dataset) toggleFull();
+}
+function toggleFull(){
+  const w = document.querySelector('.canvas-wrap'); if (!w) return;
+  if (document.fullscreenElement){ document.exitFullscreen(); return; }
+  if (w.classList.contains('fs')){ w.classList.remove('fs'); setTimeout(() => { S.zoomAuto = true; renderBoard(); }, 30); return; }
+  if (w.requestFullscreen) w.requestFullscreen().catch(() => { w.classList.add('fs'); setTimeout(() => { S.zoomAuto = true; renderBoard(); }, 30); });
+  else { w.classList.add('fs'); setTimeout(() => { S.zoomAuto = true; renderBoard(); }, 30); }
+}
+document.addEventListener('fullscreenchange', () => { setTimeout(() => { if (S.view === 'work' && S.cur){ S.zoomAuto = true; renderBoard(); } }, 60); });
+
+/* Hand tool: drag the canvas to move around a big map, like Miro. Also: hold Space, middle mouse, or drag empty background. */
+let pan = null, swallowClick = false;
+function wirePan(sc){
+  sc.addEventListener('pointerdown', e => {
+    if (e.button > 1 || e.target.closest('.zoomctl,button,input,select,textarea')) return;
+    const onStep = e.target.closest('.step,.elabel');
+    if (!(S.tool === 'hand' || S.space || e.button === 1 || !onStep)) return;
+    pan = { x:e.clientX, y:e.clientY, l:sc.scrollLeft, t:sc.scrollTop, moved:false };
+    try { sc.setPointerCapture(e.pointerId); } catch {}
+    sc.classList.add('panning'); e.preventDefault();
+  });
+  sc.addEventListener('pointermove', e => {
+    if (!pan) return;
+    const dx = e.clientX - pan.x, dy = e.clientY - pan.y;
+    if (Math.abs(dx) + Math.abs(dy) > 3) pan.moved = true;
+    sc.scrollLeft = pan.l - dx; sc.scrollTop = pan.t - dy;
+  });
+  const end = () => { if (!pan) return; swallowClick = pan.moved; pan = null; sc.classList.remove('panning'); setTimeout(() => { swallowClick = false; }, 0); };
+  sc.addEventListener('pointerup', end); sc.addEventListener('pointercancel', end);
+  sc.addEventListener('click', e => { if (swallowClick || S.tool === 'hand'){ e.stopPropagation(); e.preventDefault(); swallowClick = false; } }, true);
+}
+document.addEventListener('keydown', e => {
+  if (e.code === 'Space' && !e.repeat && S.view === 'work' && !e.target.closest?.('input,textarea,select,button,[contenteditable]')){ S.space = true; $('#scroller')?.classList.add('hand'); e.preventDefault(); }
+  if ((e.key === 'v' || e.key === 'h') && S.view === 'work' && !e.metaKey && !e.ctrlKey && !e.target.closest?.('input,textarea,select,[contenteditable]')){ S.tool = e.key === 'h' ? 'hand' : 'select'; updateZoomCtl(); }
+});
+document.addEventListener('keyup', e => { if (e.code === 'Space'){ S.space = false; if (S.tool !== 'hand') $('#scroller')?.classList.remove('hand'); } });
+
+/* Play: walk the process one step at a time, leaving a trail behind */
+function stopPlay(){ S.playing = false; clearTimeout(S.playTimer); S.playNow = null; S.playSeen = {}; document.querySelector('#board')?.classList.remove('playing'); document.querySelectorAll('.step.now,.step.trail').forEach(x => x.classList.remove('now', 'trail')); updateZoomCtl(); }
+function playWalk(){
+  if (S.playing){ stopPlay(); return; }
+  const m = curMap(); if (!m || !m.steps.length) return;
+  S.sel = null; renderInspector();
+  S.playing = true; S.playSeen = {};
+  let id = (m.steps.find(s => s.kind === 'start') || m.steps[0]).id;
+  document.querySelector('#board')?.classList.add('playing'); updateZoomCtl();
+  const tick = () => {
+    if (!S.playing) return;
+    const s = m.steps.find(x => x.id === id); if (!s){ stopPlay(); return; }
+    S.playSeen[id] = 1;
+    document.querySelectorAll('.step.now').forEach(x => { x.classList.remove('now'); x.classList.add('trail'); });
+    const el = document.querySelector('[data-step="' + CSS.escape(id) + '"]');
+    el?.classList.remove('trail'); el?.classList.add('now');
+    el?.scrollIntoView({ block:'center', inline:'center', behavior:'smooth' });
+    const nxt = (s.next || []).filter(n => isInternal(n, m) && m.steps.some(x => x.id === n.to));
+    const pick = nxt.find(n => !S.playSeen[n.to]);
+    if (!pick){ S.playTimer = setTimeout(stopPlay, 1800); return; }
+    id = pick.to; S.playTimer = setTimeout(tick, 1100);
+  };
+  tick();
 }
 function onBoardWheel(e){
   if (!(e.ctrlKey || e.metaKey)) return;
@@ -1612,7 +1684,7 @@ function renderBoard(){
   }
   const g = layout(m);
   b.style.width = g.width + 'px'; b.style.height = g.height + 'px';
-  const zkey = S.cur.id + '|' + m.id; if (S.zoomKey !== zkey){ S.zoomKey = zkey; S.zoomAuto = true; }
+  const zkey = S.cur.id + '|' + m.id; S.drawNow = false; if (S.zoomKey !== zkey){ S.zoomKey = zkey; S.zoomAuto = true; S.drawNow = true; stopPlay(); }
   const sc0 = $('#scroller');
   if (S.zoomAuto && sc0 && sc0.clientWidth > 80) S.zoom = Math.max(ZMIN, Math.min(1, (sc0.clientWidth - 12) / g.width));
   b.style.zoom = S.zoom; updateZoomCtl();
@@ -1638,10 +1710,13 @@ function renderBoard(){
       const low = Math.max(a.y, z.y) + L.BOXH + 10;
       d = `M${a.x + L.BOXW / 2},${a.y + L.BOXH} V${low} H${z.x + L.BOXW / 2} V${z.y + L.BOXH + 2}`; lx = (a.x + z.x + L.BOXW) / 2; ly = low;
     }
-    paths += `<path d="${d}" marker-end="url(#arr)"/>`;
-    if (n.label) labels += `<div class="elabel" style="left:${lx}px;top:${ly}px">${esc(n.label)}</div>`;
+    const lab = String(n.label || '').trim(), tone = /^(yes|y|ok|okay|approved?|pass(ed)?|true|done|found|clear(ed)?|success|accept(ed)?|signed|match(es)?|resolved|enough|ready)\b/i.test(lab) ? 'yes' : /^(no|n|not|fail(ed)?|reject(ed)?|denied|false|retry|missing|wait|too|stuck|nothing|blocked|cancel(led)?)\b/i.test(lab) ? 'no' : '';
+    const back = z.x <= a.x && z.y !== a.y || z.x < a.x;
+    const hot = S.sel && (s.id === S.sel || n.to === S.sel), dim = S.sel && !hot;
+    paths += `<path d="${d}" class="e${tone ? ' e-' + tone : ''}${back ? ' e-back' : ''}${hot ? ' hot' : ''}${dim ? ' dim' : ''}" marker-end="url(#arr${tone ? '-' + tone : ''})" pathLength="1"/>`;
+    if (lab) labels += `<div class="elabel${tone ? ' el-' + tone : ''}${hot ? ' hot' : ''}${dim ? ' dim' : ''}" style="left:${lx}px;top:${ly}px">${tone === 'yes' ? '✓ ' : tone === 'no' ? '✕ ' : ''}${esc(lab)}</div>`;
   }));
-  html += `<svg class="edges" width="${g.width}" height="${g.height}" aria-hidden="true"><defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--edge);stroke:none"/></marker></defs>${paths}</svg>`;
+  html += `<svg class="edges${S.drawNow ? ' draw' : ''}" width="${g.width}" height="${g.height}" aria-hidden="true"><defs>${[['arr','--edge-strong'],['arr-yes','--ok-edge'],['arr-no','--no-edge']].map(([id, v]) => `<marker id="${id}" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M1,1 L11,6 L1,11 L3.5,6 z" style="fill:var(${v});stroke:none"/></marker>`).join('')}</defs>${paths}</svg>`;
   html += labels;
   const laneName = Object.fromEntries(m.lanes.map(l => [l.id, l.name]));
   const P = S.cur;
@@ -1654,7 +1729,8 @@ function renderBoard(){
     const ins = incomingLinks(P, m.id, s.id).map(r => `<button class="xlink in" data-jump="${esc(r.map)}" data-step="${esc(r.step.id)}">↙ from ${esc(P.maps[r.map].title)}</button>`).join('');
     const back = s.kind === 'end' && parentStep && !s.next.length ? `<span class="back">↩ continues after “${esc(parentStep.label)}”</span>` : '';
     const dm = S.compare?.diff.marks[S.compare.side]?.[m.id]?.[s.id];
-    html += `<div class="step ${s.kind}${S.sel === s.id ? ' sel' : ''}${S.fresh.has(s.id) ? ' fresh' : ''}${s.proposedRemove ? ' proposed' : ''}${dm ? ' diff-' + dm : ''}" data-step="${esc(s.id)}" role="button" tabindex="0" style="left:${q.x}px;top:${q.y}px">
+    const lt = (m.lanes.find(l => l.id === s.lane)?.type) === 'system' ? 'sys' : 'per';
+    html += `<div class="step ${s.kind} lt-${lt}${S.drawNow ? ' pop' : ''}${S.sel === s.id ? ' sel' : ''}${S.fresh.has(s.id) ? ' fresh' : ''}${s.proposedRemove ? ' proposed' : ''}${dm ? ' diff-' + dm : ''}" data-step="${esc(s.id)}" role="button" tabindex="0" style="left:${q.x}px;top:${q.y}px;--d:${Math.round(q.x / L.COL) * 55}ms">
       ${issueAt[s.id] ? `<span class="warn-dot" title="${esc(issueAt[s.id].join('\n'))}" aria-label="${esc(issueAt[s.id].join('. '))}">!</span>` : ''}
       ${s.proposedRemove ? '<span class="k rm">Remove?</span>' : ''}
       ${s.kind === 'decision' ? '<span class="k">◇ decision</span>' : s.kind === 'subprocess' ? (s.link ? '<span class="k">↗ linked process</span>' : '<span class="k">▤ subprocess</span>') : ''}
