@@ -1101,8 +1101,8 @@ function renderLogin(app){
       <div class="hero-copy">
         <span class="label">Process the World</span>
         <h1>Building the best process mapper in the world.</h1>
-        <p class="lead">We start with how humans think and explain, then build the best way to capture a process. And we're all about feedback: every correction makes it smarter.</p>
-        <div class="hero-acts"><button class="btn primary lg" id="go">Try it</button><span class="hint">No account needed. You'll map as <b>${esc(S.me?.handle || 'an explorer')}</b>.</span></div>
+        <p class="lead">Built on how humans think. Powered by your feedback.</p>
+        <div class="hero-acts"><button class="btn primary lg" id="go">Try it</button><span class="hint">No account needed.</span></div>
       </div>
       <div class="hero-demo" aria-hidden="true">
         <div class="demo-lane p"><span class="dl-name">Cook</span><span class="dl-step start">Want an egg</span><span class="dl-arrow"></span><span class="dl-step sub">Prepare the pan ↘</span><span class="dl-arrow"></span><span class="dl-step">Crack the egg</span></div>
@@ -1111,26 +1111,13 @@ function renderLogin(app){
       </div>
     </section>
     <section class="goal">
-      <h2>Our goal is to map the world's processes.</h2>
-      <p>Everyone who contributes earns points: publish a process, vote on a change, share feedback. You spend points when you build. You start with about $1 worth, enough to map your first processes.</p>
-      <ul class="goal-ways"><li><b>+25</b> publish a process</li><li><b>+20</b> your change goes live</li><li><b>+3</b> someone copies yours</li><li><b>+2</b> vote or give feedback</li></ul>
-    </section>
-    <section class="start" id="start">
-      <div class="start-card"><h2>Keep your processes</h2><p>Enter your email to save your processes and use them on any device. Already have an account? The same box signs you in.</p>${emailFormHTML('li')}</div>
-    </section>
-    <section class="how">
-      <h2>How it works</h2>
-      <ol class="steps3">
-        <li><b>Describe it</b><span>Type or dictate how something gets done, in your own words. The interviewer asks one good question at a time.</span></li>
-        <li><b>Watch the map build</b><span>People and technology get their own lanes. Any step can open into its own layer of detail.</span></li>
-        <li><b>Share it or publish it</b><span>Keep it private, share it with the people involved, or publish it to everyone: open to suggestions and votes, or exactly as is.</span></li>
-      </ol>
+      <h2>Our goal: map the world's processes.</h2>
+      <p>Contribute to earn points. Spend them as you build. Start with $1 free.</p>
     </section>
     <section class="examples-land">
       <h2>Try an example</h2>
       <div class="cards">${EXAMPLES.map(p => cardHTML(p, 'ex')).join('')}</div>
     </section>
-    <footer class="land-foot"><span>Every correction teaches the system how processes really work.</span></footer>
   </main>`;
   const enter = () => { ls.set('ptw_in','1'); S.view = 'home'; render(); };
   $('#go').onclick = () => { enter(); startNew(); };
