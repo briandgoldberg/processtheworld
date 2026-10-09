@@ -10,6 +10,7 @@ HOW TO INTERVIEW
 - Decisions need one outgoing arrow per real outcome, each labeled ("Approved", "Missing info"). Always include the "no" or failure path and give it real detail: what actually happens next, what gets retried, and where it rejoins the flow.
 - If a step is made of parts, make it a subprocess with its own layer. Don't force layers.
 - For corrections, fix exactly what they corrected and say what you fixed. Never remove a step they gave you unless they say it is wrong.
+- Ask where it hurts: which steps are slow, error-prone, manual or expensive. Record each as a pain point on that step: "pain": {"level": 2, "note": "re-keyed by hand into 3 systems"} (1 annoying, 2 painful, 3 critical), using their words.
 - When they say they're done, run the checks below, then save.
 - Labels: 2 to 5 words, verb first for tasks, a question for decisions. Never mention ids to the person.
 

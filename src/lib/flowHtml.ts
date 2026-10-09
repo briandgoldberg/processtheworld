@@ -5,7 +5,7 @@
 
 type Lane = { id: string; name: string; type?: string };
 type Next = { to: string; label?: string; map?: string };
-type Step = { id: string; lane: string; label: string; kind?: string; uses?: string[]; next?: Next[]; child?: string; link?: { id: string; title?: string; scope?: string } };
+type Step = { id: string; lane: string; label: string; kind?: string; uses?: string[]; next?: Next[]; child?: string; link?: { id: string; title?: string; scope?: string }; pain?: { level: number; note?: string } };
 type MapT = { id: string; title?: string; parent?: { map: string; step: string } | null; lanes: Lane[]; steps: Step[] };
 type Doc = { title?: string; maps: Record<string, MapT> };
 
@@ -54,7 +54,7 @@ export function columnsOf(m: { steps: { id: string; next?: { to: string; map?: s
   return col;
 }
 
-function layout(m: MapT) {
+export function layout(m: MapT) {
   const col = columnsOf(m);
   const laneIds = new Set(m.lanes.map(l => l.id));
   const lanes: Lane[] = [...m.lanes.filter(l => l.type !== "system"), ...m.lanes.filter(l => l.type === "system")];
@@ -139,7 +139,8 @@ function svgFor(m: MapT, doc: Doc): string {
     let node = shape + txt + jump;
     if (s.link) node = `<a ${s.link.scope === "private" ? "" : `href="https://processtheworld.vercel.app/p/${esc(s.link.id)}" target="_blank" rel="noopener"`}>${shape}${txt}<text x="${p.x + L.BOXW - 8}" y="${p.y + 14}" class="drill" text-anchor="end">↗</text><title>Opens the process “${esc(clean(s.link.title))}”</title></a>`;
     if (s.child && doc.maps[s.child]) node = `<a href="#${esc(s.child)}">${shape}${txt}<text x="${p.x + L.BOXW - 8}" y="${p.y + 14}" class="drill" text-anchor="end">↘</text></a>`;
-    out.push(`<g>${node}</g>`);
+    const pn = s.pain ? `<g class="pain l${s.pain.level}"><circle cx="${p.x + L.BOXW - 4}" cy="${p.y + 4}" r="11"/><text x="${p.x + L.BOXW - 4}" y="${p.y + 8.5}" text-anchor="middle">!</text><title>Pain point${s.pain.note ? ": " + esc(clean(s.pain.note)) : ""}</title></g>` : "";
+    out.push(`<g>${node}${pn}</g>`);
   }
   out.push(edgeLabels.join(""));
   out.push("</svg>");
@@ -164,6 +165,7 @@ svg{display:block}svg text{font-family:inherit}
 .nt{font-size:12px;font-weight:600;fill:var(--ink)}.nu{font-size:10px;fill:var(--muted)}.drill{font-size:14px;font-weight:700;fill:var(--accent)}
 .elbg{fill:var(--surface);stroke:var(--edge);stroke-width:1.5}.elbg.yes{stroke:var(--ok)}.elbg.no{stroke:var(--no)}.el{font-size:11px;font-weight:700;fill:var(--ink)}.el.yes{fill:var(--ok)}.el.no{fill:var(--no)}
 .node{stroke-width:1.6}.node.start{fill:color-mix(in srgb,var(--ok) 12%,var(--surface));stroke:var(--ok)}.node.end{fill:color-mix(in srgb,var(--accent) 10%,var(--surface));stroke:var(--accent)}.node.decision{fill:color-mix(in srgb,#E8A317 14%,var(--surface));stroke:#E8A317}
+.pain circle{fill:#E8A317}.pain.l2 circle{fill:#E8590C}.pain.l3 circle{fill:#C92A2A}.pain text{fill:#fff;font-size:13px;font-weight:800}
 .bar{display:flex;gap:8px;align-items:center;margin:8px 0}.bar button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:6px 12px;font:inherit;font-weight:600;cursor:pointer}
 .board{cursor:grab}.board.panning{cursor:grabbing;user-select:none}.fsmode{position:fixed;inset:0;background:var(--bg);overflow:auto;z-index:9;padding:16px}
 footer{margin-top:32px;color:var(--muted);font-size:12px}

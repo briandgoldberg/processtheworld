@@ -4,10 +4,11 @@
 
 type Lane = { id: string; name: string; type: "person" | "system" | string };
 type Next = { to: string; label?: string; map?: string };
-type Step = { id: string; lane: string; label: string; kind?: string; uses?: string[]; next?: Next[]; child?: string; link?: { id: string; title?: string; scope?: string } };
+type Step = { id: string; lane: string; label: string; kind?: string; uses?: string[]; next?: Next[]; child?: string; link?: { id: string; title?: string; scope?: string }; pain?: { level: number; note?: string } };
 export type MapT = { id: string; title?: string; parent?: { map: string; step: string } | null; lanes: Lane[]; steps: Step[] };
 type Doc = { title?: string; maps: Record<string, MapT> };
 
+export const PAIN: Record<number, string> = { 1: "annoying", 2: "painful", 3: "critical" };
 const clean = (s: unknown) => String(s ?? "").replace(/\s+/g, " ").trim();
 
 /** Steps in the order the process runs: starts first, then follow the arrows, then anything left over. */
@@ -63,7 +64,7 @@ function section(m: MapT, doc: Doc, level: string): string {
       const target = n.map ? `${doc.maps[n.map]?.steps.find(x => x.id === n.to)?.label ?? n.to} (in layer "${clean(doc.maps[n.map]?.title) || n.map}")` : clean(m.steps.find(x => x.id === n.to)?.label) || n.to;
       return n.label ? `if "${clean(n.label)}" go to ${target}` : `then ${target}`;
     });
-    lines.push(`${i + 1}. **${clean(s.label)}** [${s.kind || "task"}; ${laneName(s.lane)}; id \`${s.id}\`]${uses.length ? `, using ${uses.join(", ")}` : ""}${s.child && doc.maps[s.child] ? `, opens the detail layer "${clean(doc.maps[s.child].title) || s.child}"` : ""}${s.link ? (s.link.scope === "private" ? `, links to the saved process "${clean(s.link.title) || s.link.id}" (not public; open it in Process the World)` : `, links to the published process "${clean(s.link.title) || s.link.id}" (https://processtheworld.vercel.app/p/${s.link.id}; full text at https://processtheworld.vercel.app/api/public/${s.link.id}/export)`) : ""}`);
+    lines.push(`${i + 1}. **${clean(s.label)}** [${s.kind || "task"}; ${laneName(s.lane)}; id \`${s.id}\`]${s.pain ? ` ⚠ PAIN POINT (${PAIN[s.pain.level] || "medium"})${s.pain.note ? ": " + clean(s.pain.note) : ""}` : ""}${uses.length ? `, using ${uses.join(", ")}` : ""}${s.child && doc.maps[s.child] ? `, opens the detail layer "${clean(doc.maps[s.child].title) || s.child}"` : ""}${s.link ? (s.link.scope === "private" ? `, links to the saved process "${clean(s.link.title) || s.link.id}" (not public; open it in Process the World)` : `, links to the published process "${clean(s.link.title) || s.link.id}" (https://processtheworld.vercel.app/p/${s.link.id}; full text at https://processtheworld.vercel.app/api/public/${s.link.id}/export)`) : ""}`);
     if (next.length) lines.push(`   - ${next.join("; ")}`);
     else if (s.kind !== "end") lines.push("   - (no next step recorded)");
   });
@@ -87,6 +88,11 @@ export function exportMarkdown(doc: Doc, opts: { url?: string; author?: string }
   const tech = (root?.lanes || []).filter(l => l.type === "system").map(l => clean(l.name));
   if (people.length) out.push(`- People / roles: ${people.join(", ")}`);
   if (tech.length) out.push(`- Technology / systems: ${tech.join(", ")}`);
+  const pains = all.flatMap(m => m.steps.filter(s => s.pain).map(s => ({ s, layer: clean(m.title) || m.id }))).sort((a, b) => (b.s.pain!.level) - (a.s.pain!.level));
+  if (pains.length) {
+    out.push("", "## Pain points", "", "Where this process hurts, worst first:", "");
+    pains.forEach(({ s, layer }) => out.push(`- **${clean(s.label)}** (${layer}; ${PAIN[s.pain!.level] || "painful"})${s.pain!.note ? ": " + clean(s.pain!.note) : ""}`));
+  }
   out.push("", "## How to read this file", "");
   out.push("- A process is made of **layers**. The main layer is the top level; any step of kind `subprocess` opens a detail layer with its own lanes and steps.");
   out.push("- **Lanes** are either people/roles or technology/systems. Each step belongs to one lane; `using` lists tools a person uses for that step.");

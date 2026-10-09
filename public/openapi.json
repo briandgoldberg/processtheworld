@@ -273,6 +273,28 @@
           "link": {
             "type": "string",
             "description": "Id of another process: a published one (publicId) or one you saved or that is shared with you (id). The step becomes a link to that whole process."
+          },
+          "pain": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "level": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 3,
+                    "description": "1 annoying, 2 painful, 3 critical"
+                  },
+                  "note": {
+                    "type": "string"
+                  }
+                }
+              }
+            ],
+            "description": "Mark a step as a pain point: where it hurts (slow, error-prone, manual, costly). A note, or {level, note}."
           }
         }
       },

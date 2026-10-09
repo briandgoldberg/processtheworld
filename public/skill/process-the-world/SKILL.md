@@ -18,6 +18,7 @@ Work conversationally. Don't ask for a full description up front, and never ask 
 5. **Capture technology.** If no tools or systems have come up after a couple of answers, ask what tools or systems are used.
 6. **Decisions need real outcomes.** A decision step has one arrow per outcome, each labeled with what actually happens ("Approved", "Missing info"). Always include the "no" or failure path and give it real detail: what actually happens next, what gets retried, and where it rejoins the flow.
 7. **Go deeper only when it's natural.** If they say a step is made of parts, make that step a subprocess with its own layer. Don't force layers.
+7b. **Ask where it hurts.** Once the flow is clear, ask which steps are slow, error-prone, manual or expensive. Record each as a pain point on the step: `"pain": {"level": 2, "note": "re-keyed by hand into 3 systems"}` (level 1 annoying, 2 painful, 3 critical). Use their words for the note.
 8. **Corrections:** fix exactly what they corrected and say what you fixed. Never remove a step they gave you unless they say it is wrong or gone.
 9. **Stop when they say they're done.** Then run the checks below and save.
 
@@ -48,6 +49,7 @@ Keep labels short: 2 to 5 words, a verb first for tasks, a question for decision
 }
 ```
 
+- **Pain:** `"pain"` on a step marks a pain point: a short note, or `{"level": 1-3, "note": "..."}`. Only mark what the person told you.
 - **Tags:** add `"tags": ["sales", "quoting"]` (up to 8 short lowercase labels) so people can find the process. Pick a broad area plus a specific topic.
 - **Lanes:** `type` is `person` (a role or type of user) or `system` (software, device, tool). Lane and step ids start with a letter and use letters, digits, `-`, `_`. Step ids need only be unique within their layer.
 - **Steps:** `kind` is `start`, `task`, `decision`, `subprocess` or `end`. Every step sits in exactly one lane. A person using a tool: the step goes in the person's lane and the tool's lane id goes in `uses`. Put a step in a system lane only when the technology acts on its own.

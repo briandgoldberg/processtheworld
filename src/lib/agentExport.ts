@@ -7,6 +7,7 @@ import { ordered, type MapT } from "./exportMd";
 type Doc = { title?: string; maps: Record<string, MapT> };
 
 const clean = (s: unknown) => String(s ?? "").replace(/\s+/g, " ").trim();
+const PAINW: Record<number, string> = { 1: "annoying", 2: "painful", 3: "critical" };
 const GPT_LIMIT = 8000; // Custom GPT instructions cap
 
 function titleOf(doc: Doc) {
@@ -29,8 +30,9 @@ function steps(m: MapT, doc: Doc): string {
       return n.label ? `if "${clean(n.label)}" -> ${target}` : `-> ${target}`;
     });
     const detail = (s.child && doc.maps[s.child] ? ` Details in "${clean(doc.maps[s.child].title) || s.child}" below.` : "") + (s.link ? (s.link.scope === "private" ? ` This step is another process: "${clean(s.link.title) || s.link.id}" (saved, not public; ask the person for its steps).` : ` This step is another process: "${clean(s.link.title) || s.link.id}". Fetch its steps from https://processtheworld.vercel.app/api/public/${s.link.id}/export and follow them here.`) : "");
+    const pain = s.pain ? ` Pain point (${PAINW[s.pain.level] || "painful"})${s.pain.note ? ": " + clean(s.pain.note) : ""}. Be extra careful here and mention it.` : "";
     const tail = s.kind === "end" ? " (end)" : s.kind === "decision" ? " (decision)" : s.kind === "start" ? " (start)" : "";
-    return `${i + 1}. ${clean(s.label)}${tail}. Who: ${who}${uses.length ? `. Uses: ${uses.join(", ")}` : ""}.${next.length ? ` Next: ${next.join("; ")}.` : ""}${detail}`;
+    return `${i + 1}. ${clean(s.label)}${tail}. Who: ${who}${uses.length ? `. Uses: ${uses.join(", ")}` : ""}.${next.length ? ` Next: ${next.join("; ")}.` : ""}${pain}${detail}`;
   }).join("\n");
 }
 

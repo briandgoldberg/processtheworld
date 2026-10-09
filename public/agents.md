@@ -82,6 +82,7 @@ Lane: `{ "id", "name", "type" }`. `id` starts with a letter and uses letters, di
 Step: `{ "id", "lane", "label", "kind", "uses", "next" }`
 - `lane`: the id of the lane that does this step.
 - `kind`: `start`, `task` (default), `decision`, `subprocess`, `end`. Steps with kind `decision` should have two or more `next` entries with labels naming the answer ("Yes", "No").
+- `pain`: mark a step as a **pain point**, where the process hurts (slow, error-prone, manual, costly). A short note, or `{"level": 1-3, "note": "..."}` (1 annoying, 2 painful, 3 critical). Pain points show as a flame on the map and are listed in the exports. Ask people where it hurts.
 - `uses`: lane ids of tools a person uses for this step (e.g. a person step that uses a system lane).
 - `link`: the id of another process: a published one (its `publicId`) or one of your own saved or shared-with-you processes (its `id`). The step becomes a link to that whole process, which is how you build a bigger process out of smaller ones ("quote, then sell, then service"). Clicking the step opens it. Anyone who can't open a saved process just sees the step.
 - `next`: where the process goes after this step. Each entry is a step id string, or `{"to": "<step id>", "label": "<answer>"}`. Loops are fine.

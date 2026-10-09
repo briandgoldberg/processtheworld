@@ -8,6 +8,16 @@ const KINDS = ["start", "task", "decision", "subprocess", "end"];
 const clip = (v: unknown, n: number) => String(v ?? "").trim().slice(0, n);
 const ident = (v: unknown) => /^[A-Za-z][A-Za-z0-9_-]{0,39}$/.test(String(v ?? "")) ? String(v) : null;
 
+/** A pain point is where a step hurts: slow, error-prone, manual, costly. "pain" is a note, or { level: 1-3, note }. */
+function parsePain(v: unknown): { level: number; note: string } | null {
+  if (typeof v === "string" && v.trim()) return { level: 2, note: clip(v, 200) };
+  if (v && typeof v === "object") {
+    const o = v as In, level = Math.max(1, Math.min(3, Math.round(Number(o.level)) || 2)), note = clip(o.note, 200);
+    return { level, note };
+  }
+  return null;
+}
+
 function buildMap(id: string, title: string, parent: { map: string; step: string } | null, raw: In, errors: string[], where: string) {
   const lanes = Array.isArray(raw.lanes) ? raw.lanes.slice(0, 20) : [];
   const steps = Array.isArray(raw.steps) ? raw.steps.slice(0, 200) : [];
@@ -36,7 +46,8 @@ function buildMap(id: string, title: string, parent: { map: string; step: string
       return { to: String(o.to), ...(clip(o.label, 80) ? { label: clip(o.label, 80) } : {}) };
     });
     if (!clip(s.label, 160)) errors.push(`${where}: step "${sid}" needs a "label"`);
-    return { id: sid, lane: String(s.lane), label: clip(s.label, 160), kind, uses, next, ...(link ? { link: { id: link } } : {}) };
+    const pain = parsePain(s.pain);
+    return { id: sid, lane: String(s.lane), label: clip(s.label, 160), kind, uses, next, ...(link ? { link: { id: link } } : {}), ...(pain ? { pain } : {}) };
   });
   return { id, title, parent, lanes: outLanes, steps: outSteps };
 }

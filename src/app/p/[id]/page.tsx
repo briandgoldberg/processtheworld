@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!r) return {};
   const title = `${r.title} | Process the World`;
   const description = `A ${r.stepCount}-step process map by ${r.authorName}. Improve it or build your own.`;
-  return { title, description, openGraph: { title, description, type: "website" }, twitter: { card: "summary", title, description } };
+  return { title, description, openGraph: { title, description, type: "website" }, twitter: { card: "summary_large_image", title, description } };
 }
 
 export default async function PublicProcessPage({ params }: Props) {

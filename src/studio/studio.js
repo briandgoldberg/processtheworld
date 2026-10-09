@@ -111,7 +111,7 @@ const EXAMPLES = [EX_EGG, EX_CAR, EX_TEA];
 
 /* ---------- State ---------- */
 const S = { view:'login', me:null, ready:false,
-  q:'', tag:'', zoom:1, zoomAuto:true, detail:'auto', zoomKey:'', tool:'select', space:false, playing:false, playNow:null, playSeen:{}, drawNow:false,
+  guide:null, painView:false, q:'', tag:'', zoom:1, zoomAuto:true, detail:'auto', zoomKey:'', tool:'select', space:false, playing:false, playNow:null, playSeen:{}, drawNow:false,
   mine:[], shared:[], pub:[], cur:null, real:null, compare:null, panel:null, panelMsg:'', path:['m_root'], sel:null, busy:false, ctl:null,
   fresh:new Set(), save:'', tab:'chat', deep:false, confirmPub:false, confirmDel:null, acct:false, notice:'', toast:'',
   sessionTurns:0, askedThisSession:false, lastTurnId:null };
@@ -1162,7 +1162,7 @@ function wireInterest(root){
     btn.disabled = false;
   });
 }
-function startNew(){ S.cur = newProcess(); S.path = ['m_root']; S.sel = null; S.view = 'work'; S.tab = 'chat'; S.panel = null; track('process_started', {}, S.cur.id); render(); }
+function startNew(){ S.guide = null; S.painView = false; S.cur = newProcess(); S.path = ['m_root']; S.sel = null; S.view = 'work'; S.tab = 'chat'; S.panel = null; track('process_started', {}, S.cur.id); render(); }
 
 function cardHTML(p, kind){
   const st = p.stepCount != null ? { steps:p.stepCount, depth:p.depth } : stats(p);
@@ -1246,6 +1246,7 @@ function renderHome(app){
 document.addEventListener('click', e => { if (e.target.closest('[data-home]')){ if (S.view === 'work') flush(); S.compare = null; S.real = null; S.cur = null; S.view = 'login'; render(); window.scrollTo(0, 0); } });
 
 async function openProcess(id, kind){
+  S.guide = null; S.painView = false;
   let p = null;
   try {
     if (kind === 'ex') p = clone(EXAMPLES.find(x => x.id === id));
@@ -1284,6 +1285,7 @@ function renderWorkShell(app){
     <span id="wacct"></span>
   </div>
   <div id="wpanel"></div>
+  <a id="embedlink" class="embedlink" target="_blank" rel="noopener" hidden>Open in Process the World ↗</a>
   <div id="tagbar" class="tagbar"></div>
   <div id="pubbar"></div>
   <div class="tabs" id="tabs"><button data-tab="chat">Conversation</button><button data-tab="map">Map</button></div>
@@ -1303,11 +1305,13 @@ function renderWorkShell(app){
       <div class="crumbs" id="crumbs"></div>
       <div class="scroller" id="scroller"><div class="board" id="board"></div></div>
       <div id="zoomctl" class="zoomctl"></div>
+      <div id="guide" class="guide"></div>
+      <div id="painlist" class="painlist"></div>
       <div id="inspector"></div>
       <div id="checks"></div>
     </section>
   </div>`;
-  $('#back').onclick = () => { flush(); if (S.compare) closeCompare(); S.view = 'home'; S.cur = null; S.confirmDel = null; S.panel = null; loadMine(); loadPublic(); render(); };
+  $('#back').onclick = () => { stopGuide(); flush(); if (S.compare) closeCompare(); S.view = 'home'; S.cur = null; S.confirmDel = null; S.panel = null; loadMine(); loadPublic(); render(); };
   $('#wmenu-btn').onclick = e => { e.stopPropagation(); S.panel = S.panel === 'menu' ? null : 'menu'; S.panelMsg = ''; renderPanel(); };
   $('#wprimary').onclick = onAction; $('#pubbar').onclick = onAction;
   $('#tagbar').addEventListener('submit', e => { const f = e.target.closest('[data-tagform]'); if (!f) return; e.preventDefault(); addTag(f.elements.tag.value); });
@@ -1322,6 +1326,8 @@ function renderWorkShell(app){
   $('#finish').onclick = () => S.cur?.status === 'done' ? resume() : finish();
   $('#deep').checked = S.deep; $('#deep').onchange = e => S.deep = e.target.checked;
   $('#zoomctl').onclick = onZoomClick;
+  $('#guide').onclick = onGuideClick;
+  $('#painlist').onclick = e => { const b = e.target.closest('[data-pjump]'); if (b) jumpTo(b.dataset.pmap, b.dataset.pjump); };
   $('#scroller').addEventListener('wheel', onBoardWheel, { passive:false });
   wirePan($('#scroller'));
   $('#tabs').onclick = e => { const t = e.target.closest('[data-tab]'); if (!t) return; S.tab = t.dataset.tab; renderWork(); };
@@ -1368,6 +1374,8 @@ const ICON = {
   stop:   ico('<rect x="4" y="4" width="8" height="8" rx="1"/>'),
   full:   ico('<path d="M2.5 6V2.5H6M10 2.5h3.5V6M13.5 10v3.5H10M6 13.5H2.5V10"/>'),
   pointer: ico('<path d="M3.5 2.5l8 4-3.4 1.2L6.9 11z"/>'),
+  flame:  ico('<path d="M8 1.4c.4 2.3-.9 3.1-1.8 4.3C5.2 7 4.6 8.2 4.6 9.5A3.4 3.4 0 008 13.6a3.4 3.4 0 003.4-4c0-1.4-.7-2.4-1.4-3.3-.2 1-.7 1.5-1.4 1.7.4-2 0-4.1-.6-6.6z"/>'),
+  compass: ico('<circle cx="8" cy="8" r="6"/><path d="M10.6 5.4L9.1 9.1 5.4 10.6 6.9 6.9z"/>'),
   globe:  ico('<circle cx="8" cy="8" r="6"/><path d="M2 8h12M8 2c2 1.8 2.8 3.8 2.8 6S10 12.2 8 14M8 2C6 3.8 5.2 5.8 5.2 8S6 12.2 8 14"/>')
 };
 const visPill = (publicId, shareCount, mode) => publicId ? `<span class="pill pub">${ICON.globe}Public${mode === 'locked' ? ' · as is' : ''}</span>` : shareCount ? `<span class="pill sh">${ICON.people}Shared · ${shareCount}</span>` : `<span class="pill">${ICON.lock}Private</span>`;
@@ -1407,11 +1415,11 @@ function menuHTML(p){
   const k = kindOf(p), items = [];
   if (k === 'owned'){
     items.push(['share', 'Share & publish…']);
-    if (p.publicId) items.push(['openpublic', 'View public version'], ['tweet', 'Share on X'], ['copypub', 'Copy public link']);
+    if (p.publicId) items.push(['openpublic', 'View public version'], ['tweet', 'Share on X'], ['copypub', 'Copy public link'], ['copyguide', 'Copy guided link'], ['copyembed', 'Copy embed code'], ['preview', 'Preview image']);
     items.push(['delete', 'Delete', 'danger']);
   } else if (k === 'shared'){ items.push(['share', 'People with access'], ['copy', 'Make a private copy'], ['leave', 'Remove from my list', 'danger']); }
   else if (k === 'draft'){ items.push(['openpublic', 'View the public version'], ['delete', 'Discard this suggestion', 'danger']); }
-  else if (k === 'public'){ items.push(['copy', 'Make my own copy'], ['tweet', 'Share on X'], ['copypub', 'Copy link']); }
+  else if (k === 'public'){ items.push(['copy', 'Make my own copy'], ['tweet', 'Share on X'], ['copypub', 'Copy link'], ['copyguide', 'Copy guided link'], ['copyembed', 'Copy embed code'], ['preview', 'Preview image']); }
   else if (k === 'view'){ items.push(['copy', 'Make a private copy'], ['leave', 'Remove from my list', 'danger']); }
   else items.push(['copy', 'Make a copy']);
   if (k !== 'compare') items.unshift(['export', 'Export as Markdown (.md)'], ['exportflow', 'Export flow (.html)'], ['copyskill', 'Copy as Claude skill'], ['copygpt', 'Copy as ChatGPT instructions']);
@@ -1464,6 +1472,14 @@ async function onAction(e){
     case 'endcompare': closeCompare(); S.panel = 'review'; break;
     case 'unshare': unshare(b.dataset.id); return;
     case 'newown': S.panel = null; startNew(); return;
+    case 'guideme': startGuide(); return;
+    case 'copyguide': case 'copyembed': {
+      const id = b.dataset.pub || (S.real || p).publicId;
+      const text = a === 'copyguide' ? pubLink(id) + '?guide=1' : '<iframe src="' + location.origin + '/embed/' + id + '" width="100%" height="560" style="border:1px solid #D7DDE5;border-radius:12px" loading="lazy" allowfullscreen title="Process map"></iframe>';
+      try { await navigator.clipboard.writeText(text); alertBox(a === 'copyguide' ? 'Guided link copied. Whoever opens it is walked through the process step by step.' : 'Embed code copied. Paste it into any web page.'); } catch { alertBox('Copy this: ' + text); }
+      track(a === 'copyguide' ? 'share_guided' : 'share_embed', { publicId:id });
+      S.panel = null; renderPanel(); return; }
+    case 'preview': { const id = b.dataset.pub || (S.real || p).publicId; window.open('/p/' + id + '/opengraph-image', '_blank', 'noopener'); S.panel = null; renderPanel(); return; }
     case 'like': {
       const q = S.real || p; if (!q.publicId) break;
       try { const d = await API.post('/api/public/' + q.publicId + '/like', {}); q.liked = d.liked; q.likes = d.likes; track(d.liked ? 'like' : 'unlike', { publicId:q.publicId }); }
@@ -1563,7 +1579,7 @@ function pubbarHTML(p){
   if (kindOf(p) === 'example') return `<div class="pubbar"><span>This is an example. Make a copy to change it, or build a process of your own. It's free to start, no account needed.</span><span class="prop-acts"><button class="btn primary sm" data-act="newown">Build my own</button>${shareButtons(q.id)}</span></div>`;
   if (kindOf(p) !== 'public' || !q.publicId) return '';
   return `<div class="pubbar"><span><b>${esc(q.title)}</b> by ${esc(q.publishedBy)}. Make your own copy to change it, or build one of your own. Free to start, no account needed.</span>
-    <span class="prop-acts"><button class="btn primary sm" data-act="newown">Build my own</button>${shareButtons(q.publicId)}</span></div>`;
+    <span class="prop-acts"><button class="btn primary sm" data-act="guideme">${ICON.compass}Guide me</button><button class="btn sm" data-act="newown">Build my own</button>${shareButtons(q.publicId)}</span></div>`;
 }
 function renderTopActions(){
   const p = S.cur; if (!p || !$('#wprimary')) return;
@@ -1642,6 +1658,122 @@ function renderCrumbs(){
     ${pub}`;
 }
 
+/* Pain points: where the process hurts */
+const PAIN_NAME = { 1:'Annoying', 2:'Painful', 3:'Critical' };
+function painSteps(p){
+  const out = [];
+  Object.values(p?.maps || {}).forEach(m => m.steps.forEach(s => { if (s.pain) out.push({ map:m.id, mapTitle:m.title, id:s.id, label:s.label, level:s.pain.level || 2, note:s.pain.note || '' }); }));
+  return out.sort((a, b) => b.level - a.level);
+}
+const countPain = p => painSteps(p).length;
+function renderPainList(){
+  const el = $('#painlist'); if (!el) return;
+  if (!S.painView){ el.innerHTML = ''; return; }
+  const list = painSteps(S.cur);
+  el.innerHTML = `<div class="pl-card"><div class="pl-head"><b>${ICON.flame} Pain points</b><button data-pclose aria-label="Close" onclick="this.closest('.painlist').innerHTML=''">✕</button></div>${list.length ? list.map(x => `<button class="pl-item l${x.level}" data-pmap="${esc(x.map)}" data-pjump="${esc(x.id)}"><span class="pl-lv">${PAIN_NAME[x.level]}</span><b>${esc(x.label)}</b>${x.note ? `<small>${esc(x.note)}</small>` : ''}${x.map !== 'm_root' ? `<small class="pl-in">in ${esc(x.mapTitle)}</small>` : ''}</button>`).join('') : '<p class="hint">No pain points marked yet. Select a step and set its pain level.</p>'}</div>`;
+}
+
+/* Guided mode: choose your path through the process, one step at a time */
+const toneOf = lab => /^(yes|y|ok|okay|approved?|pass(ed)?|true|done|found|clear(ed)?|success|accept(ed)?|signed|match(es)?|resolved|enough|ready)\b/i.test(String(lab || '')) ? 'yes' : /^(no|n|not|fail(ed)?|reject(ed)?|denied|false|retry|missing|wait|too|stuck|nothing|blocked|cancel(led)?)\b/i.test(String(lab || '')) ? 'no' : '';
+function gMap(){ return S.cur.maps[S.guide.map]; }
+function gStep(){ return gMap()?.steps.find(x => x.id === S.guide.step); }
+function startGuide(){
+  const p = S.cur; if (!p) return;
+  stopPlay(); S.sel = null;
+  const m = p.maps.m_root, st = m.steps.find(s => s.kind === 'start') || m.steps[0];
+  if (!st){ alertBox('Add some steps first, then guide yourself through them.'); return; }
+  S.tab = 'map'; S.painView = false;
+  S.guide = { map:'m_root', step:st.id, stack:[], hist:[], after:false, taken:1, done:false, visited:{ ['m_root|' + st.id]:1 } };
+  track('guide_started', {}, p.id); guideApply();
+}
+function stopGuide(){
+  S.guide = null;
+  document.querySelector('#board')?.classList.remove('playing');
+  document.querySelectorAll('.step.now,.step.trail').forEach(x => x.classList.remove('now', 'trail'));
+  const el = $('#guide'); if (el) el.innerHTML = '';
+  if ($('#zoomctl')) updateZoomCtl();
+}
+function guideApply(){
+  const g = S.guide; if (!g) return;
+  S.path = pathTo(g.map); renderWork(); guideCard(); markGuide();
+}
+function markGuide(){
+  const g = S.guide; if (!g) return;
+  const b = $('#board'); if (!b) return; b.classList.add('playing');
+  b.querySelectorAll('.step').forEach(el => {
+    const key = g.map + '|' + el.dataset.step;
+    el.classList.toggle('now', !g.done && el.dataset.step === g.step);
+    el.classList.toggle('trail', el.dataset.step !== g.step && !!g.visited[key]);
+  });
+  b.querySelector('.step.now')?.scrollIntoView({ block:'center', inline:'center', behavior:'smooth' });
+}
+function guideChoices(){
+  const g = S.guide, m = gMap(), s = gStep(), out = [];
+  const kids = s.child && S.cur.maps[s.child];
+  const nexts = s.next || [];
+  if (kids && !g.after) out.push({ k:'dive', label:'Walk through the details ↘', sub:countSteps(S.cur, s.child) + ' steps inside' });
+  if (s.link) out.push({ k:'link', label:'Open “' + (s.link.title || 'linked process') + '” ↗', sub:'A whole process of its own' });
+  nexts.forEach(n => {
+    const tm = n.map && n.map !== m.id ? S.cur.maps[n.map] : m, ts = tm?.steps.find(x => x.id === n.to); if (!ts) return;
+    const skip = kids && !g.after && nexts.length === 1 && !n.label;
+    out.push({ k:'go', map:tm.id, step:ts.id, label:n.label || (skip ? 'Skip the details' : nexts.length > 1 ? ts.label : 'Next'), sub:n.label ? ts.label : (nexts.length > 1 || skip ? '' : ts.label), tone:toneOf(n.label), soft:!!skip });
+  });
+  if (!nexts.length){
+    if (g.stack.length){ const top = g.stack[g.stack.length - 1], ps = S.cur.maps[top.map].steps.find(x => x.id === top.step); out.push({ k:'return', label:'Back to “' + (ps?.label || 'the main flow') + '”', sub:'Finish this part and continue' }); }
+    else out.push({ k:'finish', label:'Finish', sub:'You reached the end' });
+  }
+  return out;
+}
+function guideCard(){
+  const g = S.guide, el = $('#guide'); if (!g || !el) return;
+  if (g.done){
+    const q = S.cur, pubId = q.publicId;
+    el.innerHTML = `<div class="g-card done"><div class="g-top"><span class="g-count">Done</span><button data-g="exit" aria-label="Exit guide">✕</button></div>
+      <div class="g-q">That's the whole path.</div><p class="g-sub">You went through ${g.taken} step${g.taken === 1 ? '' : 's'}.</p>
+      <div class="g-actions"><button class="g-btn primary" data-g="restart">Start over</button>${pubId ? shareButtons(pubId) : ''}<button class="g-btn" data-g="exit">Close</button></div></div>`;
+    return;
+  }
+  const m = gMap(), s = gStep(), lane = m.lanes.find(l => l.id === s.lane), choices = guideChoices();
+  const uses = (s.uses || []).map(u => m.lanes.find(l => l.id === u)?.name).filter(Boolean);
+  const layerNote = g.stack.length ? `<span class="g-layer">in “${esc(m.title)}”</span>` : '';
+  const trail = g.hist.slice(-3).map(h => S.cur.maps[h.map]?.steps.find(x => x.id === h.step)?.label).filter(Boolean);
+  el.innerHTML = `<div class="g-card">
+    <div class="g-top"><span class="g-lane ${lane?.type === 'system' ? 'sys' : 'per'}">${esc(lane?.name || 'Someone')}</span><span class="g-count">Step ${g.taken}</span>${layerNote}<button data-g="exit" aria-label="Exit guide">✕</button></div>
+    <div class="g-q">${esc(s.label)}</div>
+    ${uses.length ? `<p class="g-sub">Using ${esc(uses.join(', '))}</p>` : ''}
+    ${s.pain ? `<div class="g-pain l${s.pain.level}">${ICON.flame}<span><b>${PAIN_NAME[s.pain.level] || 'Painful'}.</b> ${esc(s.pain.note || 'This is where it hurts.')}</span></div>` : ''}
+    <div class="g-actions">${choices.map((c, i) => `<button class="g-btn${c.tone ? ' ' + c.tone : ''}${i === 0 && !c.tone && !c.soft ? ' primary' : ''}${c.soft ? ' soft' : ''}" data-g="pick" data-i="${i}"><span class="g-n">${i + 1}</span><span class="g-t">${esc(c.label)}${c.sub ? `<small>${esc(c.sub)}</small>` : ''}</span></button>`).join('')}</div>
+    <div class="g-foot"><button class="g-link" data-g="back" ${g.hist.length ? '' : 'disabled'}>← Back</button><button class="g-link" data-g="restart">Restart</button>${trail.length ? `<span class="g-trail">${trail.map(esc).join(' → ')} → <b>now</b></span>` : ''}</div>
+  </div>`;
+}
+function guideChoose(i){
+  const g = S.guide; if (!g || g.done) return;
+  const c = guideChoices()[i]; if (!c) return;
+  g.hist.push({ map:g.map, step:g.step, after:g.after, stack:g.stack.map(x => ({ ...x })) });
+  if (c.k === 'go'){ g.map = c.map; g.step = c.step; g.after = false; g.taken++; g.visited[c.map + '|' + c.step] = 1; }
+  else if (c.k === 'dive'){
+    const s = gStep(), cm = S.cur.maps[s.child], st = cm.steps.find(x => x.kind === 'start') || cm.steps[0];
+    g.stack.push({ map:g.map, step:g.step }); g.map = cm.id; g.step = st.id; g.after = false; g.taken++; g.visited[cm.id + '|' + st.id] = 1;
+  } else if (c.k === 'return'){ const top = g.stack.pop(); g.map = top.map; g.step = top.step; g.after = true; }
+  else if (c.k === 'link'){ const s = gStep(); stopGuide(); openProcess(s.link.id, s.link.scope === 'private' ? 'mine' : 'pub').then(() => startGuide()); return; }
+  else if (c.k === 'finish'){ g.done = true; track('guide_finished', { steps:g.taken }, S.cur.id); }
+  guideApply();
+}
+function guideBack(){
+  const g = S.guide; if (!g || !g.hist.length) return;
+  const h = g.hist.pop(); g.map = h.map; g.step = h.step; g.after = h.after; g.stack = h.stack; g.done = false; g.taken = Math.max(1, g.taken - 1);
+  guideApply();
+}
+function onGuideClick(e){
+  const b = e.target.closest('[data-g], [data-act]'); if (!b) return;
+  if (b.dataset.act){ onAction(e); return; }
+  const a = b.dataset.g;
+  if (a === 'pick') guideChoose(Number(b.dataset.i));
+  else if (a === 'back') guideBack();
+  else if (a === 'restart') startGuide();
+  else if (a === 'exit') stopGuide();
+}
+
 /* Zoom: zoom out for the simple picture, zoom in for every detail */
 const ZMIN = 0.25, ZMAX = 1.75;
 function isFull(){ const w = document.querySelector('.canvas-wrap'); return !!(document.fullscreenElement || w?.classList.contains('fs')); }
@@ -1652,7 +1784,7 @@ function updateZoomCtl(){
   el.innerHTML = `<button data-tool="select" class="${S.tool === 'select' ? 'on' : ''}" aria-label="Select tool" title="Select (V)">${ICON.pointer}</button><button data-tool="hand" class="${S.tool === 'hand' ? 'on' : ''}" aria-label="Hand tool: drag to move around" title="Hand: drag to move around (hold Space)">${ICON.hand}</button>
     <span class="zsep"></span><button data-z="out" aria-label="Zoom out" title="Zoom out">−</button><button data-z="reset" class="zv" aria-label="Reset to 100%" title="Reset to 100%">${Math.round(S.zoom * 100)}%</button><button data-z="in" aria-label="Zoom in" title="Zoom in">+</button><button data-z="fit" title="Fit the whole map on screen">Fit</button>
     <span class="zsep"></span><button data-detail="simple" class="${d === 'simple' ? 'on' : ''}" title="Names only">Simple</button><button data-detail="full" class="${d === 'full' ? 'on' : ''}" title="Tools, links and labels">Detailed</button>
-    <span class="zsep"></span><button data-play class="${S.playing ? 'on' : ''}" title="Walk through the process, step by step">${S.playing ? ICON.stop + 'Stop' : ICON.play + 'Play'}</button><button data-fs aria-label="Full screen" title="Full screen">${ICON.full}</button>`;
+    <span class="zsep"></span><button data-guide class="${S.guide ? 'on' : ''}" title="Choose your path through the process">${ICON.compass}Guide me</button>${(() => { const n = countPain(S.cur); return n || (kindOf(S.cur) === 'owned') ? `<button data-pain class="${S.painView ? 'on' : ''}" title="Show where the process hurts">${ICON.flame}Pain${n ? ' ' + n : ''}</button>` : ''; })()}<button data-play class="${S.playing ? 'on' : ''}" title="Walk through the process, step by step">${S.playing ? ICON.stop + 'Stop' : ICON.play + 'Play'}</button><button data-fs aria-label="Full screen" title="Full screen">${ICON.full}</button>`;
 }
 function setZoom(z, cx, cy){
   const sc = $('#scroller'), b = $('#board'); if (!sc || !b) return;
@@ -1671,6 +1803,8 @@ function onZoomClick(e){
   else if (b.dataset.z === 'fit'){ S.zoomAuto = true; S.fitFull = true; renderBoard(); S.fitFull = false; }
   else if (b.dataset.detail){ S.detail = b.dataset.detail; updateZoomCtl(); }
   else if (b.dataset.tool){ S.tool = b.dataset.tool; updateZoomCtl(); }
+  else if ('guide' in b.dataset) S.guide ? stopGuide() : startGuide();
+  else if ('pain' in b.dataset){ S.painView = !S.painView; updateZoomCtl(); renderBoard(); }
   else if ('play' in b.dataset) playWalk();
   else if ('fs' in b.dataset) toggleFull();
 }
@@ -1796,7 +1930,8 @@ function renderBoard(){
     const back = s.kind === 'end' && parentStep && !s.next.length ? `<span class="back">↩ continues after “${esc(parentStep.label)}”</span>` : '';
     const dm = S.compare?.diff.marks[S.compare.side]?.[m.id]?.[s.id];
     const lt = (m.lanes.find(l => l.id === s.lane)?.type) === 'system' ? 'sys' : 'per';
-    html += `<div class="step ${s.kind} lt-${lt}${S.drawNow ? ' pop' : ''}${S.sel === s.id ? ' sel' : ''}${S.fresh.has(s.id) ? ' fresh' : ''}${s.proposedRemove ? ' proposed' : ''}${dm ? ' diff-' + dm : ''}" data-step="${esc(s.id)}" role="button" tabindex="0" style="left:${q.x}px;top:${q.y}px;--d:${Math.round(q.x / L.COL) * 55}ms">
+    html += `<div class="step ${s.kind} lt-${lt}${s.pain ? ' haspain pl' + s.pain.level : ''}${S.drawNow ? ' pop' : ''}${S.sel === s.id ? ' sel' : ''}${S.fresh.has(s.id) ? ' fresh' : ''}${s.proposedRemove ? ' proposed' : ''}${dm ? ' diff-' + dm : ''}" data-step="${esc(s.id)}" role="button" tabindex="0" style="left:${q.x}px;top:${q.y}px;--d:${Math.round(q.x / L.COL) * 55}ms">
+      ${s.pain ? `<span class="pain-badge l${s.pain.level}" title="Pain point${s.pain.note ? ': ' + esc(s.pain.note) : ''}">${ICON.flame}</span>` : ''}
       ${issueAt[s.id] ? `<span class="warn-dot" title="${esc(issueAt[s.id].join('\n'))}" aria-label="${esc(issueAt[s.id].join('. '))}">!</span>` : ''}
       ${s.proposedRemove ? '<span class="k rm">Remove?</span>' : ''}
       ${s.kind === 'decision' ? '<span class="k">◇ decision</span>' : s.kind === 'subprocess' ? (s.link ? '<span class="k">↗ linked process</span>' : '<span class="k">▤ subprocess</span>') : ''}
@@ -1807,6 +1942,8 @@ function renderBoard(){
     </div>`;
   });
   b.innerHTML = html;
+  b.classList.toggle('painview', !!S.painView); renderPainList();
+  if (S.guide) markGuide();
 }
 
 function pathTo(mapId){
@@ -1843,6 +1980,11 @@ function onBoardClick(e){
 document.addEventListener('keydown', e => {
   const st = e.target.closest?.('[data-step]');
   if (st && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); S.sel = st.dataset.step; renderBoard(); renderInspector(); }
+  if (S.guide && S.view === 'work' && !e.target.closest?.('input,textarea,select')){
+    if (/^[1-9]$/.test(e.key)){ guideChoose(Number(e.key) - 1); return; }
+    if (e.key === 'Backspace' || e.key === 'ArrowLeft'){ e.preventDefault(); guideBack(); return; }
+    if (e.key === 'Escape'){ stopGuide(); return; }
+  }
   if (e.key === 'Escape' && S.sel){ S.sel = null; renderBoard(); renderInspector(); }
 });
 
@@ -1869,6 +2011,7 @@ function renderInspector(){
     <div class="row"><label class="label" for="i-lane">Lane</label><select id="i-lane">${m.lanes.map(l => `<option value="${esc(l.id)}" ${l.id === s.lane ? 'selected' : ''}>${esc(l.name)} (${l.type === 'system' ? 'technology' : 'person'})</option>`).join('')}${m.lanes.some(l=>l.id===s.lane)?'':'<option selected>Unassigned</option>'}</select></div>
     <div class="row"><label class="label" for="i-kind">Type</label><select id="i-kind">${KINDS.map(k => `<option ${k === s.kind ? 'selected' : ''}>${k}</option>`).join('')}</select></div>
     <div class="row"><label class="label" for="i-link">Linked process</label><select id="i-link"><option value="">None</option>${linkOptions(s)}</select><p class="hint">Connect this step to a process you can open, saved or published, to build a bigger one.</p></div>
+    <div class="row"><label class="label" for="i-pain">Pain point</label><select id="i-pain"><option value="0">None</option><option value="1" ${s.pain?.level === 1 ? 'selected' : ''}>Annoying</option><option value="2" ${s.pain?.level === 2 ? 'selected' : ''}>Painful</option><option value="3" ${s.pain?.level === 3 ? 'selected' : ''}>Critical</option></select>${s.pain ? `<input id="i-pain-note" placeholder="Where does it hurt?" maxlength="200" value="${esc(s.pain.note || '')}">` : ''}<p class="hint">Mark where this step is slow, error-prone, manual or costly.</p></div>
     <div class="acts"><button class="btn primary" id="i-drill">${s.link ? 'Open linked process ↗' : s.child ? 'Open subprocess ↘' : 'Break into a subprocess'}</button><button class="btn danger" id="i-del">Delete step</button></div>
     ${(() => { const mine = findIssues(S.cur).filter(i => i.map === m.id && i.step === s.id); return mine.length ? `<div class="row"><span class="label">To check</span><ul class="chk-list">${mine.map(i => issueRowHTML(i, true)).join('')}</ul></div>` : ''; })()}
     <div class="row"><span class="label">Did the AI get this wrong?</span>
@@ -1884,6 +2027,14 @@ function renderInspector(){
   $('#i-label').onchange = e => edit('label', e.target.value.trim() || s.label);
   $('#i-lane').onchange = e => edit('lane', e.target.value);
   $('#i-kind').onchange = e => edit('kind', e.target.value);
+  $('#i-pain').onchange = e => {
+    const lv = Number(e.target.value);
+    ensureOwned(); const mm = curMap(), st = mm.steps.find(x => x.id === S.sel); if (!st) return;
+    logEvent(S.cur, { who:'human', op:'edit_pain', map:mm.id, id:st.id, before:st.pain?.level || 0, after:lv });
+    if (lv) st.pain = { level:lv, note:st.pain?.note || '' }; else delete st.pain;
+    touch(); renderWork();
+  };
+  const pn = $('#i-pain-note'); if (pn) pn.onchange = e => { ensureOwned(); const mm = curMap(), st = mm.steps.find(x => x.id === S.sel); if (!st?.pain) return; st.pain.note = e.target.value.trim(); touch(); renderBoard(); };
   $('#i-link').onchange = e => {
     const v = e.target.value, [scope, lid] = v.split(':');
     const pr = v ? [...S.pub, ...S.mine, ...S.shared].find(x => x.id === lid) : null;
@@ -2005,13 +2156,14 @@ function renderToast(){
 /* ---------- Boot ---------- */
 const ALERTS = { invited:'Invite accepted. You’ll find the process under “Shared with me”.', saved:'Email confirmed. Your processes now follow you to any device.', 'signed-in':'Signed in. Your processes are here.', 'link-invalid':'That link expired or was already used. Request a new one from the account menu.', 'email-taken':'That email is already in use. Enter it again to get a sign-in link.' };
 export async function mount(root, opts = {}){
+  if (opts.embed){ document.body.classList.add('embed'); S.embed = true; }
   root.innerHTML = '<div id="app"></div>';
   let key = ls.get('ptw_key'); if (!key || key.length < 16){ key = freshKey(); ls.set('ptw_key', key); }
   API.key = key;
   const q = new URLSearchParams(location.search);
   if (q.get('alert') && ALERTS[q.get('alert')]){ S.toast = ALERTS[q.get('alert')]; history.replaceState(null, '', '/'); }
   S.view = ls.get('ptw_in') ? 'home' : 'login';
-  render(); renderFeedbackBox();
+  render(); if (!opts.embed) renderFeedbackBox();
   try { S.me = await API.post('/api/identity', { key }); } catch {}
   S.ready = true;
   if (S.me?.email) ls.set('ptw_in', '1');
@@ -2019,6 +2171,6 @@ export async function mount(root, opts = {}){
   render();
   loadMine(); loadPublic();
   const ex = q.get('example'); if (ex && EXAMPLES.some(x => x.id === ex)){ ls.set('ptw_in', '1'); openProcess(ex, 'ex'); history.replaceState(null, '', '/'); }
-  if (opts.open){ ls.set('ptw_in', '1'); openProcess(opts.open, 'pub'); }
+  if (opts.open){ ls.set('ptw_in', '1'); openProcess(opts.open, 'pub').then(() => { if (opts.embed){ S.tab = 'map'; renderWork(); const l = $('#embedlink'); if (l){ l.href = location.origin + '/p/' + opts.open; l.hidden = false; } } if (q.get('guide')) startGuide(); else if (q.get('play')) setTimeout(playWalk, 400); }); }
   addEventListener('beforeunload', () => { if (dirty) flush(); if (outbox.length) navigator.sendBeacon?.('/api/events', new Blob([JSON.stringify({ key:API.key, events:outbox })], { type:'application/json' })); });
 }
