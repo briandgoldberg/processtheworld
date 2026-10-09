@@ -759,7 +759,7 @@ function acctHTML(){
     <div class="acct-panel" role="dialog" aria-label="Account">
       <p>Signed in as <b>${esc(me.email)}</b>. You map as <b>${esc(me.handle)}</b>.</p>
       ${me.isAdmin ? '<a class="btn sm" href="/admin">Admin dashboard</a>' : ''}
-      <button class="btn sm" data-acct="signout">Sign out on this device</button>
+      <button class="btn sm" data-acct="signout">Sign out</button>
     </div>` : `
     <div class="acct-panel" role="dialog" aria-label="Account">
       <p>You're mapping as <b>${esc(me.handle)}</b>. Add your email to keep your processes on any device, or to sign in.</p>
