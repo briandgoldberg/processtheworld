@@ -38,6 +38,7 @@ model User {
   // 1 point = 1 cent of AI usage. Everyone starts with 100; contributing earns more, mapping spends.
   points          Float     @default(100)
   pointEvents     PointEvent[]
+  likes           Like[]
 
   processes  Process[]
   published  PublicProcess[]
@@ -114,6 +115,8 @@ model PublicProcess {
   version     Int      @default(1)
   // "collaborative": changes are suggested and decided by votes. "locked": published as is; others copy it to change it.
   mode        String   @default("collaborative")
+  likes       Int      @default(0)
+  likedBy     Like[]
   publishedAt DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -385,4 +388,28 @@ model PointEvent {
 
   @@unique([userId, reason, refId])
   @@index([userId, createdAt])
+}
+
+// A like on a public process. One per person.
+model Like {
+  id        String        @id @default(cuid())
+  publicId  String
+  public    PublicProcess @relation(fields: [publicId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime      @default(now())
+
+  @@unique([publicId, userId])
+}
+
+// People asking for early access to something not built yet (e.g. the Salesforce connector).
+model Interest {
+  id        String   @id @default(cuid())
+  kind      String
+  email     String
+  userId    String?
+  note      String?
+  createdAt DateTime @default(now())
+
+  @@unique([kind, email])
 }

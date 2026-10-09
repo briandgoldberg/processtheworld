@@ -7,8 +7,7 @@ export const POINT_USD = 0.01;
 
 export const REWARDS = {
   publish: { points: 25, label: "Published a process" },
-  accepted: { points: 20, label: "A change you suggested went live" },
-  vote: { points: 2, label: "Voted on a suggested change", dailyCap: 20 },
+  like: { points: 1, label: "Someone liked your process", dailyCap: 20 },
   copy: { points: 3, label: "Someone copied your public process" },
   feedback: { points: 2, label: "Gave feedback", dailyCap: 10 },
 } as const;

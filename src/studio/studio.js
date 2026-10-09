@@ -1,4 +1,5 @@
 
+import { exportMarkdown } from '@/lib/exportMd';
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rid = p => p + Math.random().toString(36).slice(2, 9);
@@ -788,13 +789,11 @@ function publishHTML(d){
   const p = S.cur;
   if (!d.canManage || p.proposalFor || !p.maps.m_root.steps.length) return '';
   if (!p.publicId) return `<form class="pubbox" data-form="publish"><p class="label">${ICON.globe} Publish to everyone</p>
-    <label class="opt"><input type="radio" name="mode" value="collaborative" checked><span><b>Collaborative</b><small>Anyone can suggest changes. Others compare before and after and vote, and a change goes live when the votes agree.</small></span></label>
-    <label class="opt"><input type="radio" name="mode" value="locked"><span><b>Publish as is</b><small>Nobody can change it. People who want changes save their own copy.</small></span></label>
+    <p class="hint">Anyone can open, like, share and copy it. Only you can change it.</p>
     <div class="prop-acts"><button class="btn primary sm">Publish</button></div></form>`;
-  const locked = p.publicMode === 'locked';
-  return `<div class="pubbox"><p class="label">${ICON.globe} Public · ${locked ? 'published as is' : 'collaborative'}</p>
-    <p class="hint">${locked ? 'Nobody can change it. People who want changes make their own copy.' : 'Anyone can suggest changes, and they go live when the votes agree. ' + esc(RULE_SHORT)}</p>
-    <div class="prop-acts"><button class="btn primary sm" data-act="update">${locked ? 'Update public version' : 'Submit my edits…'}</button><button class="btn sm" data-act="openpublic">View public version</button><button class="btn sm" data-act="unpublish">Unpublish</button></div>
+  return `<div class="pubbox"><p class="label">${ICON.globe} Public</p>
+    <p class="hint">Anyone can open, like, share and copy it. Only you can change it.</p>
+    <div class="prop-acts"><button class="btn primary sm" data-act="update">Update public version</button><button class="btn sm" data-act="openpublic">View public version</button><button class="btn sm" data-act="unpublish">Unpublish</button></div>
     <div class="prop-acts">${shareButtons(p.publicId)}</div></div>`;
 }
 function shareHTML(){
@@ -1018,13 +1017,13 @@ function acctHTML(){
     <div class="acct-panel" role="dialog" aria-label="Account">
       <p>Signed in as <b>${esc(me.email)}</b>.</p>
       ${nameForm}
-      <p class="hint pts-ways"><b>Points</b> pay for the AI as you map. Earn more: publish a process +25, a change you suggested goes live +20, someone copies your public process +3, vote on a suggested change +2, share useful feedback +2.</p>
+      <p class="hint pts-ways"><b>Points</b> pay for the AI as you map. Earn more: publish a process +25, someone copies it +3, someone likes it +1, share useful feedback +2.</p>
       ${me.isAdmin ? '<a class="btn sm" href="/admin">Admin dashboard</a>' : ''}
       <button class="btn sm" data-acct="signout">Sign out</button>
     </div>` : `
     <div class="acct-panel" role="dialog" aria-label="Account">
       <p>You're a guest, mapping as <b>${esc(me.handle)}</b>. Your processes are saved to this browser.</p>
-      <p class="hint pts-ways"><b>Points</b> pay for the AI as you map. Earn more: publish a process +25, a change you suggested goes live +20, someone copies your public process +3, vote on a suggested change +2, share useful feedback +2.</p>
+      <p class="hint pts-ways"><b>Points</b> pay for the AI as you map. Earn more: publish a process +25, someone copies it +3, someone likes it +1, share useful feedback +2.</p>
       <p class="hint">Add your email to choose your own username, keep your processes on any device, or sign in.</p>
       ${emailFormHTML('acct')}
     </div>`;
@@ -1118,15 +1117,29 @@ function renderLogin(app){
       <h2>Try an example</h2>
       <div class="cards">${EXAMPLES.map(p => cardHTML(p, 'ex')).join('')}</div>
     </section>
+    ${footHTML()}
   </main>`;
   const enter = () => { ls.set('ptw_in','1'); S.view = 'home'; render(); };
   $('#go').onclick = () => { enter(); startNew(); };
   const tl = $('#to-lib'); if (tl) tl.onclick = enter;
   wireSignIn(app);
   app.querySelectorAll('[data-open]').forEach(b => b.onclick = () => { ls.set('ptw_in','1'); openProcess(b.dataset.open, b.dataset.kind); });
-  wireEmailForm(app);
+  wireEmailForm(app); wireInterest(app);
 }
 const MARK = '<i>PW</i>Process the World';
+const footHTML = () => `<footer class="foot"><details class="sf"><summary>Salesforce connector: get early access</summary>
+  <form data-interest><input name="email" type="email" required placeholder="you@company.com" autocomplete="email" aria-label="Email"><button class="btn primary sm">Notify me</button><span class="hint" data-imsg role="status"></span></form></details>
+  <a href="/agents.md">For AI agents</a></footer>`;
+function wireInterest(root){
+  root.querySelectorAll('[data-interest]').forEach(f => f.onsubmit = async e => {
+    e.preventDefault();
+    const msg = f.querySelector('[data-imsg]'), btn = f.querySelector('button');
+    btn.disabled = true;
+    try { await API.post('/api/interest', { email:f.elements.email.value.trim(), kind:'salesforce' }); msg.textContent = 'Thanks. We will email you when it is ready.'; f.elements.email.value = ''; track('interest_salesforce'); }
+    catch (err){ msg.textContent = err.message; }
+    btn.disabled = false;
+  });
+}
 function startNew(){ S.cur = newProcess(); S.path = ['m_root']; S.sel = null; S.view = 'work'; S.tab = 'chat'; S.panel = null; track('process_started', {}, S.cur.id); render(); }
 
 function cardHTML(p, kind){
@@ -1142,7 +1155,7 @@ function cardHTML(p, kind){
   } else if (kind === 'shared'){
     badge = `<span class="pill sh">${p.role === 'view' ? 'Can view' : 'Can edit'}</span>`; by = `<span class="by">Shared by ${esc(p.owner)}</span>`;
   } else if (kind === 'ex'){ badge = '<span class="pill ex">Example</span>'; by = '<span class="by">By Process the World</span>'; }
-  else { badge = '<span class="pill pub">Public</span>'; by = `<span class="by">Published by ${esc(p.processId && S.mine.some(m => m.id === p.processId) ? 'you' : p.authorName)}${p.openProposals ? ` · ${p.openProposals} to review` : ''}</span>`; }
+  else { badge = '<span class="pill pub">Public</span>'; by = `<span class="by">Published by ${esc(p.processId && S.mine.some(m => m.id === p.processId) ? 'you' : p.authorName)}${p.likes ? ` · ${ICON.heart}${p.likes}` : ''}</span>`; }
   return `<div class="card-wrap">${del}<button class="card" data-open="${esc(p.id)}" data-kind="${kind}">
     <div class="card-top">${badge}<span class="mono card-when${kind === 'mine' ? ' has-x' : ''}">${esc(when)}</span></div>
     <h3>${esc(p.title || 'Untitled process')}</h3>
@@ -1163,10 +1176,11 @@ function renderHome(app){
     ${sec('My processes', 'Private unless you share or publish them.', S.mine.length ? `<div class="cards">${S.mine.map(p => cardHTML(p,'mine')).join('')}</div>` :
       `<div class="empty"><b style="color:var(--ink)">No processes yet</b><span>Start one and describe it in your own words, or open a public one below.</span><button class="btn" id="new2">New process</button></div>`)}
     ${S.shared.length ? sec('Shared with me', 'Processes people invited you to.', `<div class="cards">${S.shared.map(p => cardHTML(p,'shared')).join('')}</div>`) : ''}
-    ${sec('Public processes', 'Open any of these. Suggest improvements, or vote on other people’s suggestions.', `<div class="cards">${S.pub.map(p => cardHTML(p,'pub')).join('')}${EXAMPLES.map(p => cardHTML(p,'ex')).join('')}</div>`)}
+    ${sec('Public processes', 'Open any of these, like them, or make your own copy.', `<div class="cards">${S.pub.map(p => cardHTML(p,'pub')).join('')}${EXAMPLES.map(p => cardHTML(p,'ex')).join('')}</div>`)}
+    ${footHTML()}
   </div></div>`;
   $('#new').onclick = startNew; const n2 = $('#new2'); if (n2) n2.onclick = startNew;
-  wireAcct(app); wireSignIn(app);
+  wireAcct(app); wireSignIn(app); wireInterest(app);
   app.querySelectorAll('[data-del]').forEach(b => b.onclick = () => { S.confirmDel = b.dataset.del; render(); });
   app.querySelectorAll('[data-del-no]').forEach(b => b.onclick = () => { S.confirmDel = null; render(); });
   app.querySelectorAll('[data-del-yes]').forEach(b => b.onclick = () => deleteProcess(b.dataset.delYes));
@@ -1180,7 +1194,7 @@ async function openProcess(id, kind){
     if (kind === 'ex') p = clone(EXAMPLES.find(x => x.id === id));
     else if (kind === 'pub'){
       const d = await API.get('/api/public/' + id);
-      p = { ...d.doc, id:'pub_' + id, readonly:true, publishedBy:d.authorName, publicId:id, version:d.version, openProposals:d.openProposals, publicMode:d.mode || 'collaborative' };
+      p = { ...d.doc, id:'pub_' + id, readonly:true, publishedBy:d.authorName, publicId:id, version:d.version, openProposals:d.openProposals, publicMode:d.mode || 'collaborative', likes:d.likes || 0, liked:!!d.liked };
       track('public_opened', { publicId:id }, null);
     } else {
       const d = await API.get('/api/processes/' + id);
@@ -1284,6 +1298,7 @@ const ICON = {
   people: ico('<circle cx="6" cy="5.5" r="2.2"/><path d="M1.8 13.5c.3-2.4 2-3.8 4.2-3.8s3.9 1.4 4.2 3.8"/><path d="M10.6 3.6a2.2 2.2 0 010 4.2M12 9.9c1.3.5 2.1 1.6 2.3 3.2"/>'),
   star:   ico('<path d="M8 1.8l1.9 3.9 4.3.6-3.1 3 .7 4.3L8 11.6l-3.8 2 .7-4.3-3.1-3 4.3-.6z"/>'),
   link:   ico('<path d="M6.8 9.2a3 3 0 004.2 0l2-2a3 3 0 00-4.2-4.2l-.7.7"/><path d="M9.2 6.8a3 3 0 00-4.2 0l-2 2a3 3 0 004.2 4.2l.7-.7"/>'),
+  heart:  ico('<path d="M8 13.6S2.2 10 2.2 6.1A3.1 3.1 0 018 4.6a3.1 3.1 0 015.8 1.5C13.8 10 8 13.6 8 13.6z"/>'),
   globe:  ico('<circle cx="8" cy="8" r="6"/><path d="M2 8h12M8 2c2 1.8 2.8 3.8 2.8 6S10 12.2 8 14M8 2C6 3.8 5.2 5.8 5.2 8S6 12.2 8 14"/>')
 };
 const visPill = (publicId, shareCount, mode) => publicId ? `<span class="pill pub">${ICON.globe}Public${mode === 'locked' ? ' · as is' : ''}</span>` : shareCount ? `<span class="pill sh">${ICON.people}Shared · ${shareCount}</span>` : `<span class="pill">${ICON.lock}Private</span>`;
@@ -1308,12 +1323,12 @@ function visHTML(p){
   if (k === 'shared') return `<span class="pill sh">${ICON.people}Shared</span><span class="by hide-sm">by ${esc(q.owner)}</span>`;
   return visPill(q.publicId, q.shareCount, q.publicMode);
 }
+const likeHTML = q => `<button class="btn sm like${q.liked ? ' on' : ''}" data-act="like" aria-pressed="${!!q.liked}" aria-label="Like">${ICON.heart}${q.likes || 0}</button>`;
 function primaryHTML(p){
   const k = kindOf(p), q = S.real || p;
   const n = q.openProposals || 0;
   if (k === 'compare') return '';
-  if (k === 'public' && q.publicMode === 'locked') return `<button class="btn primary sm" data-act="copy">Make my own copy</button>${shareButtons(q.publicId)}`;
-  if (k === 'public') return `<button class="btn primary sm" data-act="suggest">Suggest changes</button><button class="btn sm" data-act="review">Changes${n ? ` · ${n}` : ''}</button>${shareButtons(q.publicId)}`;
+  if (k === 'public') return `${likeHTML(q)}<button class="btn primary sm" data-act="copy">Make my own copy</button>${shareButtons(q.publicId)}`;
   if (k === 'example') return `<button class="btn sm" data-act="copy">Make a copy</button>${shareButtons(q.id)}`;
   if (k === 'view') return `<button class="btn sm" data-act="copy">Make a copy</button>`;
   if (k === 'draft') return p.maps.m_root.steps.length ? `<button class="btn primary sm" data-act="submit">${p.submitted ? 'Submit again' : 'Submit for review'}</button>` : '';
@@ -1327,9 +1342,10 @@ function menuHTML(p){
     items.push(['delete', 'Delete', 'danger']);
   } else if (k === 'shared'){ items.push(['share', 'People with access'], ['copy', 'Make a private copy'], ['leave', 'Remove from my list', 'danger']); }
   else if (k === 'draft'){ items.push(['openpublic', 'View the public version'], ['delete', 'Discard this suggestion', 'danger']); }
-  else if (k === 'public'){ if ((S.real || p).publicMode !== 'locked') items.push(['review', 'Suggested changes']); items.push(['history', 'Version history'], ['copy', 'Make my own copy'], ['tweet', 'Share on X'], ['copypub', 'Copy link']); }
+  else if (k === 'public'){ items.push(['copy', 'Make my own copy'], ['tweet', 'Share on X'], ['copypub', 'Copy link']); }
   else if (k === 'view'){ items.push(['copy', 'Make a private copy'], ['leave', 'Remove from my list', 'danger']); }
   else items.push(['copy', 'Make a copy']);
+  if (k !== 'compare') items.unshift(['export', 'Export for AI']);
   return `<div class="menu" role="menu">${items.map(([a, l, c]) => `<button role="menuitem" class="menu-item${c ? ' ' + c : ''}" data-act="${a}">${esc(l)}</button>`).join('')}</div>`;
 }
 function renderPanel(){
@@ -1364,7 +1380,7 @@ async function onAction(e){
     case 'review': S.panel = 'review'; S.reviewData = null; loadReview(); break;
     case 'history': S.panel = 'history'; S.historyData = null; loadHistory(); break;
     case 'publish': S.panel = 'share'; S.shareData = null; break;
-    case 'update': if (p.publicMode === 'locked'){ S.panel = null; publish(); return; } S.panel = 'update'; break;
+    case 'update': S.panel = null; publish(); return;
     case 'submit': S.panel = 'submit'; break;
     case 'share': S.panel = 'share'; S.shareData = null; break;
     case 'delete': S.panel = 'delete'; break;
@@ -1379,6 +1395,21 @@ async function onAction(e){
     case 'endcompare': closeCompare(); S.panel = 'review'; break;
     case 'unshare': unshare(b.dataset.id); return;
     case 'newown': S.panel = null; startNew(); return;
+    case 'like': {
+      const q = S.real || p; if (!q.publicId) break;
+      try { const d = await API.post('/api/public/' + q.publicId + '/like', {}); q.liked = d.liked; q.likes = d.likes; track(d.liked ? 'like' : 'unlike', { publicId:q.publicId }); }
+      catch (e){ alertBox(e.message); }
+      break; }
+    case 'export': {
+      const q = S.real || p;
+      const md = exportMarkdown({ title:q.title, maps:q.maps }, { url:q.publicId ? pubLink(q.publicId) : undefined, author:q.publishedBy });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([md], { type:'text/markdown' }));
+      a.download = ((q.title || 'process').replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '').toLowerCase() || 'process') + '.md';
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+      track('export_ai', {}, q.id);
+      alertBox('Saved as Markdown. Upload it to ChatGPT or Claude.');
+      S.panel = null; renderPanel(); return; }
     case 'tweet': {
       const q = S.real || p, t = (q.title && q.title !== 'Untitled process') ? q.title : 'a process';
       track('share_x', { publicId:b.dataset.pub || q.publicId });
@@ -1402,7 +1433,7 @@ async function onPanelSubmit(e){
   e.preventDefault();
   const f = e.target, kind = f.dataset.form, btn = f.querySelector('button.primary');
   if (btn) btn.disabled = true;
-  if (kind === 'publish') await publish('', f.elements.mode.value);
+  if (kind === 'publish') await publish('');
   else if (kind === 'update'){ const n = f.elements.note.value.trim(); if (!n){ S.panelMsg = 'Add a short note about what you changed.'; renderPanel(); return; } await publish(n); }
   else if (kind === 'submit'){ const n = f.elements.note.value.trim(); if (!n){ S.panelMsg = 'Add a short note about what you changed.'; renderPanel(); return; } await submitSuggestion(n); renderPanel(); }
   else if (kind === 'invite') await invite(f);
@@ -1422,7 +1453,7 @@ function pubbarHTML(p){
   if (S.compare) return '';
   if (kindOf(p) === 'example') return `<div class="pubbar"><span>This is an example. Make a copy to change it, or build a process of your own. It's free to start, no account needed.</span><span class="prop-acts"><button class="btn primary sm" data-act="newown">Build my own</button>${shareButtons(q.id)}</span></div>`;
   if (kindOf(p) !== 'public' || !q.publicId) return '';
-  return `<div class="pubbar"><span><b>${esc(q.title)}</b> by ${esc(q.publishedBy)}. ${q.publicMode === 'locked' ? 'Want to change it?' : 'Want to improve it?'} Make your own copy, or build a process of your own. It's free to start, no account needed.</span>
+  return `<div class="pubbar"><span><b>${esc(q.title)}</b> by ${esc(q.publishedBy)}. Make your own copy to change it, or build one of your own. Free to start, no account needed.</span>
     <span class="prop-acts"><button class="btn primary sm" data-act="newown">Build my own</button>${shareButtons(q.publicId)}</span></div>`;
 }
 function renderTopActions(){

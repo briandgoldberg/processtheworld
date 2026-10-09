@@ -290,6 +290,13 @@ code{font-family:var(--f-mono);font-size:11px}
 /* ---------- Sharing, suggestions, compare ---------- */
 .linkish-plain{border:none;background:none;padding:0;cursor:pointer;color:inherit}
 .vi{flex:none}
+.like.on{color:var(--danger,#c0392b);border-color:currentColor}
+.like.on svg{fill:currentColor}
+.foot{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:center;font-size:13px;color:var(--muted);padding:24px 0 8px}
+.foot a{color:inherit}
+.sf summary{cursor:pointer}
+.sf form{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+.sf input{min-width:220px}
 .pubbar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;padding:10px 16px;background:color-mix(in srgb,var(--system) 10%,var(--surface));border-bottom:1px solid var(--line);font-size:14px}
 .pubbar:empty{display:none}
 .goal{text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px}
