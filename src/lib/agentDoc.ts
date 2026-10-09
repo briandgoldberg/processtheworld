@@ -24,7 +24,9 @@ function buildMap(id: string, title: string, parent: { map: string; step: string
   const outSteps = steps.map((s: In, i: number) => {
     const sid = ident(s.id) || `s${i}`;
     if (!laneIds.has(String(s.lane))) errors.push(`${where}: step "${sid}" uses unknown lane "${s.lane}"`);
-    const kind = KINDS.includes(s.kind) ? s.kind : "task";
+    const link = typeof s.link === "string" && /^[a-z0-9]{20,40}$/.test(s.link) ? s.link : null;
+    if (s.link && !link) errors.push(`${where}: step "${sid}" has a "link" that isn't a published process id`);
+    const kind = link ? "subprocess" : KINDS.includes(s.kind) ? s.kind : "task";
     const uses = (Array.isArray(s.uses) ? s.uses : []).map(String).filter(u => { if (!laneIds.has(u)) { errors.push(`${where}: step "${sid}" "uses" unknown lane "${u}"`); return false; } return true; });
     const next = (Array.isArray(s.next) ? s.next : []).slice(0, 8).map((n: In | string) => {
       const o: In = typeof n === "string" ? { to: n } : n;
@@ -32,7 +34,7 @@ function buildMap(id: string, title: string, parent: { map: string; step: string
       return { to: String(o.to), ...(clip(o.label, 80) ? { label: clip(o.label, 80) } : {}) };
     });
     if (!clip(s.label, 160)) errors.push(`${where}: step "${sid}" needs a "label"`);
-    return { id: sid, lane: String(s.lane), label: clip(s.label, 160), kind, uses, next };
+    return { id: sid, lane: String(s.lane), label: clip(s.label, 160), kind, uses, next, ...(link ? { link: { id: link } } : {}) };
   });
   return { id, title, parent, lanes: outLanes, steps: outSteps };
 }

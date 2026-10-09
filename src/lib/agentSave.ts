@@ -9,6 +9,15 @@ type Result = { status: number; body: Record<string, unknown> };
 export async function saveForUser(user: { id: string; handle: string }, b: Record<string, any>, origin: string): Promise<Result> {
   const { doc, errors } = buildDoc(b);
   if (!doc) return { status: 400, body: { error: "The process has problems: " + errors.slice(0, 12).join("; "), code: "invalid_process" } };
+  // Steps that link to another published process: check it exists and remember its title.
+  const linked: any[] = Object.values(doc.maps as Record<string, any>).flatMap((m: any) => m.steps.filter((s: any) => s.link));
+  if (linked.length) {
+    const found = await prisma.publicProcess.findMany({ where: { id: { in: [...new Set(linked.map((s: any) => s.link.id))] } }, select: { id: true, title: true } });
+    const titles = new Map(found.map(f => [f.id, f.title]));
+    const missing = linked.filter((s: any) => !titles.has(s.link.id));
+    if (missing.length) return { status: 400, body: { error: "The process has problems: step \"" + missing[0].id + "\" links to a published process that doesn't exist (" + missing[0].link.id + ")", code: "invalid_process" } };
+    linked.forEach((s: any) => { s.link.title = titles.get(s.link.id); });
+  }
   if (JSON.stringify(doc).length > 900_000) return { status: 413, body: { error: "This process is too large." } };
 
   const wanted = typeof b.id === "string" && /^[A-Za-z0-9_-]{3,64}$/.test(b.id) ? b.id : null;

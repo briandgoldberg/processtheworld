@@ -5,7 +5,7 @@
 
 type Lane = { id: string; name: string; type?: string };
 type Next = { to: string; label?: string; map?: string };
-type Step = { id: string; lane: string; label: string; kind?: string; uses?: string[]; next?: Next[]; child?: string };
+type Step = { id: string; lane: string; label: string; kind?: string; uses?: string[]; next?: Next[]; child?: string; link?: { id: string; title?: string } };
 type MapT = { id: string; title?: string; parent?: { map: string; step: string } | null; lanes: Lane[]; steps: Step[] };
 type Doc = { title?: string; maps: Record<string, MapT> };
 
@@ -136,6 +136,7 @@ function svgFor(m: MapT, doc: Doc): string {
     if (uses.length) txt += `<text x="${cx}" y="${y0 + lines.length * 14 + 2}" class="nu" text-anchor="middle">${esc(wrap("uses " + uses.join(", "), 28, 1)[0])}</text>`;
     const jump = (s.next || []).filter(n => n.map && doc.maps[n.map]).map(n => `<text x="${cx}" y="${p.y + L.BOXH + 12}" class="nu" text-anchor="middle">→ ${esc(wrap(clean(doc.maps[n.map!].title) || n.map!, 24, 1)[0])}</text>`).join("");
     let node = shape + txt + jump;
+    if (s.link) node = `<a href="https://processtheworld.vercel.app/p/${esc(s.link.id)}" target="_blank" rel="noopener">${shape}${txt}<text x="${p.x + L.BOXW - 8}" y="${p.y + 14}" class="drill" text-anchor="end">↗</text><title>Opens the process “${esc(clean(s.link.title))}”</title></a>`;
     if (s.child && doc.maps[s.child]) node = `<a href="#${esc(s.child)}">${shape}${txt}<text x="${p.x + L.BOXW - 8}" y="${p.y + 14}" class="drill" text-anchor="end">↘</text></a>`;
     out.push(`<g>${node}</g>`);
   }
@@ -182,7 +183,7 @@ export function flowHtml(doc: Doc, opts: { author?: string; url?: string } = {})
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)} | Process the World</title><style>${CSS}</style></head>
 <body><main>
 <h1>${esc(title)}</h1>
-<p class="sub">${steps} steps across ${all.length} layer${all.length === 1 ? "" : "s"}${opts.author ? ` · by ${esc(opts.author)}` : ""}. Steps with ↘ open into a detail layer below.</p>
+<p class="sub">${steps} steps across ${all.length} layer${all.length === 1 ? "" : "s"}${opts.author ? ` · by ${esc(opts.author)}` : ""}. Steps with ↘ open into a detail layer below; steps with ↗ open another published process.</p>
 ${sections}
 <footer>Made with <a href="${esc(opts.url || "https://processtheworld.vercel.app")}">Process the World</a></footer>
 </main></body></html>`;

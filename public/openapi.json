@@ -240,6 +240,10 @@
                 }
               ]
             }
+          },
+          "link": {
+            "type": "string",
+            "description": "Id of a published process. The step becomes a link to that whole process, so you can build bigger processes from published ones."
           }
         }
       },

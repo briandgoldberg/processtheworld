@@ -28,7 +28,7 @@ function steps(m: MapT, doc: Doc): string {
       const target = n.map ? clean(doc.maps[n.map]?.steps.find(x => x.id === n.to)?.label) || n.to : label(n.to);
       return n.label ? `if "${clean(n.label)}" -> ${target}` : `-> ${target}`;
     });
-    const detail = s.child && doc.maps[s.child] ? ` Details in "${clean(doc.maps[s.child].title) || s.child}" below.` : "";
+    const detail = (s.child && doc.maps[s.child] ? ` Details in "${clean(doc.maps[s.child].title) || s.child}" below.` : "") + (s.link ? ` This step is another process: "${clean(s.link.title) || s.link.id}". Fetch its steps from https://processtheworld.vercel.app/api/public/${s.link.id}/export and follow them here.` : "");
     const tail = s.kind === "end" ? " (end)" : s.kind === "decision" ? " (decision)" : s.kind === "start" ? " (start)" : "";
     return `${i + 1}. ${clean(s.label)}${tail}. Who: ${who}${uses.length ? `. Uses: ${uses.join(", ")}` : ""}.${next.length ? ` Next: ${next.join("; ")}.` : ""}${detail}`;
   }).join("\n");

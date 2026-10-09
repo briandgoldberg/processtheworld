@@ -82,6 +82,7 @@ Step: `{ "id", "lane", "label", "kind", "uses", "next" }`
 - `lane`: the id of the lane that does this step.
 - `kind`: `start`, `task` (default), `decision`, `subprocess`, `end`. Steps with kind `decision` should have two or more `next` entries with labels naming the answer ("Yes", "No").
 - `uses`: lane ids of tools a person uses for this step (e.g. a person step that uses a system lane).
+- `link`: id of a **published** process. The step becomes a link to that whole process, which is how you build a bigger process out of smaller ones ("quote, then sell, then service"). The linked process opens when someone clicks the step. Publish the smaller processes first, then reference their `publicId`s.
 - `next`: where the process goes after this step. Each entry is a step id string, or `{"to": "<step id>", "label": "<answer>"}`. Loops are fine.
 
 Layer (a step that opens into its own detail map):

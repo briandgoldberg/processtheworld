@@ -344,7 +344,7 @@ function rawIssues(p){
         else if (s.next.some(n => !n.label)) out.push({ kind:'decision_labels', map:m.id, step:s.id, text:`Label each outcome of “${s.label}”` });
       } else if (outs > 1 && s.next.every(n => !n.label)) out.push({ kind:'split', map:m.id, step:s.id, text:`“${s.label}” splits into ${outs} paths. Is it a decision, or do they happen at the same time?` });
       if (!laneIds.has(s.lane)) out.push({ kind:'no_lane', map:m.id, step:s.id, text:`No one is assigned to “${s.label}”` });
-      if (s.kind === 'subprocess' && !s.child) out.push({ kind:'sub_no_child', map:m.id, step:s.id, text:`“${s.label}” has no detail yet` });
+      if (s.kind === 'subprocess' && !s.child && !s.link) out.push({ kind:'sub_no_child', map:m.id, step:s.id, text:`“${s.label}” has no detail yet` });
     });
     if (!m.steps.some(s => s.kind === 'start') && m.steps.length > 1) out.push({ kind:'no_start', map:m.id, text:`“${m.title}” has no starting point` });
   }
@@ -1617,10 +1617,10 @@ function renderBoard(){
     html += `<div class="step ${s.kind}${S.sel === s.id ? ' sel' : ''}${S.fresh.has(s.id) ? ' fresh' : ''}${s.proposedRemove ? ' proposed' : ''}${dm ? ' diff-' + dm : ''}" data-step="${esc(s.id)}" role="button" tabindex="0" style="left:${q.x}px;top:${q.y}px">
       ${issueAt[s.id] ? `<span class="warn-dot" title="${esc(issueAt[s.id].join('\n'))}" aria-label="${esc(issueAt[s.id].join('. '))}">!</span>` : ''}
       ${s.proposedRemove ? '<span class="k rm">Remove?</span>' : ''}
-      ${s.kind === 'decision' ? '<span class="k">◇ decision</span>' : s.kind === 'subprocess' ? '<span class="k">▤ subprocess</span>' : ''}
+      ${s.kind === 'decision' ? '<span class="k">◇ decision</span>' : s.kind === 'subprocess' ? (s.link ? '<span class="k">↗ linked process</span>' : '<span class="k">▤ subprocess</span>') : ''}
       <span>${esc(s.label)}</span>
       ${s.uses?.length ? `<span class="uses">${s.uses.filter(u => laneName[u]).map(u => `<span>${esc(laneName[u])}</span>`).join('')}</span>` : ''}
-      ${s.kind === 'subprocess' ? `<button class="open" data-drill="${esc(s.id)}">${s.child ? 'Open · ' + kids + ' steps' : 'Open · empty'} ↘</button>` : ''}
+      ${s.link ? `<button class="open" data-link="${esc(s.link.id)}">Open ${esc(s.link.title || 'process')} ↗</button>` : s.kind === 'subprocess' ? `<button class="open" data-drill="${esc(s.id)}">${s.child ? 'Open · ' + kids + ' steps' : 'Open · empty'} ↘</button>` : ''}
       ${back}${outs || ins ? `<span class="xlinks">${outs}${ins}</span>` : ''}
     </div>`;
   });
@@ -1652,6 +1652,7 @@ function drill(stepId){
   S.sel = null; S.tab = 'map'; renderWork();
 }
 function onBoardClick(e){
+  const lk = e.target.closest('[data-link]'); if (lk){ e.stopPropagation(); openProcess(lk.dataset.link, 'pub'); return; }
   const d = e.target.closest('[data-drill]'); if (d){ e.stopPropagation(); drill(d.dataset.drill); return; }
   const j = e.target.closest('[data-jump]'); if (j){ e.stopPropagation(); jumpTo(j.dataset.jump, j.dataset.step); return; }
   const st = e.target.closest('[data-step]');
@@ -1678,7 +1679,8 @@ function renderInspector(){
     <div class="row"><label class="label" for="i-label">Name</label><input id="i-label" value="${esc(s.label)}"></div>
     <div class="row"><label class="label" for="i-lane">Lane</label><select id="i-lane">${m.lanes.map(l => `<option value="${esc(l.id)}" ${l.id === s.lane ? 'selected' : ''}>${esc(l.name)} (${l.type === 'system' ? 'technology' : 'person'})</option>`).join('')}${m.lanes.some(l=>l.id===s.lane)?'':'<option selected>Unassigned</option>'}</select></div>
     <div class="row"><label class="label" for="i-kind">Type</label><select id="i-kind">${KINDS.map(k => `<option ${k === s.kind ? 'selected' : ''}>${k}</option>`).join('')}</select></div>
-    <div class="acts"><button class="btn primary" id="i-drill">${s.child ? 'Open subprocess ↘' : 'Break into a subprocess'}</button><button class="btn danger" id="i-del">Delete step</button></div>
+    <div class="row"><label class="label" for="i-link">Linked process</label><select id="i-link"><option value="">None</option>${S.pub.map(x => `<option value="${esc(x.id)}" ${s.link?.id === x.id ? 'selected' : ''}>${esc(x.title)}</option>`).join('')}</select><p class="hint">Connect this step to a published process to build a bigger one.</p></div>
+    <div class="acts"><button class="btn primary" id="i-drill">${s.link ? 'Open linked process ↗' : s.child ? 'Open subprocess ↘' : 'Break into a subprocess'}</button><button class="btn danger" id="i-del">Delete step</button></div>
     ${(() => { const mine = findIssues(S.cur).filter(i => i.map === m.id && i.step === s.id); return mine.length ? `<div class="row"><span class="label">To check</span><ul class="chk-list">${mine.map(i => issueRowHTML(i, true)).join('')}</ul></div>` : ''; })()}
     <div class="row"><span class="label">Did the AI get this wrong?</span>
       <div class="chips">${CORRECTIONS.map(c => `<button class="chip" data-corr="${c[0]}">${c[1]}</button>`).join('')}</div>
@@ -1693,7 +1695,14 @@ function renderInspector(){
   $('#i-label').onchange = e => edit('label', e.target.value.trim() || s.label);
   $('#i-lane').onchange = e => edit('lane', e.target.value);
   $('#i-kind').onchange = e => edit('kind', e.target.value);
-  $('#i-drill').onclick = () => drill(s.id);
+  $('#i-link').onchange = e => {
+    const pr = S.pub.find(x => x.id === e.target.value);
+    ensureOwned(); const mm = curMap(), st = mm.steps.find(x => x.id === S.sel); if (!st) return;
+    logEvent(S.cur, { who:'human', op:'edit_link', map:mm.id, id:st.id, before:st.link?.id || null, after:pr?.id || null });
+    if (pr){ st.link = { id:pr.id, title:pr.title }; st.kind = 'subprocess'; } else delete st.link;
+    touch(); renderWork();
+  };
+  $('#i-drill').onclick = () => s.link ? openProcess(s.link.id, 'pub') : drill(s.id);
   $('#i-del').onclick = () => { ensureOwned(); const mm = curMap(); applyOp(S.cur, { op:'remove_step', map:mm.id, id:S.sel }, 'human'); S.sel = null; touch(); renderWork(); };
   box.querySelectorAll('[data-corr]').forEach(b => b.onclick = () => {
     const c = CORRECTIONS.find(x => x[0] === b.dataset.corr);

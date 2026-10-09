@@ -24,6 +24,7 @@ MAP FORMAT (the body of saveProcess)
  "layers":[{"id":"acct","title":"Create account","parentStep":"s2","lanes":[{"id":"sales2","name":"Sales rep","type":"person"}],"steps":[{"id":"a1","lane":"sales2","kind":"start","label":"Open Salesforce","next":["a2"]},{"id":"a2","lane":"sales2","kind":"end","label":"Account saved"}]}]}
 - Lane type is "person" (a role or user type) or "system" (software, device, tool). Ids start with a letter and use letters, digits, - or _. Step ids need only be unique within their layer.
 - Step kind: start, task, decision, subprocess, end. Every step is in exactly one lane. A person using a tool: the step goes in the person's lane and the tool's lane id goes in "uses". Put a step in a system lane only when the technology acts on its own.
+- A step can carry "link": "<publicId>" to point at a whole published process (kind becomes subprocess). Use it to combine processes: publish the parts first, then build the bigger one from steps that link to them. Reuse existing public processes instead of redrawing them.
 - "next" is step id strings or {"to","label"}. Loops are fine.
 - "layers": parentStep is the main-layer step that opens into the layer; it becomes a subprocess automatically.
 
