@@ -71,7 +71,7 @@ Use the HTTP API. Show the person nothing technical; just tell them the result.
 
 **Where it goes depends on the key you use.**
 - **The person gave you their Process the World key** (Account menu > "Copy key for Claude or ChatGPT"). Use it. The process lands directly in their Library.
-- **No key.** Create an account of your own: make up a random key of 32+ characters and keep it for the rest of the conversation: `POST https://processtheworld.vercel.app/api/identity` with `{"key":"<your key>"}`. That process is not in the person's Library. Give it to them one of two ways: publish it and share the link (ask first), or print the map JSON so they can paste it into "Import from Claude or ChatGPT" at the bottom of their Library.
+- **No key.** Create an account of your own: make up a random key of 32+ characters and keep it for the rest of the conversation: `POST https://processtheworld.vercel.app/api/identity` with `{"key":"<your key>"}`. That process is not in the person's Library. Give it to them by publishing it and sharing the link (ask first), or by sharing the Markdown export.
 
 **Save the process:** `POST https://processtheworld.vercel.app/api/agent/processes` with header `x-ptw-key: <key>` and the map JSON as the body. The response has an `id`. To change a map you already saved, send the same body again with `"id": "<that id>"`.
 
@@ -81,7 +81,7 @@ Use the HTTP API. Show the person nothing technical; just tell them the result.
 
 **Or use the connector.** If a "Process the World" connector (MCP: https://processtheworld.vercel.app/api/mcp) is available, use its `save_process` tool with the same map JSON. No key is needed; it signs up a guest on the first save and returns the key.
 
-**If you can't make web requests** (no network access in this environment): print the finished map JSON in a code block and tell the person to paste it into "Import from Claude or ChatGPT" at the bottom of their Library at https://processtheworld.vercel.app and click Import.
+**If you can't make web requests** (no network access in this environment): write the finished map as the Markdown document (structure above), and tell the person you couldn't save it to Process the World from here.
 
 ## Write the document
 

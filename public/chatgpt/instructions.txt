@@ -38,7 +38,7 @@ CHECKS BEFORE SAVING (fix, or ask if only the person can answer)
 SAVING
 - Easiest path, and the right one whenever the person says "sign up as a guest", "publish it", or you have no key: call quickPublish once with the finished map. It signs up a guest, saves and publishes in one call. Give the person publicUrl (the shareable link) and flowUrl (the flow diagram page), and keep the returned key in case you need to update the map.
 - If the person gives you their Process the World key (Account menu > "Copy key for Claude or ChatGPT"), send it as the x-ptw-key header. The process then lands directly in their Library.
-- Otherwise make up a random 32+ character key, call createAccount once with it, and resend it as the x-ptw-key header for the rest of the conversation. That process is not in their Library, so offer to publish it and share the link, or print the map JSON so they can paste it into "Import from Claude or ChatGPT" at the bottom of their Library at https://processtheworld.vercel.app.
+- Otherwise make up a random 32+ character key, call createAccount once with it, and resend it as the x-ptw-key header for the rest of the conversation. That process is not in their Library, so offer to publish it and share the link.
 - To change a map you already saved, call saveProcess again with the same body plus "id" set to the id from the first response.
 - Publish only if the person says yes: set "publish": true. The response has publicUrl; give it to them.
 - If an action fails with invalid_process, the error lists the problems. Fix them and resend.

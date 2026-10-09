@@ -1408,6 +1408,7 @@ function renderHome(app){
   app.innerHTML = `
   <div class="top"><button class="mark linkish-plain" data-home aria-label="Process the World home">${MARK}</button><div class="grow"></div>
     ${S.notice ? `<span class="save hide-sm" style="color:var(--danger)">${esc(S.notice)}</span>` : ''}
+    <a class="toplink hide-sm" href="/agents.md">For AI agents</a>
     <button class="btn primary" id="new">New<span class="hide-sm"> process</span></button>${signInHTML()}${acctHTML()}</div>
   <div class="home"><div class="home-in">
     <div class="home-head"><div><div class="label">Process the World${S.me ? ' · Hi, ' + esc(S.me.handle) : ''}</div><h1 class="tagline">The World's Best Process Mapper</h1><p class="tagsub">Our goal is to map the world's processes. Explore what others have mapped, or start your own.</p></div></div>
@@ -1415,10 +1416,7 @@ function renderHome(app){
       `<div class="empty"><b style="color:var(--ink)">No processes yet</b><span>Start one and describe it, talk it through, or explore what others have published below.</span><button class="btn" id="new2">New process</button></div>`)}
     ${S.shared.length ? sec('Shared with me', 'Processes people invited you to.', `<div class="cards">${S.shared.map(p => cardHTML(p,'shared')).join('')}</div>`) : ''}
     ${sec('Public processes', 'Search, filter by tag, open any of them, like them, or make your own copy.', publicFilterHTML())}
-    <section class="sec"><details class="sf"><summary>Import from Claude or ChatGPT</summary>
-      <form data-import class="imp"><textarea name="json" rows="6" required placeholder="Paste the process JSON your AI gave you" aria-label="Process JSON"></textarea><div class="prop-acts"><button class="btn primary sm">Import</button><span class="hint" data-imsg role="status"></span></div></form></details></section>
     ${useAiHTML()}
-    ${footHTML()}
   </div></div>`;
   $('#new').onclick = startNew; const n2 = $('#new2'); if (n2) n2.onclick = startNew;
   wireAcct(app); wireSignIn(app); wireInterest(app); wireImport(app); wirePublicFilter(app); wireCopy(app);
