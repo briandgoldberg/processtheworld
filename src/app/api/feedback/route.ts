@@ -4,6 +4,7 @@ import { body, fail, hashIp, json, str } from "@/lib/http";
 import { userFrom } from "@/lib/identity";
 import { accessTo } from "@/lib/access";
 import { limited } from "@/lib/rateLimit";
+import { award } from "@/lib/points";
 
 export const dynamic = "force-dynamic";
 
@@ -24,5 +25,6 @@ export async function POST(req: NextRequest) {
     data: { userId: user.id, processId: own?.id ?? null, turnId: str(b.turnId, 40) || null, kind, rating, reasons, text, context: (b.context as any) ?? undefined },
     select: { id: true },
   });
-  return json({ ok: true, id: row.id });
+  const earned = text && text.length >= 10 ? await award(user.id, "feedback", row.id) : 0;
+  return json({ ok: true, id: row.id, earned });
 }

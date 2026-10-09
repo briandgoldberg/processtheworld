@@ -4,6 +4,7 @@ import { body, fail, hashIp, json, str } from "@/lib/http";
 import { userFrom } from "@/lib/identity";
 import { limited } from "@/lib/rateLimit";
 import { tally } from "@/lib/consensus";
+import { award } from "@/lib/points";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +25,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   await prisma.vote.upsert({ where: { proposalId_userId: { proposalId: id, userId: user.id } }, create: { proposalId: id, userId: user.id, choice, reason: str(b?.reason, 200) || null }, update: { choice, reason: str(b?.reason, 200) || null } });
   await prisma.event.create({ data: { userId: user.id, who: "human", type: "vote", data: { proposalId: id, publicId: p.publicId, choice } } });
 
+  const earned = await award(user.id, "vote", id);
   const votes = await prisma.vote.findMany({ where: { proposalId: id }, select: { choice: true, userId: true } });
   const t = tally(votes, p.authorId);
   let status = "open";
@@ -43,10 +45,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         prisma.proposal.updateMany({ where: { publicId: pub.id, status: "open", id: { not: id } }, data: { status: "superseded", decidedAt: new Date() } }),
       ]);
       status = "accepted";
+      await award(p.authorId, "accepted", id);
     }
   } else if (t.decision === "rejected") {
     await prisma.proposal.update({ where: { id }, data: { status: "rejected", decidedAt: new Date() } });
     status = "rejected";
   }
-  return json({ ok: true, status, after: t.after, before: t.before, myVote: choice });
+  return json({ ok: true, status, after: t.after, before: t.before, myVote: choice, earned });
 }

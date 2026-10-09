@@ -2,6 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { createHash } from "crypto";
 import { prisma } from "./db";
 import { ENGINE_VERSION } from "./engine/prompts";
+import { spend } from "./points";
 
 // USD per million tokens: [input, output, cache read, cache write (5 min)].
 // Source: platform.claude.com/docs/en/about-claude/pricing (checked 2026-10-08).
@@ -60,6 +61,7 @@ export async function streamAndLog(meta: CallMeta, system: string, text: string,
           where: { id: row.id },
           data: { output, inputTokens: usage.input, outputTokens: usage.output, cacheRead: usage.cacheRead, cacheWrite: usage.cacheWrite, costUsd: costOf(meta.model, usage), latencyMs: Date.now() - started, stopReason, error },
         }).catch(err => console.error("aiCall log failed", err));
+        if (meta.userId && meta.mode !== "suggest") await spend(meta.userId, costOf(meta.model, usage), row.id);
       }
     },
   });

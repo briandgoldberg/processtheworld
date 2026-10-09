@@ -391,7 +391,14 @@ const ERR = {
   not_configured:'The mapper isn’t set up yet. Try again soon.',
   rate_limited:'Too many requests right now. Wait a moment, then send again.',
   upstream_error:'The mapper was interrupted. Send your message again.',
+  out_of_points:'You’re out of points. Publish a process, vote on suggested changes or give feedback to earn more, then send again.',
 };
+/* Points: spend them mapping, earn them contributing */
+const fmtPts = n => Math.max(0, Math.round(n || 0)).toLocaleString();
+async function refreshPoints(){
+  try { const d = await API.get('/api/points'); if (S.me){ S.me.points = d.points; } const el = document.querySelector('.pts'); if (el) el.innerHTML = ptsInner(); } catch {}
+}
+const ptsInner = () => `${ICON.star}<b>${fmtPts(S.me?.points)}</b><span class="hide-sm"> points</span>`;
 function lastUserIndex(p){ for (let i = p.chat.length - 1; i >= 0; i--) if (p.chat[i].role === 'user') return i; return -1; }
 /* Put the map back to how it was before the last message, and take that message out of the conversation */
 function rewindLast(p){
@@ -416,7 +423,7 @@ async function runAI(payload, onLine, ctl){
   try {
     r = await fetch('/api/ai', { method:'POST', headers:{ 'content-type':'application/json', 'x-ptw-key':API.key || '' }, body:JSON.stringify(payload), signal:ctl.signal });
   } catch (e){ throw { code:e?.name === 'AbortError' ? 'cancelled' : 'upstream_error' }; }
-  if (!r.ok){ let d = {}; try { d = await r.json(); } catch {} throw { code:d.code || (r.status === 429 ? 'rate_limited' : 'upstream_error'), message:d.error }; }
+  if (!r.ok){ let d = {}; try { d = await r.json(); } catch {} throw { code:d.code || (r.status === 402 ? 'out_of_points' : r.status === 429 ? 'rate_limited' : 'upstream_error'), message:d.error }; }
   const id = r.headers.get('x-ai-call-id');
   const reader = r.body.getReader(), dec = new TextDecoder();
   let buf = '', failed = false;
@@ -534,7 +541,7 @@ async function send(text){
   reply.content = humanize(p, reply.content); reply.ask = humanize(p, reply.ask); reply.fixed = humanize(p, reply.fixed);
   reply.pending = false;
   if (!reply.content) reply.content = turn.ops ? 'Updated the map.' : 'I could not turn that into changes. Try describing who does what, in order.';
-  S.busy = false; S.ctl = null;
+  S.busy = false; S.ctl = null; refreshPoints();
   touch(); renderWork();
 
   // Record the turn: the training example.
@@ -733,7 +740,7 @@ async function publish(note, mode){
   try {
     await flush();
     const d = await API.post('/api/processes/' + p.id + '/publish', { note:note || '', mode:mode || undefined });
-    const first = !!d.published;
+    const first = !!d.published; if (d.earned) alertBox(`+${d.earned} points for publishing.`); refreshPoints();
     p.publicId = d.publicId; if (first) p.publicMode = d.mode || 'collaborative';
     logEvent(p, { who:'human', op:first ? 'publish' : 'publish_update' });
     p.chat.push({ role:'note', content:first ? (p.publicMode === 'locked' ? `Published as is under ${S.me?.handle}. Anyone can open it. To change it, they make their own copy.` : `Published as ${S.me?.handle}. Anyone can open it. People can suggest changes, and changes go live when the votes agree.`)
@@ -787,7 +794,8 @@ function publishHTML(d){
   const locked = p.publicMode === 'locked';
   return `<div class="pubbox"><p class="label">${ICON.globe} Public · ${locked ? 'published as is' : 'collaborative'}</p>
     <p class="hint">${locked ? 'Nobody can change it. People who want changes make their own copy.' : 'Anyone can suggest changes, and they go live when the votes agree. ' + esc(RULE_SHORT)}</p>
-    <div class="prop-acts"><button class="btn primary sm" data-act="update">${locked ? 'Update public version' : 'Submit my edits…'}</button><button class="btn sm" data-act="openpublic">View public version</button><button class="btn sm" data-act="unpublish">Unpublish</button></div></div>`;
+    <div class="prop-acts"><button class="btn primary sm" data-act="update">${locked ? 'Update public version' : 'Submit my edits…'}</button><button class="btn sm" data-act="openpublic">View public version</button><button class="btn sm" data-act="unpublish">Unpublish</button></div>
+    <div class="prop-acts">${shareButtons(p.publicId)}</div></div>`;
 }
 function shareHTML(){
   const d = S.shareData, close = '<button class="btn ghost sm" data-act="close" aria-label="Close">✕</button>';
@@ -939,6 +947,7 @@ function renderCompare(){
 async function vote(id, choice){
   try {
     const d = await API.post('/api/proposals/' + id + '/vote', { choice });
+    refreshPoints(); if (d.earned) alertBox(`+${d.earned} points for voting.`);
     const x = S.compare?.prop; if (x){ x.after = d.after; x.before = d.before; x.myVote = d.myVote; }
     if (d.status === 'accepted'){ alertBox('That change had enough votes and is now live.'); const id2 = pubId(); closeCompare(); openProcess(id2, 'pub'); return; }
     if (d.status === 'rejected'){ alertBox('That change was turned down by the votes.'); closeCompare(); S.panel = 'review'; S.reviewData = null; loadReview(); return; }
@@ -1009,15 +1018,17 @@ function acctHTML(){
     <div class="acct-panel" role="dialog" aria-label="Account">
       <p>Signed in as <b>${esc(me.email)}</b>.</p>
       ${nameForm}
+      <p class="hint pts-ways"><b>Points</b> pay for the AI as you map. Earn more: publish a process +25, a change you suggested goes live +20, someone copies your public process +3, vote on a suggested change +2, share useful feedback +2.</p>
       ${me.isAdmin ? '<a class="btn sm" href="/admin">Admin dashboard</a>' : ''}
       <button class="btn sm" data-acct="signout">Sign out</button>
     </div>` : `
     <div class="acct-panel" role="dialog" aria-label="Account">
       <p>You're a guest, mapping as <b>${esc(me.handle)}</b>. Your processes are saved to this browser.</p>
+      <p class="hint pts-ways"><b>Points</b> pay for the AI as you map. Earn more: publish a process +25, a change you suggested goes live +20, someone copies your public process +3, vote on a suggested change +2, share useful feedback +2.</p>
       <p class="hint">Add your email to choose your own username, keep your processes on any device, or sign in.</p>
       ${emailFormHTML('acct')}
     </div>`;
-  return `${me.isAdmin ? '<a class="btn sm admin-link hide-sm" href="/admin">Admin</a>' : ''}<div class="acct"><button class="btn ghost acct-btn" data-acct="toggle" aria-expanded="${S.acct}"><span class="acct-name">${esc(me.handle)}</span> ▾</button>${panel}</div>`;
+  return `${me.isAdmin ? '<a class="btn sm admin-link hide-sm" href="/admin">Admin</a>' : ''}<span class="pts" title="Points: spend them mapping, earn them contributing">${ptsInner()}</span><div class="acct"><button class="btn ghost acct-btn" data-acct="toggle" aria-expanded="${S.acct}"><span class="acct-name">${esc(me.handle)}</span> ▾</button>${panel}</div>`;
 }
 function wireAcct(root){
   root.querySelectorAll('[data-acct]').forEach(b => b.onclick = e => {
@@ -1098,6 +1109,11 @@ function renderLogin(app){
         <div class="demo-lane p"><span class="dl-name">Driver</span><span class="dl-step">Press the brake</span><span class="dl-arrow"></span><span class="dl-step dec">Push-button?</span><span class="dl-arrow"></span><span class="dl-step">Press Start</span></div>
         <div class="demo-lane s"><span class="dl-name">Kettle</span><span class="dl-step">Boil the water</span><span class="dl-arrow"></span><span class="dl-step end">Clicks off</span></div>
       </div>
+    </section>
+    <section class="goal">
+      <h2>Our goal is to map the world's processes.</h2>
+      <p>Everyone who contributes earns points: publish a process, vote on a change, share feedback. You spend points when you build. You start with about $1 worth, enough to map your first processes.</p>
+      <ul class="goal-ways"><li><b>+25</b> publish a process</li><li><b>+20</b> your change goes live</li><li><b>+3</b> someone copies yours</li><li><b>+2</b> vote or give feedback</li></ul>
     </section>
     <section class="start" id="start">
       <div class="start-card"><h2>Keep your processes</h2><p>Enter your email to save your processes and use them on any device. Already have an account? The same box signs you in.</p>${emailFormHTML('li')}</div>
@@ -1202,7 +1218,7 @@ function renderWorkShell(app){
   app.innerHTML = `
   <div class="top work-top">
     <button class="btn ghost" id="back" aria-label="Back to library">←<span class="hide-sm"> Library</span></button>
-    <div class="grow"><input class="title-in" id="title" aria-label="Process name"></div>
+    <div class="grow"><input class="title-in" id="title" aria-label="Process name" placeholder="Name your process" title="Click to rename" maxlength="120"></div>
     <span id="vis" class="vis"></span>
     <span class="save hide-sm" id="save"></span>
     <span id="wprimary" class="wprimary"></span>
@@ -1210,6 +1226,7 @@ function renderWorkShell(app){
     <span id="wacct"></span>
   </div>
   <div id="wpanel"></div>
+  <div id="pubbar"></div>
   <div class="tabs" id="tabs"><button data-tab="chat">Conversation</button><button data-tab="map">Map</button></div>
   <div class="work" id="work">
     <aside class="chat">
@@ -1232,7 +1249,7 @@ function renderWorkShell(app){
   </div>`;
   $('#back').onclick = () => { flush(); if (S.compare) closeCompare(); S.view = 'home'; S.cur = null; S.confirmDel = null; S.panel = null; loadMine(); loadPublic(); render(); };
   $('#wmenu-btn').onclick = e => { e.stopPropagation(); S.panel = S.panel === 'menu' ? null : 'menu'; S.panelMsg = ''; renderPanel(); };
-  $('#wprimary').onclick = onAction; $('#wpanel').onclick = onAction; $('#compare').onclick = onAction;
+  $('#wprimary').onclick = onAction; $('#pubbar').onclick = onAction; $('#wpanel').onclick = onAction; $('#compare').onclick = onAction;
   $('#wpanel').addEventListener('submit', onPanelSubmit);
   $('#wpanel').addEventListener('change', onPanelChange);
   $('#title').onchange = e => { ensureOwned(); const v = e.target.value.trim() || 'Untitled process'; logEvent(S.cur,{who:'human',op:'rename_process',before:S.cur.title,after:v}); S.cur.title = v; S.cur.maps.m_root.title = v; touch(); renderWork(); };
@@ -1278,6 +1295,8 @@ const ico = d => '<svg class="vi" viewBox="0 0 16 16" width="13" height="13" fil
 const ICON = {
   lock:   ico('<rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 015 0v2"/>'),
   people: ico('<circle cx="6" cy="5.5" r="2.2"/><path d="M1.8 13.5c.3-2.4 2-3.8 4.2-3.8s3.9 1.4 4.2 3.8"/><path d="M10.6 3.6a2.2 2.2 0 010 4.2M12 9.9c1.3.5 2.1 1.6 2.3 3.2"/>'),
+  star:   ico('<path d="M8 1.8l1.9 3.9 4.3.6-3.1 3 .7 4.3L8 11.6l-3.8 2 .7-4.3-3.1-3 4.3-.6z"/>'),
+  link:   ico('<path d="M6.8 9.2a3 3 0 004.2 0l2-2a3 3 0 00-4.2-4.2l-.7.7"/><path d="M9.2 6.8a3 3 0 00-4.2 0l-2 2a3 3 0 004.2 4.2l.7-.7"/>'),
   globe:  ico('<circle cx="8" cy="8" r="6"/><path d="M2 8h12M8 2c2 1.8 2.8 3.8 2.8 6S10 12.2 8 14M8 2C6 3.8 5.2 5.8 5.2 8S6 12.2 8 14"/>')
 };
 const visPill = (publicId, shareCount, mode) => publicId ? `<span class="pill pub">${ICON.globe}Public${mode === 'locked' ? ' · as is' : ''}</span>` : shareCount ? `<span class="pill sh">${ICON.people}Shared · ${shareCount}</span>` : `<span class="pill">${ICON.lock}Private</span>`;
@@ -1316,11 +1335,11 @@ function menuHTML(p){
   const k = kindOf(p), items = [];
   if (k === 'owned'){
     items.push(['share', 'Share & publish…']);
-    if (p.publicId) items.push(['openpublic', 'View public version']);
+    if (p.publicId) items.push(['openpublic', 'View public version'], ['tweet', 'Share on X'], ['copypub', 'Copy public link']);
     items.push(['delete', 'Delete', 'danger']);
   } else if (k === 'shared'){ items.push(['share', 'People with access'], ['copy', 'Make a private copy'], ['leave', 'Remove from my list', 'danger']); }
   else if (k === 'draft'){ items.push(['openpublic', 'View the public version'], ['delete', 'Discard this suggestion', 'danger']); }
-  else if (k === 'public'){ if ((S.real || p).publicMode !== 'locked') items.push(['review', 'Suggested changes']); items.push(['history', 'Version history'], ['copy', 'Make my own copy']); }
+  else if (k === 'public'){ if ((S.real || p).publicMode !== 'locked') items.push(['review', 'Suggested changes']); items.push(['history', 'Version history'], ['copy', 'Make my own copy'], ['tweet', 'Share on X'], ['copypub', 'Copy link']); }
   else if (k === 'view'){ items.push(['copy', 'Make a private copy'], ['leave', 'Remove from my list', 'danger']); }
   else items.push(['copy', 'Make a copy']);
   return `<div class="menu" role="menu">${items.map(([a, l, c]) => `<button role="menuitem" class="menu-item${c ? ' ' + c : ''}" data-act="${a}">${esc(l)}</button>`).join('')}</div>`;
@@ -1371,6 +1390,17 @@ async function onAction(e){
     case 'withdraw': withdraw(b.dataset.id); return;
     case 'endcompare': closeCompare(); S.panel = 'review'; break;
     case 'unshare': unshare(b.dataset.id); return;
+    case 'newown': S.panel = null; startNew(); return;
+    case 'tweet': {
+      const q = S.real || p, t = (q.title && q.title !== 'Untitled process') ? q.title : 'a process';
+      track('share_x', { publicId:b.dataset.pub || q.publicId });
+      window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent('How ' + (t.length > 90 ? t.slice(0, 90) + '…' : t) + ' gets done, mapped on Process the World. Improve it or build your own:') + '&url=' + encodeURIComponent(pubLink(b.dataset.pub || q.publicId)), '_blank', 'noopener');
+      S.panel = null; renderPanel(); return; }
+    case 'copypub': {
+      const link = pubLink(b.dataset.pub || (S.real || p).publicId);
+      try { await navigator.clipboard.writeText(link); alertBox('Link copied.'); } catch { alertBox('Copy this link: ' + link); }
+      track('share_link', { publicId:b.dataset.pub });
+      S.panel = null; renderPanel(); return; }
     case 'copylink': {
       const link = b.dataset.link;
       try { await navigator.clipboard.writeText(link); S.panelMsg = 'Invite link copied. Send it any way you like; it works once.'; }
@@ -1393,8 +1423,20 @@ async function onPanelSubmit(e){
 function onPanelChange(e){
   const s = e.target.closest('[data-role-for]'); if (s) setRole(s.dataset.roleFor, s.value);
 }
+/* Public processes get a link of their own; people arriving from it are invited to edit or build their own */
+const pubLink = id => location.origin + '/p/' + id;
+function shareButtons(id){
+  return `<button class="btn sm" data-act="tweet" data-pub="${esc(id)}">Share on X</button><button class="btn sm" data-act="copypub" data-pub="${esc(id)}">${ICON.link}Copy link</button>`;
+}
+function pubbarHTML(p){
+  const q = S.real || p;
+  if (S.compare || kindOf(p) !== 'public' || !q.publicId) return '';
+  return `<div class="pubbar"><span><b>${esc(q.title)}</b> by ${esc(q.publishedBy)}. ${q.publicMode === 'locked' ? 'Want to change it?' : 'Want to improve it?'} Make your own copy, or build a process of your own. It's free to start, no account needed.</span>
+    <span class="prop-acts"><button class="btn primary sm" data-act="newown">Build my own</button>${shareButtons(q.publicId)}</span></div>`;
+}
 function renderTopActions(){
   const p = S.cur; if (!p || !$('#wprimary')) return;
+  $('#pubbar').innerHTML = pubbarHTML(p);
   $('#vis').innerHTML = visHTML(p);
   $('#wprimary').innerHTML = primaryHTML(p);
   $('#save').textContent = S.compare ? '' : readOnly(p) ? (kindOf(p) === 'public' ? 'Changes make a copy or a suggestion' : 'Changes make a private copy') : S.save;
@@ -1404,7 +1446,7 @@ function renderWork(fromStream){
   if (S.view !== 'work' || !S.cur) return;
   const p = S.cur;
   S.path = S.path.filter(id => p.maps[id]); if (!S.path.length) S.path = ['m_root'];
-  const t = $('#title'); if (document.activeElement !== t) t.value = p.title;
+  const t = $('#title'); if (document.activeElement !== t) t.value = p.title === 'Untitled process' ? '' : p.title;
   t.readOnly = !!S.compare;
   renderTopActions();
   const wa = $('#wacct'); wa.innerHTML = acctHTML(); wireAcct(wa);
@@ -1707,7 +1749,7 @@ function renderToast(){
 
 /* ---------- Boot ---------- */
 const ALERTS = { invited:'Invite accepted. You’ll find the process under “Shared with me”.', saved:'Email confirmed. Your processes now follow you to any device.', 'signed-in':'Signed in. Your processes are here.', 'link-invalid':'That link expired or was already used. Request a new one from the account menu.', 'email-taken':'That email is already in use. Enter it again to get a sign-in link.' };
-export async function mount(root){
+export async function mount(root, opts = {}){
   root.innerHTML = '<div id="app"></div>';
   let key = ls.get('ptw_key'); if (!key || key.length < 16){ key = freshKey(); ls.set('ptw_key', key); }
   API.key = key;
@@ -1721,5 +1763,6 @@ export async function mount(root){
   if (S.me?.email && S.view === 'login') S.view = 'home';
   render();
   loadMine(); loadPublic();
+  if (opts.open){ ls.set('ptw_in', '1'); openProcess(opts.open, 'pub'); }
   addEventListener('beforeunload', () => { if (dirty) flush(); if (outbox.length) navigator.sendBeacon?.('/api/events', new Blob([JSON.stringify({ key:API.key, events:outbox })], { type:'application/json' })); });
 }

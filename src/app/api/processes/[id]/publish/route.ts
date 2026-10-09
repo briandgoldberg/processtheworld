@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { body, fail, json, str } from "@/lib/http";
 import { userFrom } from "@/lib/identity";
+import { award } from "@/lib/points";
 
 export const dynamic = "force-dynamic";
 type Ctx = { params: Promise<{ id: string }> };
@@ -22,7 +23,8 @@ export async function POST(req: NextRequest, { params }: Ctx) {
     const mode = b?.mode === "locked" ? "locked" : "collaborative";
     const pub = await prisma.publicProcess.create({ data: { processId: id, userId: user.id, title: p.title, doc: snapshot as any, stepCount: p.stepCount, depth: p.depth, laneTypes: p.laneTypes, authorName: user.handle, mode } });
     await prisma.publicVersion.create({ data: { publicId: pub.id, version: 1, title: p.title, doc: snapshot as any } });
-    return json({ ok: true, publicId: pub.id, published: true, mode });
+    const earned = await award(user.id, "publish", id);
+    return json({ ok: true, publicId: pub.id, published: true, mode, earned });
   }
   const pub = p.public;
   if (pub.mode === "locked") {

@@ -1,6 +1,8 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { fail, json } from "@/lib/http";
+import { userFrom } from "@/lib/identity";
+import { award } from "@/lib/points";
 
 export const dynamic = "force-dynamic";
 
@@ -13,8 +15,10 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 }
 
 // Counts a copy when someone turns a public process into their own.
-export async function POST(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  await prisma.publicProcess.update({ where: { id }, data: { copies: { increment: 1 } } }).catch(() => {});
+  const pub = await prisma.publicProcess.update({ where: { id }, data: { copies: { increment: 1 } } }).catch(() => null);
+  const user = await userFrom(req);
+  if (pub && user && pub.userId !== user.id) await award(pub.userId, "copy", `${id}:${user.id}`);
   return json({ ok: true });
 }

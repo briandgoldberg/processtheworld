@@ -290,6 +290,16 @@ code{font-family:var(--f-mono);font-size:11px}
 /* ---------- Sharing, suggestions, compare ---------- */
 .linkish-plain{border:none;background:none;padding:0;cursor:pointer;color:inherit}
 .vi{flex:none}
+.pubbar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;padding:10px 16px;background:color-mix(in srgb,var(--system) 10%,var(--surface));border-bottom:1px solid var(--line);font-size:14px}
+.pubbar:empty{display:none}
+.goal{text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px}
+.goal p{max-width:640px;color:var(--muted)}
+.goal-ways{list-style:none;padding:0;margin:4px 0 0;display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.goal-ways li{border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:13px}
+.goal-ways b{color:var(--accent)}
+.pts{display:inline-flex;align-items:center;gap:5px;font-size:13px;color:var(--muted);padding:0 6px;white-space:nowrap}
+.pts b{color:var(--ink,inherit)}
+.pts-ways{margin:8px 0}
 .pubbox{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
 .pubbox .label{display:flex;align-items:center;gap:6px}
 .opt{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:10px;cursor:pointer}

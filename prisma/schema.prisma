@@ -35,6 +35,9 @@ model User {
   firstIpHash     String?
   createdAt       DateTime  @default(now())
   lastSeenAt      DateTime  @default(now())
+  // 1 point = 1 cent of AI usage. Everyone starts with 100; contributing earns more, mapping spends.
+  points          Float     @default(100)
+  pointEvents     PointEvent[]
 
   processes  Process[]
   published  PublicProcess[]
@@ -368,4 +371,18 @@ model RequestLog {
 
   @@index([endpoint, ipHash, createdAt])
   @@index([endpoint, userId, createdAt])
+}
+
+// Every change to a balance. The unique key makes each reward a one-time thing.
+model PointEvent {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  delta     Float
+  reason    String // ai | publish | accepted | vote | copy | feedback
+  refId     String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, reason, refId])
+  @@index([userId, createdAt])
 }

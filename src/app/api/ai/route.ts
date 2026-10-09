@@ -20,6 +20,8 @@ export async function POST(req: NextRequest) {
   if (!b) return fail("Invalid request body.");
   if (await limited("ai", hashIp(req), user.id, 120, 600)) return fail("Too many requests right now. Wait a moment, then send again.", 429, "rate_limited");
 
+  if (user.points <= 0) return fail("You're out of points. Publish a process, vote on suggested changes or give feedback to earn more.", 402, "out_of_points");
+
   const mode = b.mode === "repair" ? "repair" : "map";
   const processId = typeof b.processId === "string" ? b.processId.slice(0, 64) : null;
   if (processId) {
