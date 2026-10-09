@@ -1314,7 +1314,8 @@ function primaryHTML(p){
   if (k === 'compare') return '';
   if (k === 'public' && q.publicMode === 'locked') return `<button class="btn primary sm" data-act="copy">Make my own copy</button>${shareButtons(q.publicId)}`;
   if (k === 'public') return `<button class="btn primary sm" data-act="suggest">Suggest changes</button><button class="btn sm" data-act="review">Changes${n ? ` · ${n}` : ''}</button>${shareButtons(q.publicId)}`;
-  if (k === 'example' || k === 'view') return `<button class="btn sm" data-act="copy">Make a copy</button>`;
+  if (k === 'example') return `<button class="btn sm" data-act="copy">Make a copy</button>${shareButtons(q.id)}`;
+  if (k === 'view') return `<button class="btn sm" data-act="copy">Make a copy</button>`;
   if (k === 'draft') return p.maps.m_root.steps.length ? `<button class="btn primary sm" data-act="submit">${p.submitted ? 'Submit again' : 'Submit for review'}</button>` : '';
   return `<button class="btn sm" data-act="share">${q.publicId ? ICON.globe : q.shareCount ? ICON.people : ICON.lock}Share</button>${q.publicId ? shareButtons(q.publicId) : ''}`;
 }
@@ -1411,13 +1412,16 @@ function onPanelChange(e){
   const s = e.target.closest('[data-role-for]'); if (s) setRole(s.dataset.roleFor, s.value);
 }
 /* Public processes get a link of their own; people arriving from it are invited to edit or build their own */
-const pubLink = id => location.origin + '/p/' + id;
+const pubLink = id => id.startsWith('ex_') ? location.origin + '/?example=' + id : location.origin + '/p/' + id;
 function shareButtons(id){
+  if (!id) return '';
   return `<button class="btn sm" data-act="tweet" data-pub="${esc(id)}">Share on X</button><button class="btn sm" data-act="copypub" data-pub="${esc(id)}">${ICON.link}Copy link</button>`;
 }
 function pubbarHTML(p){
   const q = S.real || p;
-  if (S.compare || kindOf(p) !== 'public' || !q.publicId) return '';
+  if (S.compare) return '';
+  if (kindOf(p) === 'example') return `<div class="pubbar"><span>This is an example. Make a copy to change it, or build a process of your own. It's free to start, no account needed.</span><span class="prop-acts"><button class="btn primary sm" data-act="newown">Build my own</button>${shareButtons(q.id)}</span></div>`;
+  if (kindOf(p) !== 'public' || !q.publicId) return '';
   return `<div class="pubbar"><span><b>${esc(q.title)}</b> by ${esc(q.publishedBy)}. ${q.publicMode === 'locked' ? 'Want to change it?' : 'Want to improve it?'} Make your own copy, or build a process of your own. It's free to start, no account needed.</span>
     <span class="prop-acts"><button class="btn primary sm" data-act="newown">Build my own</button>${shareButtons(q.publicId)}</span></div>`;
 }
@@ -1750,6 +1754,7 @@ export async function mount(root, opts = {}){
   if (S.me?.email && S.view === 'login') S.view = 'home';
   render();
   loadMine(); loadPublic();
+  const ex = q.get('example'); if (ex && EXAMPLES.some(x => x.id === ex)){ ls.set('ptw_in', '1'); openProcess(ex, 'ex'); history.replaceState(null, '', '/'); }
   if (opts.open){ ls.set('ptw_in', '1'); openProcess(opts.open, 'pub'); }
   addEventListener('beforeunload', () => { if (dirty) flush(); if (outbox.length) navigator.sendBeacon?.('/api/events', new Blob([JSON.stringify({ key:API.key, events:outbox })], { type:'application/json' })); });
 }
