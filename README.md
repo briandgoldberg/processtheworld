@@ -14,16 +14,21 @@ People explain, demonstrate, record or upload everyday processes. AI turns that 
 - **Live mapping.** Describe a process in the conversation panel. The AI streams changes to the map one operation at a time and asks one follow-up question per turn.
 - **Swim lanes.** Lanes are typed: **People** (roles / user types) and **Technology** (systems and tools). A person using a tool shows the tool as a chip on the step; a system acting on its own gets a step in its own lane.
 - **Drill-down.** Any step can be a subprocess with its own map, lanes and steps, nested to any depth. Breadcrumbs move between layers.
-- **Learning signal.** Every AI change and every human edit or correction ("missing step", "wrong order", "wrong owner", "too vague", "this has parts") is logged on the process as an event.
+- **Links between layers.** A step can jump to a step in any other layer (e.g. "new scope → back to Gather requirements in the main flow"). A subprocess's end step continues after its parent step automatically.
+- **Self-checks.** After every AI turn the system checks the map (unconnected steps, dead ends, unlabeled decision outcomes, duplicate lanes, empty subprocesses) and runs one repair pass before you see it. Anything left shows as "to check".
+- **Nothing you've seen is deleted silently.** AI removals of existing steps are proposed, marked on the map, and wait for Remove / Keep.
+- **Done state.** "Finish map" (or saying you're done) stops the questions and shows a summary; "Resume interview" re-opens it.
+- **Edit your last message.** Editing, or sending a near-copy (a retyped typo), rewinds the last turn instead of stacking a new instruction.
+- **Learning signal.** Every AI change, every self-check, every human edit, every Remove/Keep decision, and a classification of each chat message (new info, answer, correction by category, confusion, done) is logged on the process as an event.
 
 ## Data model
 
 ```
-Process   { id, title, visibility: private|public, ownerId, updatedAt, maps{}, chat[], events[] }
+Process   { id, title, visibility: private|public, status: interviewing|done, ownerId, updatedAt, maps{}, chat[], events[], undo }
 Map       { id, title, parent: {map, step} | null, lanes[], steps[] }      // "m_root" is the top level
 Lane      { id, name, type: person|system }
-Step      { id, lane, label, kind: start|task|decision|subprocess|end, uses[laneId], next[{to, label}], child? }
-Event     { t, who: ai|human, op, map, id, ...detail }                       // the training signal
+Step      { id, lane, label, kind: start|task|decision|subprocess|end, uses[laneId], next[{to, label, map?}], child?, proposedRemove? }   // next.map = link to another layer
+Event     { t, who: ai|human|system, op, map, id, ...detail }                // the training signal
 ```
 
 The AI edits the model through a small operation language (`add_lane`, `add_step`, `update_step`, `connect`, `add_map`, …), one JSON object per line, so changes render live as they stream. The operation log is the raw material for learning what the AI missed.

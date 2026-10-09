@@ -7,7 +7,7 @@
   --bg:#F3F5F8; --surface:#FFFFFF; --sunk:#E9EDF2; --ink:#141C27; --muted:#5A6573; --line:#D7DDE5;
   --accent:#2448C9; --accent-ink:#FFFFFF; --accent-soft:#E6ECFC;
   --person:#A86A12; --person-bg:#FBF3E6; --system:#0D7672; --system-bg:#E5F3F2;
-  --edge:#8592A3; --fresh:#2448C9; --danger:#B42318; --ok:#1E7B47;
+  --edge:#8592A3; --fresh:#2448C9; --danger:#B42318; --ok:#1E7B47; --warn:#E8A317; --warn-ink:#2A1A00;
   --f-display:"Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
   --f-body:"Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --f-mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
@@ -17,12 +17,12 @@
   --bg:#0F141B; --surface:#171E28; --sunk:#1F2834; --ink:#E7ECF2; --muted:#98A3B2; --line:#2C3746;
   --accent:#7C9BFF; --accent-ink:#0B1020; --accent-soft:#1D2A4D;
   --person:#E3A548; --person-bg:#2A2216; --system:#4CC2BC; --system-bg:#14292A;
-  --edge:#6B788A; --fresh:#7C9BFF; --danger:#FF7A6E; --ok:#5BD08F; color-scheme:dark }}
+  --edge:#6B788A; --fresh:#7C9BFF; --danger:#FF7A6E; --ok:#5BD08F; --warn:#F2B437; --warn-ink:#2A1A00; color-scheme:dark }}
 :root[data-theme="dark"]{
   --bg:#0F141B; --surface:#171E28; --sunk:#1F2834; --ink:#E7ECF2; --muted:#98A3B2; --line:#2C3746;
   --accent:#7C9BFF; --accent-ink:#0B1020; --accent-soft:#1D2A4D;
   --person:#E3A548; --person-bg:#2A2216; --system:#4CC2BC; --system-bg:#14292A;
-  --edge:#6B788A; --fresh:#7C9BFF; --danger:#FF7A6E; --ok:#5BD08F; color-scheme:dark }
+  --edge:#6B788A; --fresh:#7C9BFF; --danger:#FF7A6E; --ok:#5BD08F; --warn:#F2B437; --warn-ink:#2A1A00; color-scheme:dark }
 
 html,body{height:100%}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.5}
@@ -148,6 +148,26 @@ svg.edges path{fill:none;stroke:var(--edge);stroke-width:1.5}
 .step .open{align-self:flex-start;border:none;background:var(--accent-soft);color:var(--accent);font-size:11px;font-weight:700;border-radius:5px;padding:2px 7px}
 .step.fresh{animation:fresh 1.6s ease-out}
 @keyframes fresh{0%{border-color:var(--fresh);box-shadow:0 0 0 6px var(--accent-soft)}100%{}}
+.step.proposed{opacity:.55;border-style:dashed;border-color:var(--danger)}
+.step .k.rm{color:var(--danger);font-weight:600}
+.warn-dot{position:absolute;top:-8px;right:-8px;width:18px;height:18px;border-radius:50%;background:var(--warn);color:var(--warn-ink);font-size:11px;font-weight:800;display:grid;place-items:center}
+.xlinks{display:flex;flex-direction:column;gap:3px;align-items:flex-start}
+.xlink{border:none;background:var(--sunk);color:var(--ink);font-size:11px;font-weight:600;border-radius:5px;padding:2px 6px;text-align:left;line-height:1.3}
+.xlink:hover{background:var(--accent-soft);color:var(--accent)}
+.xlink.in{color:var(--muted)}
+.step .back{font-size:11px;color:var(--muted);font-weight:500}
+.pill.warn{background:var(--warn);color:var(--warn-ink);border-color:var(--warn);cursor:pointer}
+.edit-last{align-self:flex-end;border:none;background:none;color:var(--muted);font-size:12px;padding:0 4px;margin-top:-6px;text-decoration:underline}
+.msg .fixed{display:block;margin-top:6px;font-size:12px;color:var(--ok)}
+.msg .prop{display:flex;flex-direction:column;gap:6px;margin-top:8px;padding:8px;border-radius:8px;background:var(--surface);border:1px dashed var(--danger)}
+.prop-acts{display:flex;gap:6px}
+.summary{margin-top:8px;padding:10px;border-radius:8px;background:var(--surface);display:flex;flex-direction:column;gap:6px;white-space:normal}
+.summary p,.summary ul{margin:0}.summary ul{padding-left:18px}
+.summary .ok{color:var(--ok)}
+.sum-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;font-variant-numeric:tabular-nums}
+.sum-grid div{display:flex;flex-direction:column}
+.sum-grid b{font-family:var(--f-display);font-size:20px}
+.sum-grid span{font-size:11px;color:var(--muted)}
 .board-empty{position:absolute;inset:0;display:grid;place-items:center;padding:24px}
 .board-empty div{max-width:380px;color:var(--muted);display:flex;flex-direction:column;gap:10px}
 .board-empty h3{color:var(--ink);font-size:20px}
@@ -314,22 +334,39 @@ function ensureOwned(){
 }
 
 /* ---------- Apply one AI or human change ---------- */
-function setStepFields(s, o){
+/* A "turn" carries what this AI turn may and may not do:
+   pre       — step keys (map|id) that existed before the turn; the AI can only PROPOSE removing these
+   alias     — lane ids the AI invented that duplicate an existing lane name, mapped to the existing lane
+   proposals — removals waiting for the person to confirm */
+function newTurn(p){
+  const pre = new Set();
+  Object.values(p.maps).forEach(m => m.steps.forEach(s => pre.add(m.id + '|' + s.id)));
+  return { pre, alias:{}, proposals:[], ops:0 };
+}
+const laneRef = (turn, mapId, id) => (turn?.alias[mapId]?.[id]) || id;
+function setStepFields(s, o, turn, mapId){
   if ('label' in o && o.label) s.label = String(o.label);
-  if (o.lane) s.lane = String(o.lane);
+  if (o.lane) s.lane = laneRef(turn, mapId, String(o.lane));
   if (o.kind && KINDS.includes(o.kind)) s.kind = o.kind;
-  if (Array.isArray(o.uses)) s.uses = o.uses.map(String);
+  if (Array.isArray(o.uses)) s.uses = [...new Set(o.uses.map(u => laneRef(turn, mapId, String(u))))];
 }
 function removeMapTree(p, mapId){
   const m = p.maps[mapId]; if (!m || mapId === 'm_root') return;
   m.steps.forEach(s => s.child && removeMapTree(p, s.child));
   delete p.maps[mapId];
 }
-function applyOp(p, o, who){
+function hardRemoveStep(p, m, s){
+  if (s.child) removeMapTree(p, s.child);
+  m.steps = m.steps.filter(x => x !== s);
+  // drop links to it from every layer
+  Object.values(p.maps).forEach(mm => mm.steps.forEach(x => x.next = x.next.filter(n => !(n.to === s.id && (n.map || mm.id) === m.id))));
+}
+const isInternal = (n, m) => !n.map || n.map === m.id;
+function applyOp(p, o, who, turn){
   if (!o || typeof o !== 'object') return null;
   const m = o.map ? p.maps[o.map] : null;
   const find = (mm, id) => mm?.steps.find(s => s.id === String(id));
-  let touched = null;
+  let touched = null, logOp = o.op;
   switch (o.op){
     case 'rename_process':
       if (o.title){ p.title = String(o.title); p.maps.m_root.title = p.title; touched = 'title'; } break;
@@ -337,61 +374,141 @@ function applyOp(p, o, who){
       if (m && o.title){ m.title = String(o.title); if (m.id === 'm_root') p.title = m.title; touched = 'title'; } break;
     case 'add_lane': case 'update_lane': {
       if (!m || !o.id) break;
-      let l = m.lanes.find(l => l.id === String(o.id));
-      if (l){ if (o.name) l.name = String(o.name); if (o.type) l.type = normType(o.type); }
-      else if (o.op === 'add_lane') m.lanes.push({ id:String(o.id), name:String(o.name || 'New lane'), type:normType(o.type) });
-      touched = String(o.id); break; }
-    case 'remove_lane':
+      const id = String(o.id);
+      let l = m.lanes.find(l => l.id === id);
+      if (!l && o.op === 'add_lane'){
+        const same = m.lanes.find(x => x.name.trim().toLowerCase() === String(o.name || '').trim().toLowerCase());
+        if (same){ if (turn){ (turn.alias[m.id] ||= {})[id] = same.id; } touched = same.id; logOp = 'merge_duplicate_lane'; break; }
+        m.lanes.push({ id, name:String(o.name || 'New lane'), type:normType(o.type) });
+      } else if (l){ if (o.name) l.name = String(o.name); if (o.type) l.type = normType(o.type); }
+      touched = id; break; }
+    case 'remove_lane': {
       if (!m) break;
-      m.lanes = m.lanes.filter(l => l.id !== String(o.id));
-      m.steps.forEach(s => { if (s.lane === String(o.id)) s.lane = null; s.uses = (s.uses||[]).filter(u => u !== String(o.id)); });
-      touched = String(o.id); break;
+      const id = laneRef(turn, m.id, String(o.id));
+      if (m.steps.some(s => s.lane === id)) break;          // never strand steps
+      m.lanes = m.lanes.filter(l => l.id !== id);
+      m.steps.forEach(s => s.uses = (s.uses||[]).filter(u => u !== id));
+      touched = id; break; }
     case 'add_step': case 'update_step': {
       if (!m || !o.id) break;
       let s = find(m, o.id);
       if (!s){ if (o.op === 'update_step') break; s = { id:String(o.id), lane:null, label:'New step', kind:'task', uses:[], next:[] }; m.steps.push(s); }
-      setStepFields(s, o);
-      if (o.after){ const a = find(m, o.after); if (a && a !== s && !a.next.some(n => n.to === s.id)) a.next.push({ to:s.id, label:o.after_label ? String(o.after_label) : '' }); }
+      setStepFields(s, o, turn, m.id);
+      delete s.proposedRemove;
+      if (o.after){ const a = find(m, o.after); if (a && a !== s && !a.next.some(n => isInternal(n, m) && n.to === s.id)) a.next.push({ to:s.id, label:o.after_label ? String(o.after_label) : '' }); }
       touched = s.id; break; }
     case 'remove_step': {
       const s = find(m, o.id); if (!s) break;
-      if (s.child) removeMapTree(p, s.child);
-      m.steps = m.steps.filter(x => x !== s);
-      m.steps.forEach(x => x.next = x.next.filter(n => n.to !== s.id));
-      touched = s.id; break; }
-    case 'connect': {
-      const a = find(m, o.from), b = find(m, o.to); if (!a || !b || a === b) break;
-      const ex = a.next.find(n => n.to === b.id);
-      if (ex){ if (o.label) ex.label = String(o.label); } else a.next.push({ to:b.id, label:o.label ? String(o.label) : '' });
-      touched = b.id; break; }
-    case 'disconnect': {
+      if (who === 'ai' && turn?.pre.has(m.id + '|' + s.id)){
+        // Something the person already saw: propose, don't delete.
+        if (!s.proposedRemove){ s.proposedRemove = true; turn.proposals.push({ map:m.id, id:s.id, label:s.label }); }
+        touched = s.id; logOp = 'propose_remove'; break;
+      }
+      hardRemoveStep(p, m, s); touched = s.id; break; }
+    case 'connect': case 'link': {
+      const toMapId = o.to_map && p.maps[o.to_map] ? String(o.to_map) : (m && m.id);
+      const a = find(m, o.from), b = find(p.maps[toMapId], o.to); if (!a || !b || a === b) break;
+      const ext = toMapId !== m.id;
+      const ex = a.next.find(n => n.to === b.id && (n.map || m.id) === toMapId);
+      if (ex){ if (o.label) ex.label = String(o.label); }
+      else a.next.push({ to:b.id, label:o.label ? String(o.label) : '', ...(ext ? { map:toMapId } : {}) });
+      if (ext) logOp = 'link';
+      touched = a.id; S.fresh.add(b.id); break; }
+    case 'disconnect': case 'unlink': {
       const a = find(m, o.from); if (!a) break;
-      a.next = a.next.filter(n => n.to !== String(o.to)); touched = a.id; break; }
+      const toMapId = o.to_map || m.id;
+      a.next = a.next.filter(n => !(n.to === String(o.to) && (n.map || m.id) === toMapId)); touched = a.id; break; }
     case 'add_map': {
       const parent = p.maps[o.parent_map], st = find(parent, o.parent_step);
       if (!st || !o.id) break;
       const id = String(o.id);
       if (!p.maps[id]) p.maps[id] = { id, title:String(o.title || st.label), parent:{ map:parent.id, step:st.id }, lanes:[], steps:[] };
       st.kind = 'subprocess'; st.child = id; touched = st.id; break; }
+    case 'done':
+      p.status = 'done'; touched = 'status'; break;
   }
   if (touched){
     S.fresh.add(touched);
-    logEvent(p, { who, op:o.op, map:o.map || o.parent_map || null, id:o.id || o.from || null });
+    if (turn) turn.ops++;
+    logEvent(p, { who, op:logOp, map:o.map || o.parent_map || null, id:o.id || o.from || null });
   }
   return touched;
 }
+/* Remove links that point at steps that no longer exist */
+function tidy(p){
+  Object.values(p.maps).forEach(m => m.steps.forEach(s => {
+    s.next = s.next.filter(n => { const t = p.maps[n.map || m.id]; return t && t.steps.some(x => x.id === n.to); });
+  }));
+}
+
+/* ---------- Checks the system runs after every AI turn ---------- */
+function incomingLinks(p, mapId, stepId){
+  const out = [];
+  Object.values(p.maps).forEach(m => m.steps.forEach(s => s.next.forEach(n => {
+    if (n.to === stepId && n.map === mapId && m.id !== mapId) out.push({ map:m.id, step:s });
+  })));
+  return out;
+}
+function findIssues(p){
+  const out = [];
+  for (const m of Object.values(p.maps)){
+    if (!m.steps.length){ if (m.parent) out.push({ map:m.id, step:m.parent.step, pmap:m.parent.map, text:`“${m.title}” has no steps yet` }); continue; }
+    const laneIds = new Set(m.lanes.map(l => l.id));
+    const into = new Set();
+    m.steps.forEach(s => s.next.forEach(n => { if (isInternal(n, m)) into.add(n.to); }));
+    const names = {};
+    m.lanes.forEach(l => { const k = l.name.trim().toLowerCase(); if (names[k]) out.push({ map:m.id, text:`Two lanes are named “${l.name}”` }); names[k] = 1; });
+    m.steps.forEach(s => {
+      const outs = s.next.length;
+      const internalIn = into.has(s.id) || incomingLinks(p, m.id, s.id).length;
+      if (s.kind !== 'start' && !internalIn && m.steps.length > 1) out.push({ map:m.id, step:s.id, text:`Nothing leads to “${s.label}”` });
+      if (s.kind !== 'end' && !outs) out.push({ map:m.id, step:s.id, text:`“${s.label}” doesn't lead anywhere` });
+      if (s.kind === 'decision'){
+        if (outs < 2) out.push({ map:m.id, step:s.id, text:`Decision “${s.label}” needs at least two outcomes` });
+        else if (s.next.some(n => !n.label)) out.push({ map:m.id, step:s.id, text:`Label each outcome of “${s.label}”` });
+      } else if (outs > 1 && s.next.every(n => !n.label)) out.push({ map:m.id, step:s.id, text:`“${s.label}” splits into ${outs} paths. Is it a decision, or do they happen at the same time?` });
+      if (!laneIds.has(s.lane)) out.push({ map:m.id, step:s.id, text:`No one is assigned to “${s.label}”` });
+      if (s.kind === 'subprocess' && !s.child) out.push({ map:m.id, step:s.id, text:`“${s.label}” has no detail yet` });
+    });
+    if (!m.steps.some(s => s.kind === 'start') && m.steps.length > 1) out.push({ map:m.id, text:`“${m.title}” has no starting point` });
+  }
+  return out;
+}
+
+/* ---------- Never show internal ids to people ---------- */
+function idNames(p){
+  const d = {};
+  for (const m of Object.values(p.maps)){
+    d[m.id] = m.id === 'm_root' ? 'the main flow' : '“' + m.title + '”';
+    m.lanes.forEach(l => { d[l.id] ||= l.name; });
+    m.steps.forEach(s => { d[s.id] ||= '“' + s.label + '”'; });
+  }
+  return d;
+}
+function humanize(p, text){
+  if (!text) return text;
+  const d = idNames(p);
+  return String(text)
+    .replace(/\(\s*(m_[A-Za-z0-9_]+|[a-z]{1,3}\d+[A-Za-z0-9_]*)\s*\)/g, (all, id) => d[id] ? '' : all)
+    .replace(/\b(m_[A-Za-z0-9_]+|[a-z]{1,3}\d+[A-Za-z0-9_]*)\b/g, (id) => d[id] || id)
+    .replace(/“([^”]+)”\s*“\1”/g, '“$1”').replace(/\s{2,}/g, ' ').trim();
+}
 
 /* ---------- Prompt for live mapping ---------- */
-const RULES = `You are the mapping engine of a process-mapping studio. A person describes a process conversationally and you update a structured swim-lane process model as they talk. You also act as a good interviewer: after each change you ask the single most useful follow-up question.
+const RULES = `You are the mapping engine and interviewer of a process-mapping studio. A person describes a process conversationally and you update a structured swim-lane process model as they talk, then ask the single most useful follow-up question.
 
 MODEL
-- A process is a tree of maps. "m_root" is the top level. Any step can be a subprocess whose detail lives in its own child map, which can contain subprocesses of its own (drill-down layers).
+- A process is a tree of maps. "m_root" is the main flow. Any step can be a subprocess whose detail lives in its own child map, which can hold subprocesses of its own (drill-down layers).
+- When a child map reaches an "end" step, the flow automatically continues after its parent subprocess step. Use "link" only to JUMP somewhere else, including to a step in a different layer (for example, back to the first step of the main flow).
 - Each map has lanes and steps.
-  - Lane types: "person" (a role or type of user, e.g. "Cook", "Driver", "Parent"; use roles, not personal names unless the user gives them) and "system" (technology: apps, tools, databases, devices).
+  - Lane types: "person" (a role or type of user) and "system" (technology: apps, tools, databases, devices).
+  - Use the person's own words for roles. Only create a role the person named or clearly implied ("the project team", not an invented "QA Tester"). If you are unsure who does a step, put it in the closest named role and ask.
+  - In a child map, reuse the parent's lane names; never create two lanes with the same name in one map.
   - Step kinds: start, task, decision, subprocess, end. Every step sits in exactly one lane.
-  - A person doing something in a tool: put the step in the person's lane and list the tool lane in "uses". Put a step in a system lane only when the technology acts on its own (sends, stores, calculates, triggers).
-  - Decisions have one outgoing connection per outcome, each labeled ("Yes"/"No" or the real outcomes).
-- Ids must be unique across the WHOLE process. Lanes: l1, l2...; steps: s1, s2...; child maps: m_<stepId>. Never reuse an existing id for something new; check the current model.
+  - A person doing something in a tool: put the step in the person's lane and list the tool lane in "uses". Put a step in a system lane only when the technology acts on its own.
+  - Decisions have one outgoing connection per outcome, each labeled with the real outcome.
+- Every step except a start must have something leading to it, and every step except an end must lead somewhere (inside its map or by a link). Connect every step you add.
+- Ids must be unique across the WHOLE process. Lanes: l1, l2...; steps: s1, s2...; child maps: m_<stepId>. Never reuse an id for something new.
 
 CHANGES — reply with ONLY JSON objects, exactly one per line, no code fences, no prose:
 {"op":"rename_process","title":"..."}
@@ -404,32 +521,71 @@ CHANGES — reply with ONLY JSON objects, exactly one per line, no code fences, 
 {"op":"remove_step","map":"m_root","id":"s1"}
 {"op":"connect","map":"m_root","from":"s1","to":"s2","label":"Yes"}
 {"op":"disconnect","map":"m_root","from":"s1","to":"s2"}
+{"op":"link","map":"m_s11","from":"s22","to_map":"m_root","to":"s1","label":"New scope"}
+{"op":"unlink","map":"m_s11","from":"s22","to_map":"m_root","to":"s1"}
 {"op":"add_map","id":"m_s4","parent_map":"m_root","parent_step":"s4","title":"..."}
-LAST LINE, always: {"op":"reply","say":"One short sentence on what you changed.","ask":"One specific follow-up question that fills the biggest gap (who, what triggers it, what tool, what happens when it goes wrong)."}
+{"op":"done"}   (only when the person says they are finished)
+LAST LINE, always:
+{"op":"reply","say":"One short sentence on what you changed.","ask":"One follow-up question, or empty.","feedback":{"type":"new_info|answer|correction|confusion|done|other","category":"missing_step|missing_link|wrong_order|wrong_role|wrong_level|lost_content|too_vague|naming|display|other","about":"few words"}}
+"feedback" classifies the person's NEW message: was it new information, an answer to your question, a correction of something you got wrong (and what kind), confusion about the map, or saying they're done.
 
-GUIDANCE
-- Emit lanes before the steps that use them, and a step before connections to it. "after" connects from that earlier step; use "connect" for branches and loops.
-- When the user says a step is made of parts, or names subprocesses, add a subprocess step, then add_map, then fill that child map with its own lanes (repeat lane names as needed) and steps.
-- Change only what the new message implies. Fix the model when the user corrects you. Prefer the map the user is currently viewing unless they clearly mean another level.
+TALKING TO THE PERSON
+- In "say" and "ask", NEVER mention ids (m_root, s11, l2). Refer to steps, lanes and layers by their names, e.g. “Gather requirements” in the main flow.
+- Ask about the biggest gap. Do not re-ask something already answered in the conversation. If no technology is captured yet, ask what tools or systems are used.
+- If the person's message is a correction, fix exactly that and say what you fixed.
+- If the status is DONE, make any change they ask for, do not ask a question (ask ""), and do not re-open the interview.
+
+EDITING
+- Emit lanes before the steps that use them, and a step before connections to it. "after" connects from an earlier step; use "connect" for branches and loops within a map and "link" between layers.
+- When the person says a step is made of parts, or names subprocesses, add a subprocess step, then add_map, then fill that child map.
+- Change only what the new message implies. Do not remove steps to "simplify"; remove a step only when the person says it is wrong or gone. Removals of existing steps are shown to the person for confirmation.
 - Labels: 2-5 words, verb first for tasks, a question for decisions.
 - If the first message names the process, rename the process to a clear title.`;
+
+const REPAIR = `You are checking a swim-lane process model after an edit. Fix ONLY the problems listed, using the same JSON-lines change format (connect, link, update_step, add_step, add_map, update_lane). Use what the conversation says. Do not remove steps. If a problem can only be solved by the person, leave it and put one question about it in "ask". Never mention ids in "say" or "ask". End with {"op":"reply","say":"One short sentence on what you fixed, or empty.","ask":"..."}`;
 
 function compactModel(p){
   const maps = {};
   for (const m of Object.values(p.maps)){
     maps[m.id] = { title:m.title, parent:m.parent, lanes:m.lanes.map(l=>[l.id,l.name,l.type]),
-      steps:m.steps.map(s=>({ id:s.id, lane:s.lane, label:s.label, kind:s.kind, ...(s.uses?.length?{uses:s.uses}:{}), ...(s.next.length?{next:s.next.map(n=>n.label?[n.to,n.label]:n.to)}:{}), ...(s.child?{child:s.child}:{}) })) };
+      steps:m.steps.map(s=>({ id:s.id, lane:s.lane, label:s.label, kind:s.kind, ...(s.uses?.length?{uses:s.uses}:{}),
+        ...(s.next.length?{next:s.next.map(n=> n.map && n.map !== m.id ? ['→'+n.map, n.to, n.label||''] : n.label ? [n.to,n.label] : n.to)}:{}),
+        ...(s.child?{child:s.child}:{}), ...(s.proposedRemove?{pending_removal:true}:{}) })) };
   }
-  return JSON.stringify({ title:p.title, maps });
+  return JSON.stringify({ title:p.title, status:p.status === 'done' ? 'DONE' : 'interviewing', maps });
+}
+function convoText(history){
+  return history.map(x => x.role === 'user' ? 'User: ' + x.content : 'You: ' + x.content + (x.ask ? ' ' + x.ask : '')).join('\n');
 }
 function buildPrompt(p, mapId, history, text){
   const m = p.maps[mapId];
-  const convo = history.map(x => x.role === 'user' ? 'User: ' + x.content : 'You: ' + x.content + (x.ask ? ' ' + x.ask : '')).join('\n');
+  const hasTech = Object.values(p.maps).some(mm => mm.lanes.some(l => l.type === 'system'));
+  const userTurns = history.filter(x => x.role === 'user').length;
+  const convo = convoText(history);
   return RULES +
-    '\n\nCURRENT MODEL (lanes are [id,name,type]; next entries are a step id or [id,label]):\n' + compactModel(p) +
-    '\n\nThe user is viewing map "' + mapId + '" (' + (m?.title || '') + ').' +
+    '\n\nCURRENT MODEL (lanes are [id,name,type]; next entries are a step id, [id,label], or ["→mapId", stepId, label] for a link to another layer):\n' + compactModel(p) +
+    '\n\nThe person is viewing the map "' + mapId + '" (' + (m?.title || '') + ').' +
+    (p.status === 'done' ? '\nSTATUS: DONE. The person said they are finished.' : '') +
+    (!hasTech && userTurns >= 1 ? '\nNote: no technology has been captured yet.' : '') +
     (convo ? '\n\nCONVERSATION SO FAR:\n' + convo : '') +
-    '\n\nNEW MESSAGE FROM USER:\n' + text + '\n\nReply now with JSON lines only.';
+    '\n\nNEW MESSAGE FROM THE PERSON:\n' + text + '\n\nReply now with JSON lines only.';
+}
+function buildRepair(p, issues, history){
+  return REPAIR + '\n\nMODEL:\n' + compactModel(p) +
+    '\n\nPROBLEMS:\n' + issues.map(i => '- in map ' + i.map + (i.step ? ' (step ' + i.step + ')' : '') + ': ' + i.text).join('\n') +
+    '\n\nCONVERSATION:\n' + convoText(history.slice(-10)) + '\n\nReply now with JSON lines only.';
+}
+
+/* ---------- Similarity, for "I retyped that" ---------- */
+function similar(a, b){
+  a = a.trim().toLowerCase(); b = b.trim().toLowerCase();
+  if (!a || !b || a === b) return a === b;
+  if (Math.max(a.length, b.length) > 240) return false;
+  const dp = Array.from({length:a.length + 1}, (_, i) => [i]);
+  for (let j = 1; j <= b.length; j++) dp[0][j] = j;
+  for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++)
+    dp[i][j] = Math.min(dp[i-1][j] + 1, dp[i][j-1] + 1, dp[i-1][j-1] + (a[i-1] === b[j-1] ? 0 : 1));
+  return 1 - dp[a.length][b.length] / Math.max(a.length, b.length) >= 0.7;
 }
 
 /* ---------- Talk to the mapper ---------- */
@@ -440,53 +596,160 @@ const ERR = {
   session_expired:'Your session expired. Sign in to Claude again.',
   refused:'That message could not be mapped. Try describing it differently.',
 };
-async function send(text){
-  text = (text || '').trim();
-  if (!text || S.busy) return;
-  ensureOwned();
-  const p = S.cur;
-  if (!S.sample){ p.chat.push({ role:'note', content:'AI mapping is not available in this view. Open the page inside Claude to use it.' }); renderWork(); return; }
-  const mapId = curMap().id;
-  const history = p.chat.filter(x => x.role === 'user' || x.role === 'assistant').slice(-12);
-  p.chat.push({ role:'user', content:text });
-  const reply = { role:'assistant', content:'', pending:true, ops:0 };
-  p.chat.push(reply);
-  S.busy = true; $('#msg').value = ''; renderWork();
-  const ctl = new AbortController(); S.ctl = ctl;
+function lastUserIndex(p){ for (let i = p.chat.length - 1; i >= 0; i--) if (p.chat[i].role === 'user') return i; return -1; }
+/* Put the map back to how it was before the last message, and take that message out of the conversation */
+function rewindLast(p){
+  const i = lastUserIndex(p); if (i < 0 || !p.undo || p.undo.chatIndex !== i) return null;
+  const text = p.chat[i].content;
+  p.maps = clone(p.undo.maps); p.title = p.undo.title; p.status = p.undo.status;
+  p.chat = p.chat.slice(0, i); p.undo = null;
+  S.path = S.path.filter(id => p.maps[id]); if (!S.path.length) S.path = ['m_root'];
+  S.sel = null;
+  return text;
+}
+function editLast(){
+  if (S.busy) return;
+  const p = S.cur; const text = rewindLast(p); if (text == null) return;
+  logEvent(p, { who:'human', op:'edit_message' });
+  touch(); renderWork();
+  const msg = $('#msg'); msg.value = text; msg.focus();
+}
+async function runSample(prompt, onLine, ctl){
   let buf = '';
   const eat = raw => {
     const line = raw.trim().replace(/^```(?:json)?/, '').replace(/```$/, '').replace(/,$/, '').trim();
     if (!line.startsWith('{')) return;
-    let o; try { o = JSON.parse(line); } catch { return; }
-    if (o.op === 'reply'){ reply.content = String(o.say || ''); reply.ask = o.ask ? String(o.ask) : ''; }
-    else if (applyOp(p, o, 'ai')) reply.ops++;
-    queueRender();
+    try { onLine(JSON.parse(line)); } catch {}
   };
   try {
-    await S.sample(buildPrompt(p, mapId, history, text), {
-      cache:false, signal:ctl.signal, modelTier:S.deep ? 'default' : 'quick',
-      onText: ({ delta }) => { const lines = (buf + delta).split('\n'); buf = lines.pop(); lines.forEach(eat); }
-    });
-    if (buf.trim()) eat(buf);
+    await S.sample(prompt, { cache:false, signal:ctl.signal, modelTier:S.deep ? 'default' : 'quick',
+      onText: ({ delta }) => { const lines = (buf + delta).split('\n'); buf = lines.pop(); lines.forEach(eat); } });
+  } finally { if (buf.trim()) eat(buf); }
+}
+async function send(text){
+  text = (text || '').trim();
+  if (!text || S.busy) return;
+  ensureOwned();
+  let p = S.cur;
+  if (!S.sample){ p.chat.push({ role:'note', content:'AI mapping is not available in this view. Open the page inside Claude to use it.' }); renderWork(); return; }
+
+  // A near-copy of the last message is a retype: replace it instead of stacking a new instruction on top.
+  const li = lastUserIndex(p);
+  let retyped = false;
+  if (li >= 0 && p.undo && p.undo.chatIndex === li && similar(p.chat[li].content, text) && p.chat[li].content.trim() !== text){
+    rewindLast(p); retyped = true; logEvent(p, { who:'human', op:'retype_message' });
+  }
+
+  const mapId = curMap().id;
+  const history = p.chat.filter(x => x.role === 'user' || x.role === 'assistant').slice(-12);
+  p.undo = { maps:clone(p.maps), title:p.title, status:p.status || 'interviewing', chatIndex:p.chat.length };
+  p.chat.push({ role:'user', content:text });
+  if (retyped) p.chat.push({ role:'note', content:'Treated this as a corrected version of your last message.' });
+  const reply = { role:'assistant', content:'', pending:true, ops:0 };
+  p.chat.push(reply);
+  S.busy = true; $('#msg').value = ''; renderWork();
+  const ctl = new AbortController(); S.ctl = ctl;
+  const turn = newTurn(p);
+  const before = new Set(findIssues(p).map(i => i.map + '|' + (i.step || '') + '|' + i.text));
+  let feedback = null;
+
+  try {
+    await runSample(buildPrompt(p, mapId, history, text), o => {
+      if (o.op === 'reply'){ reply.content = String(o.say || ''); reply.ask = o.ask ? String(o.ask) : ''; feedback = o.feedback || null; }
+      else applyOp(p, o, 'ai', turn);
+      reply.ops = turn.ops; queueRender();
+    }, ctl);
+
+    // Check the map before the person has to point anything out.
+    tidy(p);
+    const fresh = findIssues(p).filter(i => !before.has(i.map + '|' + (i.step || '') + '|' + i.text));
+    if (fresh.length && turn.ops && !ctl.signal.aborted){
+      reply.checking = true; queueRender();
+      logEvent(p, { who:'system', op:'check_found', count:fresh.length, items:fresh.map(i => i.text).slice(0, 8) });
+      let fix = null;
+      await runSample(buildRepair(p, fresh, [...history, { role:'user', content:text }]), o => {
+        if (o.op === 'reply') fix = o; else applyOp(p, o, 'ai', turn);
+        reply.ops = turn.ops; queueRender();
+      }, ctl).catch(() => {});
+      tidy(p);
+      const left = findIssues(p).filter(i => !before.has(i.map + '|' + (i.step || '') + '|' + i.text));
+      logEvent(p, { who:'system', op:'check_repaired', fixed:fresh.length - left.length, left:left.length });
+      if (fix?.say) reply.fixed = String(fix.say);
+      if (fix?.ask && !reply.ask && p.status !== 'done') reply.ask = String(fix.ask);
+      reply.checking = false;
+    }
   } catch (e){
-    if (buf.trim()) eat(buf);
     if (e?.code !== 'cancelled'){ reply.err = true; reply.content = ERR[e?.code] || 'The mapper was interrupted. Send your message again.'; }
     else if (!reply.content) reply.content = 'Stopped.';
   }
+
+  if (feedback && typeof feedback === 'object'){
+    logEvent(p, { who:'human', op:'chat_feedback', type:String(feedback.type || 'other'), category:String(feedback.category || ''), about:String(feedback.about || '').slice(0, 80) });
+  }
+  if (turn.proposals.length) reply.proposals = { items:turn.proposals, state:'open' };
+  if (p.status === 'done'){ reply.ask = ''; reply.summary = true; }
+  reply.content = humanize(p, reply.content); reply.ask = humanize(p, reply.ask); reply.fixed = humanize(p, reply.fixed);
   reply.pending = false;
-  if (!reply.content) reply.content = reply.ops ? 'Updated the map.' : 'I could not turn that into changes. Try describing who does what, in order.';
+  if (!reply.content) reply.content = turn.ops ? 'Updated the map.' : 'I could not turn that into changes. Try describing who does what, in order.';
   S.busy = false; S.ctl = null;
   touch(); renderWork();
+}
+
+/* Removals the AI proposed, waiting on the person */
+function resolveProposal(msgIndex, accept){
+  ensureOwned();
+  const p = S.cur, msg = p.chat[msgIndex]; if (!msg?.proposals || msg.proposals.state !== 'open') return;
+  for (const it of msg.proposals.items){
+    const m = p.maps[it.map]; const s = m?.steps.find(x => x.id === it.id); if (!s || !s.proposedRemove) continue;
+    if (accept) hardRemoveStep(p, m, s); else delete s.proposedRemove;
+  }
+  msg.proposals.state = accept ? 'removed' : 'kept';
+  logEvent(p, { who:'human', op:accept ? 'confirm_remove' : 'reject_remove', count:msg.proposals.items.length });
+  tidy(p); touch(); renderWork();
+}
+
+/* Finish / resume */
+function finish(){
+  if (S.busy) return;
+  ensureOwned(); const p = S.cur; p.status = 'done';
+  logEvent(p, { who:'human', op:'finish' });
+  p.chat.push({ role:'assistant', content:'Marked this map as finished.', summary:true });
+  touch(); renderWork();
+}
+function resume(){
+  ensureOwned(); const p = S.cur; p.status = 'interviewing';
+  logEvent(p, { who:'human', op:'resume' });
+  p.chat.push({ role:'note', content:'Back to mapping. I’ll ask questions again.' });
+  touch(); renderWork();
+}
+function summaryHTML(p){
+  const maps = Object.values(p.maps);
+  let steps = 0, people = new Set(), tech = new Set();
+  maps.forEach(m => { steps += m.steps.length; m.lanes.forEach(l => (l.type === 'system' ? tech : people).add(l.name)); });
+  const issues = findIssues(p);
+  return `<div class="summary">
+    <div class="label">Map summary</div>
+    <div class="sum-grid"><div><b>${steps}</b><span>steps</span></div><div><b>${stats(p).depth}</b><span>layers</span></div><div><b>${people.size}</b><span>people</span></div><div><b>${tech.size}</b><span>technology</span></div></div>
+    ${people.size ? `<p><span class="label">People</span> ${esc([...people].join(', '))}</p>` : ''}
+    <p><span class="label">Technology</span> ${tech.size ? esc([...tech].join(', ')) : 'None captured'}</p>
+    ${issues.length ? `<p><span class="label">Still to check</span></p><ul>${issues.slice(0,5).map(i => `<li>${esc(i.text)}</li>`).join('')}</ul>` : '<p class="ok">Every step is connected.</p>'}
+  </div>`;
 }
 
 /* ---------- Saving ---------- */
 let saveTimer = null, saving = false, dirty = false;
 function setSave(t){ S.save = t; const el = $('#save'); if (el) el.textContent = t; }
+function keptUndo(p){
+  // the saved chat keeps the last 40 messages; keep the undo point only if its message survives
+  const live = p.chat.filter(x => !x.pending); const drop = Math.max(0, live.length - 40);
+  if (!p.undo || p.chat.some(x => x.pending) || p.undo.chatIndex < drop) return null;
+  return { ...p.undo, chatIndex:p.undo.chatIndex - drop };
+}
 function serialize(p){
   const st = stats(p);
   return { id:p.id, title:p.title, visibility:p.visibility, ownerId:p.ownerId || S.uid, updatedAt:p.updatedAt,
     stepCount:st.steps, depth:st.depth, laneTypes:st.lanes.map(l=>l.type).slice(0,8),
-    maps:p.maps, chat:p.chat.filter(x=>!x.pending).slice(-40), events:(p.events||[]).slice(-300) };
+    status:p.status || 'interviewing', maps:p.maps, undo:keptUndo(p), chat:p.chat.filter(x=>!x.pending).slice(-40), events:(p.events||[]).slice(-300) };
 }
 function refFor(p){ return p.visibility === 'public' ? S.db.collection('public').doc(p.id) : S.db.collection('data/users/' + S.uid).doc(p.id); }
 function touch(){ if (!S.cur || S.cur.example) return; S.cur.updatedAt = Date.now(); dirty = true; clearTimeout(saveTimer); saveTimer = setTimeout(flush, 900); setSave('Unsaved changes'); }
@@ -528,7 +791,7 @@ const L = { HEAD:150, COL:196, BOXW:158, BOXH:60, ROWGAP:16, PADX:28, PADY:16, B
 function layout(m){
   const ids = new Set(m.steps.map(s => s.id));
   const preds = {}; m.steps.forEach(s => preds[s.id] = []);
-  m.steps.forEach(s => s.next.forEach(n => { if (ids.has(n.to)) preds[n.to].push(s.id); }));
+  m.steps.forEach(s => s.next.forEach(n => { if (isInternal(n, m) && ids.has(n.to)) preds[n.to].push(s.id); }));
   const col = {}, visiting = new Set();
   const depth = id => {
     if (id in col) return col[id]; if (visiting.has(id)) return -1;
@@ -651,7 +914,7 @@ function renderWorkShell(app){
         <textarea id="msg" placeholder="Describe the process in your own words… (tip: use your keyboard's dictation to talk instead of type)" aria-label="Describe the process"></textarea>
         <div class="composer-row">
           <label class="toggle"><input type="checkbox" id="deep"> Deeper thinking (slower)</label>
-          <div style="display:flex;gap:8px"><button class="btn" id="stop" hidden>Stop</button><button class="btn primary" id="sendb">Send</button></div>
+          <div style="display:flex;gap:8px"><button class="btn" id="finish">Finish map</button><button class="btn" id="stop" hidden>Stop</button><button class="btn primary" id="sendb">Send</button></div>
         </div>
       </div>
     </aside>
@@ -667,12 +930,19 @@ function renderWorkShell(app){
   msg.onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); send(msg.value); } };
   $('#sendb').onclick = () => send(msg.value);
   $('#stop').onclick = () => S.ctl?.abort();
+  $('#finish').onclick = () => S.cur?.status === 'done' ? resume() : finish();
   $('#deep').checked = S.deep; $('#deep').onchange = e => S.deep = e.target.checked;
   $('#tabs').onclick = e => { const t = e.target.closest('[data-tab]'); if (!t) return; S.tab = t.dataset.tab; renderWork(); };
-  $('#msgs').onclick = e => { const b = e.target.closest('[data-starter]'); if (b) send(b.dataset.starter); };
+  $('#msgs').onclick = e => {
+    const b = e.target.closest('[data-starter]'); if (b){ send(b.dataset.starter); return; }
+    if (e.target.closest('[data-edit]')){ editLast(); return; }
+    const pr = e.target.closest('[data-prop]'); if (pr){ resolveProposal(+pr.dataset.idx, pr.dataset.prop === 'remove'); return; }
+    const j = e.target.closest('[data-jump]'); if (j) jumpTo(j.dataset.jump, j.dataset.step);
+  };
   $('#board').onclick = onBoardClick;
   $('#crumbs').onclick = e => {
     const c = e.target.closest('[data-depth]'); if (c){ S.path = S.path.slice(0, +c.dataset.depth + 1); S.sel = null; renderWork(); return; }
+    const is = e.target.closest('[data-issue]'); if (is){ S.sel = is.dataset.issue || null; S.tab = 'map'; renderWork(); document.querySelector(`[data-step="${CSS.escape(S.sel || '')}"]`)?.scrollIntoView({block:'center', inline:'center', behavior:'smooth'}); return; }
     const v = e.target.closest('[data-pub]'); if (!v) return;
     if (v.dataset.pub === 'ask'){ S.confirmPublic = true; renderWork(); }
     else if (v.dataset.pub === 'yes') makePublic();
@@ -692,6 +962,7 @@ function renderWork(fromStream){
   $('#work').dataset.tab = S.tab;
   document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === S.tab));
   $('#stop').hidden = !S.busy; $('#sendb').disabled = S.busy;
+  const fb = $('#finish'); fb.textContent = p.status === 'done' ? 'Resume interview' : 'Finish map'; fb.disabled = S.busy;
   renderMsgs(); renderCrumbs(); renderBoard(); renderInspector();
   if (S.fresh.size){ const f = S.fresh; setTimeout(() => { f.forEach(id => document.querySelector(`[data-step="${CSS.escape(id)}"]`)?.classList.remove('fresh')); }, 1700); S.fresh = new Set(); }
 }
@@ -704,18 +975,33 @@ function renderMsgs(){
     <div class="starters"><div class="label">Or start with</div>${STARTERS.map(s => `<button class="starter" data-starter="${esc(s)}">${esc(s)}</button>`).join('')}</div>`;
     return;
   }
-  el.innerHTML = p.chat.map(m => {
+  const lastU = lastUserIndex(p);
+  const canEdit = !S.busy && p.undo && p.undo.chatIndex === lastU;
+  el.innerHTML = p.chat.map((m, i) => {
     if (m.role === 'note') return `<div class="msg note">${esc(m.content)}</div>`;
-    if (m.role === 'user') return `<div class="msg user">${esc(m.content)}</div>`;
-    if (m.pending && !m.content) return `<div class="msg assistant"><span class="thinking"><i></i><i></i><i></i>&nbsp;${m.ops ? 'Mapping · ' + m.ops + ' change' + (m.ops === 1 ? '' : 's') : 'Listening'}</span></div>`;
-    return `<div class="msg assistant${m.err ? ' err' : ''}">${esc(m.content)}${m.ask ? `<span class="ask">${esc(m.ask)}</span>` : ''}${m.ops ? `<span class="ops">${m.ops} change${m.ops === 1 ? '' : 's'} to the map</span>` : ''}</div>`;
+    if (m.role === 'user') return `<div class="msg user">${esc(m.content)}</div>${i === lastU && canEdit ? '<button class="edit-last" data-edit>Edit message</button>' : ''}`;
+    if (m.pending && !m.content) return `<div class="msg assistant"><span class="thinking"><i></i><i></i><i></i>&nbsp;${m.checking ? 'Checking the map' : m.ops ? 'Mapping · ' + m.ops + ' change' + (m.ops === 1 ? '' : 's') : 'Listening'}</span></div>`;
+    let x = `<div class="msg assistant${m.err ? ' err' : ''}">${esc(m.content)}`;
+    if (m.fixed) x += `<span class="fixed">Checked the map: ${esc(m.fixed)}</span>`;
+    if (m.proposals){
+      const names = m.proposals.items.map(it => '“' + it.label + '”').join(', ');
+      x += m.proposals.state === 'open'
+        ? `<span class="prop">Remove ${esc(names)}? They're marked on the map.<span class="prop-acts"><button class="btn danger" data-prop="remove" data-idx="${i}">Remove</button><button class="btn" data-prop="keep" data-idx="${i}">Keep</button></span></span>`
+        : `<span class="ops">${m.proposals.state === 'removed' ? 'Removed' : 'Kept'} ${esc(names)}</span>`;
+    }
+    if (m.summary && i === p.chat.length - 1) x += summaryHTML(p);
+    if (m.ask) x += `<span class="ask">${esc(m.ask)}</span>`;
+    if (m.ops) x += `<span class="ops">${m.ops} change${m.ops === 1 ? '' : 's'} to the map</span>`;
+    return x + '</div>';
   }).join('');
   if (nearBottom || S.busy) el.scrollTop = el.scrollHeight;
 }
 
 function renderCrumbs(){
   const p = S.cur, ev = p.events || [];
-  const ai = ev.filter(e => e.who === 'ai').length, hu = ev.filter(e => e.who === 'human').length;
+  const ai = ev.filter(e => e.who === 'ai').length;
+  const hu = ev.filter(e => e.who === 'human' && (e.op !== 'chat_feedback' || e.type === 'correction' || e.type === 'confusion')).length;
+  const here = findIssues(p).filter(i => i.map === curMap().id);
   const totalDepth = stats(p).depth;
   const crumbs = S.path.map((id, i) => {
     const m = p.maps[id]; const last = i === S.path.length - 1;
@@ -727,7 +1013,8 @@ function renderCrumbs(){
   $('#crumbs').innerHTML = `${crumbs}
     <span class="depth" title="Layer ${S.path.length} of ${totalDepth}">${Array.from({length:Math.max(totalDepth,S.path.length)},(_,i)=>`<b class="${i < S.path.length ? 'on' : ''}"></b>`).join('')}</span>
     <span class="spacer"></span>
-    <span class="signal" title="Every AI change and human correction is kept as learning signal">${ai} AI changes · ${hu} human edits</span>
+    ${here.length ? `<button class="pill warn" data-issue="${esc(here[0].step || '')}" title="${esc(here.map(i => i.text).join('\n'))}">${here.length} to check</button>` : ''}
+    <span class="signal" title="Every AI change and human correction is kept as learning signal">${ai} AI changes · ${hu} corrections</span>
     ${pub}`;
 }
 
@@ -747,6 +1034,7 @@ function renderBoard(){
   let paths = '', labels = '';
   const byId = Object.fromEntries(m.steps.map(s => [s.id, s]));
   m.steps.forEach(s => s.next.forEach((n, k) => {
+    if (!isInternal(n, m)) return;
     const a = g.pos[s.id], z = g.pos[n.to]; if (!a || !z || !byId[n.to]) return;
     const ay = a.y + L.BOXH / 2, zy = z.y + L.BOXH / 2;
     let d, lx, ly;
@@ -767,19 +1055,38 @@ function renderBoard(){
   html += `<svg class="edges" width="${g.width}" height="${g.height}" aria-hidden="true"><defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--edge);stroke:none"/></marker></defs>${paths}</svg>`;
   html += labels;
   const laneName = Object.fromEntries(m.lanes.map(l => [l.id, l.name]));
+  const P = S.cur;
+  const issueAt = {}; findIssues(P).forEach(i => { if (i.map === m.id && i.step) (issueAt[i.step] ||= []).push(i.text); });
+  const parentStep = m.parent ? P.maps[m.parent.map]?.steps.find(x => x.id === m.parent.step) : null;
   m.steps.forEach(s => {
     const q = g.pos[s.id];
-    const kids = s.child ? countSteps(S.cur, s.child) : 0;
-    html += `<div class="step ${s.kind}${S.sel === s.id ? ' sel' : ''}${S.fresh.has(s.id) ? ' fresh' : ''}" data-step="${esc(s.id)}" role="button" tabindex="0" style="left:${q.x}px;top:${q.y}px">
+    const kids = s.child ? countSteps(P, s.child) : 0;
+    const outs = s.next.filter(n => !isInternal(n, m)).map(n => { const tm = P.maps[n.map], ts = tm?.steps.find(x => x.id === n.to); return ts ? `<button class="xlink" data-jump="${esc(tm.id)}" data-step="${esc(ts.id)}" title="${esc(n.label || '')}">↗ ${esc(ts.label)} · ${esc(tm.id === 'm_root' ? 'main flow' : tm.title)}</button>` : ''; }).join('');
+    const ins = incomingLinks(P, m.id, s.id).map(r => `<button class="xlink in" data-jump="${esc(r.map)}" data-step="${esc(r.step.id)}">↙ from ${esc(P.maps[r.map].title)}</button>`).join('');
+    const back = s.kind === 'end' && parentStep && !s.next.length ? `<span class="back">↩ continues after “${esc(parentStep.label)}”</span>` : '';
+    html += `<div class="step ${s.kind}${S.sel === s.id ? ' sel' : ''}${S.fresh.has(s.id) ? ' fresh' : ''}${s.proposedRemove ? ' proposed' : ''}" data-step="${esc(s.id)}" role="button" tabindex="0" style="left:${q.x}px;top:${q.y}px">
+      ${issueAt[s.id] ? `<span class="warn-dot" title="${esc(issueAt[s.id].join('\n'))}" aria-label="${esc(issueAt[s.id].join('. '))}">!</span>` : ''}
+      ${s.proposedRemove ? '<span class="k rm">Remove?</span>' : ''}
       ${s.kind === 'decision' ? '<span class="k">◇ decision</span>' : s.kind === 'subprocess' ? '<span class="k">▤ subprocess</span>' : ''}
       <span>${esc(s.label)}</span>
       ${s.uses?.length ? `<span class="uses">${s.uses.filter(u => laneName[u]).map(u => `<span>${esc(laneName[u])}</span>`).join('')}</span>` : ''}
       ${s.kind === 'subprocess' ? `<button class="open" data-drill="${esc(s.id)}">${s.child ? 'Open · ' + kids + ' steps' : 'Open · empty'} ↘</button>` : ''}
+      ${back}${outs || ins ? `<span class="xlinks">${outs}${ins}</span>` : ''}
     </div>`;
   });
   b.innerHTML = html;
 }
 
+function pathTo(mapId){
+  const p = S.cur, out = []; let m = p.maps[mapId], guard = 0;
+  while (m && guard++ < 30){ out.unshift(m.id); m = m.parent ? p.maps[m.parent.map] : null; }
+  return out[0] === 'm_root' ? out : ['m_root'];
+}
+function jumpTo(mapId, stepId){
+  if (!S.cur.maps[mapId]) return;
+  S.path = pathTo(mapId); S.sel = stepId || null; S.tab = 'map'; renderWork();
+  if (stepId) document.querySelector(`[data-step="${CSS.escape(stepId)}"]`)?.scrollIntoView({block:'center', inline:'center', behavior:'smooth'});
+}
 function drill(stepId){
   const m = curMap(), s = m.steps.find(x => x.id === stepId); if (!s) return;
   if (!s.child){
@@ -796,6 +1103,7 @@ function drill(stepId){
 }
 function onBoardClick(e){
   const d = e.target.closest('[data-drill]'); if (d){ e.stopPropagation(); drill(d.dataset.drill); return; }
+  const j = e.target.closest('[data-jump]'); if (j){ e.stopPropagation(); jumpTo(j.dataset.jump, j.dataset.step); return; }
   const st = e.target.closest('[data-step]');
   S.sel = st ? st.dataset.step : null; renderBoard(); renderInspector();
 }
