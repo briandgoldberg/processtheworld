@@ -10,7 +10,7 @@ People explain, demonstrate, record or upload everyday processes. AI turns that 
 
 A Next.js app (same stack as WaitingForPower: Next.js, Prisma, Postgres, Resend, Vercel). The mapper UI lives in `src/studio/studio.js`; the server owns the engine prompts (`src/lib/engine/prompts.ts`) and calls Claude (`ANTHROPIC_MODEL`, default Haiku 5.5).
 
-- **Login like WaitingForPower:** every browser gets a random key and an anonymous handle (e.g. "AmberOtter42"). Adding an email (magic link) keeps maps across devices; an emailed sign-in link restores them on a new device and moves anything made there anonymously into the account. Hashed IPs are used only for rate limits.
+- **Login like WaitingForPower:** every browser gets a random key and an anonymous handle (e.g. "BoldPathfinder42"). Adding an email (magic link) keeps maps across devices; an emailed sign-in link restores them on a new device and moves anything made there anonymously into the account. Hashed IPs are used only for rate limits.
 - **Public processes:** "Make public" publishes a read-only snapshot "Published by" the handle. Opening one and changing anything makes a private copy.
 - **Feedback, kept quiet:** hover thumbs on replies, "Skip this question", one finish rating per map, one check-in per browser, and an always-available Feedback box in the bottom-right corner that captures what's on screen.
 - **Admin dashboard (`/admin`):** only for the verified email briandgoldberg@gmail.com (fixed in code). Overview metrics, feedback inbox, every session with its transcript, AI changes and actions, product suggestions (seeded from review, plus "Suggest changes from recent data"), and a JSONL training export.

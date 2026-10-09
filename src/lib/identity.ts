@@ -1,7 +1,10 @@
 import { prisma } from "./db";
 
-const ADJECTIVES = ["Amber","Brisk","Cedar","Copper","Dusty","Ember","Fern","Golden","Hazel","Indigo","Jade","Kindly","Lunar","Maple","Nimble","Olive","Plucky","Quiet","Rusty","Sunny","Tidy","Umber","Velvet","Willow","Zesty"];
-const NOUNS = ["Otter","Heron","Falcon","Badger","Lynx","Marten","Wren","Beaver","Fox","Owl","Hare","Finch","Puffin","Ibex","Koala","Lark","Moose","Newt","Panda","Robin","Seal","Tern","Vole","Yak","Zebra"];
+// Handles celebrate exploring and inventing, e.g. "BoldPathfinder42".
+const ADJECTIVES = ["Bold","Brave","Bright","Clever","Curious","Daring","Eager","Fearless","Intrepid","Inventive","Keen","Nimble","Plucky","Quick","Restless","Roaming","Spirited","Steady","Swift","Tireless","Trusty","Valiant","Visionary","Wandering","Wild"];
+const NOUNS = ["Adventurer","Builder","Cartographer","Discoverer","Explorer","Founder","Innovator","Inventor","Mapmaker","Maker","Navigator","Pathfinder","Pioneer","Ranger","Scout","Seeker","Tinkerer","Trailblazer","Traveler","Voyager","Wayfinder"];
+// Handles from the first naming scheme (animals); anonymous profiles still on one get a new handle.
+const LEGACY = /^(Amber|Brisk|Cedar|Copper|Dusty|Ember|Fern|Golden|Hazel|Indigo|Jade|Kindly|Lunar|Maple|Nimble|Olive|Plucky|Quiet|Rusty|Sunny|Tidy|Umber|Velvet|Willow|Zesty)(Otter|Heron|Falcon|Badger|Lynx|Marten|Wren|Beaver|Fox|Owl|Hare|Finch|Puffin|Ibex|Koala|Lark|Moose|Newt|Panda|Robin|Seal|Tern|Vole|Yak|Zebra)\d+$/;
 
 async function freshHandle(): Promise<string> {
   for (let i = 0; i < 20; i++) {
@@ -16,6 +19,9 @@ export const validKey = (k: unknown): k is string => typeof k === "string" && k.
 export async function getOrCreateUser(anonKey: string, ipHash: string | null) {
   const existing = await prisma.user.findUnique({ where: { anonKey } });
   if (existing) {
+    if (LEGACY.test(existing.handle)) {
+      return prisma.user.update({ where: { id: existing.id }, data: { handle: await freshHandle(), lastSeenAt: new Date() } });
+    }
     if (Date.now() - existing.lastSeenAt.getTime() > 10 * 60 * 1000) {
       await prisma.user.update({ where: { id: existing.id }, data: { lastSeenAt: new Date() } });
     }
