@@ -111,7 +111,7 @@ const EXAMPLES = [EX_EGG, EX_CAR, EX_TEA];
 
 /* ---------- State ---------- */
 const S = { view:'login', me:null, ready:false,
-  guide:null, painView:false, q:'', tag:'', zoom:1, zoomAuto:true, detail:'auto', zoomKey:'', tool:'select', space:false, playing:false, playNow:null, playSeen:{}, drawNow:false,
+  voice:{ on:false, state:'idle', mute:false, note:'' }, guide:null, painView:false, q:'', tag:'', zoom:1, zoomAuto:true, detail:'auto', zoomKey:'', tool:'select', space:false, playing:false, playNow:null, playSeen:{}, drawNow:false,
   mine:[], shared:[], pub:[], cur:null, real:null, compare:null, panel:null, panelMsg:'', path:['m_root'], sel:null, busy:false, ctl:null,
   fresh:new Set(), save:'', tab:'chat', deep:false, confirmPub:false, confirmDel:null, acct:false, notice:'', toast:'',
   sessionTurns:0, askedThisSession:false, lastTurnId:null };
@@ -399,6 +399,111 @@ function similar(a, b){
 }
 
 /* ---------- Talk to the mapper ---------- */
+/* Audio mode: talk to the interviewer. It listens, builds the map, then speaks its next question back. */
+const SRec = typeof window !== 'undefined' ? (window.SpeechRecognition || window.webkitSpeechRecognition) : null;
+const voiceOK = () => !!SRec && typeof speechSynthesis !== 'undefined';
+let rec = null, recTimer = 0, recFinal = '', recActive = false, voiceGen = 0;
+const VOICE_OPENER = "Tell me about a process: what it's called, who's involved, and what happens first.";
+function setVoice(state, note){ S.voice.state = state; S.voice.note = note || ''; renderVoice(); }
+function renderVoice(){
+  const b = $('#voice'); if (b) b.classList.toggle('on', S.voice.on);
+  const el = $('#voicepanel'); if (!el) return;
+  const v = S.voice;
+  if (!v.on){ el.innerHTML = ''; return; }
+  const label = { listening:'Listening…', thinking:'Thinking…', speaking:'Speaking…', idle:'Paused' }[v.state] || '';
+  el.innerHTML = `<div class="vp"><button class="orb ${v.state}" data-v="orb" aria-label="${v.state === 'speaking' ? 'Skip the question and answer now' : v.state === 'listening' ? 'Done talking, send it' : 'Start listening'}"><i></i><i></i><i></i></button>
+    <div class="vp-t"><b>${label}</b><span>${esc(v.note || (v.state === 'listening' ? 'Say what happens, or answer the question. Pause when you are done.' : ''))}</span></div>
+    <div class="vp-acts"><button class="btn sm" data-v="mute" aria-pressed="${v.mute}">${v.mute ? 'Voice off' : 'Voice on'}</button><button class="btn sm" data-v="stop">Stop</button></div></div>`;
+}
+function onVoiceClick(e){
+  const b = e.target.closest('[data-v]'); if (!b) return;
+  const a = b.dataset.v;
+  if (a === 'stop') stopVoice();
+  else if (a === 'mute'){ S.voice.mute = !S.voice.mute; if (S.voice.mute) speechSynthesis.cancel(); renderVoice(); }
+  else if (a === 'orb'){
+    if (S.voice.state === 'speaking'){ speechSynthesis.cancel(); voiceGen++; listen(); }
+    else if (S.voice.state === 'listening') finishListening();
+    else if (S.voice.state === 'idle') listen();
+  }
+}
+function stopRec(){ clearTimeout(recTimer); recActive = false; try { rec?.abort(); } catch {} rec = null; }
+function stopVoice(){
+  voiceGen++; S.voice.on = false; S.voice.state = 'idle'; S.voice.note = '';
+  stopRec(); try { speechSynthesis?.cancel(); } catch {}
+  renderVoice();
+}
+function startVoice(){
+  if (!voiceOK()){ alertBox('Audio mode works in Chrome, Edge and Safari. In other browsers, use your keyboard’s dictation key.'); return; }
+  const p = S.cur; if (!p || S.busy) return;
+  ensureOwned(); S.tab = 'chat'; S.voice.on = true; S.voice.mute = false; renderWork();
+  track('voice_started', {}, S.cur.id);
+  const last = [...S.cur.chat].reverse().find(m => m.role === 'assistant' && !m.pending && !m.err);
+  const opener = last ? [last.ask || last.content] : [VOICE_OPENER];
+  setVoice('speaking', opener[0]);
+  speak(opener[0], () => listen());
+}
+function pickVoice(){
+  const vs = speechSynthesis.getVoices(), lang = (navigator.language || 'en-US').toLowerCase();
+  return vs.find(v => v.lang.toLowerCase() === lang && /natural|google|samantha|premium|enhanced/i.test(v.name)) || vs.find(v => v.lang.toLowerCase() === lang) || vs.find(v => v.lang.toLowerCase().startsWith(lang.slice(0, 2))) || null;
+}
+/* Speak in sentences: long utterances get cut off in some browsers */
+function speak(text, done){
+  const gen = ++voiceGen;
+  if (S.voice.mute || !text){ done && done(); return; }
+  speechSynthesis.cancel();
+  const parts = String(text).replace(/\s+/g, ' ').match(/[^.!?]+[.!?]*/g) || [text];
+  const v = pickVoice();
+  const next = i => {
+    if (gen !== voiceGen || !S.voice.on) return;
+    if (i >= parts.length){ done && done(); return; }
+    const u = new SpeechSynthesisUtterance(parts[i].trim()); if (v){ u.voice = v; u.lang = v.lang; } u.rate = 1.03;
+    u.onend = () => next(i + 1); u.onerror = () => next(i + 1);
+    speechSynthesis.speak(u);
+  };
+  next(0);
+}
+function listen(){
+  if (!S.voice.on || S.busy) return;
+  stopRec(); recFinal = '';
+  const r = new SRec(); rec = r; recActive = true;
+  r.lang = navigator.language || 'en-US'; r.continuous = true; r.interimResults = true;
+  r.onresult = ev => {
+    let interim = '';
+    for (let i = ev.resultIndex; i < ev.results.length; i++){
+      const t = ev.results[i][0].transcript;
+      if (ev.results[i].isFinal) recFinal += t + ' '; else interim += t;
+    }
+    const text = (recFinal + interim).trim();
+    $('#msg').value = text; setVoice('listening', text);
+    clearTimeout(recTimer); if (text) recTimer = setTimeout(finishListening, 1800);
+  };
+  r.onerror = e => {
+    if (e.error === 'not-allowed' || e.error === 'service-not-allowed'){ alertBox('The microphone is blocked. Allow it in your browser’s address bar, then try Talk again.'); stopVoice(); }
+  };
+  r.onend = () => { if (recActive && S.voice.on && S.voice.state === 'listening' && !S.busy) setTimeout(() => { if (recActive && S.voice.on && S.voice.state === 'listening') { try { r.start(); } catch {} } }, 250); };
+  try { r.start(); setVoice('listening', ''); } catch { setVoice('idle', 'Tap the circle to start listening'); }
+}
+function finishListening(){
+  const text = ($('#msg').value || '').trim();
+  stopRec();
+  if (!S.voice.on) return;
+  if (!text){ listen(); return; }
+  if (/^(stop|exit|cancel)( (talking|listening|voice))?$/i.test(text)){ $('#msg').value = ''; stopVoice(); return; }
+  if (/\b(i'?m done|i am done|that'?s all|that is all|finish( the)? map)\b/i.test(text) && text.length < 60){ $('#msg').value = ''; setVoice('thinking', 'Finishing the map…'); finish(); return; }
+  setVoice('thinking', '“' + text + '”');
+  send(text);
+}
+function voiceAfterTurn(p, reply){
+  if (!S.voice.on) return;
+  if (reply.err){
+    const credits = /out of credits/i.test(reply.content);
+    setVoice('speaking', reply.content); speak(reply.content, () => credits ? stopVoice() : listen()); return;
+  }
+  const text = [reply.content, reply.fixed, reply.ask].filter(Boolean).join(' ');
+  if (p.status === 'done'){ setVoice('speaking', reply.content); speak(reply.content, () => stopVoice()); return; }
+  setVoice('speaking', reply.ask || reply.content);
+  speak(text, () => listen());
+}
 const ERR = {
   not_configured:'The mapper isn’t set up yet. Try again soon.',
   rate_limited:'Too many requests right now. Wait a moment, then send again.',
@@ -549,6 +654,7 @@ async function send(text){
   if (!reply.content) reply.content = turn.ops ? 'Updated the map.' : 'I could not turn that into changes. Try describing who does what, in order.';
   S.busy = false; S.ctl = null;
   touch(); renderWork();
+  voiceAfterTurn(p, reply);
 
   // Record the turn: the training example.
   try {
@@ -1162,7 +1268,7 @@ function wireInterest(root){
     btn.disabled = false;
   });
 }
-function startNew(){ S.guide = null; S.painView = false; S.cur = newProcess(); S.path = ['m_root']; S.sel = null; S.view = 'work'; S.tab = 'chat'; S.panel = null; track('process_started', {}, S.cur.id); render(); }
+function startNew(){ S.guide = null; S.painView = false; stopVoice(); S.cur = newProcess(); S.path = ['m_root']; S.sel = null; S.view = 'work'; S.tab = 'chat'; S.panel = null; track('process_started', {}, S.cur.id); render(); }
 
 function cardHTML(p, kind){
   const st = p.stepCount != null ? { steps:p.stepCount, depth:p.depth } : stats(p);
@@ -1246,7 +1352,7 @@ function renderHome(app){
 document.addEventListener('click', e => { if (e.target.closest('[data-home]')){ if (S.view === 'work') flush(); S.compare = null; S.real = null; S.cur = null; S.view = 'login'; render(); window.scrollTo(0, 0); } });
 
 async function openProcess(id, kind){
-  S.guide = null; S.painView = false;
+  S.guide = null; S.painView = false; stopVoice();
   let p = null;
   try {
     if (kind === 'ex') p = clone(EXAMPLES.find(x => x.id === id));
@@ -1292,11 +1398,12 @@ function renderWorkShell(app){
   <div class="work" id="work">
     <aside class="chat">
       <div class="msgs" id="msgs"></div>
+      <div id="voicepanel"></div>
       <div class="composer">
         <textarea id="msg" placeholder="Describe the process in your own words… (tip: use your keyboard's dictation to talk)" aria-label="Describe the process"></textarea>
         <div class="composer-row">
           <label class="toggle"><input type="checkbox" id="deep"> Deeper thinking</label>
-          <div class="composer-acts"><button class="btn" id="finish">Finish map</button><button class="btn" id="stop" hidden>Stop</button><button class="btn primary" id="sendb">Send</button></div>
+          <div class="composer-acts"><button class="btn" id="voice" aria-label="Talk to the interviewer" title="Talk instead of typing. It talks back and asks you questions.">${ICON.mic}Talk</button><button class="btn" id="finish">Finish map</button><button class="btn" id="stop" hidden>Stop</button><button class="btn primary" id="sendb">Send</button></div>
         </div>
       </div>
     </aside>
@@ -1311,7 +1418,7 @@ function renderWorkShell(app){
       <div id="checks"></div>
     </section>
   </div>`;
-  $('#back').onclick = () => { stopGuide(); flush(); if (S.compare) closeCompare(); S.view = 'home'; S.cur = null; S.confirmDel = null; S.panel = null; loadMine(); loadPublic(); render(); };
+  $('#back').onclick = () => { stopGuide(); stopVoice(); flush(); if (S.compare) closeCompare(); S.view = 'home'; S.cur = null; S.confirmDel = null; S.panel = null; loadMine(); loadPublic(); render(); };
   $('#wmenu-btn').onclick = e => { e.stopPropagation(); S.panel = S.panel === 'menu' ? null : 'menu'; S.panelMsg = ''; renderPanel(); };
   $('#wprimary').onclick = onAction; $('#pubbar').onclick = onAction;
   $('#tagbar').addEventListener('submit', e => { const f = e.target.closest('[data-tagform]'); if (!f) return; e.preventDefault(); addTag(f.elements.tag.value); });
@@ -1322,6 +1429,9 @@ function renderWorkShell(app){
   const msg = $('#msg');
   msg.onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey && !matchMedia('(max-width: 820px)').matches){ e.preventDefault(); send(msg.value); } };
   $('#sendb').onclick = () => send(msg.value);
+  $('#voice').onclick = () => S.voice.on ? stopVoice() : startVoice();
+  $('#voicepanel').onclick = onVoiceClick;
+  renderVoice();
   $('#stop').onclick = () => S.ctl?.abort();
   $('#finish').onclick = () => S.cur?.status === 'done' ? resume() : finish();
   $('#deep').checked = S.deep; $('#deep').onchange = e => S.deep = e.target.checked;
@@ -1376,6 +1486,7 @@ const ICON = {
   pointer: ico('<path d="M3.5 2.5l8 4-3.4 1.2L6.9 11z"/>'),
   flame:  ico('<path d="M8 1.4c.4 2.3-.9 3.1-1.8 4.3C5.2 7 4.6 8.2 4.6 9.5A3.4 3.4 0 008 13.6a3.4 3.4 0 003.4-4c0-1.4-.7-2.4-1.4-3.3-.2 1-.7 1.5-1.4 1.7.4-2 0-4.1-.6-6.6z"/>'),
   compass: ico('<circle cx="8" cy="8" r="6"/><path d="M10.6 5.4L9.1 9.1 5.4 10.6 6.9 6.9z"/>'),
+  mic:    ico('<rect x="6" y="1.8" width="4" height="8" rx="2"/><path d="M3.5 7.5a4.5 4.5 0 009 0M8 12v2.2M5.6 14.2h4.8"/>'),
   globe:  ico('<circle cx="8" cy="8" r="6"/><path d="M2 8h12M8 2c2 1.8 2.8 3.8 2.8 6S10 12.2 8 14M8 2C6 3.8 5.2 5.8 5.2 8S6 12.2 8 14"/>')
 };
 const visPill = (publicId, shareCount, mode) => publicId ? `<span class="pill pub">${ICON.globe}Public${mode === 'locked' ? ' · as is' : ''}</span>` : shareCount ? `<span class="pill sh">${ICON.people}Shared · ${shareCount}</span>` : `<span class="pill">${ICON.lock}Private</span>`;
