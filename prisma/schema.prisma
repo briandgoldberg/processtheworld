@@ -13,9 +13,13 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// DATABASE_URL / DATABASE_POSTGRES_URL / DATABASE_PRISMA_DATABASE_URL are
+// set by the Vercel Prisma Postgres integration (prefix "DATABASE").
+// Schema pushes at build time use the direct connection.
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_POSTGRES_URL")
 }
 
 // ---------- People ----------

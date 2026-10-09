@@ -1,3 +1,3 @@
 {
-  "buildCommand": "npx prisma generate && if [ -n \"$DATABASE_URL\" ]; then npx prisma db push --skip-generate; else echo 'DATABASE_URL not set: skipping schema push'; fi && next build"
+  "buildCommand": "npx prisma generate && if [ -n \"$DATABASE_POSTGRES_URL\" ]; then npx prisma db push --skip-generate; else echo 'No database connected: skipping schema push'; fi && next build"
 }

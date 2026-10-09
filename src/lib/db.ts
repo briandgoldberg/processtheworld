@@ -6,9 +6,10 @@ import { withAccelerate } from "@prisma/extension-accelerate";
 // Prisma Accelerate so serverless instances can't exhaust database
 // connections. Until then it uses DATABASE_URL directly with a small pool.
 function createClient(): PrismaClient {
-  const accel = process.env.PRISMA_ACCELERATE_URL;
+  const accel = process.env.PRISMA_ACCELERATE_URL || process.env.DATABASE_PRISMA_DATABASE_URL
+    || (process.env.DATABASE_URL?.startsWith("prisma") ? process.env.DATABASE_URL : undefined);
   if (accel) return new PrismaClient({ datasourceUrl: accel }).$extends(withAccelerate()) as unknown as PrismaClient;
-  const url = process.env.DATABASE_URL;
+  const url = process.env.DATABASE_POSTGRES_URL || process.env.DATABASE_URL;
   const capped = url && !/connection_limit=/.test(url) ? url + (url.includes("?") ? "&" : "?") + "connection_limit=3" : url;
   return new PrismaClient(capped ? { datasourceUrl: capped } : undefined);
 }
