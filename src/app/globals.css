@@ -290,6 +290,17 @@ code{font-family:var(--f-mono);font-size:11px}
 /* ---------- Sharing, suggestions, compare ---------- */
 .linkish-plain{border:none;background:none;padding:0;cursor:pointer;color:inherit}
 .vi{flex:none}
+.canvas-wrap{position:relative}
+.zoomctl{position:absolute;left:12px;bottom:12px;z-index:5;display:flex;align-items:center;gap:2px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:3px;box-shadow:0 6px 20px -8px rgba(10,20,40,.35)}
+.zoomctl button{border:0;background:none;border-radius:9px;padding:6px 10px;font-weight:600;font-size:13px;color:var(--ink);min-width:34px;cursor:pointer}
+.zoomctl button:hover{background:var(--sunk)}
+.zoomctl .zv{min-width:52px;font-variant-numeric:tabular-nums}
+.zoomctl button.on{background:var(--accent);color:var(--accent-ink)}
+.zoomctl .zsep{width:1px;align-self:stretch;background:var(--line);margin:3px 4px}
+.scroller[data-detail="simple"] .step .uses,.scroller[data-detail="simple"] .step .k,.scroller[data-detail="simple"] .step .xlinks,.scroller[data-detail="simple"] .step .back,.scroller[data-detail="simple"] .elabel,
+.scroller[data-detail="auto"][data-low="1"] .step .uses,.scroller[data-detail="auto"][data-low="1"] .step .k,.scroller[data-detail="auto"][data-low="1"] .step .xlinks,.scroller[data-detail="auto"][data-low="1"] .step .back,.scroller[data-detail="auto"][data-low="1"] .elabel{display:none}
+.scroller[data-detail="simple"] .step>span:not(.k):not(.uses):not(.back):not(.xlinks),.scroller[data-detail="auto"][data-low="1"] .step>span:not(.k):not(.uses):not(.back):not(.xlinks){font-weight:700}
+@media (max-width:820px){.zoomctl{bottom:64px}}
 .hero2{text-align:center;display:flex;flex-direction:column;align-items:center;gap:22px;padding:56px 0 8px}
 .hero2 h1{font-size:clamp(46px,9.5vw,112px);line-height:.96;letter-spacing:-.035em;max-width:13ch;margin:0}
 .btn.xl{font-size:24px;padding:18px 52px;border-radius:16px;font-weight:700}

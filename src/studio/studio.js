@@ -110,6 +110,7 @@ const EXAMPLES = [EX_EGG, EX_CAR, EX_TEA];
 
 /* ---------- State ---------- */
 const S = { view:'login', me:null, ready:false,
+  zoom:1, zoomAuto:true, detail:'auto', zoomKey:'',
   mine:[], shared:[], pub:[], cur:null, real:null, compare:null, panel:null, panelMsg:'', path:['m_root'], sel:null, busy:false, ctl:null,
   fresh:new Set(), save:'', tab:'chat', deep:false, confirmPub:false, confirmDel:null, acct:false, notice:'', toast:'',
   sessionTurns:0, askedThisSession:false, lastTurnId:null };
@@ -1260,6 +1261,7 @@ function renderWorkShell(app){
       <div id="compare"></div>
       <div class="crumbs" id="crumbs"></div>
       <div class="scroller" id="scroller"><div class="board" id="board"></div></div>
+      <div id="zoomctl" class="zoomctl"></div>
       <div id="inspector"></div>
       <div id="checks"></div>
     </section>
@@ -1276,6 +1278,8 @@ function renderWorkShell(app){
   $('#stop').onclick = () => S.ctl?.abort();
   $('#finish').onclick = () => S.cur?.status === 'done' ? resume() : finish();
   $('#deep').checked = S.deep; $('#deep').onchange = e => S.deep = e.target.checked;
+  $('#zoomctl').onclick = onZoomClick;
+  $('#scroller').addEventListener('wheel', onBoardWheel, { passive:false });
   $('#tabs').onclick = e => { const t = e.target.closest('[data-tab]'); if (!t) return; S.tab = t.dataset.tab; renderWork(); };
   $('#msgs').onclick = e => {
     const b = e.target.closest('[data-starter]'); if (b){ send(b.dataset.starter); return; }
@@ -1566,6 +1570,38 @@ function renderCrumbs(){
     ${pub}`;
 }
 
+/* Zoom: zoom out for the simple picture, zoom in for every detail */
+const ZMIN = 0.25, ZMAX = 1.75;
+function updateZoomCtl(){
+  const el = $('#zoomctl'), sc = $('#scroller'); if (!el) return;
+  if (sc){ sc.dataset.detail = S.detail || 'auto'; sc.dataset.low = S.zoom < 0.55 ? '1' : '0'; }
+  const d = S.detail || 'auto';
+  el.innerHTML = `<button data-z="out" aria-label="Zoom out" title="Zoom out">−</button><button data-z="reset" class="zv" aria-label="Reset to 100%" title="Reset to 100%">${Math.round(S.zoom * 100)}%</button><button data-z="in" aria-label="Zoom in" title="Zoom in">+</button><button data-z="fit" title="Fit the whole map on screen">Fit</button>
+    <span class="zsep"></span><button data-detail="simple" class="${d === 'simple' ? 'on' : ''}" title="Names only">Simple</button><button data-detail="full" class="${d === 'full' ? 'on' : ''}" title="Tools, links and labels">Detailed</button>`;
+}
+function setZoom(z, cx, cy){
+  const sc = $('#scroller'), b = $('#board'); if (!sc || !b) return;
+  z = Math.max(ZMIN, Math.min(ZMAX, z)); const old = S.zoom; if (Math.abs(z - old) < 0.001) return;
+  const px = cx ?? sc.clientWidth / 2, py = cy ?? sc.clientHeight / 2;
+  const ox = (sc.scrollLeft + px) / old, oy = (sc.scrollTop + py) / old;
+  S.zoom = z; S.zoomAuto = false; b.style.zoom = z;
+  sc.scrollLeft = ox * z - px; sc.scrollTop = oy * z - py;
+  updateZoomCtl();
+}
+function onZoomClick(e){
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.z === 'in') setZoom(S.zoom * 1.25);
+  else if (b.dataset.z === 'out') setZoom(S.zoom / 1.25);
+  else if (b.dataset.z === 'reset') setZoom(1);
+  else if (b.dataset.z === 'fit'){ S.zoomAuto = true; renderBoard(); }
+  else if (b.dataset.detail){ S.detail = b.dataset.detail; updateZoomCtl(); }
+}
+function onBoardWheel(e){
+  if (!(e.ctrlKey || e.metaKey)) return;
+  e.preventDefault();
+  const sc = $('#scroller'), r = sc.getBoundingClientRect();
+  setZoom(S.zoom * (e.deltaY < 0 ? 1.1 : 1 / 1.1), e.clientX - r.left, e.clientY - r.top);
+}
 function renderBoard(){
   L.HEAD = innerWidth <= 420 ? 84 : innerWidth <= 820 ? 96 : 150; // matches the lane header width in CSS
   const m = curMap(), b = $('#board');
@@ -1576,6 +1612,10 @@ function renderBoard(){
   }
   const g = layout(m);
   b.style.width = g.width + 'px'; b.style.height = g.height + 'px';
+  const zkey = S.cur.id + '|' + m.id; if (S.zoomKey !== zkey){ S.zoomKey = zkey; S.zoomAuto = true; }
+  const sc0 = $('#scroller');
+  if (S.zoomAuto && sc0 && sc0.clientWidth > 80) S.zoom = Math.max(ZMIN, Math.min(1, (sc0.clientWidth - 12) / g.width));
+  b.style.zoom = S.zoom; updateZoomCtl();
   let html = '';
   g.bands.forEach(bd => html += `<div class="band" style="top:${bd.y}px;width:${g.width}px">${bd.t}</div>`);
   g.lanes.forEach(l => html += `<div class="lane ${l.type}" style="top:${g.laneY[l.id]}px;height:${g.laneH[l.id]}px;width:${g.width}px"><div class="lane-head"><small>${l.type === 'system' ? 'Technology' : 'Person'}</small><b>${esc(l.name)}</b></div></div>`);
