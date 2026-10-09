@@ -52,6 +52,11 @@ const TOOLS = [
     inputSchema: { type: "object", properties: { q: { type: "string", description: "Search title, author or tag." }, tag: { type: "string" } } },
   },
   {
+    name: "add_comment",
+    description: "Comment on a published process, optionally pinned to a step. Like save_process, it signs you up as a guest if you pass no key.",
+    inputSchema: { type: "object", required: ["public_id", "body"], properties: { public_id: { type: "string" }, body: { type: "string", description: "Up to 1000 characters." }, step: { type: "string", description: "Optional step to pin it to, as mapId|stepId (m_root|s1)." }, key: { type: "string" } } },
+  },
+  {
     name: "get_document",
     description: "Get a process as a document: md (Markdown with diagrams and full data), html (the swim-lane flow as a self-contained page), skill (a Claude SKILL.md), or gpt (ChatGPT instructions). Use public_id for a published process, or process_id plus your key for your own.",
     inputSchema: { type: "object", properties: { public_id: { type: "string" }, process_id: { type: "string" }, key: { type: "string" }, format: { type: "string", enum: ["md", "html", "skill", "gpt"] } } },
@@ -81,6 +86,22 @@ async function callTool(req: NextRequest, name: string, a: Record<string, any>) 
     const where: any = { AND: [...(tag ? [{ tags: { has: tag } }] : []), ...(q ? [{ OR: [{ title: { contains: q, mode: "insensitive" } }, { authorName: { contains: q, mode: "insensitive" } }, { tags: { has: cleanTag(q) } }] }] : [])] };
     const rows = await prisma.publicProcess.findMany({ where, orderBy: { updatedAt: "desc" }, take: 50, select: { id: true, title: true, authorName: true, tags: true, stepCount: true, likes: true } });
     return text(JSON.stringify(rows.map(r => ({ ...r, url: `${origin}/p/${r.id}` })), null, 2));
+  }
+  if (name === "add_comment") {
+    let user = null as Awaited<ReturnType<typeof userFrom>>, newKey: string | null = null;
+    if (typeof a.key === "string") user = await prisma.user.findUnique({ where: { anonKey: a.key } });
+    if (!user) { const g = await newGuest(req); if (!g) return text("Too many new guests from this network. Try again later.", true); user = g.user; newKey = g.key; }
+    const pub = await prisma.publicProcess.findUnique({ where: { id: String(a.public_id) }, select: { doc: true } });
+    if (!pub) return text("Not found.", true);
+    const body = String(a.body || "").trim().slice(0, 1000);
+    if (!body) return text("Write something first.", true);
+    let stepRef: string | null = null, stepLabel: string | null = null;
+    const ref = String(a.step || "");
+    if (ref.includes("|")) { const [mid, sid] = ref.split("|"); const st = ((pub.doc as any)?.maps?.[mid]?.steps || []).find((s: any) => s.id === sid); if (st) { stepRef = ref; stepLabel = String(st.label).slice(0, 160); } }
+    const c = await prisma.comment.create({ data: { publicId: String(a.public_id), userId: user.id, authorName: user.handle, body, stepRef, stepLabel } });
+    const count = await prisma.comment.count({ where: { publicId: String(a.public_id) } });
+    await prisma.publicProcess.update({ where: { id: String(a.public_id) }, data: { commentCount: count } });
+    return text(JSON.stringify({ ok: true, id: c.id, handle: user.handle, ...(newKey ? { key: newKey } : {}) }));
   }
   if (name === "get_document") {
     const format = ["md", "html", "skill", "gpt"].includes(a.format) ? a.format : "md";

@@ -39,6 +39,7 @@ model User {
   points          Float     @default(100)
   pointEvents     PointEvent[]
   likes           Like[]
+  comments        Comment[]
 
   processes  Process[]
   published  PublicProcess[]
@@ -118,6 +119,8 @@ model PublicProcess {
   likes       Int      @default(0)
   likedBy     Like[]
   tags        String[] @default([])
+  commentCount Int     @default(0)
+  comments    Comment[]
   publishedAt DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -413,4 +416,20 @@ model Interest {
   createdAt DateTime @default(now())
 
   @@unique([kind, email])
+}
+
+// A comment on a public process, optionally pinned to one of its steps.
+model Comment {
+  id         String        @id @default(cuid())
+  publicId   String
+  public     PublicProcess @relation(fields: [publicId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  authorName String
+  body       String
+  stepRef    String? // "mapId|stepId"
+  stepLabel  String?
+  createdAt  DateTime      @default(now())
+
+  @@index([publicId, createdAt])
 }

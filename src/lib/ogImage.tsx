@@ -64,6 +64,6 @@ export async function renderOg(publicId: string) {
         ) : null}
       </div>
     ),
-    { width: W, height: H },
+    { width: W, height: H, headers: { "cache-control": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800" } },
   );
 }

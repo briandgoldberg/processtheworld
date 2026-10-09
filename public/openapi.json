@@ -185,6 +185,58 @@
           }
         }
       }
+    },
+    "/api/public/{id}/comments": {
+      "post": {
+        "operationId": "addComment",
+        "summary": "Comment on a published process, optionally pinned to a step.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-ptw-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "body"
+                ],
+                "properties": {
+                  "body": {
+                    "type": "string",
+                    "maxLength": 1000
+                  },
+                  "step": {
+                    "type": "string",
+                    "description": "mapId|stepId, e.g. m_root|s1"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The new comment."
+          }
+        }
+      }
     }
   },
   "components": {

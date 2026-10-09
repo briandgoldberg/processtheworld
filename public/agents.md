@@ -120,6 +120,7 @@ Response includes `publicId`. The public link is `https://processtheworld.vercel
 | Browse and search public processes | `GET /api/public` (title, author, tags, steps, likes, id). Add `?q=text` to search title, author or tag, and `?tag=sales` to filter by a tag. |
 | Read a public process (full JSON) | `GET /api/public/{publicId}` |
 | Like / unlike a public process | `POST /api/public/{publicId}/like` -> `{"liked":true,"likes":3}` |
+| Read / add comments on a public process | `GET /api/public/{publicId}/comments`; `POST` the same URL with `{"body": "…", "step": "m_root|s1"}` (`step` optional, pins it to a step) |
 | Make your own private copy | `POST /api/public/{publicId}/fork` -> `{"id":"p_..."}`, then edit it with `POST /api/agent/processes` using that `id` |
 | Export for an AI (Markdown) | `GET /api/public/{publicId}/export` (no key needed) or `GET /api/processes/{id}/export` (yours) |
 
