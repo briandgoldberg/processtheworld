@@ -1503,6 +1503,8 @@ function topBarHTML(){
 function mineMatches(p){
   const needle = (S.mq || '').trim().toLowerCase();
   if (S.mtag && !(p.tags || []).includes(S.mtag)) return false;
+  if (S.mvis === 'public' && !p.publicId) return false;
+  if (S.mvis === 'private' && p.publicId) return false;
   return !needle || ((p.title || '') + ' ' + (p.tags || []).join(' ')).toLowerCase().includes(needle);
 }
 function mineTagsHTML(){
@@ -1524,11 +1526,12 @@ function renderMine(app){
   app.innerHTML = `${topBarHTML()}
   <div class="home"><div class="home-in"><section class="sec">
     <div class="sec-head"><h2>My processes</h2><p>Private unless you share or publish them.</p></div>
-    <div class="pfilter"><div class="psrow"><input id="msearch" type="search" placeholder="Search my processes" value="${esc(S.mq || '')}" aria-label="Search my processes" autocomplete="off"></div><div class="pills" id="mpills">${mineTagsHTML()}</div></div>
+    <div class="pfilter"><div class="psrow"><span class="seg-toggle" id="mvis" role="group" aria-label="Show">${[['all', 'All'], ['private', 'Private'], ['public', 'Public']].map(([k, n]) => `<button data-mvis="${k}" class="${(S.mvis || 'all') === k ? 'on' : ''}">${n}</button>`).join('')}</span><input id="msearch" type="search" placeholder="Search my processes" value="${esc(S.mq || '')}" aria-label="Search my processes" autocomplete="off"></div><div class="pills" id="mpills">${mineTagsHTML()}</div></div>
     <div id="mcards">${mineCardsHTML()}</div>
   </section></div></div>`;
   $('#new').onclick = startNew;
   wireAcct(app); wireSignIn(app); wireCopy(app);
+  app.querySelector('#mvis').onclick = e => { const b = e.target.closest('[data-mvis]'); if (b){ S.mvis = b.dataset.mvis; app.querySelectorAll('#mvis button').forEach(x => x.classList.toggle('on', x === b)); app.querySelector('#mcards').innerHTML = mineCardsHTML(); wireMineCards(app); } };
   app.querySelector('#msearch').oninput = e => { S.mq = e.target.value; app.querySelector('#mcards').innerHTML = mineCardsHTML(); wireMineCards(app); };
   app.querySelector('#mpills').onclick = e => { const b = e.target.closest('[data-mtag]'); if (b){ S.mtag = b.dataset.mtag; app.querySelector('#mcards').innerHTML = mineCardsHTML(); app.querySelector('#mpills').innerHTML = mineTagsHTML(); wireMineCards(app); } };
   wireMineCards(app);
