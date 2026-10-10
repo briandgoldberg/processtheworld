@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
-const SITE = "https://processtheworld.vercel.app";
+const SITE = "https://forks.world";
 
 // Every published process is a page: this lists them all for search engines and AI crawlers.
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic";
 // A remote MCP server (Streamable HTTP, stateless, JSON responses) so Claude,
 // ChatGPT and other MCP clients can build, publish and read process maps with
 // no key and no setup: the first save signs the agent up as a guest.
-// Add it as a connector with the URL  https://processtheworld.vercel.app/api/mcp
+// Add it as a connector with the URL  https://forks.world/api/mcp
 
 const LANE = { type: "object", required: ["id", "name"], properties: { id: { type: "string", description: "Letters, digits, - or _, starting with a letter." }, name: { type: "string" }, type: { type: "string", enum: ["person", "system"], description: "person = a role or user type; system = software, device or tool." } } };
 const STEP = {

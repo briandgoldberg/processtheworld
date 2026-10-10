@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const SITE = "https://processtheworld.vercel.app";
+const SITE = "https://forks.world";
 
 // Everyone is welcome, search engines and AI crawlers included, except the private and admin parts.
 export default function robots(): MetadataRoute.Robots {

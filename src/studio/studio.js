@@ -1257,7 +1257,7 @@ function renderConnect(app){
         <p class="cn-sub">Pick one. The connector is the fastest.</p>
         <h3>Option A: add the connector</h3>
         <ol><li>In Claude, open <b>Settings</b>, then <b>Connectors</b>.</li><li>Choose <b>Add custom connector</b> and paste this address.</li><li>Name it <b>forks.world</b> and save.</li></ol>
-        <div class="cn-row"><code>https://processtheworld.vercel.app/api/mcp</code><button class="btn primary" data-copy-text="https://processtheworld.vercel.app/api/mcp">Copy address</button></div>
+        <div class="cn-row"><code>https://forks.world/api/mcp</code><button class="btn primary" data-copy-text="https://forks.world/api/mcp">Copy address</button></div>
         <h3>Option B: install the skill</h3>
         <ol><li>Download the skill.</li><li>In Claude, open <b>Settings</b>, then <b>Capabilities</b>, then <b>Skills</b>, and upload the zip.</li></ol>
         <div class="cn-row"><a class="btn" href="/process-the-world-skill.zip" download>Download the Claude skill</a></div>
@@ -1267,10 +1267,10 @@ function renderConnect(app){
         <p class="cn-sub">Use the connector, or make a custom GPT.</p>
         <h3>Option A: add the connector</h3>
         <ol><li>In ChatGPT, open <b>Settings</b>, then <b>Connectors</b> (developer mode may need to be on).</li><li>Add a custom connector and paste this address.</li></ol>
-        <div class="cn-row"><code>https://processtheworld.vercel.app/api/mcp</code><button class="btn primary" data-copy-text="https://processtheworld.vercel.app/api/mcp">Copy address</button></div>
+        <div class="cn-row"><code>https://forks.world/api/mcp</code><button class="btn primary" data-copy-text="https://forks.world/api/mcp">Copy address</button></div>
         <h3>Option B: make a custom GPT</h3>
         <ol><li>Create a new GPT and paste the instructions below into <b>Instructions</b>.</li><li>Under <b>Actions</b>, import this schema address.</li></ol>
-        <div class="cn-row"><button class="btn primary" data-copy-url="/chatgpt/instructions.txt">Copy the instructions</button><button class="btn" data-copy-text="https://processtheworld.vercel.app/openapi.json">Copy the schema address</button></div>
+        <div class="cn-row"><button class="btn primary" data-copy-url="/chatgpt/instructions.txt">Copy the instructions</button><button class="btn" data-copy-text="https://forks.world/openapi.json">Copy the schema address</button></div>
       </article>
     </section>
     <section class="cn-block">
@@ -1326,7 +1326,7 @@ function renderLogin(app){
         <a class="btn primary lg" href="/process-the-world-skill.zip" download>Get the Claude skill</a>
         <button class="btn primary lg" data-copy-url="/chatgpt/instructions.txt">Get the ChatGPT skill</button>
       </div>
-      <p class="hint">Claude: upload the zip in Settings, Capabilities, Skills. ChatGPT: paste it into a new GPT, then <button class="linkish" data-copy-text="https://processtheworld.vercel.app/openapi.json">copy the action URL</button>. Or add our connector: <button class="linkish" data-copy-text="https://processtheworld.vercel.app/api/mcp">copy the MCP URL</button>.</p>
+      <p class="hint">Claude: upload the zip in Settings, Capabilities, Skills. ChatGPT: paste it into a new GPT, then <button class="linkish" data-copy-text="https://forks.world/openapi.json">copy the action URL</button>. Or add our connector: <button class="linkish" data-copy-text="https://forks.world/api/mcp">copy the MCP URL</button>.</p>
     </section>
     ${footHTML()}
   </main>`;
@@ -1487,7 +1487,7 @@ const useAiHTML = () => `<section class="sec use-ai">
         <a class="btn primary" href="/process-the-world-skill.zip" download>Get the Claude skill</a>
         <button class="btn primary" data-copy-url="/chatgpt/instructions.txt">Get the ChatGPT skill</button>
       </div>
-      <p class="hint">Claude: upload the zip in Settings, Capabilities, Skills. ChatGPT: paste it into a new GPT, then <button class="linkish" data-copy-text="https://processtheworld.vercel.app/openapi.json">copy the action URL</button>. Or add our connector: <button class="linkish" data-copy-text="https://processtheworld.vercel.app/api/mcp">copy the MCP URL</button>.</p>
+      <p class="hint">Claude: upload the zip in Settings, Capabilities, Skills. ChatGPT: paste it into a new GPT, then <button class="linkish" data-copy-text="https://forks.world/openapi.json">copy the action URL</button>. Or add our connector: <button class="linkish" data-copy-text="https://forks.world/api/mcp">copy the MCP URL</button>.</p>
     </section>`;
 /* The same header on the home page and the Connect my AI page */
 function topBarHTML(){

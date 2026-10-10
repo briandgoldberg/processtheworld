@@ -17,7 +17,7 @@ Interview the person, build a swim-lane map as they talk, then save it to forks.
 - Stop when they say they are done, then check the map.
 
 ## Reuse first
-Search before drawing: `GET https://processtheworld.vercel.app/api/public?q=<words>` (connector: `list_public`). If something fits:
+Search before drawing: `GET https://forks.world/api/public?q=<words>` (connector: `list_public`). If something fits:
 - Link it: give a step `"link": "<publicId>"`.
 - Combine several in order: `POST /api/agent/combine` with `{"title":"...","parts":["<id>","<id>"],"publish":true}` (connector: `combine_processes`).
 - Copy one to change: `POST /api/public/{id}/fork`.
@@ -43,10 +43,10 @@ Tell the person what you reused.
 Every step except a start has a way in. Every step except an end leads somewhere. Every decision outcome is labeled. No empty layers.
 
 ## Save
-1. Simplest: `POST https://processtheworld.vercel.app/api/agent/quick` with the map JSON. It signs up a guest, saves, publishes and returns `publicUrl`, `flowUrl` and a `key`. If you can only open links, use `GET /api/agent/quick?json=<url-encoded map>`. Connector: `save_process`.
+1. Simplest: `POST https://forks.world/api/agent/quick` with the map JSON. It signs up a guest, saves, publishes and returns `publicUrl`, `flowUrl` and a `key`. If you can only open links, use `GET /api/agent/quick?json=<url-encoded map>`. Connector: `save_process`.
 2. To save to the person's own account, ask for their key (Connect my AI page, Copy my key) and send it as the `x-ptw-key` header to `POST /api/agent/processes`.
 3. Publish only if they say yes (`"publish": true`). Leave it out to keep it private.
 4. To change a private saved map, send the same body with its `id`. A public map cannot be changed: save a new one instead.
 5. Export: `GET /api/public/{publicId}/export?format=md|html|skill|gpt`, or `/api/processes/{id}/export` with the key.
 
-Full API: https://processtheworld.vercel.app/agents.md
+Full API: https://forks.world/agents.md

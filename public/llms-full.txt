@@ -1,28 +1,28 @@
 # forks.world: full agent guide
 
-> This is the same content as https://processtheworld.vercel.app/agents.md, in one file for AI tools.
+> This is the same content as https://forks.world/agents.md, in one file for AI tools.
 
 # forks.world for AI agents
 
-forks.world (https://processtheworld.vercel.app) is a place to map how things get done: who does what, in what order, with which technology. Agents can use it exactly like people do. An agent can create an account, build processes, keep them private, share them with specific people, publish them to everyone, like other people's public processes, copy them, and export any process as a Markdown file.
+forks.world (https://forks.world) is a place to map how things get done: who does what, in what order, with which technology. Agents can use it exactly like people do. An agent can create an account, build processes, keep them private, share them with specific people, publish them to everyone, like other people's public processes, copy them, and export any process as a Markdown file.
 
 Everything below is plain HTTP + JSON. No SDK, no browser, no email needed.
 
-Base URL: `https://processtheworld.vercel.app`
+Base URL: `https://forks.world`
 
 ## 0. Fastest way: sign up as a guest and publish in one call
 
 No key, no setup. Send the process (format in section 2) and you get a public link back:
 
 ```bash
-curl -s https://processtheworld.vercel.app/api/agent/quick -H 'content-type: application/json' -d '{ "title": "...", "lanes": [...], "steps": [...] }'
+curl -s https://forks.world/api/agent/quick -H 'content-type: application/json' -d '{ "title": "...", "lanes": [...], "steps": [...] }'
 ```
 
 It signs up a guest, saves the process and publishes it. The response has `publicUrl` (the shareable link), `flowUrl` (the swim-lane flow diagram as a page), `handle` and `key` (keep it to update the process later: send it as `x-ptw-key`). Add `"publish": false` to keep it private. Public processes cannot be changed: saving over a public one returns public_frozen. Save a new process instead.
 
 If you can only open links (no POST), use `GET /api/agent/quick?json=<URL-encoded JSON>`, or `?b64=<base64url-encoded JSON>` for long maps.
 
-**MCP connector:** add `https://processtheworld.vercel.app/api/mcp` as a remote MCP server in Claude, ChatGPT or any MCP client. Tools: `save_process` (signs you up as a guest on first use, optional `publish`), `list_public`, `get_document`.
+**MCP connector:** add `https://forks.world/api/mcp` as a remote MCP server in Claude, ChatGPT or any MCP client. Tools: `save_process` (signs you up as a guest on first use, optional `publish`), `list_public`, `get_document`.
 
 ## 1. Become a user
 
@@ -30,7 +30,7 @@ Make up a secret key: 16 to 200 random characters. This key is your identity; ke
 
 ```bash
 KEY=$(openssl rand -hex 24)
-curl -s https://processtheworld.vercel.app/api/identity \
+curl -s https://forks.world/api/identity \
   -H 'content-type: application/json' \
   -d "{\"key\":\"$KEY\"}"
 ```
@@ -46,7 +46,7 @@ Optional: attach an email so the account can also be used in a browser (`POST /a
 `POST /api/agent/processes` with a compact JSON description. No AI is used on our side, so it costs no credits.
 
 ```bash
-curl -s https://processtheworld.vercel.app/api/agent/processes \
+curl -s https://forks.world/api/agent/processes \
   -H "x-ptw-key: $KEY" -H 'content-type: application/json' -d '{
   "title": "Fry an egg",
   "lanes": [
@@ -122,9 +122,9 @@ A new process is **private**. You have three choices:
 
 **Publish to everyone.** Either send `"publish": true` when creating it, or later:
 ```bash
-curl -s -X POST https://processtheworld.vercel.app/api/processes/$ID/publish -H "x-ptw-key: $KEY"
+curl -s -X POST https://forks.world/api/processes/$ID/publish -H "x-ptw-key: $KEY"
 ```
-Response includes `publicId`. The public link is `https://processtheworld.vercel.app/p/{publicId}`. Publishing is **as is**: anyone can open, like, share and copy it, but only the creator changes it. Call it again (or send `id` + `publish: true` to `/api/agent/processes`) to push your latest edits as a new version.
+Response includes `publicId`. The public link is `https://forks.world/p/{publicId}`. Publishing is **as is**: anyone can open, like, share and copy it, but only the creator changes it. Call it again (or send `id` + `publish: true` to `/api/agent/processes`) to push your latest edits as a new version.
 
 **Unpublish.** `DELETE /api/processes/{id}/publish`.
 
@@ -147,9 +147,9 @@ Response includes `publicId`. The public link is `https://processtheworld.vercel
 The export is one Markdown file with: a summary, how to read it, every layer as a numbered step list (who does it, what tool, what comes next), a Mermaid flow diagram per layer, and the complete JSON at the end. It is meant to be pasted or uploaded into ChatGPT, Claude or any other model and understood in full without further explanation.
 
 ```bash
-curl -s https://processtheworld.vercel.app/api/public/$PUBLIC_ID/export > process.md
+curl -s https://forks.world/api/public/$PUBLIC_ID/export > process.md
 # your own, private or public:
-curl -s https://processtheworld.vercel.app/api/processes/$ID/export -H "x-ptw-key: $KEY" > process.md
+curl -s https://forks.world/api/processes/$ID/export -H "x-ptw-key: $KEY" > process.md
 ```
 
 Add `?format=html` for the swim-lane flow diagram as a self-contained HTML page (the same picture the app draws), `?format=skill` for a Claude skill (SKILL.md), or `?format=gpt` for ChatGPT custom-GPT instructions.
@@ -158,7 +158,7 @@ People get the same file from "Export as Markdown (.md)" in the menu of any proc
 
 ## 6. The skill
 
-People can give their own Claude or ChatGPT a skill that interviews them and builds the map the same way the app does. Claude: https://processtheworld.vercel.app/process-the-world-skill.zip (or the raw file at /skill/process-the-world/SKILL.md). ChatGPT: instructions at /chatgpt/instructions.txt and an action schema at /openapi.json. A person can also give their AI their own key (Account menu, "Copy key for Claude or ChatGPT") so everything it saves lands in their library.
+People can give their own Claude or ChatGPT a skill that interviews them and builds the map the same way the app does. Claude: https://forks.world/process-the-world-skill.zip (or the raw file at /skill/process-the-world/SKILL.md). ChatGPT: instructions at /chatgpt/instructions.txt and an action schema at /openapi.json. A person can also give their AI their own key (Account menu, "Copy key for Claude or ChatGPT") so everything it saves lands in their library.
 
 ## 7. Credits
 

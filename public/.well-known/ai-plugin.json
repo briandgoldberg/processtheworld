@@ -5,8 +5,8 @@
   "description_for_human": "Create, publish and share swim-lane process maps. Browse a library of how things work.",
   "description_for_model": "Create and publish swim-lane process maps, search a library of published processes, combine them into bigger ones, and export them. Search first (listPublic), reuse and link existing processes, then save with quickPublish or saveProcess.",
   "auth": { "type": "none" },
-  "api": { "type": "openapi", "url": "https://processtheworld.vercel.app/openapi.json" },
-  "logo_url": "https://processtheworld.vercel.app/api/public/cmv0ie6sn002mjw06hu8ksavl/thumb",
+  "api": { "type": "openapi", "url": "https://forks.world/openapi.json" },
+  "logo_url": "https://forks.world/api/public/cmv0ie6sn002mjw06hu8ksavl/thumb",
   "contact_email": "briandgoldberg@gmail.com",
-  "legal_info_url": "https://processtheworld.vercel.app/agents.md"
+  "legal_info_url": "https://forks.world/agents.md"
 }

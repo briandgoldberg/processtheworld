@@ -137,7 +137,7 @@ function svgFor(m: MapT, doc: Doc): string {
     if (uses.length) txt += `<text x="${cx}" y="${y0 + lines.length * 14 + 2}" class="nu" text-anchor="middle">${esc(wrap("uses " + uses.join(", "), 28, 1)[0])}</text>`;
     const jump = (s.next || []).filter(n => n.map && doc.maps[n.map]).map(n => `<text x="${cx}" y="${p.y + L.BOXH + 12}" class="nu" text-anchor="middle">→ ${esc(wrap(clean(doc.maps[n.map!].title) || n.map!, 24, 1)[0])}</text>`).join("");
     let node = shape + txt + jump;
-    if (s.link) node = `<a ${s.link.scope === "private" ? "" : `href="https://processtheworld.vercel.app/p/${esc(s.link.id)}" target="_blank" rel="noopener"`}>${shape}${txt}<text x="${p.x + L.BOXW - 8}" y="${p.y + 14}" class="drill" text-anchor="end">↗</text><title>Opens the process “${esc(clean(s.link.title))}”</title></a>`;
+    if (s.link) node = `<a ${s.link.scope === "private" ? "" : `href="https://forks.world/p/${esc(s.link.id)}" target="_blank" rel="noopener"`}>${shape}${txt}<text x="${p.x + L.BOXW - 8}" y="${p.y + 14}" class="drill" text-anchor="end">↗</text><title>Opens the process “${esc(clean(s.link.title))}”</title></a>`;
     if (s.child && doc.maps[s.child]) node = `<a href="#${esc(s.child)}">${shape}${txt}<text x="${p.x + L.BOXW - 8}" y="${p.y + 14}" class="drill" text-anchor="end">↘</text></a>`;
     const pn = s.pain ? `<g class="pain l${s.pain.level}"><circle cx="${p.x + L.BOXW - 4}" cy="${p.y + 4}" r="11"/><text x="${p.x + L.BOXW - 4}" y="${p.y + 8.5}" text-anchor="middle">!</text><title>Pain point${s.pain.note ? ": " + esc(clean(s.pain.note)) : ""}</title></g>` : "";
     out.push(`<g>${node}${pn}</g>`);
@@ -192,7 +192,7 @@ export function flowHtml(doc: Doc, opts: { author?: string; url?: string } = {})
 <p class="sub">${steps} steps across ${all.length} layer${all.length === 1 ? "" : "s"}${opts.author ? ` · by ${esc(opts.author)}` : ""}. Steps with ↘ open into a detail layer below; steps with ↗ open another published process.</p>
 <div class="bar"><button id="fs">Full screen</button><button id="zo">−</button><button id="zi">+</button><span class="sub">Drag to move around. Ctrl + scroll to zoom.</span></div>
 ${sections}
-<footer>Made with <a href="${esc(opts.url || "https://processtheworld.vercel.app")}">forks.world</a></footer>
+<footer>Made with <a href="${esc(opts.url || "https://forks.world")}">forks.world</a></footer>
 </main>
 <script>
 (function(){

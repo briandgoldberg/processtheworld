@@ -5,7 +5,7 @@ import Studio from "../../Studio";
 
 export const dynamic = "force-dynamic";
 type Props = { params: Promise<{ id: string }> };
-const SITE = "https://processtheworld.vercel.app";
+const SITE = "https://forks.world";
 
 async function load(id: string) {
   return prisma.publicProcess.findUnique({ where: { id }, select: { title: true, authorName: true, stepCount: true, depth: true, tags: true, doc: true, hasThumb: true, publishedAt: true, updatedAt: true } }).catch(() => null);

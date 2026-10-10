@@ -1,3 +1,27 @@
 {
-  "buildCommand": "npx prisma generate && if [ -n \"$DATABASE_POSTGRES_URL\" ]; then npx prisma db push --skip-generate; else echo 'No database connected: skipping schema push'; fi && next build"
+  "buildCommand": "npx prisma generate && if [ -n \"$DATABASE_POSTGRES_URL\" ]; then npx prisma db push --skip-generate; else echo 'No database connected: skipping schema push'; fi && next build",
+  "redirects": [
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "processtheworld.vercel.app"
+        }
+      ],
+      "destination": "https://forks.world/",
+      "permanent": true
+    },
+    {
+      "source": "/:path((?!api/|google).*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "processtheworld.vercel.app"
+        }
+      ],
+      "destination": "https://forks.world/:path",
+      "permanent": true
+    }
+  ]
 }

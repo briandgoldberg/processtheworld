@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
-const SITE = "https://processtheworld.vercel.app";
+const SITE = "https://forks.world";
 const DESCRIPTION = "forks.world is a library of process maps for how the world works. Browse swim-lane maps of science, business, politics and daily life, make your own, or connect Claude or ChatGPT to create and publish them.";
 
 export const metadata: Metadata = {

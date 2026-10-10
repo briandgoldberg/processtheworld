@@ -1,5 +1,5 @@
 {
   "mcpServers": {
-    "forks-world": { "type": "http", "url": "https://processtheworld.vercel.app/api/mcp" }
+    "forks-world": { "type": "http", "url": "https://forks.world/api/mcp" }
   }
 }
