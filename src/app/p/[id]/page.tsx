@@ -10,7 +10,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const r = await prisma.publicProcess.findUnique({ where: { id }, select: { title: true, authorName: true, stepCount: true } }).catch(() => null);
   if (!r) return {};
-  const title = `${r.title} | Process the World`;
+  const title = `${r.title} | forks.world`;
   const description = `A ${r.stepCount}-step process map by ${r.authorName}. Improve it or build your own.`;
   return { title, description, openGraph: { title, description, type: "website" }, twitter: { card: "summary_large_image", title, description } };
 }

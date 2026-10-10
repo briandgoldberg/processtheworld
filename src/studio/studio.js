@@ -1262,7 +1262,7 @@ function renderLogin(app){
   app.querySelectorAll('[data-open]').forEach(b => b.onclick = () => { ls.set('ptw_in','1'); openProcess(b.dataset.open, b.dataset.kind); });
   wireEmailForm(app); wireInterest(app); wireCopy(app);
 }
-const MARK = '<i>PW</i>Process the World';
+const MARK = '<i>f</i><span class="wm"><b>forks</b><em>.world</em></span>';
 const footHTML = () => `<footer class="foot"><details class="sf"><summary>Salesforce connector: get early access</summary>
   <form data-interest><input name="email" type="email" required placeholder="you@company.com" autocomplete="email" aria-label="Email"><button class="btn primary sm">Notify me</button><span class="hint" data-imsg role="status"></span></form></details>
   <a href="/agents.md">For AI agents</a></footer>`;
@@ -1313,7 +1313,7 @@ function cardHTML(p, kind){
     badge = p.proposalFor ? '<span class="pill ex">Suggestion</span>' : visPill(p.publicId, p.shareCount, p.publicMode);
   } else if (kind === 'shared'){
     badge = `<span class="pill sh">${p.role === 'view' ? 'Can view' : 'Can edit'}</span>`; by = `<span class="by">Shared by ${esc(p.owner)}</span>`;
-  } else if (kind === 'ex'){ badge = ''; by = '<span class="by">By Process the World</span>'; }
+  } else if (kind === 'ex'){ badge = ''; by = '<span class="by">By forks.world</span>'; }
   else { badge = ''; by = `<span class="by">Published by ${esc(p.processId && S.mine.some(m => m.id === p.processId) ? 'you' : p.authorName)}${p.likes ? ` · ${ICON.heart}${p.likes}` : ''}</span>`; }
   return `<div class="card-wrap">${del}<button class="card" data-open="${esc(p.id)}" data-kind="${kind}">
     <div class="card-top">${badge}<span class="mono card-when${kind === 'mine' ? ' has-x' : ''}">${esc(when)}</span></div>
@@ -1405,15 +1405,14 @@ const useAiHTML = () => `<section class="sec use-ai">
 function renderHome(app){
   const sec = (title, sub, inner) => `<section class="sec"><div class="sec-head"><h2>${title}</h2><p>${sub}</p></div>${inner}</section>`;
   app.innerHTML = `
-  <div class="top"><button class="mark linkish-plain" data-home aria-label="Process the World home">${MARK}</button><span class="topsub hide-sm">Mapping the world's processes</span><div class="grow"></div>
+  <div class="top"><button class="mark linkish-plain" data-home aria-label="forks.world home">${MARK}</button><span class="topsub hide-sm">Mapping how the world works</span><div class="grow"></div>
     ${S.notice ? `<span class="save hide-sm" style="color:var(--danger)">${esc(S.notice)}</span>` : ''}
-    <a class="toplink hide-sm" href="/agents.md">For AI agents</a>
-    <button class="btn primary" id="new">New<span class="hide-sm"> process</span></button>${signInHTML()}${acctHTML()}</div>
+    <button class="btn primary" id="new">New<span class="hide-sm"> process</span></button>
+    <a class="btn primary" href="/connect">Connect<span class="hide-sm"> my AI</span></a>${signInHTML()}${acctHTML()}</div>
   <div class="home"><div class="home-in">
     ${S.mine.length ? sec('My processes', 'Private unless you share or publish them.', `<div class="cards">${S.mine.map(p => cardHTML(p,'mine')).join('')}</div>`) : ''}
     ${S.shared.length ? sec('Shared with me', 'Processes people invited you to.', `<div class="cards">${S.shared.map(p => cardHTML(p,'shared')).join('')}</div>`) : ''}
-    ${sec('Public processes', 'Search, filter by tag, open any of them, like them, or make your own copy.', publicFilterHTML())}
-    ${useAiHTML()}
+    <section class="sec">${publicFilterHTML()}</section>
   </div></div>`;
   $('#new').onclick = startNew; const n2 = $('#new2'); if (n2) n2.onclick = startNew;
   wireAcct(app); wireSignIn(app); wireInterest(app); wireImport(app); wirePublicFilter(app); wireCopy(app);
@@ -1464,7 +1463,7 @@ function renderWorkShell(app){
     <span id="wacct"></span>
   </div>
   <div id="wpanel"></div>
-  <a id="embedlink" class="embedlink" target="_blank" rel="noopener" hidden>Open in Process the World ↗</a>
+  <a id="embedlink" class="embedlink" target="_blank" rel="noopener" hidden>Open in forks.world ↗</a>
   <div id="tagbar" class="tagbar"></div>
   <div id="pubbar"></div>
   <div class="tabs" id="tabs"><button data-tab="chat">Conversation</button><button data-tab="map">Map</button></div>
@@ -1706,7 +1705,7 @@ async function onAction(e){
     case 'tweet': {
       const q = S.real || p, t = (q.title && q.title !== 'Untitled process') ? q.title : 'a process';
       track('share_x', { publicId:b.dataset.pub || q.publicId });
-      window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent('How ' + (t.length > 90 ? t.slice(0, 90) + '…' : t) + ' gets done, mapped on Process the World. Improve it or build your own:') + '&url=' + encodeURIComponent(pubLink(b.dataset.pub || q.publicId)), '_blank', 'noopener');
+      window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent('How ' + (t.length > 90 ? t.slice(0, 90) + '…' : t) + ' gets done, mapped on forks.world. Improve it or build your own:') + '&url=' + encodeURIComponent(pubLink(b.dataset.pub || q.publicId)), '_blank', 'noopener');
       S.panel = null; renderPanel(); return; }
     case 'copypub': {
       const link = pubLink(b.dataset.pub || (S.real || p).publicId);

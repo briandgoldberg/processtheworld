@@ -64,7 +64,7 @@ function section(m: MapT, doc: Doc, level: string): string {
       const target = n.map ? `${doc.maps[n.map]?.steps.find(x => x.id === n.to)?.label ?? n.to} (in layer "${clean(doc.maps[n.map]?.title) || n.map}")` : clean(m.steps.find(x => x.id === n.to)?.label) || n.to;
       return n.label ? `if "${clean(n.label)}" go to ${target}` : `then ${target}`;
     });
-    lines.push(`${i + 1}. **${clean(s.label)}** [${s.kind || "task"}; ${laneName(s.lane)}; id \`${s.id}\`]${s.pain ? ` ⚠ PAIN POINT (${PAIN[s.pain.level] || "medium"})${s.pain.note ? ": " + clean(s.pain.note) : ""}` : ""}${uses.length ? `, using ${uses.join(", ")}` : ""}${s.child && doc.maps[s.child] ? `, opens the detail layer "${clean(doc.maps[s.child].title) || s.child}"` : ""}${s.link ? (s.link.scope === "private" ? `, links to the saved process "${clean(s.link.title) || s.link.id}" (not public; open it in Process the World)` : `, links to the published process "${clean(s.link.title) || s.link.id}" (https://processtheworld.vercel.app/p/${s.link.id}; full text at https://processtheworld.vercel.app/api/public/${s.link.id}/export)`) : ""}`);
+    lines.push(`${i + 1}. **${clean(s.label)}** [${s.kind || "task"}; ${laneName(s.lane)}; id \`${s.id}\`]${s.pain ? ` ⚠ PAIN POINT (${PAIN[s.pain.level] || "medium"})${s.pain.note ? ": " + clean(s.pain.note) : ""}` : ""}${uses.length ? `, using ${uses.join(", ")}` : ""}${s.child && doc.maps[s.child] ? `, opens the detail layer "${clean(doc.maps[s.child].title) || s.child}"` : ""}${s.link ? (s.link.scope === "private" ? `, links to the saved process "${clean(s.link.title) || s.link.id}" (not public; open it in forks.world)` : `, links to the published process "${clean(s.link.title) || s.link.id}" (https://processtheworld.vercel.app/p/${s.link.id}; full text at https://processtheworld.vercel.app/api/public/${s.link.id}/export)`) : ""}`);
     if (next.length) lines.push(`   - ${next.join("; ")}`);
     else if (s.kind !== "end") lines.push("   - (no next step recorded)");
   });
@@ -80,7 +80,7 @@ export function exportMarkdown(doc: Doc, opts: { url?: string; author?: string }
   const steps = all.reduce((n, m) => n + m.steps.length, 0);
   const out: string[] = [];
   out.push(`# ${title}`, "");
-  out.push(`> A process map exported from Process the World (https://processtheworld.vercel.app).${opts.author ? ` Author: ${opts.author}.` : ""}${opts.url ? ` Source: ${opts.url}` : ""}`);
+  out.push(`> A process map exported from forks.world (https://processtheworld.vercel.app).${opts.author ? ` Author: ${opts.author}.` : ""}${opts.url ? ` Source: ${opts.url}` : ""}`);
   out.push("> It describes who does what, in what order, and with which technology. Read the plain-language sections first; the JSON at the end is the exact, complete data.", "");
   out.push("## Summary", "");
   out.push(`- ${steps} steps across ${all.length} layer${all.length === 1 ? "" : "s"}`);

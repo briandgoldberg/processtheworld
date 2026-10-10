@@ -44,15 +44,16 @@ function sketch(doc: any, bw: number, bh: number): string {
 
 export async function renderOg(publicId: string) {
   const r = await prisma.publicProcess.findUnique({ where: { id: publicId }, select: { title: true, authorName: true, stepCount: true, depth: true, doc: true, tags: true } }).catch(() => null);
-  const title = r?.title || "Process the World";
+  const title = r?.title || "forks.world";
   const svg = r ? sketch(r.doc, 1100, 330) : "";
   const stats = r ? `${r.stepCount} steps · ${r.depth} ${r.depth === 1 ? "layer" : "layers"} · by ${r.authorName}` : "Map how anything gets done";
   return new ImageResponse(
     (
       <div style={{ width: W, height: H, display: "flex", flexDirection: "column", background: "#F3F5F8", padding: 50, fontFamily: "sans-serif", color: "#141C27" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 14, fontSize: 26, fontWeight: 700 }}>
-          <div style={{ width: 40, height: 40, borderRadius: 11, background: "#2448C9", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 19 }}>PW</div>
-          Process the World
+          <div style={{ width: 40, height: 40, borderRadius: 11, background: "linear-gradient(135deg, #2448C9, #7C4DFF)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, fontWeight: 800 }}>f</div>
+          <span style={{ display: "flex", fontWeight: 800, letterSpacing: -1 }}>forks</span>
+          <span style={{ display: "flex", color: "#2448C9", marginLeft: -10 }}>.world</span>
         </div>
         <div style={{ display: "flex", fontSize: title.length > 70 ? 40 : title.length > 38 ? 48 : 60, fontWeight: 800, lineHeight: 1.1, letterSpacing: -1.5, marginTop: 22, maxHeight: 150, overflow: "hidden" }}>{title}</div>
         <div style={{ display: "flex", fontSize: 26, color: "#5A6573", marginTop: 12 }}>{stats}</div>

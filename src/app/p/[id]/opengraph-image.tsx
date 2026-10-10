@@ -1,6 +1,6 @@
 import { renderOg } from "@/lib/ogImage";
 
-export const alt = "A process map on Process the World";
+export const alt = "A process map on forks.world";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 export const dynamic = "force-dynamic";

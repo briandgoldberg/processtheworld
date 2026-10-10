@@ -63,7 +63,7 @@ export function claudeSkill(doc: Doc): string {
     "",
     `# ${title}`,
     "",
-    "This skill comes from a process map made on Process the World. Use it as the source of truth for how this process runs.",
+    "This skill comes from a process map made on forks.world. Use it as the source of truth for how this process runs.",
     "",
     "## How to use it",
     "",

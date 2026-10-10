@@ -1,7 +1,7 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "Process the World",
+    "title": "forks.world",
     "description": "Create and publish swim-lane process maps.",
     "version": "1.0.0"
   },

@@ -30,7 +30,7 @@ export default function Invite() {
   }
   return (
     <div className="login"><div className="login-card">
-      <a className="mark" href="/" style={{ textDecoration: "none", color: "inherit" }}><i>PW</i>Process the World</a>
+      <a className="mark" href="/" style={{ textDecoration: "none", color: "inherit" }}><i>f</i><span className="wm"><b>forks</b><em>.world</em></span></a>
       {info ? (
         <>
           <h1>{info.inviter} shared “{info.title}” with you</h1>
@@ -44,7 +44,7 @@ export default function Invite() {
           </form>
         </>
       ) : !err ? <p className="hint">Loading your invite…</p> : null}
-      {err && <p role="alert" style={{ color: "var(--danger)" }}>{err} <a href="/">Go to Process the World</a></p>}
+      {err && <p role="alert" style={{ color: "var(--danger)" }}>{err} <a href="/">Go to forks.world</a></p>}
     </div></div>
   );
 }

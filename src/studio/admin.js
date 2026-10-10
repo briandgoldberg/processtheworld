@@ -145,7 +145,7 @@ function training(el){
 const TABS = { overview, feedback, sessions, suggestions, training };
 async function draw(){
   const root = $('#adm');
-  root.innerHTML = `<div class="top"><div class="mark"><i>PW</i>Process the World</div><span class="pill">Admin</span><div class="grow"></div><a class="btn ghost sm" href="/">Back to the app</a></div>
+  root.innerHTML = `<div class="top"><div class="mark"><i>f</i><span class="wm"><b>forks</b><em>.world</em></span></div><span class="pill">Admin</span><div class="grow"></div><a class="btn ghost sm" href="/">Back to the app</a></div>
   <div class="home"><div class="home-in">
     <nav class="seg">${Object.keys(TABS).map(t => `<button class="btn sm${A.tab === t ? ' primary' : ''}" data-tab="${t}">${t[0].toUpperCase() + t.slice(1)}</button>`).join('')}
       ${A.tab === 'overview' ? `<select id="days" aria-label="Period">${[7,30,90,365].map(n => `<option value="${n}" ${A.days === n ? 'selected' : ''}>Last ${n} days</option>`).join('')}</select>` : ''}</nav>

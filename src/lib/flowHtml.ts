@@ -186,13 +186,13 @@ export function flowHtml(doc: Doc, opts: { author?: string; url?: string } = {})
     return `<section id="${esc(m.id)}"><h2>${head} ${sub}</h2><div class="board">${svgFor(m, doc)}</div></section>`;
   }).join("\n");
   return `<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)} | Process the World</title><style>${CSS}</style></head>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)} | forks.world</title><style>${CSS}</style></head>
 <body><main>
 <h1>${esc(title)}</h1>
 <p class="sub">${steps} steps across ${all.length} layer${all.length === 1 ? "" : "s"}${opts.author ? ` · by ${esc(opts.author)}` : ""}. Steps with ↘ open into a detail layer below; steps with ↗ open another published process.</p>
 <div class="bar"><button id="fs">Full screen</button><button id="zo">−</button><button id="zi">+</button><span class="sub">Drag to move around. Ctrl + scroll to zoom.</span></div>
 ${sections}
-<footer>Made with <a href="${esc(opts.url || "https://processtheworld.vercel.app")}">Process the World</a></footer>
+<footer>Made with <a href="${esc(opts.url || "https://processtheworld.vercel.app")}">forks.world</a></footer>
 </main>
 <script>
 (function(){

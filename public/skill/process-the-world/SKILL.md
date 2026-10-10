@@ -1,11 +1,11 @@
 ---
 name: process-the-world
-description: Interview the user about how something gets done and turn it into a swim-lane process map on Process the World (people, steps, technology, decisions, drill-down layers). Use when the user wants to map, document, or write up a process, workflow, SOP or "how we do X", or mentions Process the World.
+description: Interview the user about how something gets done and turn it into a swim-lane process map on forks.world (people, steps, technology, decisions, drill-down layers). Use when the user wants to map, document, or write up a process, workflow, SOP or "how we do X", or mentions forks.world.
 ---
 
-# Process the World
+# forks.world
 
-You map processes the way the Process the World app does: by interviewing the person in their own words, building a structured swim-lane map as they talk, and asking the single most useful next question. The result is saved to their Process the World library (https://processtheworld.vercel.app) and can be kept private, shared, or published.
+You map processes the way the forks.world app does: by interviewing the person in their own words, building a structured swim-lane map as they talk, and asking the single most useful next question. The result is saved to their forks.world library (https://processtheworld.vercel.app) and can be kept private, shared, or published.
 
 ## How to interview
 
@@ -70,7 +70,7 @@ Fix these yourself, or ask the person if only they can answer:
 Use the HTTP API. Show the person nothing technical; just tell them the result.
 
 **Where it goes depends on the key you use.**
-- **The person gave you their Process the World key** (Account menu > "Copy key for Claude or ChatGPT"). Use it. The process lands directly in their Library.
+- **The person gave you their forks.world key** (Account menu > "Copy key for Claude or ChatGPT"). Use it. The process lands directly in their Library.
 - **No key.** Create an account of your own: make up a random key of 32+ characters and keep it for the rest of the conversation: `POST https://processtheworld.vercel.app/api/identity` with `{"key":"<your key>"}`. That process is not in the person's Library. Give it to them by publishing it and sharing the link (ask first), or by sharing the Markdown export.
 
 **Save the process:** `POST https://processtheworld.vercel.app/api/agent/processes` with header `x-ptw-key: <key>` and the map JSON as the body. The response has an `id`. To change a map you already saved, send the same body again with `"id": "<that id>"`.
@@ -79,13 +79,13 @@ Use the HTTP API. Show the person nothing technical; just tell them the result.
 
 **Simplest path (no key, no setup).** If the person just wants it published, or says to sign up as a guest, make one request to `POST https://processtheworld.vercel.app/api/agent/quick` with the map JSON as the body. It signs up a guest, saves and publishes in one call, and returns `publicUrl` (the shareable link), `flowUrl` (the flow diagram page) and a `key`. If you can only open links (no POST), use `GET /api/agent/quick?json=<URL-encoded map JSON>` instead (or `?b64=<base64url of the JSON>` for long maps).
 
-**Or use the connector.** If a "Process the World" connector (MCP: https://processtheworld.vercel.app/api/mcp) is available, use its `save_process` tool with the same map JSON. No key is needed; it signs up a guest on the first save and returns the key.
+**Or use the connector.** If a "forks.world" connector (MCP: https://processtheworld.vercel.app/api/mcp) is available, use its `save_process` tool with the same map JSON. No key is needed; it signs up a guest on the first save and returns the key.
 
-**If you can't make web requests** (no network access in this environment): write the finished map as the Markdown document (structure above), and tell the person you couldn't save it to Process the World from here.
+**If you can't make web requests** (no network access in this environment): write the finished map as the Markdown document (structure above), and tell the person you couldn't save it to forks.world from here.
 
 ## Write the document
 
-Every map ends with a document, the same one the Process the World app produces. Don't write your own style.
+Every map ends with a document, the same one the forks.world app produces. Don't write your own style.
 
 **Fetch it** (normal case): after saving, `GET https://processtheworld.vercel.app/api/processes/{id}/export` with the `x-ptw-key` header. It returns the finished Markdown: summary, how to read it, every layer as a numbered step list, a Mermaid flow diagram per layer, and the full JSON. Give it to the person exactly as returned, as a file named after the process (`<title>.md`) or in a code block.
 
@@ -98,7 +98,7 @@ Every map ends with a document, the same one the Process the World app produces.
 ```markdown
 # <Process title>
 
-> A process map exported from Process the World (https://processtheworld.vercel.app).
+> A process map exported from forks.world (https://processtheworld.vercel.app).
 > It describes who does what, in what order, and with which technology.
 
 ## Summary

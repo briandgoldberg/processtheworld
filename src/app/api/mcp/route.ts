@@ -128,7 +128,7 @@ const cors = { "access-control-allow-origin": "*", "access-control-allow-headers
 const withCors = (r: Response) => { Object.entries(cors).forEach(([k, v]) => r.headers.set(k, v)); return r; };
 
 export async function OPTIONS() { return withCors(new Response(null, { status: 204 })); }
-export async function GET() { return withCors(new Response("Process the World MCP server. POST JSON-RPC here.", { status: 405, headers: { allow: "POST" } })); }
+export async function GET() { return withCors(new Response("forks.world MCP server. POST JSON-RPC here.", { status: 405, headers: { allow: "POST" } })); }
 
 export async function POST(req: NextRequest) {
   let m: any;
