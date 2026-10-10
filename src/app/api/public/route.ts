@@ -3,10 +3,12 @@ import { prisma } from "@/lib/db";
 import { userFrom } from "@/lib/identity";
 import { cleanTag } from "@/lib/tags";
 import { json } from "@/lib/http";
+import { seedCrmOnce } from "@/lib/seedCrm";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
+  await seedCrmOnce(req.nextUrl.origin);
   const me = await userFrom(req);
   const q = (req.nextUrl.searchParams.get("q") || "").trim().slice(0, 80);
   const tag = cleanTag(req.nextUrl.searchParams.get("tag"));

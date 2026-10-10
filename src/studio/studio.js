@@ -3,7 +3,6 @@ import { exportMarkdown } from '@/lib/exportMd';
 import { claudeSkill, chatgptInstructions, skillSlug } from '@/lib/agentExport';
 import { flowHtml, columnsOf } from '@/lib/flowHtml';
 import { cleanTag, cleanTags } from '@/lib/tags';
-import { CRM_EXAMPLES } from './crmExamples';
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rid = p => p + Math.random().toString(36).slice(2, 9);
@@ -108,7 +107,7 @@ const EX_TEA = {
     ]}},
   chat:[], events:[]
 };
-const EXAMPLES = [EX_EGG, EX_CAR, EX_TEA, ...CRM_EXAMPLES];
+const EXAMPLES = [EX_EGG, EX_CAR, EX_TEA];
 
 /* ---------- State ---------- */
 const S = { view:'login', me:null, ready:false,
@@ -1244,7 +1243,7 @@ document.addEventListener('click', e => { if (S.acct && !e.target.closest('.acct
 const FEATURED = ['Your Immune System vs. a Cold Virus', 'Quote, sell, service, renew', 'A workday: drive to work', 'Photosynthesis', 'How a lightning bolt', 'Lead to customer', 'The life and death of a star', 'Quote to cash'];
 function sampleCards(){
   const feat = FEATURED.map(t => (S.pub || []).find(p => p.title.startsWith(t))).filter(Boolean).slice(0, 6);
-  return feat.length >= 3 ? feat.map(p => cardHTML(p, 'pub')).join('') : EXAMPLES.slice(0, 3).map(p => cardHTML(p, 'ex')).join('');
+  return feat.length >= 3 ? feat.map(p => cardHTML(p, 'pub')).join('') : EXAMPLES.map(p => cardHTML(p, 'ex')).join('');
 }
 function renderConnect(app){
   app.innerHTML = `${topBarHTML()}
@@ -1440,10 +1439,9 @@ function feedCardHTML(p){
 function publicCardsHTML(){
   const all = (S.pub || []).filter(publicMatches).sort(SORTS[S.sort] || SORTS.new);
   const shown = all.slice(0, S.pubLimit), more = all.length > shown.length;
-  const pinned = EXAMPLES.filter(p => p.pin && publicMatches(p)).map(p => cardHTML(p, 'ex')).join('');
-  const exs = more ? '' : EXAMPLES.filter(p => !p.pin && publicMatches(p)).map(p => cardHTML(p, 'ex')).join('');
-  if (!shown.length && !exs && !pinned) return '<div class="empty"><b style="color:var(--ink)">Nothing matches</b><span>Try a different word, or clear the tag.</span></div>';
-  return pinned + shown.map(feedCardHTML).join('') + exs + (more ? `<div class="fmore"><button class="btn" data-more>Show ${Math.min(12, all.length - shown.length)} more</button></div>` : '');
+  const exs = more ? '' : EXAMPLES.filter(publicMatches).map(p => cardHTML(p, 'ex')).join('');
+  if (!shown.length && !exs) return '<div class="empty"><b style="color:var(--ink)">Nothing matches</b><span>Try a different word, or clear the tag.</span></div>';
+  return shown.map(feedCardHTML).join('') + exs + (more ? `<div class="fmore"><button class="btn" data-more>Show ${Math.min(12, all.length - shown.length)} more</button></div>` : '');
 }
 function sortBarHTML(){
   const n = (S.pub || []).filter(publicMatches).length;

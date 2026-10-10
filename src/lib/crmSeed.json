@@ -1,0 +1,1100 @@
+[
+ {
+  "title": "Score a lead and hand off the MQL to sales",
+  "tags": [
+   "business",
+   "marketing",
+   "sales",
+   "crm"
+  ],
+  "thumbnailArt": {
+   "emoji": "🎯",
+   "hue": 20
+  },
+  "lanes": [
+   {
+    "id": "prospect",
+    "name": "Prospect",
+    "type": "person"
+   },
+   {
+    "id": "mops",
+    "name": "Marketing ops",
+    "type": "person"
+   },
+   {
+    "id": "ma",
+    "name": "Marketing automation",
+    "type": "system"
+   },
+   {
+    "id": "crm",
+    "name": "CRM",
+    "type": "system"
+   },
+   {
+    "id": "sdr",
+    "name": "Sales development rep",
+    "type": "person"
+   }
+  ],
+  "steps": [
+   {
+    "id": "a1",
+    "lane": "prospect",
+    "label": "Fills out a form or downloads a guide",
+    "kind": "start",
+    "next": [
+     "a2"
+    ]
+   },
+   {
+    "id": "a2",
+    "lane": "ma",
+    "label": "Capture the lead and log the activity",
+    "next": [
+     "a3"
+    ],
+    "uses": [
+     "crm"
+    ]
+   },
+   {
+    "id": "a3",
+    "lane": "ma",
+    "label": "Score fit and engagement",
+    "next": [
+     "a4"
+    ]
+   },
+   {
+    "id": "a4",
+    "lane": "ma",
+    "label": "Score over the MQL threshold?",
+    "kind": "decision",
+    "next": [
+     {
+      "to": "a6",
+      "label": "Yes"
+     },
+     {
+      "to": "a5",
+      "label": "No"
+     }
+    ]
+   },
+   {
+    "id": "a5",
+    "lane": "ma",
+    "label": "Keep nurturing until new activity",
+    "next": [
+     {
+      "to": "a3",
+      "label": "New activity"
+     }
+    ]
+   },
+   {
+    "id": "a6",
+    "lane": "crm",
+    "label": "Mark as MQL and route to a rep by territory",
+    "next": [
+     "a7"
+    ],
+    "pain": {
+     "level": 2,
+     "note": "Routing rules drift as territories change, so leads land with the wrong rep"
+    }
+   },
+   {
+    "id": "a7",
+    "lane": "sdr",
+    "label": "Reach out within the response SLA",
+    "next": [
+     "a8"
+    ],
+    "pain": {
+     "level": 3,
+     "note": "Interest fades fast; a slow first touch wastes the lead"
+    }
+   },
+   {
+    "id": "a8",
+    "lane": "sdr",
+    "label": "Real buying interest?",
+    "kind": "decision",
+    "next": [
+     {
+      "to": "a9",
+      "label": "Yes"
+     },
+     {
+      "to": "a10",
+      "label": "No"
+     }
+    ]
+   },
+   {
+    "id": "a9",
+    "lane": "sdr",
+    "label": "Accept it and book a discovery call",
+    "next": [
+     "a12"
+    ],
+    "uses": [
+     "crm"
+    ]
+   },
+   {
+    "id": "a10",
+    "lane": "sdr",
+    "label": "Reject it with a reason",
+    "next": [
+     "a11"
+    ],
+    "uses": [
+     "crm"
+    ]
+   },
+   {
+    "id": "a11",
+    "lane": "mops",
+    "label": "Review reject reasons and tune the scoring",
+    "next": [
+     "a13"
+    ]
+   },
+   {
+    "id": "a12",
+    "lane": "sdr",
+    "label": "Handed to sales as a qualified lead",
+    "kind": "end"
+   },
+   {
+    "id": "a13",
+    "lane": "ma",
+    "label": "Lead goes back to nurture",
+    "kind": "end"
+   }
+  ],
+  "layers": [
+   {
+    "id": "score",
+    "title": "Score fit and engagement",
+    "parentStep": "a3",
+    "lanes": [
+     {
+      "id": "s_ops",
+      "name": "Marketing ops",
+      "type": "person"
+     },
+     {
+      "id": "s_ma",
+      "name": "Marketing automation",
+      "type": "system"
+     }
+    ],
+    "steps": [
+     {
+      "id": "s1",
+      "lane": "s_ops",
+      "label": "Agree the scoring rules with sales",
+      "kind": "start",
+      "next": [
+       "s2"
+      ]
+     },
+     {
+      "id": "s2",
+      "lane": "s_ma",
+      "label": "Add fit points: job title, industry, company size",
+      "next": [
+       "s3"
+      ]
+     },
+     {
+      "id": "s3",
+      "lane": "s_ma",
+      "label": "Add engagement points: visits, opens, webinars",
+      "next": [
+       "s4"
+      ]
+     },
+     {
+      "id": "s4",
+      "lane": "s_ma",
+      "label": "Subtract points for weeks of silence",
+      "next": [
+       "s5"
+      ]
+     },
+     {
+      "id": "s5",
+      "lane": "s_ma",
+      "label": "Asked for a demo or pricing?",
+      "kind": "decision",
+      "next": [
+       {
+        "to": "s6",
+        "label": "Yes"
+       },
+       {
+        "to": "s7",
+        "label": "No"
+       }
+      ]
+     },
+     {
+      "id": "s6",
+      "lane": "s_ma",
+      "label": "Fast-track straight to MQL",
+      "next": [
+       "s7"
+      ]
+     },
+     {
+      "id": "s7",
+      "lane": "s_ma",
+      "label": "Score updated",
+      "kind": "end"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "title": "Manage the pipeline and call the forecast",
+  "tags": [
+   "business",
+   "sales",
+   "crm",
+   "forecasting"
+  ],
+  "thumbnailArt": {
+   "emoji": "📈",
+   "hue": 140
+  },
+  "lanes": [
+   {
+    "id": "ae",
+    "name": "Account executive",
+    "type": "person"
+   },
+   {
+    "id": "mgr",
+    "name": "Sales manager",
+    "type": "person"
+   },
+   {
+    "id": "buyer",
+    "name": "Buyer",
+    "type": "person"
+   },
+   {
+    "id": "crm",
+    "name": "CRM",
+    "type": "system"
+   }
+  ],
+  "steps": [
+   {
+    "id": "o1",
+    "lane": "ae",
+    "label": "Qualified opportunity created",
+    "kind": "start",
+    "next": [
+     "o2"
+    ]
+   },
+   {
+    "id": "o2",
+    "lane": "ae",
+    "label": "Set amount, close date and stage",
+    "next": [
+     "o3"
+    ],
+    "uses": [
+     "crm"
+    ]
+   },
+   {
+    "id": "o3",
+    "lane": "ae",
+    "label": "Move the deal through the stages",
+    "next": [
+     "o4"
+    ]
+   },
+   {
+    "id": "o4",
+    "lane": "ae",
+    "label": "Update the forecast category each week: commit, best case, pipeline",
+    "next": [
+     "o5"
+    ],
+    "uses": [
+     "crm"
+    ]
+   },
+   {
+    "id": "o5",
+    "lane": "crm",
+    "label": "Roll up the forecast by rep and team",
+    "next": [
+     "o6"
+    ]
+   },
+   {
+    "id": "o6",
+    "lane": "mgr",
+    "label": "Inspect deals on the weekly forecast call",
+    "next": [
+     "o7"
+    ],
+    "pain": {
+     "level": 2,
+     "note": "Close dates get pushed quarter after quarter, hiding real risk"
+    }
+   },
+   {
+    "id": "o7",
+    "lane": "mgr",
+    "label": "Deal real for this quarter?",
+    "kind": "decision",
+    "next": [
+     {
+      "to": "o8",
+      "label": "Yes"
+     },
+     {
+      "to": "o9",
+      "label": "No"
+     }
+    ]
+   },
+   {
+    "id": "o8",
+    "lane": "mgr",
+    "label": "Call the number to leadership",
+    "next": [
+     "o10"
+    ]
+   },
+   {
+    "id": "o9",
+    "lane": "ae",
+    "label": "Move the close date or mark Closed Lost with a reason",
+    "next": [
+     "o12"
+    ],
+    "uses": [
+     "crm"
+    ]
+   },
+   {
+    "id": "o10",
+    "lane": "buyer",
+    "label": "Signs the contract?",
+    "kind": "decision",
+    "next": [
+     {
+      "to": "o11",
+      "label": "Yes"
+     },
+     {
+      "to": "o9",
+      "label": "No"
+     }
+    ]
+   },
+   {
+    "id": "o11",
+    "lane": "ae",
+    "label": "Mark Closed Won and hand off to onboarding",
+    "next": [
+     "o13"
+    ],
+    "uses": [
+     "crm"
+    ]
+   },
+   {
+    "id": "o12",
+    "lane": "crm",
+    "label": "Pipeline cleaned up",
+    "kind": "end"
+   },
+   {
+    "id": "o13",
+    "lane": "crm",
+    "label": "Revenue booked",
+    "kind": "end"
+   }
+  ],
+  "layers": [
+   {
+    "id": "stages",
+    "title": "Move the deal through the stages",
+    "parentStep": "o3",
+    "lanes": [
+     {
+      "id": "t_ae",
+      "name": "Account executive",
+      "type": "person"
+     },
+     {
+      "id": "t_buyer",
+      "name": "Buyer",
+      "type": "person"
+     },
+     {
+      "id": "t_crm",
+      "name": "CRM",
+      "type": "system"
+     }
+    ],
+    "steps": [
+     {
+      "id": "t1",
+      "lane": "t_ae",
+      "label": "Discovery done",
+      "kind": "start",
+      "next": [
+       "t2"
+      ]
+     },
+     {
+      "id": "t2",
+      "lane": "t_ae",
+      "label": "Confirm decision makers, budget and criteria",
+      "next": [
+       "t3"
+      ],
+      "uses": [
+       "t_crm"
+      ]
+     },
+     {
+      "id": "t3",
+      "lane": "t_buyer",
+      "label": "Sees a demo of the solution",
+      "next": [
+       "t4"
+      ]
+     },
+     {
+      "id": "t4",
+      "lane": "t_ae",
+      "label": "Send the proposal",
+      "next": [
+       "t5"
+      ],
+      "uses": [
+       "t_crm"
+      ]
+     },
+     {
+      "id": "t5",
+      "lane": "t_buyer",
+      "label": "Ready to negotiate?",
+      "kind": "decision",
+      "next": [
+       {
+        "to": "t6",
+        "label": "Yes"
+       },
+       {
+        "to": "t7",
+        "label": "No"
+       }
+      ]
+     },
+     {
+      "id": "t7",
+      "lane": "t_ae",
+      "label": "Find the blocker and address it",
+      "next": [
+       "t3"
+      ]
+     },
+     {
+      "id": "t6",
+      "lane": "t_ae",
+      "label": "Negotiate terms",
+      "next": [
+       "t8"
+      ]
+     },
+     {
+      "id": "t8",
+      "lane": "t_ae",
+      "label": "Ready to close",
+      "kind": "end"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "title": "Escalate a support case before the SLA breaks",
+  "tags": [
+   "business",
+   "service",
+   "support",
+   "crm"
+  ],
+  "thumbnailArt": {
+   "emoji": "🚨",
+   "hue": 0
+  },
+  "lanes": [
+   {
+    "id": "cust",
+    "name": "Customer",
+    "type": "person"
+   },
+   {
+    "id": "t1a",
+    "name": "Tier 1 agent",
+    "type": "person"
+   },
+   {
+    "id": "t2s",
+    "name": "Tier 2 specialist",
+    "type": "person"
+   },
+   {
+    "id": "console",
+    "name": "Service console",
+    "type": "system"
+   },
+   {
+    "id": "kb",
+    "name": "Knowledge base",
+    "type": "system"
+   }
+  ],
+  "steps": [
+   {
+    "id": "c1",
+    "lane": "cust",
+    "label": "Reports a problem by email, chat or web form",
+    "kind": "start",
+    "next": [
+     "c2"
+    ]
+   },
+   {
+    "id": "c2",
+    "lane": "console",
+    "label": "Create a case and apply the customer's entitlement",
+    "next": [
+     "c3",
+     "c15"
+    ]
+   },
+   {
+    "id": "c15",
+    "lane": "console",
+    "label": "Track SLA milestones and warn the owner before a breach",
+    "next": [
+     "c16"
+    ],
+    "pain": {
+     "level": 2,
+     "note": "Warnings that fire too late leave no time to act"
+    }
+   },
+   {
+    "id": "c16",
+    "lane": "console",
+    "label": "SLA met or flagged",
+    "kind": "end"
+   },
+   {
+    "id": "c3",
+    "lane": "t1a",
+    "label": "Search knowledge for a known fix",
+    "next": [
+     "c4"
+    ],
+    "uses": [
+     "kb"
+    ]
+   },
+   {
+    "id": "c4",
+    "lane": "t1a",
+    "label": "Fix found?",
+    "kind": "decision",
+    "next": [
+     {
+      "to": "c5",
+      "label": "Yes"
+     },
+     {
+      "to": "c6",
+      "label": "No"
+     }
+    ]
+   },
+   {
+    "id": "c5",
+    "lane": "t1a",
+    "label": "Send the fix to the customer",
+    "next": [
+     "c11"
+    ]
+   },
+   {
+    "id": "c6",
+    "lane": "t1a",
+    "label": "Can Tier 1 solve it?",
+    "kind": "decision",
+    "next": [
+     {
+      "to": "c7",
+      "label": "Yes"
+     },
+     {
+      "to": "c8",
+      "label": "No"
+     }
+    ]
+   },
+   {
+    "id": "c7",
+    "lane": "t1a",
+    "label": "Troubleshoot and resolve",
+    "next": [
+     "c11"
+    ]
+   },
+   {
+    "id": "c8",
+    "lane": "console",
+    "label": "Escalate to Tier 2 with full notes",
+    "next": [
+     "c9"
+    ],
+    "pain": {
+     "level": 3,
+     "note": "Thin handoff notes make customers repeat everything"
+    }
+   },
+   {
+    "id": "c9",
+    "lane": "t2s",
+    "label": "Investigate and fix",
+    "next": [
+     "c10"
+    ]
+   },
+   {
+    "id": "c10",
+    "lane": "t2s",
+    "label": "Write or update a knowledge article",
+    "next": [
+     "c11"
+    ],
+    "uses": [
+     "kb"
+    ]
+   },
+   {
+    "id": "c11",
+    "lane": "cust",
+    "label": "Problem solved?",
+    "kind": "decision",
+    "next": [
+     {
+      "to": "c12",
+      "label": "Yes"
+     },
+     {
+      "to": "c13",
+      "label": "No"
+     }
+    ]
+   },
+   {
+    "id": "c13",
+    "lane": "console",
+    "label": "Reopen the case",
+    "next": [
+     "c6"
+    ]
+   },
+   {
+    "id": "c12",
+    "lane": "console",
+    "label": "Close the case and send a satisfaction survey",
+    "next": [
+     "c14"
+    ]
+   },
+   {
+    "id": "c14",
+    "lane": "cust",
+    "label": "Case closed",
+    "kind": "end"
+   }
+  ],
+  "layers": [
+   {
+    "id": "investigate",
+    "title": "Investigate and fix",
+    "parentStep": "c9",
+    "lanes": [
+     {
+      "id": "i_t2",
+      "name": "Tier 2 specialist",
+      "type": "person"
+     },
+     {
+      "id": "i_eng",
+      "name": "Engineering",
+      "type": "person"
+     },
+     {
+      "id": "i_console",
+      "name": "Service console",
+      "type": "system"
+     }
+    ],
+    "steps": [
+     {
+      "id": "i1",
+      "lane": "i_t2",
+      "label": "Reproduce the issue",
+      "kind": "start",
+      "next": [
+       "i2"
+      ]
+     },
+     {
+      "id": "i2",
+      "lane": "i_t2",
+      "label": "A product bug?",
+      "kind": "decision",
+      "next": [
+       {
+        "to": "i3",
+        "label": "Yes"
+       },
+       {
+        "to": "i7",
+        "label": "No"
+       }
+      ]
+     },
+     {
+      "id": "i3",
+      "lane": "i_console",
+      "label": "Link the case to a bug report",
+      "next": [
+       "i4"
+      ]
+     },
+     {
+      "id": "i4",
+      "lane": "i_eng",
+      "label": "Fix and release",
+      "next": [
+       "i5"
+      ]
+     },
+     {
+      "id": "i7",
+      "lane": "i_t2",
+      "label": "Fix the setup or data",
+      "next": [
+       "i5"
+      ]
+     },
+     {
+      "id": "i5",
+      "lane": "i_t2",
+      "label": "Confirm the fix with the customer",
+      "next": [
+       "i6"
+      ]
+     },
+     {
+      "id": "i6",
+      "lane": "i_t2",
+      "label": "Fixed",
+      "kind": "end"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "title": "Run an email nurture journey",
+  "tags": [
+   "business",
+   "marketing",
+   "email",
+   "crm"
+  ],
+  "thumbnailArt": {
+   "emoji": "📬",
+   "hue": 210
+  },
+  "lanes": [
+   {
+    "id": "mkt",
+    "name": "Marketer",
+    "type": "person"
+   },
+   {
+    "id": "contact",
+    "name": "Contact",
+    "type": "person"
+   },
+   {
+    "id": "ma",
+    "name": "Marketing automation",
+    "type": "system"
+   },
+   {
+    "id": "crm",
+    "name": "CRM",
+    "type": "system"
+   }
+  ],
+  "steps": [
+   {
+    "id": "n1",
+    "lane": "mkt",
+    "label": "Pick an audience and a goal",
+    "kind": "start",
+    "next": [
+     "n2"
+    ]
+   },
+   {
+    "id": "n2",
+    "lane": "mkt",
+    "label": "Build the segment",
+    "next": [
+     "n3"
+    ],
+    "uses": [
+     "crm"
+    ]
+   },
+   {
+    "id": "n3",
+    "lane": "ma",
+    "label": "Contact enters the journey",
+    "next": [
+     "n4"
+    ]
+   },
+   {
+    "id": "n4",
+    "lane": "ma",
+    "label": "Send email 1: something genuinely useful",
+    "next": [
+     "n5"
+    ],
+    "pain": {
+     "level": 2,
+     "note": "Too many sends drive unsubscribes"
+    }
+   },
+   {
+    "id": "n5",
+    "lane": "ma",
+    "label": "Wait a few days",
+    "next": [
+     "n6"
+    ]
+   },
+   {
+    "id": "n6",
+    "lane": "contact",
+    "label": "Opened or clicked?",
+    "kind": "decision",
+    "next": [
+     {
+      "to": "n7",
+      "label": "Yes"
+     },
+     {
+      "to": "n8",
+      "label": "No"
+     }
+    ]
+   },
+   {
+    "id": "n8",
+    "lane": "ma",
+    "label": "Resend with a new subject line",
+    "next": [
+     "n9"
+    ]
+   },
+   {
+    "id": "n9",
+    "lane": "contact",
+    "label": "Engaged now?",
+    "kind": "decision",
+    "next": [
+     {
+      "to": "n7",
+      "label": "Yes"
+     },
+     {
+      "to": "n10",
+      "label": "No"
+     }
+    ]
+   },
+   {
+    "id": "n10",
+    "lane": "ma",
+    "label": "Move to a low-frequency list",
+    "next": [
+     "n14"
+    ]
+   },
+   {
+    "id": "n7",
+    "lane": "ma",
+    "label": "Send email 2: a customer story",
+    "next": [
+     "n11"
+    ]
+   },
+   {
+    "id": "n11",
+    "lane": "contact",
+    "label": "Visited pricing or asked for a demo?",
+    "kind": "decision",
+    "next": [
+     {
+      "to": "n12",
+      "label": "Yes"
+     },
+     {
+      "to": "n13",
+      "label": "No"
+     }
+    ]
+   },
+   {
+    "id": "n12",
+    "lane": "crm",
+    "label": "Alert sales and pause the journey",
+    "next": [
+     "n15"
+    ]
+   },
+   {
+    "id": "n13",
+    "lane": "ma",
+    "label": "Send email 3: a clear offer",
+    "next": [
+     "n16"
+    ]
+   },
+   {
+    "id": "n14",
+    "lane": "ma",
+    "label": "Exited quietly",
+    "kind": "end"
+   },
+   {
+    "id": "n15",
+    "lane": "crm",
+    "label": "Handed to sales",
+    "kind": "end"
+   },
+   {
+    "id": "n16",
+    "lane": "mkt",
+    "label": "Journey complete: review results",
+    "kind": "end"
+   }
+  ],
+  "layers": [
+   {
+    "id": "segment",
+    "title": "Build the segment",
+    "parentStep": "n2",
+    "lanes": [
+     {
+      "id": "g_mkt",
+      "name": "Marketer",
+      "type": "person"
+     },
+     {
+      "id": "g_crm",
+      "name": "CRM",
+      "type": "system"
+     }
+    ],
+    "steps": [
+     {
+      "id": "g1",
+      "lane": "g_mkt",
+      "label": "Choose criteria: industry, stage, last activity",
+      "kind": "start",
+      "next": [
+       "g2"
+      ]
+     },
+     {
+      "id": "g2",
+      "lane": "g_crm",
+      "label": "Pull matching contacts",
+      "next": [
+       "g3"
+      ]
+     },
+     {
+      "id": "g3",
+      "lane": "g_crm",
+      "label": "Has email consent?",
+      "kind": "decision",
+      "next": [
+       {
+        "to": "g4",
+        "label": "Yes"
+       },
+       {
+        "to": "g5",
+        "label": "No"
+       }
+      ]
+     },
+     {
+      "id": "g4",
+      "lane": "g_crm",
+      "label": "Add to the segment",
+      "next": [
+       "g6"
+      ]
+     },
+     {
+      "id": "g5",
+      "lane": "g_crm",
+      "label": "Leave them out",
+      "next": [
+       "g6"
+      ]
+     },
+     {
+      "id": "g6",
+      "lane": "g_mkt",
+      "label": "Segment ready",
+      "kind": "end"
+     }
+    ]
+   }
+  ]
+ }
+]
