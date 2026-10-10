@@ -1318,7 +1318,7 @@ function renderLogin(app){
     </section>
     <section class="use-ai">
       <h2>Build from Claude or ChatGPT.</h2>
-      <p>Map, view and publish processes from your own AI.</p>
+      <p>Map, view and publish processes from your own AI. It never uses your credits.</p>
       <div class="use-actions">
         <a class="btn primary lg" href="/process-the-world-skill.zip" download>Get the Claude skill</a>
         <button class="btn primary lg" data-copy-url="/chatgpt/instructions.txt">Get the ChatGPT skill</button>
@@ -1477,7 +1477,7 @@ function wirePublicFilter(root){
 }
 const useAiHTML = () => `<section class="sec use-ai">
       <h2>Build from Claude or ChatGPT.</h2>
-      <p>Map, view and publish processes from your own AI.</p>
+      <p>Map, view and publish processes from your own AI. It never uses your credits.</p>
       <div class="use-actions">
         <a class="btn primary" href="/process-the-world-skill.zip" download>Get the Claude skill</a>
         <button class="btn primary" data-copy-url="/chatgpt/instructions.txt">Get the ChatGPT skill</button>

@@ -350,7 +350,7 @@ code{font-family:var(--f-mono);font-size:11px}
 /* full screen: the map is centered and fills the screen */
 .canvas-wrap:fullscreen .scroller,.canvas-wrap.fs .scroller{display:flex}
 .canvas-wrap:fullscreen .board,.canvas-wrap.fs .board{margin:auto}
-.credits{display:flex;flex-direction:column;gap:2px;font-size:13px;margin:2px 0 8px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--sunk)}
+.credits{display:flex;flex-direction:row;flex-wrap:wrap;align-items:baseline;gap:2px 6px;font-size:13px;margin:2px 0 8px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--sunk)}
 .credits b{font-size:18px;letter-spacing:-.02em}
 .credits small{color:var(--muted);font-size:11.5px;line-height:1.35}
 .work.viewonly{grid-template-columns:1fr!important}
