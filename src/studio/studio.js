@@ -888,8 +888,8 @@ async function submitSuggestion(note){
   } catch (e){ S.panelMsg = e.message; }
   S.tab = 'chat'; renderWork();
 }
-async function loadMine(){ try { const d = await API.get('/api/processes'); S.mine = d.processes; S.shared = d.shared || []; } catch {} if (S.view === 'home' || S.view === 'login') render(); }
-async function loadPublic(){ try { S.pub = (await API.get('/api/public')).processes; } catch {} if (S.view === 'home') render(); }
+async function loadMine(){ try { const d = await API.get('/api/processes'); S.mine = d.processes; S.shared = d.shared || []; } catch {} if (S.view === 'home' || S.view === 'login' || S.view === 'mine') render(); }
+async function loadPublic(){ try { S.pub = (await API.get('/api/public')).processes; } catch {} if (S.view === 'home' || S.view === 'mine') render(); }
 /* ---------- Sharing ---------- */
 const RULE_SHORT = 'A change goes live when “after is better” leads by 2 votes; the person who suggested it counts as one.';
 async function loadShares(){
