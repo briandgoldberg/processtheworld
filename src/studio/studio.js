@@ -2164,11 +2164,10 @@ const ZMIN = 0.25, ZMAX = 1.75;
 function isFull(){ const w = document.querySelector('.canvas-wrap'); return !!(document.fullscreenElement || w?.classList.contains('fs')); }
 function updateZoomCtl(){
   const el = $('#zoomctl'), sc = $('#scroller'); if (!el) return;
-  const d = S.detail || 'auto';
+  const d = 'full';
   if (sc){ sc.dataset.detail = d; sc.dataset.low = S.zoom < 0.55 ? '1' : '0'; sc.classList.toggle('hand', S.tool === 'hand'); }
   el.innerHTML = `<button data-tool="select" class="${S.tool === 'select' ? 'on' : ''}" aria-label="Select tool" title="Select (V)">${ICON.pointer}</button><button data-tool="hand" class="${S.tool === 'hand' ? 'on' : ''}" aria-label="Hand tool: drag to move around" title="Hand: drag to move around (hold Space)">${ICON.hand}</button>
     <span class="zsep"></span><button data-z="out" aria-label="Zoom out" title="Zoom out">−</button><button data-z="reset" class="zv" aria-label="Reset to 100%" title="Reset to 100%">${Math.round(S.zoom * 100)}%</button><button data-z="in" aria-label="Zoom in" title="Zoom in">+</button><button data-z="fit" title="Fit the whole map on screen">Fit</button>
-    <span class="zsep"></span><button data-detail="simple" class="${d === 'simple' ? 'on' : ''}" title="Names only">Simple</button><button data-detail="full" class="${d === 'full' ? 'on' : ''}" title="Tools, links and labels">Detailed</button>
     <span class="zsep"></span><button data-guide class="${S.guide ? 'on' : ''}" title="Choose your path through the process">${ICON.compass}Guide me</button>${(() => { const n = countPain(S.cur); return n || (kindOf(S.cur) === 'owned') ? `<button data-pain class="${S.painView ? 'on' : ''}" title="Show where the process hurts">${ICON.flame}Pain${n ? ' ' + n : ''}</button>` : ''; })()}<button data-fs aria-label="Full screen" title="Full screen">${ICON.full}</button>`;
 }
 function setZoom(z, cx, cy){
@@ -2186,7 +2185,6 @@ function onZoomClick(e){
   else if (b.dataset.z === 'out') setZoom(S.zoom / 1.25);
   else if (b.dataset.z === 'reset') setZoom(1);
   else if (b.dataset.z === 'fit'){ S.zoomAuto = true; S.fitFull = true; renderBoard(); S.fitFull = false; }
-  else if (b.dataset.detail){ S.detail = b.dataset.detail; updateZoomCtl(); }
   else if (b.dataset.tool){ S.tool = b.dataset.tool; updateZoomCtl(); }
   else if ('guide' in b.dataset) S.guide ? stopGuide() : startGuide();
   else if ('pain' in b.dataset){ S.painView = !S.painView; updateZoomCtl(); renderBoard(); }
