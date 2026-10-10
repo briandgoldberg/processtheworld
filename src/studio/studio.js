@@ -1136,6 +1136,8 @@ function queueRender(){ if (rq) return; rq = requestAnimationFrame(() => { rq = 
 
 function render(){
   const app = $('#app');
+  // Until we know who this is and have the lists, show a quiet shell instead of an empty or stale home page
+  if (S.loading && ['home', 'mine', 'connect', 'login'].includes(S.view)){ document.body.classList.remove('in-work'); app.innerHTML = `<div class="top"><span class="mark">${MARK}</span></div><div class="home"></div>`; return; }
   document.body.classList.toggle('in-work', S.view === 'work');
   if (S.view === 'login') renderLogin(app);
   else if (S.view === 'home') renderHome(app);
@@ -2587,16 +2589,18 @@ export async function mount(root, opts = {}){
   const q = new URLSearchParams(location.search);
   if (q.get('alert') && ALERTS[q.get('alert')]){ S.toast = ALERTS[q.get('alert')]; history.replaceState(null, '', '/'); }
   S.view = opts.connect ? 'connect' : opts.mine ? 'mine' : 'home'; ls.set('ptw_in', '1'); S.sort = ls.get('ptw_sort') || 'new';
-  render(); if (!opts.embed) renderFeedbackBox();
+  S.loading = true; render(); if (!opts.embed) renderFeedbackBox();
   try { S.me = await API.post('/api/identity', { key }); } catch {}
   S.ready = true;
   if (S.me?.email) ls.set('ptw_in', '1');
   if (S.me?.email && S.view === 'login') S.view = 'home';
-  render();
-  loadMine(); loadPublic();
-  { const pid = q.get('process'); if (pid && !opts.open){ S.noPush = true; openProcess(pid, 'mine'); } }
-  { const pid = q.get('process'); if (pid && !opts.open){ S.noPush = true; openProcess(pid, 'mine'); } }
-  const ex = q.get('example'); if (ex && EXAMPLES.some(x => x.id === ex)){ ls.set('ptw_in', '1'); openProcess(ex, 'ex'); history.replaceState(null, '', '/'); }
-  if (opts.open){ ls.set('ptw_in', '1'); openProcess(opts.open, 'pub').then(() => { if (opts.embed){ S.tab = 'map'; renderWork(); const l = $('#embedlink'); if (l){ l.href = location.origin + '/p/' + opts.open; l.hidden = false; } } if (q.get('guide')) startGuide(); }); }
+  const deep = !!(q.get('process') || opts.open || (q.get('example') && EXAMPLES.some(x => x.id === q.get('example'))));
+  const settle = () => { S.loading = false; if (S.view !== 'work') render(); };
+  if (deep) setTimeout(settle, 6000);
+  else { await Promise.all([loadMine(), loadPublic()]); settle(); }
+  if (deep){ loadMine(); loadPublic(); }
+  { const pid = q.get('process'); if (pid && !opts.open){ S.noPush = true; openProcess(pid, 'mine').finally(settle); } }
+  const ex = q.get('example'); if (ex && EXAMPLES.some(x => x.id === ex)){ ls.set('ptw_in', '1'); openProcess(ex, 'ex').finally(settle); history.replaceState(null, '', '/'); }
+  if (opts.open){ ls.set('ptw_in', '1'); openProcess(opts.open, 'pub').then(() => { if (opts.embed){ S.tab = 'map'; renderWork(); const l = $('#embedlink'); if (l){ l.href = location.origin + '/p/' + opts.open; l.hidden = false; } } if (q.get('guide')) startGuide(); }).finally(settle); }
   addEventListener('beforeunload', () => { if (dirty) flush(); if (outbox.length) navigator.sendBeacon?.('/api/events', new Blob([JSON.stringify({ key:API.key, events:outbox })], { type:'application/json' })); });
 }
