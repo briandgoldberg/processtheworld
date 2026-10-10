@@ -1,19 +1,20 @@
 import { PrismaClient } from "@prisma/client";
 import { withAccelerate } from "@prisma/extension-accelerate";
 
-// Like WaitingForPower: when PRISMA_ACCELERATE_URL is set (from the Prisma
-// Console, "Open in Prisma" on Vercel's Storage tab), the app goes through
-// Prisma Accelerate so serverless instances can't exhaust database
-// connections. Until then it uses DATABASE_URL directly with a small pool.
+// Serverless functions each open their own database connections, and the database allows very few.
+// So: if any of the connection variables is a Prisma Accelerate URL (prisma:// or prisma+postgres://),
+// use it, because Accelerate pools connections for us. Otherwise connect directly, but with one
+// connection per function instance so a burst of requests cannot use them all up.
+const candidates = [process.env.PRISMA_ACCELERATE_URL, process.env.DATABASE_PRISMA_DATABASE_URL, process.env.DATABASE_URL, process.env.DATABASE_POSTGRES_URL];
+
 function createClient(): PrismaClient {
-  const accel = process.env.PRISMA_ACCELERATE_URL || process.env.DATABASE_PRISMA_DATABASE_URL
-    || (process.env.DATABASE_URL?.startsWith("prisma") ? process.env.DATABASE_URL : undefined);
+  const accel = candidates.find(u => u && u.startsWith("prisma"));
   if (accel) return new PrismaClient({ datasourceUrl: accel }).$extends(withAccelerate()) as unknown as PrismaClient;
-  const url = process.env.DATABASE_POSTGRES_URL || process.env.DATABASE_URL;
-  const capped = url && !/connection_limit=/.test(url) ? url + (url.includes("?") ? "&" : "?") + "connection_limit=3" : url;
+  const url = candidates.find(Boolean);
+  const capped = url && !/connection_limit=/.test(url) ? url + (url.includes("?") ? "&" : "?") + "connection_limit=1&pool_timeout=20" : url;
   return new PrismaClient(capped ? { datasourceUrl: capped } : undefined);
 }
 
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 export const prisma = globalForPrisma.prisma ?? createClient();
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+globalForPrisma.prisma = prisma;
