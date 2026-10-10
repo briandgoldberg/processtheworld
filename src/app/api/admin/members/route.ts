@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
   where.id = { notIn: await ownerIds() };
   if (low) where.points = { lt: 21 };
   const rows = await prisma.user.findMany({
-    where, orderBy: low ? { points: "asc" } : { lastSeenAt: "desc" }, take: 300,
+    where, orderBy: [{ points: "asc" }, { lastSeenAt: "desc" }], take: 300,
     select: { handle: true, email: true, emailVerifiedAt: true, createdAt: true, lastSeenAt: true, points: true, _count: { select: { processes: true, published: true, turns: true } } },
   });
   return json({ members: rows.map(u => ({ handle: u.handle, email: u.emailVerifiedAt ? u.email : null, kind: u.emailVerifiedAt ? "email" : "guest", joined: u.createdAt, lastSeen: u.lastSeenAt, credits: Math.max(0, Math.floor(u.points)), processes: u._count.processes, published: u._count.published, turns: u._count.turns })) });
