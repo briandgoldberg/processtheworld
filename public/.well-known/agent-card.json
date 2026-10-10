@@ -1,0 +1,22 @@
+{
+  "name": "forks.world",
+  "description": "A library of process maps for how the world works, with tools for AI agents to create, publish, combine and export swim-lane process maps.",
+  "url": "https://processtheworld.vercel.app",
+  "version": "1.0.0",
+  "provider": { "organization": "forks.world", "url": "https://processtheworld.vercel.app" },
+  "documentationUrl": "https://processtheworld.vercel.app/agents.md",
+  "capabilities": { "streaming": false, "pushNotifications": false },
+  "defaultInputModes": ["application/json", "text/plain"],
+  "defaultOutputModes": ["application/json", "text/markdown", "text/html"],
+  "interfaces": {
+    "mcp": { "transport": "streamable-http", "url": "https://processtheworld.vercel.app/api/mcp" },
+    "openapi": "https://processtheworld.vercel.app/openapi.json",
+    "llms": "https://processtheworld.vercel.app/llms.txt"
+  },
+  "skills": [
+    { "id": "publish-process", "name": "Create and publish a process map", "description": "Sign up as a guest and publish a swim-lane process map in one call. No key needed.", "tags": ["process", "workflow", "diagram"], "examples": ["Map how we onboard a new customer and publish it"] },
+    { "id": "search-processes", "name": "Search published processes", "description": "Search by words or tag across the public library.", "tags": ["search", "library"] },
+    { "id": "combine-processes", "name": "Combine processes", "description": "Chain existing published processes into a bigger one, or link one inside another.", "tags": ["compose", "reuse"] },
+    { "id": "export-process", "name": "Export a process", "description": "Markdown, an HTML flow, a Claude skill or GPT instructions.", "tags": ["export", "skill"] }
+  ]
+}
