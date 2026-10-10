@@ -14,8 +14,8 @@ const day = d => new Date(d).toLocaleDateString(undefined, { month:'short', day:
 const pct = (a, b) => b ? Math.round(100 * a / b) + '%' : '—';
 const nice = s => String(s || '').replace(/_/g, ' ');
 
-const A = { tab:'usage', days:30, fbStatus:'all', fbKind:'all', fbQ:'', memberKind:'all', session:null, busy:false };
-const TAB_NAMES = { usage:'Usage', creating:'Creating and publishing', improve:'What to improve', feedback:'Feedback', tools:'Tools' };
+const A = { tab:'usage', days:90, fbStatus:'all', fbKind:'all', fbQ:'', memberKind:'all', session:null, busy:false };
+const TAB_NAMES = { usage:'Usage', improve:'What to improve', feedback:'Feedback' };
 
 function bars(rows, label, val){
   const max = Math.max(1, ...rows.map(val));
@@ -66,31 +66,6 @@ async function usage(el){
   <p class="hint">For page views and where visitors come from, open Analytics in the Vercel project.</p>`;
 }
 
-/* ---------- Creating and publishing ---------- */
-async function creating(el){
-  const [d, s] = await Promise.all([api('/api/admin/creation?days=' + A.days), api('/api/admin/sessions')]);
-  el.innerHTML = `
-  <div class="kpis">
-    ${kpi('Started', d.started, 'New process clicks')}
-    ${kpi('Created', d.created, `${d.byAgent} by AI agents`)}
-    ${kpi('Talked to the mapper', d.withTurns, pct(d.withTurns, d.created) + ' of created')}
-    ${kpi('Reached 8+ steps', d.big, pct(d.big, d.created))}
-    ${kpi('Finished', d.finished, pct(d.finished, d.created))}
-    ${kpi('Gave up', d.abandoned, 'no activity for 3 days')}
-    ${kpi('Published', d.published, `${d.totals.likes} likes · ${d.totals.copies} copies in total`)}
-  </div>
-  <div class="grid2">
-    <section class="panel"><h3>Processes created each day</h3>${chart(d.dailyCreated, 'Processes created per day')}</section>
-    <section class="panel"><h3>Published each day</h3>${chart(d.dailyPublished, 'Published per day', 'var(--system)')}</section>
-    <section class="panel"><h3>Most liked and copied</h3>${d.top.length ? `<ul class="ops">${d.top.map(p => `<li><b>${esc(p.title)}</b> <span class="hint">${esc(p.authorName)} · ${p.likes} likes · ${p.copies} copies · ${p.commentCount} comments</span></li>`).join('')}</ul>` : '<p class="hint">Nothing published yet.</p>'}</section>
-    <section class="panel"><h3>Tags in the library</h3>${bars(d.tags, r => r.tag, r => r.count)}
-      <p class="hint">Finished processes average ${d.avgSteps ? d.avgSteps.toFixed(1) : '—'} steps and ${d.avgLayers ? d.avgLayers.toFixed(1) : '—'} layers. ${d.newComments} new comments.</p></section>
-  </div>
-  <section class="panel"><h3>Recently published</h3>${d.recent.length ? `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Process</th><th>By</th><th>Steps</th><th>Likes</th><th>Copies</th><th>Published</th></tr></thead><tbody>${d.recent.map(p => `<tr><td><a href="/p/${esc(p.id)}" target="_blank" rel="noopener"><b>${esc(p.title)}</b></a></td><td>${esc(p.authorName)}</td><td>${p.stepCount}</td><td>${p.likes}</td><td>${p.copies}</td><td>${day(p.publishedAt)}</td></tr>`).join('')}</tbody></table></div>` : '<p class="hint">Nothing yet.</p>'}</section>
-  <section class="panel"><h3>Every process, newest first</h3><p class="hint">Click one to read the whole interview and what the AI did.</p>
-    ${s.sessions.length ? `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Process</th><th>Who</th><th>Turns</th><th>Corrections</th><th>Steps</th><th>Rating</th><th>Cost</th><th>Updated</th></tr></thead><tbody>${s.sessions.map(x => `<tr class="click" data-open="${esc(x.id)}"><td><b>${esc(x.title)}</b>${x.status === 'done' ? ' <span class="pill pub">Finished</span>' : ''}</td><td>${esc(x.who)}</td><td>${x.turns}</td><td>${x.corrections}</td><td>${x.steps} · ${x.layers}L</td><td>${x.rating ?? '—'}</td><td>${money(x.cost)}</td><td>${when(x.updated)}</td></tr>`).join('')}</tbody></table></div>` : '<p class="hint">No processes yet.</p>'}</section>`;
-}
-
 async function session(el, id){
   const d = await api('/api/admin/sessions/' + id);
   const qByTurn = Object.fromEntries(d.questions.map(q => [q.askedTurnId, q]));
@@ -117,48 +92,28 @@ async function session(el, id){
   </div>`;
 }
 
-/* ---------- What to improve: from interviews and feedback ---------- */
+/* ---------- What to improve: plain text about the process builder ---------- */
 async function improve(el){
-  const [i, o, sg, fbAll] = await Promise.all([api('/api/admin/insights?days=' + A.days), api('/api/admin/overview?days=' + A.days), api('/api/admin/suggestions'), api('/api/admin/feedback?status=all')]);
-  const forms = fbAll.feedback.filter(f => (f.kind === 'button' || f.kind === 'checkin') && (f.text || f.reasons.length));
-  const q = Object.fromEntries(o.questions.map(x => [x.outcome, x.count]));
-  const qTotal = (q.answered || 0) + (q.skipped || 0) + (q.ignored || 0);
-  const chk = Object.entries(o.checks);
-  const rem = Object.fromEntries(o.removals.map(r => [r.verdict, r.count]));
-  const open = sg.suggestions.filter(s => s.status === 'open' || s.status === 'planned'), closed = sg.suggestions.filter(s => s.status === 'done' || s.status === 'dismissed');
-  const card = s => `<article class="panel sug ${s.status}">
-    <header><h3>${esc(s.title)}</h3><span class="pill">${s.source === 'analysis' ? 'From review' : 'From the data'}</span><span class="pill">${esc(s.status)}</span></header>
-    <p>${esc(s.body)}</p>${s.evidence?.note ? `<p class="hint">Evidence: ${esc(s.evidence.note)}</p>` : ''}
-    <footer>${['planned', 'done', 'dismissed', 'open'].filter(x => x !== s.status).map(x => `<button class="btn sm" data-sug="${x}" data-id="${s.id}">${{ planned:'Plan it', done:'Mark done', dismissed:'Dismiss', open:'Reopen' }[x]}</button>`).join('')}</footer></article>`;
-  const formCard = f => `<article class="panel fb"><header><span class="pill">${esc(KINDS[f.kind] || f.kind)}</span>${f.reasons.map(r => `<span class="chip">${esc(r)}</span>`).join('')}<span class="hint">${esc(f.who)} · ${when(f.created)}${f.process ? ' · ' + esc(f.process) : ''}</span></header>${f.text ? `<p class="fbtext">${esc(f.text)}</p>` : ''}${f.processId ? `<footer><button class="btn sm" data-open="${esc(f.processId)}">Open the process</button></footer>` : ''}</article>`;
+  const d = await api('/api/admin/improve?days=' + A.days);
+  const list = (rows, fn) => rows.length ? '<ul class="plain">' + rows.map(r => '<li>' + fn(r) + '</li>').join('') + '</ul>' : '<p class="hint">Nothing yet.</p>';
+  const open = d.suggestions.filter(x => x.status === 'open' || x.status === 'planned'), closed = d.suggestions.filter(x => x.status === 'done' || x.status === 'dismissed');
+  const sug = x => `<article class="plain-item"><p><b>${esc(x.title)}</b> <span class="hint">${esc(x.status)}</span></p><p>${esc(x.body)}</p>${x.evidence?.note ? `<p class="hint">${esc(x.evidence.note)}</p>` : ''}<p>${['planned', 'done', 'dismissed', 'open'].filter(k => k !== x.status).map(k => `<button class="btn sm" data-sug="${k}" data-id="${x.id}">${{ planned:'Plan it', done:'Mark done', dismissed:'Dismiss', open:'Reopen' }[k]}</button>`).join(' ')}</p></article>`;
   el.innerHTML = `
-  <section class="panel"><h3>Feedback forms people filled out</h3><p class="hint">${forms.length} in total, newest first. Read these first.</p></section>
-  ${forms.map(formCard).join('') || '<p class="hint">No feedback forms yet.</p>'}
-  <section class="panel"><h3>Suggested changes to the process builder</h3>
-    <div class="seg"><button class="btn primary sm" data-gen ${A.busy ? 'disabled' : ''}>${A.busy ? 'Reading the interviews…' : 'Look for problems that 3 or more people ran into'}</button><span class="hint">Claude reads the last 30 days and only suggests a change when at least 3 different people hit the same problem.</span></div></section>
-  ${open.map(card).join('') || '<p class="hint">No suggestions. A suggestion appears only when 3 or more people hit the same problem.</p>'}
-  <div class="kpis">
-    ${kpi('Interview turns', i.turns, `last ${i.days} days`)}
-    ${kpi('Corrected', pct(i.corrections, i.turns), `${i.corrections} messages fixing the map`)}
-    ${kpi('Confused', pct(i.confusion, i.turns), `${i.confusion} messages`)}
-    ${kpi('Questions answered', pct(q.answered || 0, qTotal), `${pct(q.skipped || 0, qTotal)} skipped`)}
-    ${kpi('AI errors', pct(i.aiErrors, i.aiCalls), `${i.aiErrors} of ${i.aiCalls} calls`)}
-  </div>
-  <div class="grid2">
-    <section class="panel"><h3>What people corrected</h3><p class="hint">Where the builder got it wrong.</p>${bars(o.corrections, r => nice(r.category), r => r.count)}</section>
-    <section class="panel"><h3>Why people were unhappy</h3>${bars(i.feedbackReasons, r => r.reason, r => r.count)}</section>
-    <section class="panel"><h3>How long interviews run</h3><p class="hint">Turns per process. Short ones mean people left early.</p>${bars(i.turnsPerProcess, r => r.turns >= 10 ? '10+ turns' : r.turns + (r.turns === 1 ? ' turn' : ' turns'), r => r.count)}</section>
-    <section class="panel"><h3>Questions that worked</h3><p class="hint">Answers that changed the map the most.</p>${i.bestQuestions.length ? `<ul class="ops">${i.bestQuestions.map(x => `<li>${esc(x.text)} <span class="hint">+${x.infoGain}</span></li>`).join('')}</ul>` : '<p class="hint">None yet.</p>'}</section>
-    <section class="panel"><h3>Questions people skipped</h3>${i.skippedQuestions.length ? `<ul class="ops">${i.skippedQuestions.map(x => `<li>${esc(x.text)} <span class="hint">${esc(x.outcome)}</span></li>`).join('')}</ul>` : '<p class="hint">None.</p>'}</section>
-    <section class="panel"><h3>Recent corrections, in their words</h3>${i.corrected.length ? `<ul class="ops">${i.corrected.map(x => `<li>“${esc(String(x.userText).slice(0, 160))}” <span class="hint">${esc(nice(x.feedbackCategory || x.feedbackType))}</span></li>`).join('')}</ul>` : '<p class="hint">None.</p>'}</section>
-    <section class="panel"><h3>Self-checks people reviewed</h3>
-      ${chk.length ? `<table class="tbl"><thead><tr><th>Check</th><th>“Right as is”</th><th>Sent to fix</th><th>Checker right</th></tr></thead><tbody>${chk.map(([k, v]) => `<tr><td>${esc(k)}</td><td>${v.dismissed}</td><td>${v.fixed}</td><td>${pct(v.fixed, v.fixed + v.dismissed)}</td></tr>`).join('')}</tbody></table>` : '<p class="hint">No checks reviewed yet.</p>'}
-      <p class="hint">Removals the AI proposed: ${rem.removed || 0} accepted, ${rem.kept || 0} kept (the AI was wrong).</p></section>
-    <section class="panel"><h3>Thumbs down on replies</h3>${i.thumbsDown.length ? `<ul class="ops">${i.thumbsDown.map(x => `<li>${esc(x.reasons.join(', '))} ${esc(x.text || '')}</li>`).join('')}</ul>` : '<p class="hint">None.</p>'}</section>
-  </div>
-  ${closed.length ? `<details><summary>${closed.length} done or dismissed</summary>${closed.map(card).join('')}</details>` : ''}`;
+  <h2>Feedback people filled out</h2>
+  <p class="hint">${d.forms.length} so far, newest first.</p>
+  ${list(d.forms, f => `<b>${esc(f.who)}</b> <span class="hint">${day(f.created)}</span>${f.reasons.length ? ' <span class="hint">(' + esc(f.reasons.join(', ')) + ')</span>' : ''}<br>${esc(f.text || '')}${f.processId ? ` <button class="linkish" data-open="${esc(f.processId)}">Open the process</button>` : ''}`)}
+  <h2>Where the builder got it wrong</h2>
+  <p class="hint">${d.turns} messages in the last ${d.days} days. These are the ones where people corrected it or got confused.</p>
+  ${d.wrong.length ? '<p>' + d.wrong.map(w => esc(nice(w.category)) + ' (' + w.count + ')').join(', ') + '</p>' : ''}
+  ${list(d.corrections, c => `“${esc(String(c.text).slice(0, 220))}” <span class="hint">${esc(nice(c.category || c.type))}</span>`)}
+  <h2>Questions people skipped</h2>
+  ${list(d.skipped, q => esc(q))}
+  <h2>Suggested changes</h2>
+  <p class="hint">Only when 3 or more different people hit the same problem.</p>
+  <p><button class="btn primary sm" data-gen ${A.busy ? 'disabled' : ''}>${A.busy ? 'Reading…' : 'Look for problems that 3 or more people ran into'}</button></p>
+  ${open.map(sug).join('') || '<p class="hint">None.</p>'}
+  ${closed.length ? `<details><summary>${closed.length} done or dismissed</summary>${closed.map(sug).join('')}</details>` : ''}`;
 }
-
 /* ---------- Feedback: everything ---------- */
 const KINDS = { button:'Feedback box', reply:'Reply rating', finish:'Finish rating', checkin:'Check-in' };
 async function feedback(el){
@@ -186,29 +141,10 @@ async function feedback(el){
   A.fbRows = rows;
 }
 
-/* ---------- Tools ---------- */
-async function tools(el){
-  const aie = await api('/api/admin/ai-errors').catch(() => ({ errors:[] }));
-  const rs = await api('/api/admin/reset').catch(() => null);
-  el.innerHTML = `
-  ${rs ? `<section class="panel"><h3>Start the dashboard over</h3>
-    <p class="hint">Clears the test data the dashboard is built from: ${rs.events} actions, ${rs.turns} interview turns, ${rs.aiCalls} AI calls, ${rs.feedback} feedback items, ${rs.suggestions} suggestions and ${rs.requests} request logs. Everyone's processes, the public library, email members, credit balances and early-access emails stay. This cannot be undone.</p>
-    <div class="seg"><button class="btn danger sm" data-reset="analytics">Clear dashboard data</button></div>
-    <p class="hint">${rs.guests} guest accounts never made, published or commented on anything.</p>
-    <div class="seg"><button class="btn danger sm" data-reset="guests" ${rs.guests ? '' : 'disabled'}>Remove those ${rs.guests} guests</button></div>
-    <p class="hint" id="reset-msg" role="status"></p></section>` : ''}
-  <section class="panel"><h3>Latest AI errors</h3><p class="hint">If people see "could not answer", the reason is here.</p>${aie.errors.length ? `<ul class="ops">${aie.errors.map(x => `<li><span class="hint">${when(x.at)}</span> <code>${esc(x.model)}</code> ${esc(String(x.error).slice(0, 220))}</li>`).join('')}</ul>` : '<p class="hint">No errors.</p>'}</section>
-  <section class="panel"><h3>Put your name on the starter library</h3><p class="hint">Moves the guest-account processes onto your account. Run it again after new ones are added.</p><div class="row-in"><input id="adopt-name" value="Brian" maxlength="24" aria-label="Username"><button class="btn primary sm" data-adopt>Move them to my account</button></div><p class="hint" id="adopt-msg" role="status"></p></section>
-  <section class="panel"><h3>Training data</h3>
-    <p>Every mapping turn is stored as one example: the map before, the message, and the map after, with every AI change, the interviewer's question and how it paid off, self-checks, and every AI call.</p>
-    <p class="seg"><button class="btn primary sm" data-export="turns">Download turns (JSONL)</button></p>
-    <p class="hint">Deleting a process deletes its training records too.</p></section>`;
-}
-
-const TABS = { usage, creating, improve, feedback, tools };
+const TABS = { usage, improve, feedback };
 async function draw(){
   const root = $('#adm');
-  const periodTabs = ['usage', 'creating', 'improve'];
+  const periodTabs = ['usage', 'improve'];
   root.innerHTML = `<div class="top"><div class="mark"><i>f</i><span class="wm"><b>forks</b><em>.world</em></span></div><span class="pill">Admin</span><div class="grow"></div><a class="btn ghost sm" href="/">Back to the app</a></div>
   <div class="home"><div class="home-in">
     <nav class="seg">${Object.keys(TABS).map(t => `<button class="btn sm${A.tab === t ? ' primary' : ''}" data-tab="${t}">${TAB_NAMES[t]}</button>`).join('')}

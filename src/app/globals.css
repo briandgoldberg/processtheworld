@@ -713,3 +713,5 @@ body.embed .crumbs{padding-block:6px}
 .inv-state{min-height:18px;margin-top:4px}
 .inv-state.ok{color:var(--system);font-weight:600}
 .warn-line{color:var(--danger);font-weight:600}
+.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px;font-size:14px;line-height:1.5}
+.plain-item{padding:10px 0;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:4px}
