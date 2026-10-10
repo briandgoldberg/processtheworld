@@ -1377,14 +1377,16 @@ function wireInterest(root){
 function startNew(){ S.guide = null; S.painView = false; stopVoice(); setUrl('/'); S.cur = newProcess(); S.path = ['m_root']; S.sel = null; S.view = 'work'; S.tab = 'chat'; S.panel = null; track('process_started', {}, S.cur.id); render(); }
 
 const THUMBS = {};
+// One request per batch of cards, never one per card
 async function loadCardThumbs(){
-  for (const el of document.querySelectorAll('.cthumb[data-tid]')){
-    const id = el.dataset.tid;
-    if (THUMBS[id] === undefined){
-      try { const r = await fetch('/api/processes/' + id + '/thumbnail', { headers:{ 'x-ptw-key':API.key || '' } }); THUMBS[id] = r.ok ? URL.createObjectURL(await r.blob()) : null; } catch { THUMBS[id] = null; }
-    }
-    if (THUMBS[id]) el.innerHTML = `<img src="${THUMBS[id]}" alt="">`; else el.classList.add('none');
+  const els = [...document.querySelectorAll('.cthumb[data-tid]')];
+  const need = [...new Set(els.map(el => el.dataset.tid))].filter(id => THUMBS[id] === undefined);
+  for (let i = 0; i < need.length; i += 30){
+    const chunk = need.slice(i, i + 30);
+    try { const d = await API.get('/api/processes/thumbs?ids=' + chunk.join(',')); chunk.forEach(id => { THUMBS[id] = d.thumbs[id] || null; }); }
+    catch { chunk.forEach(id => { THUMBS[id] = null; }); }
   }
+  els.forEach(el => { const t = THUMBS[el.dataset.tid]; if (t) el.innerHTML = `<img src="${t}" alt="">`; else el.classList.add('none'); });
 }
 function cardHTML(p, kind){
   const st = p.stepCount != null ? { steps:p.stepCount, depth:p.depth } : stats(p);
