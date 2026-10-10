@@ -31,10 +31,18 @@ export async function GET(req: NextRequest) {
     prisma.$queryRaw<{ day: Date; n: bigint }[]>`SELECT date_trunc('day', "createdAt") AS day, count(*)::bigint AS n FROM "RequestLog" WHERE endpoint = 'agent_process' AND "createdAt" >= ${since} AND ("userId" IS NULL OR NOT ("userId" = ANY(${ex}::text[]))) GROUP BY 1 ORDER BY 1`,
     prisma.event.groupBy({ by: ["type"], where: { createdAt: { gte: since }, who: "human", userId: { notIn: ex }, type: { in: KEY_EVENTS } }, _count: true }),
   ]);
+  // Where guest accounts come from: a browser opening the site creates one, and so does an AI agent saving a process without a key
+  const g = await prisma.$queryRaw<{ used: bigint; api: bigint; visitors: bigint }[]>`
+    SELECT
+      count(*) FILTER (WHERE EXISTS (SELECT 1 FROM "Event" e WHERE e."userId" = u.id) OR EXISTS (SELECT 1 FROM "Turn" t WHERE t."userId" = u.id))::bigint AS used,
+      count(*) FILTER (WHERE NOT (EXISTS (SELECT 1 FROM "Event" e WHERE e."userId" = u.id) OR EXISTS (SELECT 1 FROM "Turn" t WHERE t."userId" = u.id)) AND EXISTS (SELECT 1 FROM "Process" p WHERE p."userId" = u.id))::bigint AS api,
+      count(*) FILTER (WHERE NOT (EXISTS (SELECT 1 FROM "Event" e WHERE e."userId" = u.id) OR EXISTS (SELECT 1 FROM "Turn" t WHERE t."userId" = u.id)) AND NOT EXISTS (SELECT 1 FROM "Process" p WHERE p."userId" = u.id))::bigint AS visitors
+    FROM "User" u WHERE u."emailVerifiedAt" IS NULL AND NOT (u.id = ANY(${ex}::text[]))`;
+  const guestKinds = { used: Number(g[0]?.used || 0), api: Number(g[0]?.api || 0), visitors: Number(g[0]?.visitors || 0) };
   const n = (rows: { day: Date; n: bigint }[]) => rows.map(r => ({ day: r.day, n: Number(r.n) }));
   return json({
     days,
-    members: { total, guests: total - email, email, newTotal, newEmail },
+    members: { total, guests: total - email, email, newTotal, newEmail }, guestKinds,
     active, returning,
     agent: { calls: agentCalls, sources: agentIps.length },
     dailyNew: n(dailyNew), dailyActive: n(dailyActive), dailyAgent: n(dailyAgent),
