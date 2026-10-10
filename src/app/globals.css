@@ -296,6 +296,9 @@ code{font-family:var(--f-mono);font-size:11px}
 /* ---------- Sharing, suggestions, compare ---------- */
 .linkish-plain{border:none;background:none;padding:0;cursor:pointer;color:inherit}
 .vi{flex:none}
+.cn-home{padding-block:4px!important}
+.connect-btn{display:flex;flex-direction:column;align-items:flex-start;gap:2px;font-weight:700}
+.connect-btn small{font-weight:500;color:var(--muted);font-size:12px}
 .psrow{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .psrow input[type=search]{flex:1 1 280px}
 .fthumb{display:block;border:0;padding:0;margin:0;width:100%;aspect-ratio:800/420;background:var(--sunk);cursor:pointer;overflow:hidden}
@@ -318,8 +321,8 @@ code{font-family:var(--f-mono);font-size:11px}
 .mark{gap:9px;text-decoration:none;color:inherit}
 .cn{color:var(--ink)}
 .cn-top{display:flex;align-items:center;gap:12px;padding:12px 20px;background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
-.cn-main{max-width:1000px;margin:0 auto;padding:36px 20px 80px;display:flex;flex-direction:column;gap:44px}
-.cn-hero{display:flex;flex-direction:column;gap:14px;align-items:flex-start}
+.cn-main{max-width:1000px;margin:0 auto;padding:12px 20px 70px;display:flex;flex-direction:column;gap:26px}
+.cn-hero{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
 .cn-hero h1{font-size:clamp(34px,6vw,60px);line-height:1;letter-spacing:-.03em;margin:0;max-width:16ch}
 .cn-hero p{font-size:clamp(16px,2vw,19px);color:var(--muted);max-width:60ch;margin:0}
 .cn-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:18px}

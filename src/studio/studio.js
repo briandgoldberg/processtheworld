@@ -1234,8 +1234,8 @@ function sampleCards(){
 }
 function renderConnect(app){
   app.innerHTML = `${topBarHTML()}
-  <div class="home"><main class="cn-main">
-    <div><button class="btn ghost sm" data-home>← Back home</button></div>
+  <div class="home cn-home"><main class="cn-main">
+    <div>${S.cur ? '<button class="btn ghost sm" data-backproc>← Back to process</button>' : '<button class="btn ghost sm" data-home>← Back home</button>'}</div>
     <section class="cn-hero">
       <span class="label">Connect my AI</span>
       <h1>Create process maps with Claude or ChatGPT.</h1>
@@ -1438,7 +1438,7 @@ function tagPillsHTML(){
   return `<button class="tagpill${S.tag ? '' : ' on'}" data-ptag="">All</button>` + tags.map(([t, n]) => `<button class="tagpill${S.tag === t ? ' on' : ''}" data-ptag="${esc(t)}">${esc(t)} <small>${n}</small></button>`).join('');
 }
 function publicFilterHTML(){
-  return `<div class="pfilter"><div class="psrow"><input id="psearch" type="search" placeholder="Search public processes" value="${esc(S.q)}" aria-label="Search public processes" autocomplete="off"><a class="btn ghost sm" href="/connect">Connect my AI</a></div><div class="pills" id="ppills">${tagPillsHTML()}</div><div class="fsort" id="fsort">${sortBarHTML()}</div></div><div class="feed" id="pcards">${publicCardsHTML()}</div>`;
+  return `<div class="pfilter"><div class="psrow"><input id="psearch" type="search" placeholder="Search public processes" value="${esc(S.q)}" aria-label="Search public processes" autocomplete="off"></div><div class="pills" id="ppills">${tagPillsHTML()}</div><div class="fsort" id="fsort">${sortBarHTML()}</div></div><div class="feed" id="pcards">${publicCardsHTML()}</div>`;
 }
 function wirePublicFilter(root){
   const inp = root.querySelector('#psearch'); if (!inp) return;
@@ -1490,6 +1490,14 @@ function renderHome(app){
   app.querySelectorAll('[data-del-yes]').forEach(b => b.onclick = () => deleteProcess(b.dataset.delYes));
   app.querySelectorAll('[data-open]').forEach(b => b.onclick = () => openProcess(b.dataset.open, b.dataset.kind));
 }
+document.addEventListener('click', e => {
+  if (e.target.closest('[data-connect]')){ stopVoice(); S.view = 'connect'; history.pushState(null, '', '/connect'); render(); window.scrollTo(0, 0); return; }
+  if (e.target.closest('[data-backproc]')){ S.view = S.cur ? 'work' : 'home'; history.pushState(null, '', '/'); render(); return; }
+});
+addEventListener('popstate', () => {
+  if (location.pathname === '/connect' && S.view !== 'connect'){ S.view = 'connect'; render(); }
+  else if (location.pathname !== '/connect' && S.view === 'connect'){ S.view = S.cur ? 'work' : 'home'; render(); }
+});
 document.addEventListener('click', e => { if (e.target.closest('[data-home]')){ if (S.view === 'work') flush(); S.compare = null; S.real = null; S.cur = null; S.view = 'home'; if (location.pathname !== '/') history.replaceState(null, '', '/'); render(); window.scrollTo(0, 0); } });
 
 async function openProcess(id, kind){
@@ -1893,7 +1901,8 @@ function renderMsgs(){
   const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
   if (!p.chat.length){
     el.innerHTML = `<div class="msg assistant">Tell me about a process: what it's called, who's involved, and what happens first. I'll build the map as you go and ask about anything that's missing.</div>
-    <div class="starters"><div class="label">Or start with</div>${STARTERS.map(s => `<button class="starter" data-starter="${esc(s)}">${esc(s)}</button>`).join('')}</div>`;
+    <div class="starters"><div class="label">Or start with</div>${STARTERS.map(s => `<button class="starter" data-starter="${esc(s)}">${esc(s)}</button>`).join('')}</div>
+    <div class="starters"><div class="label">Or let your AI do it</div><button class="starter connect-btn" data-connect>Connect my AI<small>Create process maps with Claude or ChatGPT</small></button></div>`;
     return;
   }
   const lastU = lastUserIndex(p);
