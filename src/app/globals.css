@@ -717,9 +717,18 @@ body.embed .crumbs{padding-block:6px}
 .plain-item{padding:10px 0;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:4px}
 
 /* Header: on a phone the links live in a dropdown on the left */
-.burger-wrap{position:relative;display:none}
+.burger-wrap{position:relative}
 .burger{font-size:18px;padding:6px 10px}
 .burger-menu{position:absolute;left:0;top:calc(100% + 6px);z-index:60;min-width:190px;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 16px 40px -14px rgba(10,20,40,.45);padding:6px;display:flex;flex-direction:column;gap:2px}
 .burger-menu[hidden]{display:none}
 .burger-menu .menu-item{text-align:left;justify-content:flex-start;width:100%;font-size:15px;padding:10px 12px}
-@media (max-width:820px){.burger-wrap{display:inline-block}.nav-d{display:none!important}}
+.burger-wrap{display:inline-block}
+.nav-d{display:none!important}
+.brand{display:flex;align-items:center;gap:0;min-width:0}
+.acct-signin{font-weight:600}
+.guest-name{color:var(--muted);font-weight:500}
+@media (max-width:820px){
+  .brand{flex-direction:column;align-items:flex-start;gap:0}
+  .brand .topsub{border-left:0;padding-left:0;margin-left:0;font-size:10.5px;line-height:1.1;white-space:normal}
+  .guest-name{display:none}
+}

@@ -1173,7 +1173,7 @@ function acctHTML(){
         <p class="hint" data-email-msg role="status">We'll email you a link. No password needed.</p>
       </form>
     </div>`;
-  return `${me.isAdmin ? '<a class="btn sm admin-link hide-sm" href="/admin">Admin</a>' : ''}<div class="acct"><button class="btn ghost acct-btn" data-acct="toggle" aria-expanded="${S.acct}"><span class="acct-name">${esc(me.handle)}</span> ▾</button>${panel}</div>`;
+  return `${me.isAdmin ? '<a class="btn sm admin-link hide-sm" href="/admin">Admin</a>' : ''}<div class="acct"><button class="btn ghost acct-btn" data-acct="toggle" aria-expanded="${S.acct}">${me.email ? '' : '<span class="acct-signin">Sign in</span> '}<span class="acct-name${me.email ? '' : ' guest-name'}">${esc(me.handle)}</span> ▾</button>${panel}</div>`;
 }
 function wireAcct(root){
   root.querySelectorAll('[data-acct]').forEach(b => b.onclick = e => {
@@ -1203,6 +1203,7 @@ function emailFormHTML(p){
 }
 /* "Sign in": you're already a member, so just your email */
 function signInHTML(){
+  return ''; // guests sign in from their account menu, so there is only one dropdown
   if (S.me?.email) return '';
   return `<div class="signin"><button class="btn ghost sm" data-signin aria-expanded="${!!S.signin}">Sign in</button>${S.signin ? `
     <div class="acct-panel signin-panel" role="dialog" aria-label="Sign in">
@@ -1493,7 +1494,7 @@ const useAiHTML = () => `<section class="sec use-ai">
 function topBarHTML(){
   const connect = S.view === 'connect';
   const items = (cls) => `<button class="btn ghost sm${cls}" data-home${S.view === 'home' ? ' aria-current="page"' : ''}>Home</button><button class="btn ghost sm${cls}" data-mine${S.view === 'mine' ? ' aria-current="page"' : ''}>My Processes</button><button class="btn ghost sm${cls}" data-connect${connect ? ' aria-current="page"' : ''}>Connect my AI</button>`;
-  return `<div class="top"><span class="burger-wrap"><button class="btn ghost burger" data-burger aria-label="Menu" aria-haspopup="true" aria-expanded="false">☰</button><div class="burger-menu" id="burger" hidden>${items(' menu-item')}</div></span><button class="mark linkish-plain" data-home aria-label="forks.world home">${MARK}</button><span class="topsub hide-sm">Mapping how the world works</span><div class="grow"></div>
+  return `<div class="top"><span class="burger-wrap"><button class="btn ghost burger" data-burger aria-label="Menu" aria-haspopup="true" aria-expanded="false">☰</button><div class="burger-menu" id="burger" hidden>${items(' menu-item')}</div></span><span class="brand"><button class="mark linkish-plain" data-home aria-label="forks.world home">${MARK}</button><span class="topsub">Mapping how the world works</span></span><div class="grow"></div>
     ${S.notice ? `<span class="save hide-sm" style="color:var(--danger)">${esc(S.notice)}</span>` : ''}
     <button class="btn primary" id="new">New Process</button>
     ${items(' nav-d')}${signInHTML()}${acctHTML()}</div>`;
