@@ -1859,21 +1859,14 @@ function shareButtons(id){
   if (!id) return '';
   return `<button class="btn sm" data-act="tweet" data-pub="${esc(id)}">Share on X</button><button class="btn sm" data-act="copypub" data-pub="${esc(id)}">${ICON.link}Copy link</button>`;
 }
-function pubbarHTML(p){
-  const q = S.real || p;
-  if (S.compare) return '';
-  if (kindOf(p) === 'example') return `<div class="pubbar"><span>This is an example. Make a copy to change it, or build a process of your own. It's free to start, no account needed.</span><span class="prop-acts"><button class="btn primary sm" data-act="newown">Build my own</button>${shareButtons(q.id)}</span></div>`;
-  if (kindOf(p) !== 'public' || !q.publicId) return '';
-  return `<div class="pubbar"><span><b>${esc(q.title)}</b> by ${esc(q.publishedBy)}. Make your own copy to change it, or build one of your own. Free to start, no account needed.</span>
-    <span class="prop-acts"><button class="btn primary sm" data-act="guideme">${ICON.compass}Guide me</button><button class="btn sm" data-act="newown">Build my own</button>${shareButtons(q.publicId)}</span></div>`;
-}
+const pubbarHTML = () => '';
 function renderTopActions(){
   const p = S.cur; if (!p || !$('#wprimary')) return;
   $('#pubbar').innerHTML = pubbarHTML(p);
   if (!document.activeElement?.closest?.('#tagbar')) $('#tagbar').innerHTML = tagbarHTML(p);
   $('#vis').innerHTML = visHTML(p);
   $('#wprimary').innerHTML = primaryHTML(p);
-  $('#save').textContent = S.compare ? '' : readOnly(p) ? (kindOf(p) === 'public' ? 'Changes make a copy or a suggestion' : 'Changes make a private copy') : S.save;
+  $('#save').textContent = S.compare ? '' : readOnly(p) ? '' : S.save;
 }
 
 function renderWork(fromStream){
@@ -1884,6 +1877,10 @@ function renderWork(fromStream){
   t.readOnly = !!S.compare;
   renderTopActions();
   const wa = $('#wacct'); wa.innerHTML = signInHTML() + acctHTML(); wireAcct(wa); wireSignIn(wa); wireEmailForm(wa);
+  const viewonly = ['public', 'example', 'view'].includes(kindOf(p));
+  if (viewonly) S.tab = 'map';
+  $('#work').classList.toggle('viewonly', viewonly);
+  const tabs = $('#tabs'); if (tabs) tabs.hidden = viewonly;
   $('#work').dataset.tab = S.tab;
   $('#work').classList.toggle('comparing', !!S.compare);
   document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === S.tab));
@@ -1926,21 +1923,23 @@ function renderMsgs(){
 }
 
 function renderCrumbs(){
-  const p = S.cur, ev = p.events || [];
+  const p = S.cur, ev = p.events || [], viewer = readOnly(p);
+  if (viewer && S.path.length === 1){ $('#crumbs').innerHTML = ''; $('#crumbs').hidden = true; return; }
+  $('#crumbs').hidden = false;
   const ai = ev.filter(e => e.who === 'ai').length;
   const hu = ev.filter(e => e.who === 'human' && (e.op !== 'chat_feedback' || e.type === 'correction' || e.type === 'confusion')).length;
   const here = findIssues(p).filter(i => i.map === curMap().id || i.at === curMap().id);
   const totalDepth = stats(p).depth;
   const crumbs = S.path.map((id, i) => {
     const m = p.maps[id]; const last = i === S.path.length - 1;
-    return (i ? '<span class="sep">/</span>' : '') + `<button class="crumb${last ? ' cur' : ''}" ${last ? 'aria-current="page"' : `data-depth="${i}"`}>${esc(i === 0 ? p.title : m.title)}</button>`;
+    return (i ? '<span class="sep">/</span>' : '') + `<button class="crumb${last ? ' cur' : ''}" ${last ? 'aria-current="page"' : `data-depth="${i}"`}>${esc(i === 0 ? 'Main flow' : m.title)}</button>`;
   }).join('');
   const pub = '';
   $('#crumbs').innerHTML = `${crumbs}
     <span class="depth" title="Layer ${S.path.length} of ${totalDepth}">${Array.from({length:Math.max(totalDepth,S.path.length)},(_,i)=>`<b class="${i < S.path.length ? 'on' : ''}"></b>`).join('')}</span>
     <span class="spacer"></span>
     ${here.length ? `<button class="pill warn" data-checks aria-expanded="${S.checksOpen ? 'true' : 'false'}">${here.length} to check</button>` : ''}
-    <span class="signal" title="Every AI change and human correction is kept as learning signal">${ai} AI changes · ${hu} corrections</span>
+    ${viewer ? '' : `<span class="signal" title="Every AI change and human correction is kept as learning signal">${ai} AI changes · ${hu} corrections</span>`}
     ${pub}`;
 }
 

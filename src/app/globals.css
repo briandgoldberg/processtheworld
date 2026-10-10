@@ -296,6 +296,10 @@ code{font-family:var(--f-mono);font-size:11px}
 /* ---------- Sharing, suggestions, compare ---------- */
 .linkish-plain{border:none;background:none;padding:0;cursor:pointer;color:inherit}
 .vi{flex:none}
+.work.viewonly{grid-template-columns:1fr!important}
+.work.viewonly .chat{display:none!important}
+.work.viewonly .canvas-wrap{display:flex!important}
+.crumbs[hidden],.tabs[hidden]{display:none!important}
 .cn-home{padding-block:4px!important}
 .connect-btn{display:flex;flex-direction:column;align-items:flex-start;gap:2px;font-weight:700}
 .connect-btn small{font-weight:500;color:var(--muted);font-size:12px}
