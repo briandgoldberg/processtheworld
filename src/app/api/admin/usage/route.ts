@@ -39,10 +39,12 @@ export async function GET(req: NextRequest) {
       count(*) FILTER (WHERE NOT (EXISTS (SELECT 1 FROM "Event" e WHERE e."userId" = u.id) OR EXISTS (SELECT 1 FROM "Turn" t WHERE t."userId" = u.id)) AND NOT EXISTS (SELECT 1 FROM "Process" p WHERE p."userId" = u.id))::bigint AS visitors
     FROM "User" u WHERE u."emailVerifiedAt" IS NULL AND NOT (u.id = ANY(${ex}::text[]))`;
   const guestKinds = { used: Number(g[0]?.used || 0), api: Number(g[0]?.api || 0), visitors: Number(g[0]?.visitors || 0) };
+  // Library processes still sitting on the guest accounts that built them
+  const strays = await prisma.publicProcess.count({ where: { user: { handle: { in: ["SteadyMapmaker34", "BrightTinkerer61"] } } } });
   const n = (rows: { day: Date; n: bigint }[]) => rows.map(r => ({ day: r.day, n: Number(r.n) }));
   return json({
     days,
-    members: { total, guests: total - email, email, newTotal, newEmail }, guestKinds,
+    members: { total, guests: total - email, email, newTotal, newEmail }, guestKinds, strays,
     active, returning,
     agent: { calls: agentCalls, sources: agentIps.length },
     dailyNew: n(dailyNew), dailyActive: n(dailyActive), dailyAgent: n(dailyAgent),
