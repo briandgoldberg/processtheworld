@@ -116,7 +116,8 @@ async function session(el, id){
 
 /* ---------- What to improve: from interviews and feedback ---------- */
 async function improve(el){
-  const [i, o, sg] = await Promise.all([api('/api/admin/insights?days=' + A.days), api('/api/admin/overview?days=' + A.days), api('/api/admin/suggestions')]);
+  const [i, o, sg, fbAll] = await Promise.all([api('/api/admin/insights?days=' + A.days), api('/api/admin/overview?days=' + A.days), api('/api/admin/suggestions'), api('/api/admin/feedback?status=all')]);
+  const forms = fbAll.feedback.filter(f => (f.kind === 'button' || f.kind === 'checkin') && (f.text || f.reasons.length));
   const q = Object.fromEntries(o.questions.map(x => [x.outcome, x.count]));
   const qTotal = (q.answered || 0) + (q.skipped || 0) + (q.ignored || 0);
   const chk = Object.entries(o.checks);
@@ -126,10 +127,13 @@ async function improve(el){
     <header><h3>${esc(s.title)}</h3><span class="pill">${s.source === 'analysis' ? 'From review' : 'From the data'}</span><span class="pill">${esc(s.status)}</span></header>
     <p>${esc(s.body)}</p>${s.evidence?.note ? `<p class="hint">Evidence: ${esc(s.evidence.note)}</p>` : ''}
     <footer>${['planned', 'done', 'dismissed', 'open'].filter(x => x !== s.status).map(x => `<button class="btn sm" data-sug="${x}" data-id="${s.id}">${{ planned:'Plan it', done:'Mark done', dismissed:'Dismiss', open:'Reopen' }[x]}</button>`).join('')}</footer></article>`;
+  const formCard = f => `<article class="panel fb"><header><span class="pill">${esc(KINDS[f.kind] || f.kind)}</span>${f.reasons.map(r => `<span class="chip">${esc(r)}</span>`).join('')}<span class="hint">${esc(f.who)} · ${when(f.created)}${f.process ? ' · ' + esc(f.process) : ''}</span></header>${f.text ? `<p class="fbtext">${esc(f.text)}</p>` : ''}${f.processId ? `<footer><button class="btn sm" data-open="${esc(f.processId)}">Open the process</button></footer>` : ''}</article>`;
   el.innerHTML = `
+  <section class="panel"><h3>Feedback forms people filled out</h3><p class="hint">${forms.length} in total, newest first. Read these first.</p></section>
+  ${forms.map(formCard).join('') || '<p class="hint">No feedback forms yet.</p>'}
   <section class="panel"><h3>Suggested changes to the process builder</h3>
-    <div class="seg"><button class="btn primary sm" data-gen ${A.busy ? 'disabled' : ''}>${A.busy ? 'Reading the interviews…' : 'Suggest changes from interviews and feedback'}</button><span class="hint">Claude reads the corrections, questions and feedback from the last 30 days.</span></div></section>
-  ${open.map(card).join('') || '<p class="hint">No open suggestions. Press the button above.</p>'}
+    <div class="seg"><button class="btn primary sm" data-gen ${A.busy ? 'disabled' : ''}>${A.busy ? 'Reading the interviews…' : 'Look for problems that 3 or more people ran into'}</button><span class="hint">Claude reads the last 30 days and only suggests a change when at least 3 different people hit the same problem.</span></div></section>
+  ${open.map(card).join('') || '<p class="hint">No suggestions. A suggestion appears only when 3 or more people hit the same problem.</p>'}
   <div class="kpis">
     ${kpi('Interview turns', i.turns, `last ${i.days} days`)}
     ${kpi('Corrected', pct(i.corrections, i.turns), `${i.corrections} messages fixing the map`)}
@@ -224,7 +228,7 @@ export function mountAdmin(root){
     const o = e.target.closest('[data-open]'); if (o){ A.session = o.dataset.open; return draw(); }
     if (e.target.closest('[data-back]')){ A.session = null; return draw(); }
     const s = e.target.closest('[data-sug]'); if (s){ await api('/api/admin/suggestions', { method:'PATCH', body:JSON.stringify({ id:s.dataset.id, status:s.dataset.sug }) }); return draw(); }
-    if (e.target.closest('[data-gen]')){ A.busy = true; draw(); try { await api('/api/admin/suggestions', { method:'POST', body:'{}' }); } catch (err){ alert(err.message); } A.busy = false; return draw(); }
+    if (e.target.closest('[data-gen]')){ A.busy = true; draw(); try { const r = await api('/api/admin/suggestions', { method:'POST', body:'{}' }); if (!r.added) alert('Nothing yet. No problem has come up for 3 or more people.'); } catch (err){ alert(err.message); } A.busy = false; return draw(); }
     const ex = e.target.closest('[data-export]'); if (ex){
       const kind = ex.dataset.export;
       const r = await fetch('/api/admin/export' + (kind === 'votes' ? '?kind=votes' : ''), { headers:{ 'x-ptw-key':key() } });
