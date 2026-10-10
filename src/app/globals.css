@@ -712,3 +712,4 @@ body.embed .crumbs{padding-block:6px}
 .sug-item:hover,.sug-item:focus{background:var(--sunk)}
 .inv-state{min-height:18px;margin-top:4px}
 .inv-state.ok{color:var(--system);font-weight:600}
+.warn-line{color:var(--danger);font-weight:600}

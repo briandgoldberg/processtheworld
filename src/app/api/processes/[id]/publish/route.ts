@@ -16,6 +16,7 @@ export async function POST(req: NextRequest, { params }: Ctx) {
   const p = await prisma.process.findUnique({ where: { id }, include: { public: true } });
   if (!p || p.userId !== user.id) return fail("Save the process first.", 404);
   if (p.proposalFor) return fail("This is a draft for another process and can't be published.");
+  if (p.public) return fail("Public processes cannot be changed. Make it private first.", 409);
   const r = await publishNow(user, { id, title: p.title, doc: p.doc, stepCount: p.stepCount, depth: p.depth, laneTypes: p.laneTypes }, p.public ? { id: p.public.id, version: p.public.version } : null);
   return json({ ok: true, ...r, mode: "locked" });
 }

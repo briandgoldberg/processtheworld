@@ -41,6 +41,7 @@ export async function saveForUser(user: { id: string; handle: string }, b: Recor
     (doc as any).thumb = await artDataUrl(String(b.thumbnailArt.emoji || ""), Number(b.thumbnailArt.hue));
   } else if ((existing?.doc as any)?.thumb) (doc as any).thumb = (existing!.doc as any).thumb;
   const data = { title: doc.title, status: "done", doc: doc as any, stepCount: doc.stepCount, depth: doc.depth, laneTypes: doc.laneTypes };
+  if (existing?.public) return { status: 409, body: { error: "Public processes cannot be changed. Make it private first, or save this as a new process.", code: "public_frozen" } };
   const pub: { id: string; version: number } | null = existing?.public ? { id: existing.public.id, version: existing.public.version } : null;
   if (existing) {
     const u = await prisma.process.update({ where: { id: existing.id }, data: { ...data, rev: { increment: 1 } }, select: { rev: true } });

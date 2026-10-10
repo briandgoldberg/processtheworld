@@ -140,7 +140,8 @@ function newProcess(){
     maps:{ m_root:{ id:'m_root', title:'Untitled process', parent:null, lanes:[], steps:[] } }, chat:[], events:[] };
 }
 const curMap = () => S.cur?.maps[S.path[S.path.length-1]] || S.cur?.maps.m_root;
-const readOnly = p => !!(p?.example || p?.readonly);
+// A public process is frozen: changing it (even by its owner) makes a private copy
+const readOnly = p => !!(p?.example || p?.readonly || (p?.publicId && !p.proposalFor));
 function stats(p){
   const maps = Object.values(p.maps || {});
   let steps = 0; maps.forEach(m => steps += m.steps.length);
@@ -184,10 +185,10 @@ function ensureOwned(){
   if (S.compare) closeCompare();
   const q = S.cur;
   const copy = clone(q);
-  const from = q.example ? 'this example' : `“${q.title}” by ${q.publishedBy || q.owner}`;
+  const from = q.example ? 'this example' : q.publishedBy || q.owner ? `“${q.title}” by ${q.publishedBy || q.owner}` : `“${q.title}”, which is public and cannot be changed`;
   for (const k of ['example','readonly','publishedBy','publicId','publicMode','mine','role','owner','rev','version','openProposals','viewShare','shareCount']) delete copy[k];
   copy.id = rid('p'); copy.events = []; copy.undo = null; copy.rating = null;
-  if (q.publicId && !q.viewShare){ copy.forkedFrom = q.publicId; API.post('/api/public/' + q.publicId, {}).catch(()=>{}); }
+  if (q.publicId && !q.viewShare && q.readonly){ copy.forkedFrom = q.publicId; API.post('/api/public/' + q.publicId, {}).catch(()=>{}); }
   copy.chat = (copy.chat || []).concat([{ role:'note', content:`Saved your own private copy of ${from}.` }]);
   S.cur = copy;
   track('copy_made', { from:q.publicId || q.id, example:!!q.example }, copy.id);
@@ -906,11 +907,11 @@ function publishHTML(d){
   if (!d.canManage || p.proposalFor) return '';
   const empty = !p.maps.m_root.steps.length;
   if (!p.publicId) return `<form class="pubbox" data-form="publish"><p class="label">${ICON.globe} Public</p>
-    <p class="hint">Anyone can open, like, share and copy it. Only you can change it.</p>
+    <p class="hint warn-line">Warning: Public processes cannot be changed. Anyone can open, like, share and copy it.</p>
     <div class="prop-acts"><button class="btn primary sm"${empty ? ' disabled' : ''}>Make public</button>${empty ? '<span class="hint">Add a step first.</span>' : ''}</div></form>`;
   return `<div class="pubbox"><p class="label">${ICON.globe} Public</p>
-    <p class="hint">Anyone can open, like, share and copy it. Only you can change it.</p>
-    <div class="prop-acts"><button class="btn primary sm" data-act="update">Update public version</button><button class="btn sm" data-act="openpublic">View public version</button><button class="btn sm" data-act="unpublish">Make private</button></div>
+    <p class="hint warn-line">Warning: Public processes cannot be changed. To edit, make it private first, or make a copy.</p>
+    <div class="prop-acts"><button class="btn sm" data-act="openpublic">View public version</button><button class="btn sm" data-act="unpublish">Make private</button></div>
     <div class="prop-acts">${shareButtons(p.publicId)}</div></div>`;
 }
 function shareHTML(){
