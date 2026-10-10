@@ -1427,7 +1427,6 @@ function publicMatches(p){
 const SORTS = {
   new:(a, b) => (b.publishedAt || 0) - (a.publishedAt || 0),
   top:(a, b) => (b.likes || 0) - (a.likes || 0) || (b.publishedAt || 0) - (a.publishedAt || 0),
-  upd:(a, b) => (b.updatedAt || 0) - (a.updatedAt || 0),
 };
 function feedCardHTML(p){
   const mine = p.processId && S.mine.some(m => m.id === p.processId);
@@ -1446,7 +1445,7 @@ function publicCardsHTML(){
 }
 function sortBarHTML(){
   const n = (S.pub || []).filter(publicMatches).length;
-  return `<span class="fcount">${n} process${n === 1 ? '' : 'es'}</span><span class="fsort-l">Sort</span>${[['new', 'Newest'], ['top', 'Most liked'], ['upd', 'Recently updated']].map(([k, l]) => `<button data-sort="${k}" class="${S.sort === k ? 'on' : ''}">${l}</button>`).join('')}`;
+  return `<span class="fcount">${n} process${n === 1 ? '' : 'es'}</span><span class="fsort-l">Sort</span>${[['new', 'Newest'], ['top', 'Most liked']].map(([k, l]) => `<button data-sort="${k}" class="${S.sort === k ? 'on' : ''}">${l}</button>`).join('')}`;
 }
 async function toggleFeedLike(id, btn){
   const p = (S.pub || []).find(x => x.id === id); if (!p) return;
@@ -2625,7 +2624,7 @@ export async function mount(root, opts = {}){
   API.key = key;
   const q = new URLSearchParams(location.search);
   if (q.get('alert') && ALERTS[q.get('alert')]){ S.toast = ALERTS[q.get('alert')]; history.replaceState(null, '', '/'); }
-  S.view = opts.connect ? 'connect' : opts.mine ? 'mine' : 'home'; ls.set('ptw_in', '1'); S.sort = ls.get('ptw_sort') || 'new';
+  S.view = opts.connect ? 'connect' : opts.mine ? 'mine' : 'home'; ls.set('ptw_in', '1'); S.sort = SORTS[ls.get('ptw_sort')] ? ls.get('ptw_sort') : 'new';
   S.loading = true; render(); if (!opts.embed) renderFeedbackBox();
   try { S.me = await API.post('/api/identity', { key }); } catch {}
   S.ready = true;
