@@ -38,8 +38,10 @@ async function overview(el){
   const qTotal = (q.answered || 0) + (q.skipped || 0) + (q.ignored || 0);
   const chk = Object.entries(d.checks);
   const rem = Object.fromEntries(d.removals.map(r => [r.verdict, r.count]));
+  const aie = await api('/api/admin/ai-errors').catch(() => ({ errors:[] }));
+  const aiPanel = aie.errors.length ? `<section class="panel"><h3>Latest AI errors</h3><p class="hint">If people see "could not answer", the reason is here.</p><ul class="ops">${aie.errors.map(x => `<li><span class="hint">${when(x.at)}</span> <code>${esc(x.model)}</code> ${esc(String(x.error).slice(0, 220))}</li>`).join('')}</ul></section>` : '';
   const adopt = `<section class="panel"><h3>Put your name on the starter library</h3><p class="hint">The processes my agents built are published under temporary guest accounts. This moves all of them onto your account and names it. Run it again after new ones are added.</p><div class="row-in"><input id="adopt-name" value="Brian" maxlength="24" aria-label="Username"><button class="btn primary sm" data-adopt>Move them to my account</button></div><p class="hint" id="adopt-msg" role="status"></p></section>`;
-  el.innerHTML = adopt + credits + `
+  el.innerHTML = aiPanel + adopt + credits + `
   <div class="kpis">
     <div><span class="label">People</span><b>${d.users}</b><small>${d.verified} with email · ${d.newUsers} new</small></div>
     <div><span class="label">Processes</span><b>${d.processes}</b><small>${d.finished} finished</small></div>

@@ -20,12 +20,14 @@ export const mapModel = () => process.env.ANTHROPIC_MODEL || "claude-haiku-5-5";
 export const analysisModel = () => process.env.ANALYSIS_MODEL || "claude-sonnet-5-5";
 
 let client: Anthropic | null = null;
-const anthropic = () => (client ||= new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY }));
+// A key that is not tied to one workspace needs ANTHROPIC_WORKSPACE_ID (or use a key created inside a workspace).
+const anthropic = () => (client ||= new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY, ...(process.env.ANTHROPIC_WORKSPACE_ID ? { defaultHeaders: { "anthropic-workspace-id": process.env.ANTHROPIC_WORKSPACE_ID } } : {}) }));
 
 /** Turn a provider error into a short code the app can explain clearly. */
 function aiErrorCode(e: any): string {
   const s = Number(e?.status) || 0, m = String(e?.message || "");
   if (/credit balance|billing|insufficient|purchase credits/i.test(m)) return "ai_billing";
+  if (/workspace/i.test(m)) return "ai_auth";
   if (s === 401 || s === 403) return "ai_auth";
   if (s === 404 || (s === 400 && /model/i.test(m))) return "ai_model";
   if (s === 429 || s === 529 || s >= 500) return "ai_busy";
@@ -65,7 +67,7 @@ export async function streamAndLog(meta: CallMeta, system: string, text: string,
         usage = { input: u.input_tokens || 0, output: u.output_tokens || 0, cacheRead: u.cache_read_input_tokens || 0, cacheWrite: u.cache_creation_input_tokens || 0 };
       } catch (e: any) {
         error = String(e?.message || e).slice(0, 500);
-        controller.enqueue(encoder.encode("\n" + JSON.stringify({ op: "error", code: aiErrorCode(e), detail: String(e?.message || e).slice(0, 160) }) + "\n"));
+        controller.enqueue(encoder.encode("\n" + JSON.stringify({ op: "error", code: aiErrorCode(e) }) + "\n"));
       } finally {
         controller.close();
         await prisma.aiCall.update({
