@@ -704,3 +704,4 @@ body.embed .crumbs{padding-block:6px}
 .cthumb.none{display:none}
 /* Lane names stay at the left edge while the map scrolls sideways */
 .lane-head{position:sticky;left:0;z-index:4;box-shadow:2px 0 6px -3px rgba(10,20,40,.25)}
+.more-mine{margin-top:12px}

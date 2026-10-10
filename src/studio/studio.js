@@ -1496,7 +1496,7 @@ function renderHome(app){
   app.innerHTML = `
   ${topBarHTML()}
   <div class="home"><div class="home-in">
-    ${S.mine.length ? sec('My processes', 'Private unless you share or publish them.', `<div class="cards">${S.mine.map(p => cardHTML(p,'mine')).join('')}</div>`) : ''}
+    ${S.mine.length ? sec('My processes', 'Private unless you share or publish them.', `<div class="cards">${S.mine.slice(0, S.mineLimit || 6).map(p => cardHTML(p,'mine')).join('')}</div>${S.mine.length > (S.mineLimit || 6) ? `<button class="btn more-mine" data-moremine>Show ${Math.min(6, S.mine.length - (S.mineLimit || 6))} more of your ${S.mine.length} processes</button>` : ''}`) : ''}
     ${S.shared.length ? sec('Shared with me', 'Processes people invited you to.', `<div class="cards">${S.shared.map(p => cardHTML(p,'shared')).join('')}</div>`) : ''}
     <section class="sec">${publicFilterHTML()}</section>
   </div></div>`;
@@ -1506,6 +1506,7 @@ function renderHome(app){
   app.querySelectorAll('[data-del-no]').forEach(b => b.onclick = () => { S.confirmDel = null; render(); });
   app.querySelectorAll('[data-del-yes]').forEach(b => b.onclick = () => deleteProcess(b.dataset.delYes));
   app.querySelectorAll('[data-open]').forEach(b => b.onclick = () => openProcess(b.dataset.open, b.dataset.kind));
+  app.querySelectorAll('[data-moremine]').forEach(b => b.onclick = () => { S.mineLimit = (S.mineLimit || 6) + 6; render(); });
   loadCardThumbs();
 }
 document.addEventListener('click', e => {
