@@ -1755,7 +1755,7 @@ function visHTML(p){
   const k = kindOf(S.real || p);
   const q = S.real || p;
   if (k === 'example') return '';
-  if (k === 'public' || k === 'compare') return `<span class="by">by ${esc(q.publishedBy)} · v${q.version || 1}</span>`;
+  if (k === 'public' || k === 'compare') return `<span class="by">by ${esc(q.publishedBy)}</span>`;
   if (k === 'view') return `<span class="pill">View only</span><span class="by hide-sm">shared by ${esc(q.owner)}</span>`;
   if (k === 'draft') return `<span class="pill ex">Suggestion</span><span class="by hide-sm">for “${esc(q.suggestTitle || 'a public process')}”</span>`;
   if (k === 'shared') return `<span class="pill sh">${ICON.people}Shared</span><span class="by hide-sm">by ${esc(q.owner)}</span>`;
