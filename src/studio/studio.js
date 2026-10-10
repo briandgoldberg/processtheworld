@@ -1149,7 +1149,7 @@ function acctHTML(){
     <div class="acct-panel" role="dialog" aria-label="Account">
       <p class="acct-tag">Signed in as <b>${esc(me.email)}</b></p>
       ${nameForm}
-      <div class="acct-foot"><button class="acct-key" data-acct="copykey">Copy key for AI</button><button class="acct-key" data-acct="signout">Sign out</button>${me.isAdmin ? '<a class="acct-key" href="/admin">Admin</a>' : ''}</div>
+      <div class="acct-foot"><button class="acct-key" data-acct="signout">Sign out</button>${me.isAdmin ? '<a class="acct-key" href="/admin">Admin</a>' : ''}</div>
     </div>` : `
     <div class="acct-panel" role="dialog" aria-label="Account">
       <p class="acct-tag"><span class="guest-pill">Guest</span> mapping as ${esc(me.handle)}</p>
@@ -1159,7 +1159,6 @@ function acctHTML(){
         <button class="btn primary">Email me a link to sign in or sign up</button>
         <p class="hint" data-email-msg role="status">No password. Your processes follow you to any device.</p>
       </form>
-      <div class="acct-foot"><button class="acct-key" data-acct="copykey">Copy key for AI</button></div>
     </div>`;
   return `${me.isAdmin ? '<a class="btn sm admin-link hide-sm" href="/admin">Admin</a>' : ''}<div class="acct"><button class="btn ghost acct-btn" data-acct="toggle" aria-expanded="${S.acct}"><span class="acct-name">${esc(me.handle)}</span> ▾</button>${panel}</div>`;
 }
@@ -1237,7 +1236,6 @@ function renderConnect(app){
   <div class="home cn-home"><main class="cn-main">
     <div>${S.cur ? '<button class="btn ghost sm" data-backproc>← Back to process</button>' : '<button class="btn ghost sm" data-home>← Back home</button>'}</div>
     <section class="cn-hero">
-      <span class="label">Connect my AI</span>
       <h1>Create process maps with Claude or ChatGPT.</h1>
       <p>Describe how something gets done, by typing or by talking. Your AI asks the questions, draws the swim-lane process map (who does what, in what order, with which tools), and publishes it on forks.world.</p>
     </section>
@@ -1280,7 +1278,8 @@ function renderConnect(app){
     </section>
     <section class="cn-block">
       <h2>Want it saved to your own account?</h2>
-      <p>Your AI signs up as a guest by default, so what it publishes appears under its own name. To have it save to your account instead, open your account menu (top right), choose <b>Copy key for Claude or ChatGPT</b>, and give that key to your AI.</p>
+      <p>Your AI signs up as a guest by default, so what it publishes appears under its own name. To have it save to your account instead, copy your key and give it to your AI.</p>
+      <div><button class="btn" data-acct="copykey">Copy my key</button></div>
     </section>
     <section class="cn-block cn-dev">
       <h2>For developers and other AI tools</h2>
