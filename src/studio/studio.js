@@ -188,7 +188,7 @@ function ensureOwned(){
   const from = q.example ? 'this example' : q.publishedBy || q.owner ? `“${q.title}” by ${q.publishedBy || q.owner}` : `“${q.title}”, which is public and cannot be changed`;
   for (const k of ['example','readonly','publishedBy','publicId','publicMode','mine','role','owner','rev','version','openProposals','viewShare','shareCount']) delete copy[k];
   copy.id = rid('p'); copy.events = []; copy.undo = null; copy.rating = null;
-  if (q.publicId && !q.viewShare && q.readonly){ copy.forkedFrom = q.publicId; API.post('/api/public/' + q.publicId, {}).catch(()=>{}); }
+  if (q.publicId && !q.viewShare && q.readonly){ copy.forkedFrom = q.publicId; if (!S.mine.some(m => m.publicId === q.publicId)) API.post('/api/public/' + q.publicId, {}).catch(()=>{}); }
   copy.chat = (copy.chat || []).concat([{ role:'note', content:`Saved your own private copy of ${from}.` }]);
   S.cur = copy;
   track('copy_made', { from:q.publicId || q.id, example:!!q.example }, copy.id);
@@ -1609,6 +1609,8 @@ async function openProcess(id, kind){
     } else {
       const d = await API.get('/api/processes/' + id);
       p = fromServer(id, d);
+      // Your own public process is frozen: show it exactly as everyone else sees it
+      if (kind === 'mine' && p.publicId){ S.noPush = false; return openProcess(p.publicId, 'pub'); }
       const row = (kind === 'shared' ? S.shared : S.mine).find(x => x.id === id);
       p.shareCount = row?.shareCount || 0;
     }
@@ -1766,9 +1768,9 @@ function primaryHTML(p){
   const k = kindOf(p), q = S.real || p;
   const n = q.openProposals || 0;
   if (k === 'compare') return '';
-  if (k === 'public') return `${likeHTML(q)}${commentBtn(q)}<button class="btn primary sm" data-act="copy">Make my own copy</button>${shareButtons(q.publicId)}`;
-  if (k === 'example') return `<button class="btn sm" data-act="copy">Make a copy</button>${shareButtons(q.id)}`;
-  if (k === 'view') return `<button class="btn sm" data-act="copy">Make a copy</button>`;
+  if (k === 'public') return `${likeHTML(q)}${commentBtn(q)}<button class="btn primary sm" data-act="copy">Make a Private Copy</button>${shareButtons(q.publicId)}`;
+  if (k === 'example') return `<button class="btn sm" data-act="copy">Make a Private Copy</button>${shareButtons(q.id)}`;
+  if (k === 'view') return `<button class="btn sm" data-act="copy">Make a Private Copy</button>`;
   if (k === 'draft') return p.maps.m_root.steps.length ? `<button class="btn primary sm" data-act="submit">${p.submitted ? 'Submit again' : 'Submit for review'}</button>` : '';
   // A public process is frozen and already open to everyone: no Share sheet, just the quick actions
   if (q.publicId) return commentBtn(q) + shareButtons(q.publicId);
@@ -1781,11 +1783,11 @@ function menuHTML(p){
     items.push(['share', 'Share & publish…']);
     if (p.publicId) items.push(['openpublic', 'View public version'], ['tweet', 'Share on X'], ['copypub', 'Copy public link'], ['copyguide', 'Copy guided link'], ['copyembed', 'Copy embed code'], ['preview', 'Preview image']);
     items.push(['delete', 'Delete', 'danger']);
-  } else if (k === 'shared'){ items.push(['share', 'People with access'], ['copy', 'Make a private copy'], ['leave', 'Remove from my list', 'danger']); }
+  } else if (k === 'shared'){ items.push(['share', 'People with access'], ['copy', 'Make a Private Copy'], ['leave', 'Remove from my list', 'danger']); }
   else if (k === 'draft'){ items.push(['openpublic', 'View the public version'], ['delete', 'Discard this suggestion', 'danger']); }
-  else if (k === 'public'){ items.push(['copy', 'Make my own copy'], ['tweet', 'Share on X'], ['copypub', 'Copy link'], ['copyguide', 'Copy guided link'], ['copyembed', 'Copy embed code'], ['preview', 'Preview image']); }
-  else if (k === 'view'){ items.push(['copy', 'Make a private copy'], ['leave', 'Remove from my list', 'danger']); }
-  else items.push(['copy', 'Make a copy']);
+  else if (k === 'public'){ items.push(['copy', 'Make a Private Copy'], ['tweet', 'Share on X'], ['copypub', 'Copy link'], ['copyguide', 'Copy guided link'], ['copyembed', 'Copy embed code'], ['preview', 'Preview image']); }
+  else if (k === 'view'){ items.push(['copy', 'Make a Private Copy'], ['leave', 'Remove from my list', 'danger']); }
+  else items.push(['copy', 'Make a Private Copy']);
   return `<div class="menu" role="menu">${items.map(([a, l, c]) => `<button role="menuitem" class="menu-item${c ? ' ' + c : ''}" data-act="${a}">${esc(l)}</button>`).join('')}</div>`;
 }
 function renderPanel(){
