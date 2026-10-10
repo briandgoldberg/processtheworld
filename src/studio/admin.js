@@ -56,6 +56,9 @@ async function usage(el){
     <section class="panel"><h3>What people do</h3>${bars(d.events, r => nice(r.type), r => r.count)}</section>
     <section class="panel"><h3>AI agents (Claude, ChatGPT, API)</h3><p class="hint">Calls from outside the website. They never use credits.</p>${chart(d.dailyAgent, 'Agent calls per day', 'var(--person)')}</section>
   </div>
+  <section class="panel"><h3>Who the guests are</h3>
+    <p class="hint">A guest account is created automatically the first time a browser opens the site, and when an AI agent saves a process without a key. Nobody signs up.</p>
+    <ul class="ops"><li><b>${d.guestKinds.used}</b> used the app (made actions or talked to the mapper)</li><li><b>${d.guestKinds.api}</b> only made a process through the API or an AI agent</li><li><b>${d.guestKinds.visitors}</b> did nothing: people who only looked, search engine and link preview bots, and tests</li></ul></section>
   <section class="panel"><h3>Who is low on credits</h3><p class="hint">Everyone starts with 100. At 0 the mapper pauses until you add more.</p>${table(low.members)}</section>
   <section class="panel"><h3>Members</h3>
     <div class="seg">${[['all', 'Everyone'], ['email', 'Email members'], ['guest', 'Guests']].map(([k, n]) => `<button class="btn sm${A.memberKind === k ? ' primary' : ''}" data-mkind="${k}">${n}</button>`).join('')}</div>
