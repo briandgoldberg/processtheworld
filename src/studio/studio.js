@@ -1169,8 +1169,8 @@ function acctHTML(){
       <form data-email-form class="acct-form" novalidate>
         <input id="acct-email" name="email" type="email" required placeholder="Your email" aria-label="Email" autocomplete="email">
         <input name="handle" type="hidden" value="">
-        <button class="btn primary">Email me a link to sign in or sign up</button>
-        <p class="hint" data-email-msg role="status">No password. Your processes follow you to any device.</p>
+        <button class="btn primary">Send me a sign-in link</button>
+        <p class="hint" data-email-msg role="status">We'll email you a link. No password needed.</p>
       </form>
     </div>`;
   return `${me.isAdmin ? '<a class="btn sm admin-link hide-sm" href="/admin">Admin</a>' : ''}<div class="acct"><button class="btn ghost acct-btn" data-acct="toggle" aria-expanded="${S.acct}"><span class="acct-name">${esc(me.handle)}</span> ▾</button>${panel}</div>`;
