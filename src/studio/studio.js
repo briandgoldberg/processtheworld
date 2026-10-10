@@ -1500,10 +1500,8 @@ function mineMatches(p){
   return !needle || ((p.title || '') + ' ' + (p.tags || []).join(' ')).toLowerCase().includes(needle);
 }
 function mineTagsHTML(){
-  const c = {}; S.mine.forEach(p => (p.tags || []).forEach(t => { c[t] = (c[t] || 0) + 1; }));
-  const tags = Object.entries(c).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
-  if (!tags.length) return '';
-  return `<button class="tagpill${S.mtag ? '' : ' on'}" data-mtag="">All</button>` + tags.map(([t, n]) => `<button class="tagpill${S.mtag === t ? ' on' : ''}" data-mtag="${esc(t)}">${esc(t)} <small>${n}</small></button>`).join('');
+  // The same tags as the public list, so a tag means the same thing everywhere
+  return `<button class="tagpill${S.mtag ? '' : ' on'}" data-mtag="">All</button>` + allTags().slice(0, 16).map(([t]) => `<button class="tagpill${S.mtag === t ? ' on' : ''}" data-mtag="${esc(t)}">${esc(t)}</button>`).join('');
 }
 function mineCardsHTML(){
   const list = S.mine.filter(mineMatches);
