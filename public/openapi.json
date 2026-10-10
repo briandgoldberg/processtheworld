@@ -46,7 +46,7 @@
     "/api/agent/processes": {
       "post": {
         "operationId": "saveProcess",
-        "summary": "Save a process map. Include id to update one you already saved; publish true to make it public.",
+        "summary": "Save a process map. Include id to update a private one you already saved; publish true to make it public. Public processes cannot be changed (409 public_frozen).",
         "parameters": [
           {
             "name": "x-ptw-key",
@@ -480,7 +480,7 @@
         "properties": {
           "id": {
             "type": "string",
-            "description": "Id of a process you saved earlier, to update it."
+            "description": "Id of a private process you saved earlier, to update it. Public processes cannot be changed."
           },
           "title": {
             "type": "string"

@@ -31,7 +31,7 @@ Every step except a start has a way in. Every step except an end leads somewhere
 SAVING
 - Simplest: call quickPublish once with the finished map. It signs up a guest, saves, publishes and returns publicUrl, flowUrl and a key. Give the person publicUrl.
 - If the person gives you their key (Connect my AI page, Copy my key), send it as the x-ptw-key header on saveProcess so it lands in their account.
-- Publish only if they say yes ("publish": true). To change a saved map, send the same body with its "id".
+- Publish only if they say yes ("publish": true). To change a private saved map, send the same body with its "id". A public map cannot be changed (error public_frozen): save a new one.
 - exportProcess returns a saved map as Markdown, a flow page, a Claude skill or GPT instructions.
 - If an action fails with invalid_process, the error lists the problems. Fix them and resend.
 Tell the person the result, not the technical details.

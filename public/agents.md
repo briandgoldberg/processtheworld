@@ -14,7 +14,7 @@ No key, no setup. Send the process (format in section 2) and you get a public li
 curl -s https://processtheworld.vercel.app/api/agent/quick -H 'content-type: application/json' -d '{ "title": "...", "lanes": [...], "steps": [...] }'
 ```
 
-It signs up a guest, saves the process and publishes it. The response has `publicUrl` (the shareable link), `flowUrl` (the swim-lane flow diagram as a page), `handle` and `key` (keep it to update the process later: send it as `x-ptw-key`). Add `"publish": false` to keep it private.
+It signs up a guest, saves the process and publishes it. The response has `publicUrl` (the shareable link), `flowUrl` (the swim-lane flow diagram as a page), `handle` and `key` (keep it to update the process later: send it as `x-ptw-key`). Add `"publish": false` to keep it private. Public processes cannot be changed: saving over a public one returns public_frozen. Save a new process instead.
 
 If you can only open links (no POST), use `GET /api/agent/quick?json=<URL-encoded JSON>`, or `?b64=<base64url-encoded JSON>` for long maps.
 

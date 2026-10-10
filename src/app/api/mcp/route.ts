@@ -38,7 +38,7 @@ const TOOLS = [
       type: "object", required: ["title", "lanes", "steps"],
       properties: {
         key: { type: "string", description: "Account key from an earlier save_process call. Omit to sign up as a guest." },
-        id: { type: "string", description: "Id of a process you saved before, to update it." },
+        id: { type: "string", description: "Id of a private process you saved before, to update it. Public processes cannot be changed." },
         title: { type: "string" },
         thumbnailArt: { type: "object", properties: { emoji: { type: "string" }, hue: { type: "integer" } }, description: "A generated thumbnail for the preview card: a gradient with one big emoji, e.g. {emoji: \"🧬\", hue: 280}." },
         tags: { type: "array", items: { type: "string" }, description: "Up to 8 short lowercase tags (e.g. sales, science, daily life) so people can find it." },
