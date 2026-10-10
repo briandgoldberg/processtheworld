@@ -903,10 +903,11 @@ async function loadShares(){
 /* Publishing lives with sharing: the creator can open a process to everyone, collaboratively or as is */
 function publishHTML(d){
   const p = S.cur;
-  if (!d.canManage || p.proposalFor || !p.maps.m_root.steps.length) return '';
+  if (!d.canManage || p.proposalFor) return '';
+  const empty = !p.maps.m_root.steps.length;
   if (!p.publicId) return `<form class="pubbox" data-form="publish"><p class="label">${ICON.globe} Public</p>
     <p class="hint">Anyone can open, like, share and copy it. Only you can change it.</p>
-    <div class="prop-acts"><button class="btn primary sm">Make public</button></div></form>`;
+    <div class="prop-acts"><button class="btn primary sm"${empty ? ' disabled' : ''}>Make public</button>${empty ? '<span class="hint">Add a step first.</span>' : ''}</div></form>`;
   return `<div class="pubbox"><p class="label">${ICON.globe} Public</p>
     <p class="hint">Anyone can open, like, share and copy it. Only you can change it.</p>
     <div class="prop-acts"><button class="btn primary sm" data-act="update">Update public version</button><button class="btn sm" data-act="openpublic">View public version</button><button class="btn sm" data-act="unpublish">Make private</button></div>
@@ -927,7 +928,7 @@ function shareHTML(){
     </li>`).join('');
   return `<div class="sheet">${head}
     ${d.canManage ? `<form data-form="invite" class="invite"><label class="label" for="inv-who">Invite by username or email</label>
-      <div class="row-in"><input id="inv-who" name="who" required placeholder="Start typing a username or email" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <div class="row-in"><input id="inv-who" name="who" required autocomplete="off" autocapitalize="off" spellcheck="false">
       <select name="role" aria-label="Access"><option value="edit">Can edit</option><option value="view">Can view</option></select>
       <button class="btn primary sm">Invite</button></div>
       <ul class="suggest" id="inv-sug" hidden></ul><p class="hint inv-state" id="inv-state" role="status"></p></form>` : '<p class="hint">Only the owner can invite people.</p>'}
