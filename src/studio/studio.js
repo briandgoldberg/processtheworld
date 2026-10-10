@@ -1533,7 +1533,6 @@ function renderHome(app){
   app.innerHTML = `
   ${topBarHTML()}
   <div class="home"><div class="home-in">
-    ${S.mine.length ? sec('My processes', 'Private unless you share or publish them.', `<div class="cards">${S.mine.slice(0, 4).map(p => cardHTML(p,'mine')).join('')}</div>${S.mine.length > 4 ? `<button class="linkish more-mine" data-mine>All private processes (${S.mine.length}) →</button>` : ''}`) : ''}
     ${S.shared.length ? sec('Shared with me', 'Processes people invited you to.', `<div class="cards">${S.shared.map(p => cardHTML(p,'shared')).join('')}</div>`) : ''}
     <section class="sec">${publicFilterHTML()}</section>
   </div></div>`;

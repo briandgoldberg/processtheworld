@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
   if (!(await adminFrom(req))) return fail("Admins only.", 403);
   const status = req.nextUrl.searchParams.get("status");
   const rows = await prisma.feedback.findMany({
-    where: status && status !== "all" ? { status } : {}, orderBy: { createdAt: "desc" }, take: 300,
+    where: status && status !== "all" ? { status } : {}, orderBy: { createdAt: "desc" }, take: 2000,
     include: { user: { select: { handle: true, email: true } }, process: { select: { title: true } } },
   });
   return json({ feedback: rows.map(r => ({ id: r.id, kind: r.kind, rating: r.rating, reasons: r.reasons, text: r.text, context: r.context, status: r.status, created: r.createdAt, who: r.user.email || r.user.handle, processId: r.processId, process: r.process?.title || null })) });
