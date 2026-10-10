@@ -296,6 +296,8 @@ code{font-family:var(--f-mono);font-size:11px}
 /* ---------- Sharing, suggestions, compare ---------- */
 .linkish-plain{border:none;background:none;padding:0;cursor:pointer;color:inherit}
 .vi{flex:none}
+.psrow{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.psrow input[type=search]{flex:1 1 280px}
 .fthumb{display:block;border:0;padding:0;margin:0;width:100%;aspect-ratio:800/420;background:var(--sunk);cursor:pointer;overflow:hidden}
 .fthumb img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .25s}
 .fcard:hover .fthumb img{transform:scale(1.03)}

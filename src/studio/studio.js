@@ -1235,6 +1235,7 @@ function sampleCards(){
 function renderConnect(app){
   app.innerHTML = `${topBarHTML()}
   <div class="home"><main class="cn-main">
+    <div><button class="btn ghost sm" data-home>← Back home</button></div>
     <section class="cn-hero">
       <span class="label">Connect my AI</span>
       <h1>Create process maps with Claude or ChatGPT.</h1>
@@ -1437,7 +1438,7 @@ function tagPillsHTML(){
   return `<button class="tagpill${S.tag ? '' : ' on'}" data-ptag="">All</button>` + tags.map(([t, n]) => `<button class="tagpill${S.tag === t ? ' on' : ''}" data-ptag="${esc(t)}">${esc(t)} <small>${n}</small></button>`).join('');
 }
 function publicFilterHTML(){
-  return `<div class="pfilter"><input id="psearch" type="search" placeholder="Search public processes" value="${esc(S.q)}" aria-label="Search public processes" autocomplete="off"><div class="pills" id="ppills">${tagPillsHTML()}</div><div class="fsort" id="fsort">${sortBarHTML()}</div></div><div class="feed" id="pcards">${publicCardsHTML()}</div>`;
+  return `<div class="pfilter"><div class="psrow"><input id="psearch" type="search" placeholder="Search public processes" value="${esc(S.q)}" aria-label="Search public processes" autocomplete="off"><a class="btn ghost sm" href="/connect">Connect my AI</a></div><div class="pills" id="ppills">${tagPillsHTML()}</div><div class="fsort" id="fsort">${sortBarHTML()}</div></div><div class="feed" id="pcards">${publicCardsHTML()}</div>`;
 }
 function wirePublicFilter(root){
   const inp = root.querySelector('#psearch'); if (!inp) return;
@@ -1471,8 +1472,6 @@ function topBarHTML(){
   const connect = S.view === 'connect';
   return `<div class="top"><button class="mark linkish-plain" data-home aria-label="forks.world home">${MARK}</button><span class="topsub hide-sm">Mapping how the world works</span><div class="grow"></div>
     ${S.notice ? `<span class="save hide-sm" style="color:var(--danger)">${esc(S.notice)}</span>` : ''}
-    <button class="btn ghost sm" data-home${connect ? '' : ' aria-current="page"'}>Home</button>
-    <a class="btn ghost sm" href="/connect"${connect ? ' aria-current="page"' : ''}>Connect my AI</a>
     <button class="btn primary" id="new">New<span class="hide-sm"> process</span></button>${signInHTML()}${acctHTML()}</div>`;
 }
 function renderHome(app){
