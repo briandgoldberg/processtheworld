@@ -1776,7 +1776,6 @@ function primaryHTML(p){
   if (q.publicId) return commentBtn(q) + shareButtons(q.publicId);
   return `<button class="btn sm" data-act="share">${q.shareCount ? ICON.people : ICON.lock}Share</button>`;
 }
-const exportBtn = () => '<button class="btn sm" data-act="export">Export</button>';
 function menuHTML(p){
   const k = kindOf(p), items = [];
   if (k === 'owned'){
@@ -1862,7 +1861,7 @@ async function onAction(e){
       let text, msg;
       if (a === 'copyskill'){ text = claudeSkill(doc); msg = 'Copied. Save it as SKILL.md in a folder named ' + skillSlug(doc) + ', then add the folder to Claude as a skill.'; }
       else { const r = chatgptInstructions(doc); text = r.text; msg = r.trimmed ? 'Copied, trimmed to ChatGPT’s 8,000 character limit. Export as Markdown and add it to the GPT as a knowledge file for the rest.' : 'Copied. Paste it into your GPT’s Instructions.'; }
-      try { await navigator.clipboard.writeText(text); alertBox(msg); } catch { alertBox('Could not copy. Use Export as Markdown instead.'); }
+      try { await navigator.clipboard.writeText(text); alertBox(msg); } catch { alertBox('Could not copy. Try again.'); }
       track(a === 'copyskill' ? 'copy_claude_skill' : 'copy_chatgpt', {}, q.id);
       S.panel = null; renderPanel(); return; }
     case 'exportflow': {
@@ -2006,7 +2005,7 @@ function renderTopActions(){
   $('#pubbar').innerHTML = pubbarHTML(p);
   if (!document.activeElement?.closest?.('#tagbar')) $('#tagbar').innerHTML = tagbarHTML(p);
   $('#vis').innerHTML = visHTML(p);
-  { const kk = kindOf(p); $('#wprimary').innerHTML = primaryHTML(p) + (kk === 'compare' ? '' : exportBtn()); const mb = $('#wmenu-btn'); if (mb) mb.parentElement.style.display = ['shared', 'draft', 'view'].includes(kk) ? '' : 'none'; }
+  { const kk = kindOf(p); $('#wprimary').innerHTML = primaryHTML(p); const mb = $('#wmenu-btn'); if (mb) mb.parentElement.style.display = ['shared', 'draft', 'view'].includes(kk) ? '' : 'none'; }
   $('#save').textContent = S.compare ? '' : readOnly(p) ? '' : S.save;
 }
 
