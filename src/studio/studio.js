@@ -1738,8 +1738,9 @@ function primaryHTML(p){
   if (k === 'example') return `<button class="btn sm" data-act="copy">Make a copy</button>${shareButtons(q.id)}`;
   if (k === 'view') return `<button class="btn sm" data-act="copy">Make a copy</button>`;
   if (k === 'draft') return p.maps.m_root.steps.length ? `<button class="btn primary sm" data-act="submit">${p.submitted ? 'Submit again' : 'Submit for review'}</button>` : '';
-  return `<button class="btn sm" data-act="share">${q.publicId ? ICON.globe : q.shareCount ? ICON.people : ICON.lock}Share</button>${q.publicId ? commentBtn(q) + shareButtons(q.publicId) : ''}`;
+  return `<button class="btn sm" data-act="share">${q.publicId ? ICON.globe : q.shareCount ? ICON.people : ICON.lock}Share</button>${q.publicId ? commentBtn(q) : ''}`;
 }
+const exportBtn = () => '<button class="btn sm" data-act="export">Export</button>';
 function menuHTML(p){
   const k = kindOf(p), items = [];
   if (k === 'owned'){
@@ -1751,7 +1752,6 @@ function menuHTML(p){
   else if (k === 'public'){ items.push(['copy', 'Make my own copy'], ['tweet', 'Share on X'], ['copypub', 'Copy link'], ['copyguide', 'Copy guided link'], ['copyembed', 'Copy embed code'], ['preview', 'Preview image']); }
   else if (k === 'view'){ items.push(['copy', 'Make a private copy'], ['leave', 'Remove from my list', 'danger']); }
   else items.push(['copy', 'Make a copy']);
-  if (k !== 'compare') items.unshift(['export', 'Export as Markdown (.md)'], ['exportflow', 'Export flow (.html)'], ['copyskill', 'Copy as Claude skill'], ['copygpt', 'Copy as ChatGPT instructions']);
   return `<div class="menu" role="menu">${items.map(([a, l, c]) => `<button role="menuitem" class="menu-item${c ? ' ' + c : ''}" data-act="${a}">${esc(l)}</button>`).join('')}</div>`;
 }
 function renderPanel(){
@@ -1970,7 +1970,7 @@ function renderTopActions(){
   $('#pubbar').innerHTML = pubbarHTML(p);
   if (!document.activeElement?.closest?.('#tagbar')) $('#tagbar').innerHTML = tagbarHTML(p);
   $('#vis').innerHTML = visHTML(p);
-  $('#wprimary').innerHTML = primaryHTML(p);
+  { const kk = kindOf(p); $('#wprimary').innerHTML = primaryHTML(p) + (kk === 'compare' ? '' : exportBtn()); const mb = $('#wmenu-btn'); if (mb) mb.parentElement.style.display = ['shared', 'draft', 'view'].includes(kk) ? '' : 'none'; }
   $('#save').textContent = S.compare ? '' : readOnly(p) ? '' : S.save;
 }
 
