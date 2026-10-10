@@ -907,12 +907,11 @@ function publishHTML(d){
   if (!d.canManage || p.proposalFor) return '';
   const empty = !p.maps.m_root.steps.length;
   if (!p.publicId) return `<form class="pubbox" data-form="publish"><p class="label">${ICON.globe} Public</p>
-    <p class="hint warn-line">Warning: Public processes cannot be changed. Anyone can open, like, share and copy it.</p>
+    <p class="hint warn-line">Warning: Public processes are frozen and can never be changed. Anyone can open, like, share and copy it.</p>
     <div class="prop-acts"><button class="btn primary sm"${empty ? ' disabled' : ''}>Make public</button>${empty ? '<span class="hint">Add a step first.</span>' : ''}</div></form>`;
   return `<div class="pubbox"><p class="label">${ICON.globe} Public</p>
-    <p class="hint warn-line">Warning: Public processes cannot be changed. To edit, make it private first, or make a copy.</p>
-    <div class="prop-acts"><button class="btn sm" data-act="openpublic">View public version</button><button class="btn sm" data-act="unpublish">Make private</button></div>
-    <div class="prop-acts">${shareButtons(p.publicId)}</div></div>`;
+    <p class="hint warn-line">This process is public and frozen. It cannot be changed.</p>
+    <div class="prop-acts"><button class="btn sm" data-act="copypub" data-pub="${esc(p.publicId)}">${ICON.link}Copy link</button></div></div>`;
 }
 function shareHTML(){
   const d = S.shareData, close = '<button class="btn ghost sm" data-act="close" aria-label="Close">✕</button>';
