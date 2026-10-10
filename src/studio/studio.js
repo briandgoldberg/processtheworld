@@ -1374,7 +1374,7 @@ function wireInterest(root){
     btn.disabled = false;
   });
 }
-function startNew(){ S.guide = null; S.painView = false; stopVoice(); setUrl('/'); S.cur = newProcess(); S.path = ['m_root']; S.sel = null; S.view = 'work'; S.tab = 'chat'; S.panel = null; track('process_started', {}, S.cur.id); render(); }
+function startNew(){ S.backTo = null; S.guide = null; S.painView = false; stopVoice(); setUrl('/'); S.cur = newProcess(); S.path = ['m_root']; S.sel = null; S.view = 'work'; S.tab = 'chat'; S.panel = null; track('process_started', {}, S.cur.id); render(); }
 
 const THUMBS = {};
 // One request per batch of cards, never one per card
@@ -1519,7 +1519,7 @@ function wireMineCards(app){
   app.querySelectorAll('#mcards [data-del]').forEach(b => b.onclick = () => { S.confirmDel = b.dataset.del; render(); });
   app.querySelectorAll('#mcards [data-del-no]').forEach(b => b.onclick = () => { S.confirmDel = null; render(); });
   app.querySelectorAll('#mcards [data-del-yes]').forEach(b => b.onclick = () => deleteProcess(b.dataset.delYes));
-  app.querySelectorAll('#mcards [data-open]').forEach(b => b.onclick = () => openProcess(b.dataset.open, b.dataset.kind));
+  app.querySelectorAll('#mcards [data-open]').forEach(b => b.onclick = () => { S.backTo = 'mine'; openProcess(b.dataset.open, b.dataset.kind); });
   loadCardThumbs();
 }
 function renderMine(app){
@@ -1631,7 +1631,7 @@ const STARTERS = [
 function renderWorkShell(app){
   app.innerHTML = `
   <div class="top work-top">
-    <button class="btn ghost" id="back" aria-label="Home" title="Home">${ICON.home}<span class="hide-sm"> Home</span></button>
+    <button class="btn ghost" id="back" aria-label="${S.backTo === 'mine' ? 'Back to My Processes' : 'Home'}" title="${S.backTo === 'mine' ? 'Back to My Processes' : 'Home'}">${S.backTo === 'mine' ? '←' : ICON.home}<span class="hide-sm"> ${S.backTo === 'mine' ? 'My Processes' : 'Home'}</span></button>
     <div class="grow"><input class="title-in" id="title" aria-label="Process name" placeholder="Name your process" title="Click to rename" maxlength="120"></div>
     <span id="vis" class="vis"></span>
     <span class="save hide-sm" id="save"></span>
@@ -1666,7 +1666,7 @@ function renderWorkShell(app){
       <div id="checks"></div>
     </section>
   </div>`;
-  $('#back').onclick = () => { setUrl('/'); stopGuide(); stopVoice(); flush(); if (S.compare) closeCompare(); S.view = 'home'; S.cur = null; S.confirmDel = null; S.panel = null; loadMine(); loadPublic(); render(); };
+  $('#back').onclick = () => { const toMine = S.backTo === 'mine'; S.backTo = null; setUrl(toMine ? '/mine' : '/'); stopGuide(); stopVoice(); flush(); if (S.compare) closeCompare(); S.view = toMine ? 'mine' : 'home'; S.cur = null; S.confirmDel = null; S.panel = null; loadMine(); loadPublic(); render(); };
   $('#wmenu-btn').onclick = e => { e.stopPropagation(); S.panel = S.panel === 'menu' ? null : 'menu'; S.panelMsg = ''; renderPanel(); };
   $('#wprimary').onclick = onAction; $('#pubbar').onclick = onAction;
   $('#tagbar').addEventListener('submit', e => { const f = e.target.closest('[data-tagform]'); if (!f) return; e.preventDefault(); addTag(f.elements.tag.value); });
