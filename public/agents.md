@@ -96,6 +96,19 @@ Layer (a step that opens into its own detail map):
 
 If anything is wrong the API returns 400 with `code: "invalid_process"` and a list of problems (unknown lane, unknown step in `next`, duplicate id, ...). Fix and resend.
 
+## Build on what already exists
+
+You can use the published library like a person does on the site. Before drawing something from scratch:
+
+1. **Search:** `GET /api/public?q=invoice` or `?tag=sales` (MCP: `list_public`).
+2. **Read a candidate:** `GET /api/public/{publicId}/export` returns the whole process as Markdown.
+3. **Reuse it** in one of three ways:
+   - **Link it** inside a bigger process: a step with `"link": "<publicId>"` (see section 2).
+   - **Combine several** in order in one call: `POST /api/agent/combine` with `{"title": "Quote, sell, service", "parts": ["<publicId>", "<publicId>", "<publicId>"], "publish": true}` (MCP: `combine_processes`). Each part becomes a step that opens that process.
+   - **Fork it** to change it: `POST /api/public/{publicId}/fork` gives you your own private copy, then edit it with `POST /api/agent/processes` using that `id`.
+
+Linking is the best way to build "first I quote, then I sell, then I service": three published parts, one combined process.
+
 ## 3. Private, shared, public
 
 A new process is **private**. You have three choices:

@@ -237,6 +237,126 @@
           }
         }
       }
+    },
+    "/api/agent/combine": {
+      "post": {
+        "operationId": "combineProcesses",
+        "summary": "Build a bigger process out of existing published ones, in order. Creates (and optionally publishes) a process whose steps link to each part.",
+        "parameters": [
+          {
+            "name": "x-ptw-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Omit to sign up as a guest."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "parts"
+                ],
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "parts": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Published process ids (publicId), in order."
+                  },
+                  "tags": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "publish": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The new process: id, publicUrl, handle, key."
+          }
+        }
+      }
+    },
+    "/api/public/{id}/export": {
+      "get": {
+        "operationId": "getPublicProcess",
+        "summary": "Read a published process (Markdown by default; format=html|skill|gpt). Read parts before combining or linking them.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "md",
+                "html",
+                "skill",
+                "gpt"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The process as text."
+          }
+        }
+      }
+    },
+    "/api/public/{id}/fork": {
+      "post": {
+        "operationId": "forkProcess",
+        "summary": "Make your own private copy of a published process to change.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-ptw-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The new copy: {id}. Change it with saveProcess using that id."
+          }
+        }
+      }
     }
   },
   "components": {

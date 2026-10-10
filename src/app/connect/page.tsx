@@ -73,6 +73,7 @@ export default function Connect() {
 
         <section className="cn-block">
           <h2>What happens next</h2>
+          <p>Your AI can also reuse what is already published here: it searches the library, links existing processes together, or copies one to change, just like you can on the site.</p>
           <ol className="cn-steps">
             <li><b>It interviews you.</b> One question at a time: who does what, in what order, with which tools, and where it hurts.</li>
             <li><b>It builds the map.</b> People and systems get their own lanes. Decisions get a path for every answer, including the “no.”</li>

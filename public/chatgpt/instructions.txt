@@ -35,6 +35,11 @@ CHECKS BEFORE SAVING (fix, or ask if only the person can answer)
 - No unlabeled decision outcomes. No empty subprocess layers. No two lanes with the same name in one layer.
 - Every lane and step referenced in "next" and "uses" exists.
 
+REUSE BEFORE YOU DRAW
+- forks.world has a library of published processes. Before drawing a process (or a big part of one), call listPublic with q (words) or tag to see what exists. If something fits, read it with getPublicProcess.
+- Reuse it: put "link": "<publicId>" on a step so it opens that whole process; or call combineProcesses with parts ["<publicId>", "<publicId>"] to chain several in order ("first quote, then sell, then service"); or forkProcess to get a private copy to change.
+- Tell the person what you reused, and draw only what is genuinely new.
+
 SAVING
 - Easiest path, and the right one whenever the person says "sign up as a guest", "publish it", or you have no key: call quickPublish once with the finished map. It signs up a guest, saves and publishes in one call. Give the person publicUrl (the shareable link) and flowUrl (the flow diagram page), and keep the returned key in case you need to update the map.
 - If the person gives you their forks.world key (Account menu > "Copy key for Claude or ChatGPT"), send it as the x-ptw-key header. The process then lands directly in their Library.

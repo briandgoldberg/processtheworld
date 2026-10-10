@@ -65,6 +65,18 @@ Fix these yourself, or ask the person if only they can answer:
 - no two lanes with the same name in one layer
 - every lane and step referenced in `next` and `uses` exists
 
+## Reuse before you draw
+
+forks.world already has a library of published processes. Use it like a person on the site would:
+
+1. Before drawing a process, or a big part of one, search: `GET https://processtheworld.vercel.app/api/public?q=<words>` (or `?tag=<tag>`). With the connector, use `list_public`.
+2. If something fits, read it: `GET /api/public/{publicId}/export`.
+3. Then reuse it instead of redrawing it:
+   - **Link it:** give a step `"link": "<publicId>"`. The step opens that whole process.
+   - **Combine several in order:** `POST /api/agent/combine` with `{"title": "...", "parts": ["<publicId>", "<publicId>"], "publish": true}` (connector: `combine_processes`). Great for "first I quote, then I sell, then I service."
+   - **Change a copy:** `POST /api/public/{publicId}/fork`, then save edits to the copy with its `id`.
+4. Tell the person what you reused and from whom, and draw only what is genuinely new.
+
 ## Save it
 
 Use the HTTP API. Show the person nothing technical; just tell them the result.

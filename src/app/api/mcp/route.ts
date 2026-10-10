@@ -8,6 +8,7 @@ import { newGuest } from "@/lib/guest";
 import { renderDoc } from "@/lib/render";
 import { accessTo } from "@/lib/access";
 import { cleanTag } from "@/lib/tags";
+import { combineForUser } from "@/lib/agentCombine";
 
 export const dynamic = "force-dynamic";
 
@@ -48,13 +49,18 @@ const TOOLS = [
   },
   {
     name: "list_public",
-    description: "List published processes (title, author, tags, steps, likes, id). Search with q, or filter by one tag.",
+    description: "List published processes (title, author, tags, steps, likes, id). Search with q, or filter by one tag. Look here FIRST: if a process you need already exists, link it into yours (a step's link field) or combine it, instead of redrawing it.",
     inputSchema: { type: "object", properties: { q: { type: "string", description: "Search title, author or tag." }, tag: { type: "string" } } },
   },
   {
     name: "add_comment",
     description: "Comment on a published process, optionally pinned to a step. Like save_process, it signs you up as a guest if you pass no key.",
     inputSchema: { type: "object", required: ["public_id", "body"], properties: { public_id: { type: "string" }, body: { type: "string", description: "Up to 1000 characters." }, step: { type: "string", description: "Optional step to pin it to, as mapId|stepId (m_root|s1)." }, key: { type: "string" } } },
+  },
+  {
+    name: "combine_processes",
+    description: "Build a bigger process out of existing ones, like a person does on the site. Pass the ids of two or more published processes (find them with list_public) in order; you get a new process whose steps link to each part. Optionally publish it. Use this, or links inside save_process, instead of redrawing something that already exists.",
+    inputSchema: { type: "object", required: ["parts"], properties: { title: { type: "string" }, parts: { type: "array", items: { oneOf: [{ type: "string" }, { type: "object", required: ["id"], properties: { id: { type: "string" }, label: { type: "string" } } }] }, description: "Published process ids, in order (or {id, label})." }, tags: { type: "array", items: { type: "string" } }, publish: { type: "boolean" }, key: { type: "string" } } },
   },
   {
     name: "get_document",
@@ -103,6 +109,15 @@ async function callTool(req: NextRequest, name: string, a: Record<string, any>) 
     await prisma.publicProcess.update({ where: { id: String(a.public_id) }, data: { commentCount: count } });
     return text(JSON.stringify({ ok: true, id: c.id, handle: user.handle, ...(newKey ? { key: newKey } : {}) }));
   }
+  if (name === "combine_processes") {
+    let user = null as Awaited<ReturnType<typeof userFrom>>, newKey: string | null = null;
+    if (typeof a.key === "string") user = await prisma.user.findUnique({ where: { anonKey: a.key } });
+    if (!user) { const g = await newGuest(req); if (!g) return text("Too many new guests from this network. Try again later.", true); user = g.user; newKey = g.key; }
+    const { key: _k, ...input } = a;
+    const r = await combineForUser(user, input, origin);
+    if (r.status !== 200) return text(String(r.body.error || "Could not combine."), true);
+    return text(JSON.stringify({ ...r.body, handle: user.handle, ...(newKey ? { key: newKey } : {}) }, null, 2));
+  }
   if (name === "get_document") {
     const format = ["md", "html", "skill", "gpt"].includes(a.format) ? a.format : "md";
     if (a.public_id) {
@@ -142,7 +157,7 @@ export async function POST(req: NextRequest) {
         protocolVersion: params?.protocolVersion || "2025-03-26",
         capabilities: { tools: {} },
         serverInfo: { name: "process-the-world", version: "1.0.0" },
-        instructions: "Build swim-lane process maps. Interview the person one question at a time, then call save_process (no account needed; a guest is created on the first save). Set publish true to get a shareable link. Always give every decision a labeled arrow for each outcome, including 'no'.",
+        instructions: "Build swim-lane process maps. Before drawing something from scratch, search list_public: reuse and link existing public processes (combine_processes, or a step's link) just like a person using the site. Interview the person one question at a time, then call save_process (no account needed; a guest is created on the first save). Set publish true to get a shareable link. Always give every decision a labeled arrow for each outcome, including 'no'.",
       }));
     }
     if (method === "ping") return withCors(rpc(id, {}));
