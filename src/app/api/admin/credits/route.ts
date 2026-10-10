@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { fail, json } from "@/lib/http";
 import { adminFrom } from "@/lib/identity";
 import { LOW_CREDITS } from "@/lib/points";
+import { ownerIds } from "@/lib/excludeOwner";
 
 export const dynamic = "force-dynamic";
 
@@ -10,7 +11,7 @@ export const dynamic = "force-dynamic";
 export async function GET(req: NextRequest) {
   if (!(await adminFrom(req))) return fail("Admins only.", 403);
   const rows = await prisma.user.findMany({
-    where: { points: { lte: LOW_CREDITS } }, orderBy: { points: "asc" }, take: 200,
+    where: { points: { lte: LOW_CREDITS }, id: { notIn: await ownerIds() } }, orderBy: { points: "asc" }, take: 200,
     select: { handle: true, email: true, emailVerifiedAt: true, points: true, lastSeenAt: true },
   });
   return json({

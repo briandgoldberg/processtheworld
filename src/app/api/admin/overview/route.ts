@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { fail, json } from "@/lib/http";
 import { adminFrom } from "@/lib/identity";
+import { ownerIds } from "@/lib/excludeOwner";
 
 export const dynamic = "force-dynamic";
 
@@ -9,23 +10,25 @@ export async function GET(req: NextRequest) {
   if (!(await adminFrom(req))) return fail("Admins only.", 403);
   const days = Math.max(1, Math.min(365, Number(req.nextUrl.searchParams.get("days")) || 30));
   const since = new Date(Date.now() - days * 864e5);
-  const w = { createdAt: { gte: since } };
+  const ex = await ownerIds();
+  const w = { createdAt: { gte: since }, userId: { notIn: ex } };
+  const wq = { createdAt: { gte: since }, process: { userId: { notIn: ex } } };
   const [users, verified, newUsers, processes, finished, turns, ai, corrections, feedbackTypes, events, questions, gain, ratings, thumbs, newFeedback, removals] = await Promise.all([
-    prisma.user.count(),
-    prisma.user.count({ where: { emailVerifiedAt: { not: null } } }),
-    prisma.user.count({ where: w }),
-    prisma.process.count(),
-    prisma.process.count({ where: { status: "done" } }),
+    prisma.user.count({ where: { id: { notIn: ex } } }),
+    prisma.user.count({ where: { id: { notIn: ex }, emailVerifiedAt: { not: null } } }),
+    prisma.user.count({ where: { id: { notIn: ex }, createdAt: { gte: since } } }),
+    prisma.process.count({ where: { userId: { notIn: ex } } }),
+    prisma.process.count({ where: { userId: { notIn: ex }, status: "done" } }),
     prisma.turn.count({ where: w }),
     prisma.aiCall.aggregate({ where: w, _sum: { costUsd: true, inputTokens: true, outputTokens: true }, _count: true, _avg: { latencyMs: true } }),
     prisma.turn.groupBy({ by: ["feedbackCategory"], where: { ...w, feedbackType: "correction" }, _count: true }),
     prisma.turn.groupBy({ by: ["feedbackType"], where: w, _count: true }),
     prisma.event.groupBy({ by: ["type"], where: w, _count: true }),
-    prisma.question.groupBy({ by: ["outcome"], where: w, _count: true }),
-    prisma.question.aggregate({ where: { ...w, outcome: "answered" }, _avg: { infoGain: true } }),
+    prisma.question.groupBy({ by: ["outcome"], where: wq, _count: true }),
+    prisma.question.aggregate({ where: { ...wq, outcome: "answered" }, _avg: { infoGain: true } }),
     prisma.feedback.aggregate({ where: { ...w, kind: "finish" }, _avg: { rating: true }, _count: true }),
     prisma.feedback.groupBy({ by: ["rating"], where: { ...w, kind: "reply" }, _count: true }),
-    prisma.feedback.count({ where: { status: "new" } }),
+    prisma.feedback.count({ where: { status: "new", userId: { notIn: ex } } }),
     prisma.op.groupBy({ by: ["humanVerdict"], where: { result: "proposed_removal", turn: w }, _count: true }),
   ]);
   const [proposals, votes, shares, published] = await Promise.all([

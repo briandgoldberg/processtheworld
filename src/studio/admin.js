@@ -81,7 +81,7 @@ async function creating(el){
     <section class="panel"><h3>Published each day</h3>${chart(d.dailyPublished, 'Published per day', 'var(--system)')}</section>
     <section class="panel"><h3>Most liked and copied</h3>${d.top.length ? `<ul class="ops">${d.top.map(p => `<li><b>${esc(p.title)}</b> <span class="hint">${esc(p.authorName)} · ${p.likes} likes · ${p.copies} copies · ${p.commentCount} comments</span></li>`).join('')}</ul>` : '<p class="hint">Nothing published yet.</p>'}</section>
     <section class="panel"><h3>Tags in the library</h3>${bars(d.tags, r => r.tag, r => r.count)}
-      <p class="hint">Finished processes average ${d.avgSteps ? d.avgSteps.toFixed(1) : '—'} steps and ${d.avgLayers ? d.avgLayers.toFixed(1) : '—'} layers. ${d.newComments} new comments, ${d.proposals} suggested changes.</p></section>
+      <p class="hint">Finished processes average ${d.avgSteps ? d.avgSteps.toFixed(1) : '—'} steps and ${d.avgLayers ? d.avgLayers.toFixed(1) : '—'} layers. ${d.newComments} new comments.</p></section>
   </div>
   <section class="panel"><h3>Recently published</h3>${d.recent.length ? `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Process</th><th>By</th><th>Steps</th><th>Likes</th><th>Copies</th><th>Published</th></tr></thead><tbody>${d.recent.map(p => `<tr><td><a href="/p/${esc(p.id)}" target="_blank" rel="noopener"><b>${esc(p.title)}</b></a></td><td>${esc(p.authorName)}</td><td>${p.stepCount}</td><td>${p.likes}</td><td>${p.copies}</td><td>${day(p.publishedAt)}</td></tr>`).join('')}</tbody></table></div>` : '<p class="hint">Nothing yet.</p>'}</section>
   <section class="panel"><h3>Every process, newest first</h3><p class="hint">Click one to read the whole interview and what the AI did.</p>
@@ -197,8 +197,8 @@ async function tools(el){
   <section class="panel"><h3>Latest AI errors</h3><p class="hint">If people see "could not answer", the reason is here.</p>${aie.errors.length ? `<ul class="ops">${aie.errors.map(x => `<li><span class="hint">${when(x.at)}</span> <code>${esc(x.model)}</code> ${esc(String(x.error).slice(0, 220))}</li>`).join('')}</ul>` : '<p class="hint">No errors.</p>'}</section>
   <section class="panel"><h3>Put your name on the starter library</h3><p class="hint">Moves the guest-account processes onto your account. Run it again after new ones are added.</p><div class="row-in"><input id="adopt-name" value="Brian" maxlength="24" aria-label="Username"><button class="btn primary sm" data-adopt>Move them to my account</button></div><p class="hint" id="adopt-msg" role="status"></p></section>
   <section class="panel"><h3>Training data</h3>
-    <p>Every mapping turn is stored as one example: the map before, the message, and the map after, with every AI change, the interviewer's question and how it paid off, self-checks, and every AI call. Every vote on a suggested change is stored as a preference pair.</p>
-    <p class="seg"><button class="btn primary sm" data-export="turns">Download turns (JSONL)</button><button class="btn sm" data-export="votes">Download preference pairs (JSONL)</button></p>
+    <p>Every mapping turn is stored as one example: the map before, the message, and the map after, with every AI change, the interviewer's question and how it paid off, self-checks, and every AI call.</p>
+    <p class="seg"><button class="btn primary sm" data-export="turns">Download turns (JSONL)</button></p>
     <p class="hint">Deleting a process deletes its training records too.</p></section>`;
 }
 

@@ -2,13 +2,15 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { fail, json } from "@/lib/http";
 import { adminFrom } from "@/lib/identity";
+import { ownerIds } from "@/lib/excludeOwner";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   if (!(await adminFrom(req))) return fail("Admins only.", 403);
+  const ex = await ownerIds();
   const rows = await prisma.process.findMany({
-    orderBy: { updatedAt: "desc" }, take: 100,
+    where: { userId: { notIn: ex } }, orderBy: { updatedAt: "desc" }, take: 100,
     select: { id: true, title: true, status: true, stepCount: true, depth: true, createdAt: true, updatedAt: true, user: { select: { handle: true, email: true } }, _count: { select: { turns: true, feedback: true } } },
   });
   const ids = rows.map(r => r.id);

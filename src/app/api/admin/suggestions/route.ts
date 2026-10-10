@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { body, fail, json, str } from "@/lib/http";
 import { adminFrom } from "@/lib/identity";
+import { ownerIds } from "@/lib/excludeOwner";
 import { analysisModel, completeAndLog } from "@/lib/ai";
 
 export const dynamic = "force-dynamic";
@@ -29,11 +30,12 @@ export async function POST(req: NextRequest) {
   if (!admin) return fail("Admins only.", 403);
   if (!process.env.ANTHROPIC_API_KEY) return fail("ANTHROPIC_API_KEY is not set.", 503);
   const since = new Date(Date.now() - 30 * 864e5);
+  const ex = await ownerIds();
   const [corrections, feedback, checks, questions, existing] = await Promise.all([
-    prisma.turn.findMany({ where: { createdAt: { gte: since }, feedbackType: { in: ["correction", "confusion"] } }, orderBy: { createdAt: "desc" }, take: 120, select: { userId: true, userText: true, replySay: true, feedbackType: true, feedbackCategory: true } }),
-    prisma.feedback.findMany({ where: { createdAt: { gte: since } }, orderBy: { createdAt: "desc" }, take: 150, select: { userId: true, kind: true, rating: true, reasons: true, text: true } }),
-    prisma.event.groupBy({ by: ["type"], where: { createdAt: { gte: since } }, _count: true }),
-    prisma.question.findMany({ where: { createdAt: { gte: since }, outcome: { not: null } }, orderBy: { createdAt: "desc" }, take: 120, select: { text: true, outcome: true, infoGain: true, process: { select: { userId: true } } } }),
+    prisma.turn.findMany({ where: { createdAt: { gte: since }, userId: { notIn: ex }, feedbackType: { in: ["correction", "confusion"] } }, orderBy: { createdAt: "desc" }, take: 120, select: { userId: true, userText: true, replySay: true, feedbackType: true, feedbackCategory: true } }),
+    prisma.feedback.findMany({ where: { createdAt: { gte: since }, userId: { notIn: ex } }, orderBy: { createdAt: "desc" }, take: 150, select: { userId: true, kind: true, rating: true, reasons: true, text: true } }),
+    prisma.event.groupBy({ by: ["type"], where: { createdAt: { gte: since }, userId: { notIn: ex } }, _count: true }),
+    prisma.question.findMany({ where: { createdAt: { gte: since }, process: { userId: { notIn: ex } }, outcome: { not: null } }, orderBy: { createdAt: "desc" }, take: 120, select: { text: true, outcome: true, infoGain: true, process: { select: { userId: true } } } }),
     prisma.suggestion.findMany({ where: { status: { in: ["open", "planned"] } }, select: { title: true } }),
   ]);
   // Real ids never leave the server: each person becomes u1, u2, ...

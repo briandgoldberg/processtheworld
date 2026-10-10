@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { fail, json } from "@/lib/http";
 import { adminFrom } from "@/lib/identity";
+import { ownerIds } from "@/lib/excludeOwner";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +12,7 @@ export async function GET(req: NextRequest) {
   const kind = req.nextUrl.searchParams.get("kind");
   const low = req.nextUrl.searchParams.get("low") === "1";
   const where: any = kind === "email" ? { emailVerifiedAt: { not: null } } : kind === "guest" ? { emailVerifiedAt: null } : {};
+  where.id = { notIn: await ownerIds() };
   if (low) where.points = { lt: 21 };
   const rows = await prisma.user.findMany({
     where, orderBy: low ? { points: "asc" } : { lastSeenAt: "desc" }, take: 300,
