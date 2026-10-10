@@ -1146,7 +1146,7 @@ function render(){
 }
 
 /* ---------- Account: anonymous handle, optional email ---------- */
-const creditsHTML = () => S.me && S.me.credits != null ? `<div class="credits"><b>${S.me.credits}</b> credits<small>For creating processes. More coming soon.</small></div>` : '';
+const creditsHTML = () => S.me && S.me.credits != null ? `<div class="credits"><b>${S.me.credits}</b> credits<small>For creating processes. Adding more credits is coming soon.</small></div>` : '';
 async function refreshMe(){ try { S.me = await API.post('/api/identity', { key:API.key }); } catch {} const el = document.querySelector('.credits'); if (el) el.outerHTML = creditsHTML(); }
 function acctHTML(){
   const me = S.me; if (!me) return '';
