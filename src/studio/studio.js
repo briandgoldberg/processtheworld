@@ -1492,12 +1492,11 @@ const useAiHTML = () => `<section class="sec use-ai">
 /* The same header on the home page and the Connect my AI page */
 function topBarHTML(){
   const connect = S.view === 'connect';
-  return `<div class="top"><button class="mark linkish-plain" data-home aria-label="forks.world home">${MARK}</button><span class="topsub hide-sm">Mapping how the world works</span><div class="grow"></div>
+  const items = (cls) => `<button class="btn ghost sm${cls}" data-home${S.view === 'home' ? ' aria-current="page"' : ''}>Home</button><button class="btn ghost sm${cls}" data-mine${S.view === 'mine' ? ' aria-current="page"' : ''}>My Processes</button><button class="btn ghost sm${cls}" data-connect${connect ? ' aria-current="page"' : ''}>Connect my AI</button>`;
+  return `<div class="top"><span class="burger-wrap"><button class="btn ghost burger" data-burger aria-label="Menu" aria-haspopup="true" aria-expanded="false">☰</button><div class="burger-menu" id="burger" hidden>${items(' menu-item')}</div></span><button class="mark linkish-plain" data-home aria-label="forks.world home">${MARK}</button><span class="topsub hide-sm">Mapping how the world works</span><div class="grow"></div>
     ${S.notice ? `<span class="save hide-sm" style="color:var(--danger)">${esc(S.notice)}</span>` : ''}
-    <button class="btn primary" id="new">New<span class="hide-sm"> Process</span></button>
-    <button class="btn ghost sm" data-home${S.view === 'home' ? ' aria-current="page"' : ''}>Home</button>
-    <button class="btn ghost sm" data-mine${S.view === 'mine' ? ' aria-current="page"' : ''}>My Processes</button>
-    <button class="btn ghost sm" data-connect${connect ? ' aria-current="page"' : ''}>Connect my AI</button>${signInHTML()}${acctHTML()}</div>`;
+    <button class="btn primary" id="new">New Process</button>
+    ${items(' nav-d')}${signInHTML()}${acctHTML()}</div>`;
 }
 /* My Processes: everything private, with search and tags */
 function mineMatches(p){
@@ -1575,6 +1574,10 @@ document.addEventListener('input', e => {
   }, 120);
 });
 document.addEventListener('click', e => {
+  const bg = e.target.closest('[data-burger]');
+  const menu = $('#burger');
+  if (bg && menu){ const open = menu.hidden; menu.hidden = !open; bg.setAttribute('aria-expanded', String(open)); return; }
+  if (menu && !menu.hidden){ menu.hidden = true; const b = $('[data-burger]'); if (b) b.setAttribute('aria-expanded', 'false'); }
   const pick = e.target.closest('[data-pick]');
   if (pick){ const inp = $('#inv-who'); if (inp){ inp.value = pick.dataset.pick; inp.dataset.found = pick.dataset.pick; $('#inv-sug').hidden = true; invState('✓ Found ' + pick.dataset.pick, true); inp.focus(); } return; }
   if (e.target.closest('[data-mine]')){ stopVoice(); if (S.view === 'work') flush(); S.cur = null; S.view = 'mine'; history.pushState(null, '', '/mine'); document.title = 'My processes | forks.world'; render(); window.scrollTo(0, 0); return; }
@@ -2240,8 +2243,8 @@ function updateZoomCtl(){
   const d = 'full';
   if (sc){ sc.dataset.detail = d; sc.dataset.low = S.zoom < 0.55 ? '1' : '0'; sc.classList.toggle('hand', S.tool === 'hand'); }
   el.innerHTML = `<button data-tool="select" class="${S.tool === 'select' ? 'on' : ''}" aria-label="Select tool" title="Select (V)">${ICON.pointer}</button><button data-tool="hand" class="${S.tool === 'hand' ? 'on' : ''}" aria-label="Hand tool: drag to move around" title="Hand: drag to move around (hold Space)">${ICON.hand}</button>
-    <span class="zsep"></span><button data-z="out" aria-label="Zoom out" title="Zoom out">−</button><button data-z="reset" class="zv" aria-label="Reset to 100%" title="Reset to 100%">${Math.round(S.zoom * 100)}%</button><button data-z="in" aria-label="Zoom in" title="Zoom in">+</button><button data-z="fit" title="Fit the whole map on screen">Fit</button>
-    <span class="zsep"></span><button data-guide class="${S.guide ? 'on' : ''}" title="Choose your path through the process">${ICON.compass}Guide me</button>${(() => { const n = countPain(S.cur); return n || (kindOf(S.cur) === 'owned') ? `<button data-pain class="${S.painView ? 'on' : ''}" title="Show where the process hurts">${ICON.flame}Pain${n ? ' ' + n : ''}</button>` : ''; })()}<button data-fs aria-label="Full screen" title="Full screen">${ICON.full}</button>`;
+    <span class="zsep"></span><button data-z="out" aria-label="Zoom out" title="Zoom out">−</button><button data-z="reset" class="zv" aria-label="Reset to 100%" title="Reset to 100%">${Math.round(S.zoom * 100)}%</button><button data-z="in" aria-label="Zoom in" title="Zoom in">+</button><button data-fs aria-label="Full screen" title="Full screen">${ICON.full}</button>
+    <span class="zsep"></span><button data-guide class="${S.guide ? 'on' : ''}" title="Choose your path through the process">${ICON.compass}Guide me</button>${(() => { const n = countPain(S.cur); return n || (kindOf(S.cur) === 'owned') ? `<button data-pain class="${S.painView ? 'on' : ''}" title="Show where the process hurts">${ICON.flame}Pain${n ? ' ' + n : ''}</button>` : ''; })()}`;
 }
 function setZoom(z, cx, cy){
   const sc = $('#scroller'), b = $('#board'); if (!sc || !b) return;
