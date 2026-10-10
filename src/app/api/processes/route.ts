@@ -15,7 +15,10 @@ export async function GET(req: NextRequest) {
     prisma.process.findMany({ where: { userId: user.id }, orderBy: { updatedAt: "desc" }, take: 200, select: sel }),
     prisma.share.findMany({ where: { userId: user.id, acceptedAt: { not: null } }, take: 200, select: { role: true, process: { select: { ...sel, user: { select: { handle: true } } } } } }),
   ]);
-  const row = (r: any) => ({ id: r.id, title: r.title, status: r.status, stepCount: r.stepCount, depth: r.depth, laneTypes: r.laneTypes, updatedAt: r.updatedAt.getTime(), proposalFor: r.proposalFor, publicId: r.public?.id ?? null, publicMode: r.public?.mode ?? null, shareCount: r._count.shares });
+  // Tags live inside each process document; read just those for the My Processes page.
+  const tagRows = await prisma.$queryRaw<{ id: string; tags: unknown }[]>`SELECT id, doc->'tags' AS tags FROM "Process" WHERE "userId" = ${user.id}`.catch(() => []);
+  const tagsOf = new Map(tagRows.map(t => [t.id, Array.isArray(t.tags) ? (t.tags as unknown[]).filter((x): x is string => typeof x === "string") : []]));
+  const row = (r: any) => ({ id: r.id, title: r.title, status: r.status, stepCount: r.stepCount, depth: r.depth, laneTypes: r.laneTypes, updatedAt: r.updatedAt.getTime(), proposalFor: r.proposalFor, publicId: r.public?.id ?? null, publicMode: r.public?.mode ?? null, shareCount: r._count.shares, tags: tagsOf.get(r.id) || [] });
   return json({
     processes: mine.map(row),
     shared: shares.filter(s => s.process).map(s => ({ ...row(s.process), role: s.role, owner: s.process.user.handle })).sort((a, b) => b.updatedAt - a.updatedAt),

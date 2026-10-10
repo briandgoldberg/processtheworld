@@ -1140,6 +1140,7 @@ function render(){
   if (S.view === 'login') renderLogin(app);
   else if (S.view === 'home') renderHome(app);
   else if (S.view === 'connect') renderConnect(app);
+  else if (S.view === 'mine') renderMine(app);
   else renderWorkShell(app);
   renderToast();
 }
@@ -1489,14 +1490,51 @@ function topBarHTML(){
   return `<div class="top"><button class="mark linkish-plain" data-home aria-label="forks.world home">${MARK}</button><span class="topsub hide-sm">Mapping how the world works</span><div class="grow"></div>
     ${S.notice ? `<span class="save hide-sm" style="color:var(--danger)">${esc(S.notice)}</span>` : ''}
     <button class="btn primary" id="new">New<span class="hide-sm"> process</span></button>
+    <button class="btn ghost sm" data-mine${S.view === 'mine' ? ' aria-current="page"' : ''}>My processes</button>
     <button class="btn ghost sm" data-connect${connect ? ' aria-current="page"' : ''}>Connect my AI</button>${signInHTML()}${acctHTML()}</div>`;
+}
+/* My Processes: everything private, with search and tags */
+function mineMatches(p){
+  const needle = (S.mq || '').trim().toLowerCase();
+  if (S.mtag && !(p.tags || []).includes(S.mtag)) return false;
+  return !needle || ((p.title || '') + ' ' + (p.tags || []).join(' ')).toLowerCase().includes(needle);
+}
+function mineTagsHTML(){
+  const c = {}; S.mine.forEach(p => (p.tags || []).forEach(t => { c[t] = (c[t] || 0) + 1; }));
+  const tags = Object.entries(c).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  if (!tags.length) return '';
+  return `<button class="tagpill${S.mtag ? '' : ' on'}" data-mtag="">All</button>` + tags.map(([t, n]) => `<button class="tagpill${S.mtag === t ? ' on' : ''}" data-mtag="${esc(t)}">${esc(t)} <small>${n}</small></button>`).join('');
+}
+function mineCardsHTML(){
+  const list = S.mine.filter(mineMatches);
+  return list.length ? `<div class="cards">${list.map(p => cardHTML(p, 'mine')).join('')}</div>` : '<p class="hint">Nothing matches.</p>';
+}
+function wireMineCards(app){
+  app.querySelectorAll('#mcards [data-del]').forEach(b => b.onclick = () => { S.confirmDel = b.dataset.del; render(); });
+  app.querySelectorAll('#mcards [data-del-no]').forEach(b => b.onclick = () => { S.confirmDel = null; render(); });
+  app.querySelectorAll('#mcards [data-del-yes]').forEach(b => b.onclick = () => deleteProcess(b.dataset.delYes));
+  app.querySelectorAll('#mcards [data-open]').forEach(b => b.onclick = () => openProcess(b.dataset.open, b.dataset.kind));
+  loadCardThumbs();
+}
+function renderMine(app){
+  app.innerHTML = `${topBarHTML()}
+  <div class="home"><div class="home-in"><section class="sec">
+    <div class="sec-head"><h2>My processes</h2><p>Private unless you share or publish them.</p></div>
+    <div class="pfilter"><div class="psrow"><input id="msearch" type="search" placeholder="Search my processes" value="${esc(S.mq || '')}" aria-label="Search my processes" autocomplete="off"></div><div class="pills" id="mpills">${mineTagsHTML()}</div></div>
+    <div id="mcards">${mineCardsHTML()}</div>
+  </section></div></div>`;
+  $('#new').onclick = startNew;
+  wireAcct(app); wireSignIn(app); wireCopy(app);
+  app.querySelector('#msearch').oninput = e => { S.mq = e.target.value; app.querySelector('#mcards').innerHTML = mineCardsHTML(); wireMineCards(app); };
+  app.querySelector('#mpills').onclick = e => { const b = e.target.closest('[data-mtag]'); if (b){ S.mtag = b.dataset.mtag; app.querySelector('#mcards').innerHTML = mineCardsHTML(); app.querySelector('#mpills').innerHTML = mineTagsHTML(); wireMineCards(app); } };
+  wireMineCards(app);
 }
 function renderHome(app){
   const sec = (title, sub, inner) => `<section class="sec"><div class="sec-head"><h2>${title}</h2><p>${sub}</p></div>${inner}</section>`;
   app.innerHTML = `
   ${topBarHTML()}
   <div class="home"><div class="home-in">
-    ${S.mine.length ? sec('My processes', 'Private unless you share or publish them.', `<div class="cards">${S.mine.slice(0, S.mineLimit || 6).map(p => cardHTML(p,'mine')).join('')}</div>${S.mine.length > (S.mineLimit || 6) ? `<button class="btn more-mine" data-moremine>Show ${Math.min(6, S.mine.length - (S.mineLimit || 6))} more of your ${S.mine.length} processes</button>` : ''}`) : ''}
+    ${S.mine.length ? sec('My processes', 'Private unless you share or publish them.', `<div class="cards">${S.mine.slice(0, 4).map(p => cardHTML(p,'mine')).join('')}</div>${S.mine.length > 4 ? `<button class="linkish more-mine" data-mine>All private processes (${S.mine.length}) →</button>` : ''}`) : ''}
     ${S.shared.length ? sec('Shared with me', 'Processes people invited you to.', `<div class="cards">${S.shared.map(p => cardHTML(p,'shared')).join('')}</div>`) : ''}
     <section class="sec">${publicFilterHTML()}</section>
   </div></div>`;
@@ -1506,10 +1544,10 @@ function renderHome(app){
   app.querySelectorAll('[data-del-no]').forEach(b => b.onclick = () => { S.confirmDel = null; render(); });
   app.querySelectorAll('[data-del-yes]').forEach(b => b.onclick = () => deleteProcess(b.dataset.delYes));
   app.querySelectorAll('[data-open]').forEach(b => b.onclick = () => openProcess(b.dataset.open, b.dataset.kind));
-  app.querySelectorAll('[data-moremine]').forEach(b => b.onclick = () => { S.mineLimit = (S.mineLimit || 6) + 6; render(); });
   loadCardThumbs();
 }
 document.addEventListener('click', e => {
+  if (e.target.closest('[data-mine]')){ stopVoice(); if (S.view === 'work') flush(); S.cur = null; S.view = 'mine'; history.pushState(null, '', '/mine'); document.title = 'My processes | forks.world'; render(); window.scrollTo(0, 0); return; }
   if (e.target.closest('[data-connect]')){ stopVoice(); S.view = 'connect'; history.pushState(null, '', '/connect'); render(); window.scrollTo(0, 0); return; }
   if (e.target.closest('[data-backproc]')){ S.view = S.cur ? 'work' : 'home'; history.pushState(null, '', '/'); render(); return; }
 });
@@ -1517,6 +1555,7 @@ addEventListener('popstate', async () => {
   const path = location.pathname, q = new URLSearchParams(location.search);
   stopGuide(); stopVoice();
   if (path === '/connect'){ S.view = 'connect'; render(); return; }
+  if (path === '/mine'){ S.cur = null; S.view = 'mine'; render(); return; }
   S.noPush = true;
   const m = /^\/p\/([^/]+)/.exec(path);
   if (m){ await openProcess(m[1], 'pub'); return; }
@@ -2549,7 +2588,7 @@ export async function mount(root, opts = {}){
   API.key = key;
   const q = new URLSearchParams(location.search);
   if (q.get('alert') && ALERTS[q.get('alert')]){ S.toast = ALERTS[q.get('alert')]; history.replaceState(null, '', '/'); }
-  S.view = opts.connect ? 'connect' : 'home'; ls.set('ptw_in', '1'); S.sort = ls.get('ptw_sort') || 'new';
+  S.view = opts.connect ? 'connect' : opts.mine ? 'mine' : 'home'; ls.set('ptw_in', '1'); S.sort = ls.get('ptw_sort') || 'new';
   render(); if (!opts.embed) renderFeedbackBox();
   try { S.me = await API.post('/api/identity', { key }); } catch {}
   S.ready = true;
