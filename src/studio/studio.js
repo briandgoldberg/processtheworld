@@ -1472,7 +1472,8 @@ function topBarHTML(){
   const connect = S.view === 'connect';
   return `<div class="top"><button class="mark linkish-plain" data-home aria-label="forks.world home">${MARK}</button><span class="topsub hide-sm">Mapping how the world works</span><div class="grow"></div>
     ${S.notice ? `<span class="save hide-sm" style="color:var(--danger)">${esc(S.notice)}</span>` : ''}
-    <button class="btn primary" id="new">New<span class="hide-sm"> process</span></button>${signInHTML()}${acctHTML()}</div>`;
+    <button class="btn primary" id="new">New<span class="hide-sm"> process</span></button>
+    <button class="btn ghost sm" data-connect${connect ? ' aria-current="page"' : ''}>Connect my AI</button>${signInHTML()}${acctHTML()}</div>`;
 }
 function renderHome(app){
   const sec = (title, sub, inner) => `<section class="sec"><div class="sec-head"><h2>${title}</h2><p>${sub}</p></div>${inner}</section>`;
@@ -1901,8 +1902,7 @@ function renderMsgs(){
   const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
   if (!p.chat.length){
     el.innerHTML = `<div class="msg assistant">Tell me about a process: what it's called, who's involved, and what happens first. I'll build the map as you go and ask about anything that's missing.</div>
-    <div class="starters"><div class="label">Or start with</div>${STARTERS.map(s => `<button class="starter" data-starter="${esc(s)}">${esc(s)}</button>`).join('')}</div>
-    <div class="starters"><div class="label">Or let your AI do it</div><button class="starter connect-btn" data-connect>Connect my AI<small>Create process maps with Claude or ChatGPT</small></button></div>`;
+    <div class="starters"><div class="label">Or start with</div>${STARTERS.map(s => `<button class="starter" data-starter="${esc(s)}">${esc(s)}</button>`).join('')}</div>`;
     return;
   }
   const lastU = lastUserIndex(p);
