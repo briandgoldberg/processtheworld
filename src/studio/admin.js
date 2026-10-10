@@ -186,7 +186,14 @@ async function feedback(el){
 /* ---------- Tools ---------- */
 async function tools(el){
   const aie = await api('/api/admin/ai-errors').catch(() => ({ errors:[] }));
+  const rs = await api('/api/admin/reset').catch(() => null);
   el.innerHTML = `
+  ${rs ? `<section class="panel"><h3>Start the dashboard over</h3>
+    <p class="hint">Clears the test data the dashboard is built from: ${rs.events} actions, ${rs.turns} interview turns, ${rs.aiCalls} AI calls, ${rs.feedback} feedback items, ${rs.suggestions} suggestions and ${rs.requests} request logs. Everyone's processes, the public library, email members, credit balances and early-access emails stay. This cannot be undone.</p>
+    <div class="seg"><button class="btn danger sm" data-reset="analytics">Clear dashboard data</button></div>
+    <p class="hint">${rs.guests} guest accounts never made, published or commented on anything.</p>
+    <div class="seg"><button class="btn danger sm" data-reset="guests" ${rs.guests ? '' : 'disabled'}>Remove those ${rs.guests} guests</button></div>
+    <p class="hint" id="reset-msg" role="status"></p></section>` : ''}
   <section class="panel"><h3>Latest AI errors</h3><p class="hint">If people see "could not answer", the reason is here.</p>${aie.errors.length ? `<ul class="ops">${aie.errors.map(x => `<li><span class="hint">${when(x.at)}</span> <code>${esc(x.model)}</code> ${esc(String(x.error).slice(0, 220))}</li>`).join('')}</ul>` : '<p class="hint">No errors.</p>'}</section>
   <section class="panel"><h3>Put your name on the starter library</h3><p class="hint">Moves the guest-account processes onto your account. Run it again after new ones are added.</p><div class="row-in"><input id="adopt-name" value="Brian" maxlength="24" aria-label="Username"><button class="btn primary sm" data-adopt>Move them to my account</button></div><p class="hint" id="adopt-msg" role="status"></p></section>
   <section class="panel"><h3>Training data</h3>
@@ -224,6 +231,7 @@ export function mountAdmin(root){
     const fs = e.target.closest('[data-fbs]'); if (fs){ A.fbStatus = fs.dataset.fbs; return draw(); }
     const fset = e.target.closest('[data-fbset]'); if (fset){ await api('/api/admin/feedback', { method:'PATCH', body:JSON.stringify({ id:fset.dataset.id, status:fset.dataset.fbset }) }); return draw(); }
     if (e.target.closest('[data-csv]')){ download(new Blob([csv(A.fbRows || [])], { type:'text/csv' }), 'forks-world-feedback.csv'); return; }
+    const rz = e.target.closest('[data-reset]'); if (rz){ const what = rz.dataset.reset; if (!confirm(what === 'analytics' ? 'Clear all dashboard data (actions, interview turns, AI call logs, feedback, suggestions)? Processes and the library stay. This cannot be undone.' : 'Remove guest accounts that never made anything? This cannot be undone.')) return; const msg = $('#reset-msg'); msg.textContent = 'Working…'; try { await api('/api/admin/reset', { method:'POST', body:JSON.stringify({ what }) }); } catch (err){ msg.textContent = err.message || 'Could not do that.'; return; } return draw(); }
     if (e.target.closest('[data-adopt]')){ const msg = $('#adopt-msg'); msg.textContent = 'Working…'; try { const r = await api('/api/admin/adopt', { method:'POST', body:JSON.stringify({ handle:$('#adopt-name').value }) }); msg.textContent = 'Done. ' + r.published + ' public and ' + r.processes + ' total processes now belong to “' + r.name + '”.'; } catch (err){ msg.textContent = err.message || 'Could not do that.'; } return; }
     const o = e.target.closest('[data-open]'); if (o){ A.session = o.dataset.open; return draw(); }
     if (e.target.closest('[data-back]')){ A.session = null; return draw(); }
