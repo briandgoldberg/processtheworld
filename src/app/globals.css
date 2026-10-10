@@ -296,10 +296,11 @@ code{font-family:var(--f-mono);font-size:11px}
 /* ---------- Sharing, suggestions, compare ---------- */
 .linkish-plain{border:none;background:none;padding:0;cursor:pointer;color:inherit}
 .vi{flex:none}
-.mark i{font-size:0!important;color:transparent!important;background:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 22' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 2v6a5 5 0 005 5m0 0a5 5 0 005-5V2M9 2v11m0 0v7'/%3E%3C/svg%3E") center/58% no-repeat,linear-gradient(135deg,var(--accent),#7C4DFF)!important;box-shadow:0 4px 12px -4px color-mix(in srgb,var(--accent) 70%,transparent)}
-.wm{display:inline-flex;align-items:baseline;font-family:var(--f-head,inherit);font-size:1.12em;letter-spacing:-.045em;line-height:1}
+.mark i{position:relative;font-size:0!important;color:transparent!important;background:var(--ink)!important;border-radius:7px!important;box-shadow:none!important}
+.mark i::after{content:"";position:absolute;inset:0;background:var(--bg);-webkit-mask:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 22' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 2v6a5 5 0 005 5m0 0a5 5 0 005-5V2M9 2v11m0 0v7'/%3E%3C/svg%3E") center/54% no-repeat;mask:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 22' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 2v6a5 5 0 005 5m0 0a5 5 0 005-5V2M9 2v11m0 0v7'/%3E%3C/svg%3E") center/54% no-repeat}
+.wm{display:inline-flex;align-items:baseline;font-family:var(--f-head,inherit);font-size:1.1em;letter-spacing:-.04em;line-height:1}
 .wm b{font-weight:800;color:var(--ink)}
-.wm em{font-style:normal;font-weight:700;color:var(--accent);letter-spacing:-.03em}
+.wm em{font-style:normal;font-weight:600;color:var(--accent);letter-spacing:-.02em}
 .mark{gap:9px;text-decoration:none;color:inherit}
 .cn{position:fixed;inset:0;overflow:auto;background:var(--bg);color:var(--ink)}
 .cn-top{display:flex;align-items:center;gap:12px;padding:12px 20px;background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}

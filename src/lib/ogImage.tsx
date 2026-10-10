@@ -51,7 +51,7 @@ export async function renderOg(publicId: string) {
     (
       <div style={{ width: W, height: H, display: "flex", flexDirection: "column", background: "#F3F5F8", padding: 50, fontFamily: "sans-serif", color: "#141C27" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 14, fontSize: 26, fontWeight: 700 }}>
-          <div style={{ width: 40, height: 40, borderRadius: 11, background: "linear-gradient(135deg, #2448C9, #7C4DFF)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, fontWeight: 800 }}>f</div>
+          <div style={{ width: 40, height: 40, borderRadius: 11, background: "#141C27", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, fontWeight: 800 }}>f</div>
           <span style={{ display: "flex", fontWeight: 800, letterSpacing: -1 }}>forks</span>
           <span style={{ display: "flex", color: "#2448C9", marginLeft: -10 }}>.world</span>
         </div>
