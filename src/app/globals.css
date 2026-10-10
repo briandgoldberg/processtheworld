@@ -303,6 +303,7 @@ code{font-family:var(--f-mono);font-size:11px}
   .feed{grid-template-columns:1fr;gap:14px}
   .pills,.fsort{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-bottom:2px}
   .pills .tagpill,.fsort button,.fsort span{flex:none}
+  .pills:has(.tagmore[aria-expanded=true]){flex-wrap:wrap;overflow-x:visible}
   .pfilter input[type=search]{max-width:none;font-size:16px}
   .tagbar{flex-wrap:nowrap;overflow-x:auto;padding-inline:12px}
   .tagbar>*{flex:none}
@@ -496,6 +497,7 @@ body.embed .crumbs{padding-block:6px}
 .tagpill small{color:var(--muted);font-weight:600}
 .tagpill:hover{border-color:var(--muted)}
 .tagpill.on{background:var(--accent-soft);color:var(--accent);border-color:color-mix(in srgb,var(--accent) 45%,transparent)}
+.tagpill.tagmore{border-style:dashed;color:var(--muted)}
 .tagpill.on small{color:inherit;opacity:.8}
 .tagpill button{border:0;background:none;color:inherit;cursor:pointer;padding:0;font-size:11px;line-height:1}
 .pfilter{display:flex;flex-direction:column;gap:12px;margin-bottom:16px}

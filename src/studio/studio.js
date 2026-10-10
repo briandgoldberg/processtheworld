@@ -1456,9 +1456,13 @@ async function toggleFeedLike(id, btn){
   catch { p.liked = was; p.likes = Math.max(0, (p.likes || 0) + (was ? 1 : -1)); }
   paint();
 }
+const TOP_TAGS = 6;
 function tagPillsHTML(){
-  const tags = allTags().slice(0, 16);
-  return `<button class="tagpill${S.tag ? '' : ' on'}" data-ptag="">All</button>` + tags.map(([t, n]) => `<button class="tagpill${S.tag === t ? ' on' : ''}" data-ptag="${esc(t)}">${esc(t)} <small>${n}</small></button>`).join('');
+  const all = allTags();
+  let tags = S.tagsAll ? all : all.slice(0, TOP_TAGS);
+  if (!S.tagsAll && S.tag && !tags.some(([t]) => t === S.tag)) tags = [...tags, ...all.filter(([t]) => t === S.tag)];
+  const toggle = all.length > TOP_TAGS ? `<button class="tagpill tagmore" data-tagmore aria-expanded="${!!S.tagsAll}">${S.tagsAll ? 'Fewer' : `More (${all.length - TOP_TAGS})`}</button>` : '';
+  return `<button class="tagpill${S.tag ? '' : ' on'}" data-ptag="">All</button>` + tags.map(([t, n]) => `<button class="tagpill${S.tag === t ? ' on' : ''}" data-ptag="${esc(t)}">${esc(t)} <small>${n}</small></button>`).join('') + toggle;
 }
 function publicFilterHTML(){
   return `<div class="pfilter"><div class="psrow"><input id="psearch" type="search" placeholder="Search public processes" value="${esc(S.q)}" aria-label="Search public processes" autocomplete="off"></div><div class="pills" id="ppills">${tagPillsHTML()}</div><div class="fsort" id="fsort">${sortBarHTML()}</div></div><div class="feed" id="pcards">${publicCardsHTML()}</div>`;
@@ -1473,7 +1477,7 @@ function wirePublicFilter(root){
     c.querySelectorAll('[data-open]').forEach(b => b.onclick = () => openProcess(b.dataset.open, b.dataset.kind));
   };
   inp.oninput = () => { S.q = inp.value; refresh(); };
-  root.querySelector('#ppills').onclick = e => { const b = e.target.closest('[data-ptag]'); if (!b) return; S.tag = b.dataset.ptag; refresh(); };
+  root.querySelector('#ppills').onclick = e => { if (e.target.closest('[data-tagmore]')){ S.tagsAll = !S.tagsAll; root.querySelector('#ppills').innerHTML = tagPillsHTML(); return; } const b = e.target.closest('[data-ptag]'); if (!b) return; S.tag = b.dataset.ptag; refresh(); };
   root.querySelector('#fsort').onclick = e => { const b = e.target.closest('[data-sort]'); if (!b) return; S.sort = b.dataset.sort; ls.set('ptw_sort', S.sort); refresh(); };
   root.querySelector('#pcards').onclick = e => {
     const lk = e.target.closest('[data-like]'); if (lk){ e.stopPropagation(); toggleFeedLike(lk.dataset.like, lk); return; }
