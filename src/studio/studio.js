@@ -1491,9 +1491,9 @@ function topBarHTML(){
   const connect = S.view === 'connect';
   return `<div class="top"><button class="mark linkish-plain" data-home aria-label="forks.world home">${MARK}</button><span class="topsub hide-sm">Mapping how the world works</span><div class="grow"></div>
     ${S.notice ? `<span class="save hide-sm" style="color:var(--danger)">${esc(S.notice)}</span>` : ''}
-    <button class="btn primary" id="new">New<span class="hide-sm"> process</span></button>
+    <button class="btn primary" id="new">New<span class="hide-sm"> Process</span></button>
     <button class="btn ghost sm" data-home${S.view === 'home' ? ' aria-current="page"' : ''}>Home</button>
-    <button class="btn ghost sm" data-mine${S.view === 'mine' ? ' aria-current="page"' : ''}>My processes</button>
+    <button class="btn ghost sm" data-mine${S.view === 'mine' ? ' aria-current="page"' : ''}>My Processes</button>
     <button class="btn ghost sm" data-connect${connect ? ' aria-current="page"' : ''}>Connect my AI</button>${signInHTML()}${acctHTML()}</div>`;
 }
 /* My Processes: everything private, with search and tags */
