@@ -927,7 +927,7 @@ function shareHTML(){
       ${d.canManage || x.you ? `<button class="btn ghost sm" data-act="unshare" data-id="${esc(x.id)}" aria-label="Remove ${esc(x.name)}">✕</button>` : ''}
     </li>`).join('');
   return `<div class="sheet">${head}
-    ${d.canManage ? `<form data-form="invite" class="invite"><label class="label" for="inv-who">Invite by username or email</label>
+    ${S.cur.publicId ? '' : d.canManage ? `<form data-form="invite" class="invite"><label class="label" for="inv-who">Invite by username or email</label>
       <div class="row-in"><input id="inv-who" name="who" required autocomplete="off" autocapitalize="off" spellcheck="false">
       <select name="role" aria-label="Access"><option value="edit">Can edit</option><option value="view">Can view</option></select>
       <button class="btn primary sm">Invite</button></div>
