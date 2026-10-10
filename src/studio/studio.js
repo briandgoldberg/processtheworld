@@ -3,6 +3,7 @@ import { exportMarkdown } from '@/lib/exportMd';
 import { claudeSkill, chatgptInstructions, skillSlug } from '@/lib/agentExport';
 import { flowHtml, columnsOf } from '@/lib/flowHtml';
 import { cleanTag, cleanTags } from '@/lib/tags';
+import { CRM_EXAMPLES } from './crmExamples';
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rid = p => p + Math.random().toString(36).slice(2, 9);
@@ -107,7 +108,7 @@ const EX_TEA = {
     ]}},
   chat:[], events:[]
 };
-const EXAMPLES = [EX_EGG, EX_CAR, EX_TEA];
+const EXAMPLES = [EX_EGG, EX_CAR, EX_TEA, ...CRM_EXAMPLES];
 
 /* ---------- State ---------- */
 const S = { view:'login', me:null, ready:false,
@@ -1243,7 +1244,7 @@ document.addEventListener('click', e => { if (S.acct && !e.target.closest('.acct
 const FEATURED = ['Your Immune System vs. a Cold Virus', 'Quote, sell, service, renew', 'A workday: drive to work', 'Photosynthesis', 'How a lightning bolt', 'Lead to customer', 'The life and death of a star', 'Quote to cash'];
 function sampleCards(){
   const feat = FEATURED.map(t => (S.pub || []).find(p => p.title.startsWith(t))).filter(Boolean).slice(0, 6);
-  return feat.length >= 3 ? feat.map(p => cardHTML(p, 'pub')).join('') : EXAMPLES.map(p => cardHTML(p, 'ex')).join('');
+  return feat.length >= 3 ? feat.map(p => cardHTML(p, 'pub')).join('') : EXAMPLES.slice(0, 3).map(p => cardHTML(p, 'ex')).join('');
 }
 function renderConnect(app){
   app.innerHTML = `${topBarHTML()}
