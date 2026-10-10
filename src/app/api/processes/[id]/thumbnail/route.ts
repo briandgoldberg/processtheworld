@@ -21,6 +21,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   if (await limited("thumbnail", hashIp(req), user.id, 300, 600)) return fail("Too many changes. Try again later.", 429);
   const p = await prisma.process.findUnique({ where: { id }, include: { public: { select: { id: true } } } });
   if (!p || p.userId !== user.id) return fail("Not found.", 404);
+  if (p.public) return fail("Public processes cannot be changed.", 409);
   const b = await body(req);
   let thumb: string | null = null;
   if (b?.remove === true) thumb = null;
@@ -34,7 +35,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const doc = { ...(p.doc as Record<string, unknown>) };
   if (thumb) doc.thumb = thumb; else delete doc.thumb;
   await prisma.process.update({ where: { id }, data: { doc: doc as any } });
-  if (p.public) await prisma.publicProcess.update({ where: { id: p.public.id }, data: { thumb, hasThumb: !!thumb } });
   return json({ ok: true, hasThumb: !!thumb });
 }
 

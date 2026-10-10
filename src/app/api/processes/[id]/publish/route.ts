@@ -21,10 +21,7 @@ export async function POST(req: NextRequest, { params }: Ctx) {
   return json({ ok: true, ...r, mode: "locked" });
 }
 
-export async function DELETE(req: NextRequest, { params }: Ctx) {
-  const { id } = await params;
-  const user = await userFrom(req);
-  if (!user) return fail("Reload the page to continue.", 401);
-  await prisma.publicProcess.deleteMany({ where: { processId: id, userId: user.id } });
-  return json({ ok: true });
+// A public process stays public. The owner can delete the whole process, which removes it.
+export async function DELETE() {
+  return fail("Public processes cannot be made private. You can delete the process instead.", 409);
 }

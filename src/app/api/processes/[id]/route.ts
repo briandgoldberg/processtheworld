@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { body, fail, json, str } from "@/lib/http";
 import { userFrom } from "@/lib/identity";
 import { accessTo, canEdit } from "@/lib/access";
+import { FROZEN_MESSAGE, sameAsPublic } from "@/lib/frozen";
 
 export const dynamic = "force-dynamic";
 type Ctx = { params: Promise<{ id: string }> };
@@ -52,6 +53,8 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
     });
     return json({ ok: true, rev: created.rev });
   }
+  const pub = await prisma.publicProcess.findUnique({ where: { processId: id }, select: { title: true, doc: true } });
+  if (pub && !sameAsPublic(doc, pub)) return fail(FROZEN_MESSAGE, 409);
   const baseRev = Number(b?.baseRev);
   const r = await prisma.process.updateMany({ where: { id, ...(Number.isFinite(baseRev) && baseRev > 0 ? { rev: baseRev } : {}) }, data: { ...data, rev: { increment: 1 } } });
   if (r.count === 0) {
