@@ -1164,7 +1164,7 @@ function acctHTML(){
       <div class="acct-foot"><button class="acct-key" data-acct="signout">Sign out</button>${me.isAdmin ? '<a class="acct-key" href="/admin">Admin</a>' : ''}</div>
     </div>` : `
     <div class="acct-panel" role="dialog" aria-label="Account">
-      <p class="acct-tag"><span class="guest-pill">Guest</span> mapping as ${esc(me.handle)}</p>
+      <p class="acct-tag"><span class="guest-pill">Guest</span> signed in as <b>${esc(me.handle)}</b></p>
       ${creditsHTML()}
       <form data-email-form class="acct-form" novalidate>
         <input id="acct-email" name="email" type="email" required placeholder="Your email" aria-label="Email" autocomplete="email">
