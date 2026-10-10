@@ -1440,9 +1440,10 @@ function feedCardHTML(p){
 function publicCardsHTML(){
   const all = (S.pub || []).filter(publicMatches).sort(SORTS[S.sort] || SORTS.new);
   const shown = all.slice(0, S.pubLimit), more = all.length > shown.length;
-  const exs = more ? '' : EXAMPLES.filter(publicMatches).map(p => cardHTML(p, 'ex')).join('');
-  if (!shown.length && !exs) return '<div class="empty"><b style="color:var(--ink)">Nothing matches</b><span>Try a different word, or clear the tag.</span></div>';
-  return shown.map(feedCardHTML).join('') + exs + (more ? `<div class="fmore"><button class="btn" data-more>Show ${Math.min(12, all.length - shown.length)} more</button></div>` : '');
+  const pinned = EXAMPLES.filter(p => p.pin && publicMatches(p)).map(p => cardHTML(p, 'ex')).join('');
+  const exs = more ? '' : EXAMPLES.filter(p => !p.pin && publicMatches(p)).map(p => cardHTML(p, 'ex')).join('');
+  if (!shown.length && !exs && !pinned) return '<div class="empty"><b style="color:var(--ink)">Nothing matches</b><span>Try a different word, or clear the tag.</span></div>';
+  return pinned + shown.map(feedCardHTML).join('') + exs + (more ? `<div class="fmore"><button class="btn" data-more>Show ${Math.min(12, all.length - shown.length)} more</button></div>` : '');
 }
 function sortBarHTML(){
   const n = (S.pub || []).filter(publicMatches).length;
@@ -1456,11 +1457,11 @@ async function toggleFeedLike(id, btn){
   catch { p.liked = was; p.likes = Math.max(0, (p.likes || 0) + (was ? 1 : -1)); }
   paint();
 }
-const TOP_TAGS = 6;
+const TOP_TAGS = 6, MAX_TAGS = 18;
 function tagPillsHTML(){
-  const all = allTags();
+  const all = allTags().filter(([, n], i) => i < TOP_TAGS || n > 1).slice(0, MAX_TAGS);
   let tags = S.tagsAll ? all : all.slice(0, TOP_TAGS);
-  if (!S.tagsAll && S.tag && !tags.some(([t]) => t === S.tag)) tags = [...tags, ...all.filter(([t]) => t === S.tag)];
+  if (S.tag && !tags.some(([t]) => t === S.tag)) tags = [...tags, ...allTags().filter(([t]) => t === S.tag)];
   const toggle = all.length > TOP_TAGS ? `<button class="tagpill tagmore" data-tagmore aria-expanded="${!!S.tagsAll}">${S.tagsAll ? 'Fewer' : `More (${all.length - TOP_TAGS})`}</button>` : '';
   return `<button class="tagpill${S.tag ? '' : ' on'}" data-ptag="">All</button>` + tags.map(([t, n]) => `<button class="tagpill${S.tag === t ? ' on' : ''}" data-ptag="${esc(t)}">${esc(t)} <small>${n}</small></button>`).join('') + toggle;
 }

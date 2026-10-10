@@ -3,6 +3,7 @@ export const CRM_EXAMPLES = [
  {
   "id": "ex_mql",
   "example": true,
+  "pin": true,
   "visibility": "public",
   "title": "Score a lead and hand off the MQL to sales",
   "updatedAt": 0,
@@ -335,6 +336,7 @@ export const CRM_EXAMPLES = [
  {
   "id": "ex_pipeline",
   "example": true,
+  "pin": true,
   "visibility": "public",
   "title": "Manage the pipeline and call the forecast",
   "updatedAt": 0,
@@ -680,6 +682,7 @@ export const CRM_EXAMPLES = [
  {
   "id": "ex_escalate",
   "example": true,
+  "pin": true,
   "visibility": "public",
   "title": "Escalate a support case before the SLA breaks",
   "updatedAt": 0,
@@ -1058,6 +1061,7 @@ export const CRM_EXAMPLES = [
  {
   "id": "ex_nurture",
   "example": true,
+  "pin": true,
   "visibility": "public",
   "title": "Run an email nurture journey",
   "updatedAt": 0,
