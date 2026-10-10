@@ -2,7 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { createHash } from "crypto";
 import { prisma } from "./db";
 import { ENGINE_VERSION } from "./engine/prompts";
-import { spend } from "./points";
+import { spendCredit } from "./points";
 
 // USD per million tokens: [input, output, cache read, cache write (5 min)].
 // Source: platform.claude.com/docs/en/about-claude/pricing (checked 2026-10-08).
@@ -21,6 +21,17 @@ export const analysisModel = () => process.env.ANALYSIS_MODEL || "claude-sonnet-
 
 let client: Anthropic | null = null;
 const anthropic = () => (client ||= new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY }));
+
+/** Turn a provider error into a short code the app can explain clearly. */
+function aiErrorCode(e: any): string {
+  const s = Number(e?.status) || 0, m = String(e?.message || "");
+  if (/credit balance|billing|insufficient|purchase credits/i.test(m)) return "ai_billing";
+  if (s === 401 || s === 403) return "ai_auth";
+  if (s === 404 || (s === 400 && /model/i.test(m))) return "ai_model";
+  if (s === 429 || s === 529 || s >= 500) return "ai_busy";
+  if (/timeout|timed out/i.test(m)) return "ai_timeout";
+  return "upstream_error";
+}
 
 type CallMeta = { userId: string | null; processId: string | null; mode: string; model: string };
 
@@ -54,14 +65,14 @@ export async function streamAndLog(meta: CallMeta, system: string, text: string,
         usage = { input: u.input_tokens || 0, output: u.output_tokens || 0, cacheRead: u.cache_read_input_tokens || 0, cacheWrite: u.cache_creation_input_tokens || 0 };
       } catch (e: any) {
         error = String(e?.message || e).slice(0, 500);
-        controller.enqueue(encoder.encode("\n" + JSON.stringify({ op: "error", message: "The mapper is unavailable right now." }) + "\n"));
+        controller.enqueue(encoder.encode("\n" + JSON.stringify({ op: "error", code: aiErrorCode(e), detail: String(e?.message || e).slice(0, 160) }) + "\n"));
       } finally {
         controller.close();
         await prisma.aiCall.update({
           where: { id: row.id },
           data: { output, inputTokens: usage.input, outputTokens: usage.output, cacheRead: usage.cacheRead, cacheWrite: usage.cacheWrite, costUsd: costOf(meta.model, usage), latencyMs: Date.now() - started, stopReason, error },
         }).catch(err => console.error("aiCall log failed", err));
-        if (meta.userId && meta.mode !== "suggest") await spend(meta.userId, costOf(meta.model, usage), row.id);
+        if (meta.userId && meta.mode === "map" && !error) await spendCredit(meta.userId, 1, row.id);
       }
     },
   });

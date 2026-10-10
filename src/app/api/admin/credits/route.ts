@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
     select: { handle: true, email: true, emailVerifiedAt: true, points: true, lastSeenAt: true },
   });
   return json({
-    lowAtOrBelowUsd: LOW_CREDITS / 100,
-    users: rows.map(u => ({ handle: u.handle, email: u.emailVerifiedAt ? u.email : null, leftUsd: Math.max(0, u.points) / 100, paused: u.points <= 0, lastSeenAt: u.lastSeenAt })),
+    lowAtOrBelow: LOW_CREDITS,
+    users: rows.map(u => ({ handle: u.handle, email: u.emailVerifiedAt ? u.email : null, credits: Math.max(0, Math.floor(u.points)), paused: u.points <= 0, lastSeenAt: u.lastSeenAt })),
   });
 }

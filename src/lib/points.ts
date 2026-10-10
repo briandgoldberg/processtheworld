@@ -1,17 +1,16 @@
 import { prisma } from "./db";
 
-// Everyone gets about $1 of AI usage in total. The balance is stored in
-// cents (User.points, default 100) and goes down by what each AI call
-// actually cost. At zero the person is paused until more is granted.
-export const CREDIT_USD = 0.01; // one unit is one cent
-export const LOW_CREDITS = 25; // 25 cents or less left counts as low
+// Everyone starts with 100 credits. One credit is used each time the built in
+// AI helper answers a message while you map a process. Using your own Claude or
+// ChatGPT (the connector, skill or API) never uses credits. Stored in User.points.
+export const START_CREDITS = 100;
+export const LOW_CREDITS = 20; // 20 credits or fewer counts as low
 
-/** Take what an AI call cost off the balance. Never throws; the last call may dip slightly below zero. */
-export async function spend(userId: string, costUsd: number, refId: string) {
-  const units = costUsd / CREDIT_USD;
-  if (!(units > 0)) return;
+/** Use credits. Never throws. */
+export async function spendCredit(userId: string, credits: number, refId: string) {
+  if (!(credits > 0)) return;
   await prisma.$transaction([
-    prisma.pointEvent.create({ data: { userId, delta: -units, reason: "ai", refId } }),
-    prisma.user.update({ where: { id: userId }, data: { points: { decrement: units } } }),
+    prisma.pointEvent.create({ data: { userId, delta: -credits, reason: "ai", refId } }),
+    prisma.user.update({ where: { id: userId }, data: { points: { decrement: credits } } }),
   ]).catch(err => console.error("spend failed", err));
 }

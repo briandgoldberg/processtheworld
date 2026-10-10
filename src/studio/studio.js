@@ -505,10 +505,15 @@ function voiceAfterTurn(p, reply){
   speak(text, () => listen());
 }
 const ERR = {
-  not_configured:'The mapper isn’t set up yet. Try again soon.',
-  rate_limited:'Too many requests right now. Wait a moment, then send again.',
-  upstream_error:'The mapper was interrupted. Send your message again.',
-  out_of_credits:'You’re out of credits. You’ll get more soon.',
+  not_configured:'The AI helper is not set up yet. Please try again later.',
+  rate_limited:'You are sending messages very fast. Wait a few seconds and send again.',
+  upstream_error:'The AI helper could not answer just now. Your map is safe. Please send your message again.',
+  ai_auth:'The AI helper is offline while we fix a setup problem. Please try again soon.',
+  ai_model:'The AI helper is offline while we update it. Please try again soon.',
+  ai_billing:'The AI helper is paused for now. Please try again soon.',
+  ai_busy:'The AI helper is very busy. Please try again in a minute.',
+  ai_timeout:'That took too long. Try a shorter message.',
+  out_of_credits:'You are out of credits. More are coming soon.',
 };
 function lastUserIndex(p){ for (let i = p.chat.length - 1; i >= 0; i--) if (p.chat[i].role === 'user') return i; return -1; }
 /* Put the map back to how it was before the last message, and take that message out of the conversation */
@@ -542,7 +547,7 @@ async function runAI(payload, onLine, ctl){
     const line = raw.trim().replace(/^```(?:json)?/, '').replace(/```$/, '').replace(/,$/, '').trim();
     if (!line.startsWith('{')) return;
     let o; try { o = JSON.parse(line); } catch { return; }
-    if (o.op === 'error'){ failed = true; return; }
+    if (o.op === 'error'){ failed = o.code || 'upstream_error'; return; }
     onLine(o);
   };
   try {
@@ -552,7 +557,7 @@ async function runAI(payload, onLine, ctl){
     }
   } catch (e){ if (ctl.signal.aborted) throw { code:'cancelled' }; throw { code:'upstream_error' }; }
   if (buf.trim()) eat(buf);
-  if (failed) throw { code:'upstream_error' };
+  if (failed) throw { code:failed };
   return id;
 }
 /* Snapshot of whatever an AI change touches, for the before/after record */
@@ -652,7 +657,7 @@ async function send(text){
   reply.content = humanize(p, reply.content); reply.ask = humanize(p, reply.ask); reply.fixed = humanize(p, reply.fixed);
   reply.pending = false;
   if (!reply.content) reply.content = turn.ops ? 'Updated the map.' : 'I could not turn that into changes. Try describing who does what, in order.';
-  S.busy = false; S.ctl = null;
+  S.busy = false; S.ctl = null; refreshMe();
   touch(); renderWork();
   voiceAfterTurn(p, reply);
 
@@ -1140,6 +1145,8 @@ function render(){
 }
 
 /* ---------- Account: anonymous handle, optional email ---------- */
+const creditsHTML = () => S.me && S.me.credits != null ? `<div class="credits"><b>${S.me.credits}</b> credits left<small>Credits are for creating processes with the built in AI. Membership and buying more credits are coming soon. Using your own Claude or ChatGPT never uses credits.</small></div>` : '';
+async function refreshMe(){ try { S.me = await API.post('/api/identity', { key:API.key }); } catch {} const el = document.querySelector('.credits'); if (el) el.outerHTML = creditsHTML(); }
 function acctHTML(){
   const me = S.me; if (!me) return '';
   const nameForm = `<form data-name-form class="acct-form"><label class="label" for="acct-name">Change your name</label>
@@ -1148,11 +1155,13 @@ function acctHTML(){
   const panel = !S.acct ? '' : me.email ? `
     <div class="acct-panel" role="dialog" aria-label="Account">
       <p class="acct-tag">Signed in as <b>${esc(me.email)}</b></p>
+      ${creditsHTML()}
       ${nameForm}
       <div class="acct-foot"><button class="acct-key" data-acct="signout">Sign out</button>${me.isAdmin ? '<a class="acct-key" href="/admin">Admin</a>' : ''}</div>
     </div>` : `
     <div class="acct-panel" role="dialog" aria-label="Account">
       <p class="acct-tag"><span class="guest-pill">Guest</span> mapping as ${esc(me.handle)}</p>
+      ${creditsHTML()}
       <form data-email-form class="acct-form" novalidate>
         <input id="acct-email" name="email" type="email" required placeholder="Your email" aria-label="Email" autocomplete="email">
         <input name="handle" type="hidden" value="">
