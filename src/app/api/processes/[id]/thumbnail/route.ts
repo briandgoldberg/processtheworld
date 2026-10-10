@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 import { body, fail, hashIp, json, str } from "@/lib/http";
 import { userFrom } from "@/lib/identity";
 import { limited } from "@/lib/rateLimit";
-import { validThumb } from "@/lib/thumb";
+import { thumbBytes, validThumb } from "@/lib/thumb";
 import { artDataUrl } from "@/lib/art";
 
 export const dynamic = "force-dynamic";
@@ -36,4 +36,16 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   await prisma.process.update({ where: { id }, data: { doc: doc as any } });
   if (p.public) await prisma.publicProcess.update({ where: { id: p.public.id }, data: { thumb, hasThumb: !!thumb } });
   return json({ ok: true, hasThumb: !!thumb });
+}
+
+// The picture of one of your own (or a process shared with you) as an image. Needs your key, so the app fetches it.
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const user = await userFrom(req);
+  if (!user) return new Response("Unauthorized", { status: 401 });
+  const p = await prisma.process.findUnique({ where: { id }, select: { userId: true, doc: true, shares: { where: { userId: user.id, acceptedAt: { not: null } }, select: { id: true } } } });
+  if (!p || (p.userId !== user.id && !p.shares.length)) return new Response("Not found", { status: 404 });
+  const t = typeof (p.doc as any)?.thumb === "string" ? thumbBytes((p.doc as any).thumb) : null;
+  if (!t) return new Response("Not found", { status: 404 });
+  return new Response(new Uint8Array(t.bytes), { headers: { "content-type": t.type, "cache-control": "private, max-age=300" } });
 }

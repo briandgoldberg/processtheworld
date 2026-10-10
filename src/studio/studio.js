@@ -1372,6 +1372,16 @@ function wireInterest(root){
 }
 function startNew(){ S.guide = null; S.painView = false; stopVoice(); setUrl('/'); S.cur = newProcess(); S.path = ['m_root']; S.sel = null; S.view = 'work'; S.tab = 'chat'; S.panel = null; track('process_started', {}, S.cur.id); render(); }
 
+const THUMBS = {};
+async function loadCardThumbs(){
+  for (const el of document.querySelectorAll('.cthumb[data-tid]')){
+    const id = el.dataset.tid;
+    if (THUMBS[id] === undefined){
+      try { const r = await fetch('/api/processes/' + id + '/thumbnail', { headers:{ 'x-ptw-key':API.key || '' } }); THUMBS[id] = r.ok ? URL.createObjectURL(await r.blob()) : null; } catch { THUMBS[id] = null; }
+    }
+    if (THUMBS[id]) el.innerHTML = `<img src="${THUMBS[id]}" alt="">`; else el.classList.add('none');
+  }
+}
 function cardHTML(p, kind){
   const st = p.stepCount != null ? { steps:p.stepCount, depth:p.depth } : stats(p);
   const types = p.laneTypes || (p.maps?.m_root?.lanes || []).map(l => l.type);
@@ -1391,7 +1401,7 @@ function cardHTML(p, kind){
     <h3>${esc(p.title || 'Untitled process')}</h3>
     ${by}
     ${(p.tags || []).length ? `<div class="ctags">${p.tags.slice(0, 3).map(t => `<span>${esc(t)}</span>`).join('')}</div>` : ''}
-    <div class="spark">${types.slice(0,8).map(t => `<b class="${t==='system'?'s':''}"></b>`).join('') || '<b style="background:var(--line)"></b>'}</div>
+    ${kind === 'mine' || kind === 'shared' ? `<div class="cthumb" data-tid="${esc(p.id)}"></div>` : `<div class="spark">${types.slice(0,8).map(t => `<b class="${t==='system'?'s':''}"></b>`).join('')}</div>`}
     <div class="meta"><span>${st.steps} steps</span><span>${st.depth} ${st.depth === 1 ? 'layer' : 'layers'}</span><span>${types.filter(t=>t!=='system').length} people · ${types.filter(t=>t==='system').length} tech</span></div>
   </button></div>`;
 }
@@ -1496,6 +1506,7 @@ function renderHome(app){
   app.querySelectorAll('[data-del-no]').forEach(b => b.onclick = () => { S.confirmDel = null; render(); });
   app.querySelectorAll('[data-del-yes]').forEach(b => b.onclick = () => deleteProcess(b.dataset.delYes));
   app.querySelectorAll('[data-open]').forEach(b => b.onclick = () => openProcess(b.dataset.open, b.dataset.kind));
+  loadCardThumbs();
 }
 document.addEventListener('click', e => {
   if (e.target.closest('[data-connect]')){ stopVoice(); S.view = 'connect'; history.pushState(null, '', '/connect'); render(); window.scrollTo(0, 0); return; }
@@ -1658,7 +1669,7 @@ const ICON = {
   image:  ico('<rect x="2" y="3" width="12" height="10" rx="1.5"/><circle cx="6" cy="7" r="1.2"/><path d="M3 12l3.5-3.5 2.5 2.5 2-2 2 3"/>'),
   globe:  ico('<circle cx="8" cy="8" r="6"/><path d="M2 8h12M8 2c2 1.8 2.8 3.8 2.8 6S10 12.2 8 14M8 2C6 3.8 5.2 5.8 5.2 8S6 12.2 8 14"/>')
 };
-const visPill = (publicId, shareCount, mode) => publicId ? `<span class="pill pub">${ICON.globe}Public${mode === 'locked' ? ' · as is' : ''}</span>` : shareCount ? `<span class="pill sh">${ICON.people}Shared · ${shareCount}</span>` : `<span class="pill">${ICON.lock}Private</span>`;
+const visPill = (publicId, shareCount) => publicId ? `<span class="pill pub">${ICON.globe}Public</span>` : shareCount ? `<span class="pill sh">${ICON.people}Shared · ${shareCount}</span>` : `<span class="pill">${ICON.lock}Private</span>`;
 
 /* What kind of process is open decides the buttons */
 function kindOf(p){
