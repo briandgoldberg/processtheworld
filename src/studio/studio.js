@@ -1236,7 +1236,7 @@ function renderConnect(app){
   <div class="home cn-home"><main class="cn-main">
     <div>${S.cur ? '<button class="btn ghost sm" data-backproc>← Back to process</button>' : '<button class="btn ghost sm" data-home>← Back home</button>'}</div>
     <section class="cn-hero">
-      <h1>Create process maps with Claude or ChatGPT.</h1>
+      <h1>Create forks.world process maps from ChatGPT or Claude.</h1>
     </section>
     <section class="cn-grid">
       <article class="cn-card">
