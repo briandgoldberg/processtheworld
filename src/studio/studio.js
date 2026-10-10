@@ -599,7 +599,7 @@ async function send(text){
   // A near-copy of the last message is a retype: replace it instead of stacking a new instruction on top.
   const li = lastUserIndex(p);
   let retyped = false;
-  if (li >= 0 && p.undo && p.undo.chatIndex === li && similar(p.chat[li].content, text) && p.chat[li].content.trim() !== text){
+  if (false && li >= 0 && p.undo && p.undo.chatIndex === li && similar(p.chat[li].content, text) && p.chat[li].content.trim() !== text){
     S.lastTurnId = p.undo?.turnId || S.lastTurnId; rewindLast(p); retyped = true; logEvent(p, { who:'human', op:'retype_message' });
   }
 
@@ -975,12 +975,12 @@ function commentsHTML(){
   const d = S.commentsData, close = '<button class="btn ghost sm" data-act="close" aria-label="Close">✕</button>';
   const head = `<div class="ins-head"><span class="label">Comments${d?.comments?.length ? ' · ' + d.comments.length : ''}</span>${close}</div>`;
   if (!d) return `<div class="sheet">${head}<p class="hint">Loading…</p></div>`;
-  const list = d.comments.map(c => `<li class="cm"><div class="cm-h"><b>${esc(c.author)}</b><span>${ago(c.createdAt)}</span>${c.stepRef ? `<button class="chip" data-act="jumpc" data-ref="${esc(c.stepRef)}">on “${esc(c.stepLabel || 'a step')}”</button>` : ''}${c.mine || d.isOwner ? `<button class="g-link" data-act="delcomment" data-id="${esc(c.id)}">Delete</button>` : ''}</div><p>${esc(c.body)}</p></li>`).join('');
+    const list = d.comments.map(c => `<li class="cm"><div class="cm-h"><b>${esc(c.author)}</b><span>${ago(c.createdAt)}</span>${c.mine || d.isOwner ? `<button class="g-link" data-act="delcomment" data-id="${esc(c.id)}">Delete</button>` : ''}</div><p>${esc(c.body)}</p></li>`).join('');
   const msg = S.panelMsg ? `<p class="hint panel-msg" role="status">${esc(S.panelMsg)}</p>` : '';
   return `<div class="sheet">${head}
-    ${d.error ? `<p class="hint">${esc(d.error)}</p>` : list ? `<ul class="cms">${list}</ul>` : '<p class="hint">No comments yet. Ask a question, suggest a missing step, or say what worked.</p>'}
+    ${d.error ? `<p class="hint">${esc(d.error)}</p>` : list ? `<ul class="cms">${list}</ul>` : ''}
     <form data-form="comment" class="cm-form"><textarea name="body" rows="2" maxlength="1000" required placeholder="Add a comment…" aria-label="Comment"></textarea>
-      <div class="row-in"><select name="step" aria-label="Pin to a step"><option value="">The whole process</option>${stepOptions()}</select><button class="btn primary sm">Post</button></div></form>${msg}</div>`;
+      <div class="row-in"><button class="btn primary sm">Post</button></div></form>${msg}</div>`;
 }
 async function postComment(f){
   const text = f.elements.body.value.trim(), step = f.elements.step.value, id = pubId(); if (!text || !id) return;
@@ -1370,7 +1370,7 @@ function wireInterest(root){
     btn.disabled = false;
   });
 }
-function startNew(){ S.guide = null; S.painView = false; stopVoice(); S.cur = newProcess(); S.path = ['m_root']; S.sel = null; S.view = 'work'; S.tab = 'chat'; S.panel = null; track('process_started', {}, S.cur.id); render(); }
+function startNew(){ S.guide = null; S.painView = false; stopVoice(); setUrl('/'); S.cur = newProcess(); S.path = ['m_root']; S.sel = null; S.view = 'work'; S.tab = 'chat'; S.panel = null; track('process_started', {}, S.cur.id); render(); }
 
 function cardHTML(p, kind){
   const st = p.stepCount != null ? { steps:p.stepCount, depth:p.depth } : stats(p);
@@ -1501,11 +1501,20 @@ document.addEventListener('click', e => {
   if (e.target.closest('[data-connect]')){ stopVoice(); S.view = 'connect'; history.pushState(null, '', '/connect'); render(); window.scrollTo(0, 0); return; }
   if (e.target.closest('[data-backproc]')){ S.view = S.cur ? 'work' : 'home'; history.pushState(null, '', '/'); render(); return; }
 });
-addEventListener('popstate', () => {
-  if (location.pathname === '/connect' && S.view !== 'connect'){ S.view = 'connect'; render(); }
-  else if (location.pathname !== '/connect' && S.view === 'connect'){ S.view = S.cur ? 'work' : 'home'; render(); }
+addEventListener('popstate', async () => {
+  const path = location.pathname, q = new URLSearchParams(location.search);
+  stopGuide(); stopVoice();
+  if (path === '/connect'){ S.view = 'connect'; render(); return; }
+  S.noPush = true;
+  const m = /^\/p\/([^/]+)/.exec(path);
+  if (m){ await openProcess(m[1], 'pub'); return; }
+  if (q.get('process')){ await openProcess(q.get('process'), 'mine'); return; }
+  if (q.get('example')){ await openProcess(q.get('example'), 'ex'); return; }
+  S.noPush = false;
+  if (S.view === 'work') flush();
+  S.compare = null; S.real = null; S.cur = null; S.view = 'home'; document.title = "forks.world: Mapping how the world works"; render();
 });
-document.addEventListener('click', e => { if (e.target.closest('[data-home]')){ if (S.view === 'work') flush(); S.compare = null; S.real = null; S.cur = null; S.view = 'home'; if (location.pathname !== '/') history.replaceState(null, '', '/'); render(); window.scrollTo(0, 0); } });
+document.addEventListener('click', e => { if (e.target.closest('[data-home]')){ if (S.view === 'work') flush(); S.compare = null; S.real = null; S.cur = null; S.view = 'home'; setUrl('/'); render(); window.scrollTo(0, 0); } });
 
 async function openProcess(id, kind){
   S.guide = null; S.painView = false; stopVoice();
@@ -1528,11 +1537,12 @@ async function openProcess(id, kind){
   S.compare = null; S.real = null;
   S.cur = p; S.path = ['m_root']; S.sel = null; S.view = 'work'; S.checksOpen = false; S.panel = null; S.confirmDel = null;
   S.tab = p.maps.m_root.steps.length ? 'map' : 'chat'; render();
+  if (!S.noPush) setUrl(urlFor(p, kind), (p.title || 'Process') + ' | forks.world');
+  S.noPush = false;
 }
 const STARTERS = [
   'How I make pancakes from scratch.',
-  'How to change a flat bike tire.',
-  'Doing laundry. It has three parts: sort, wash, and dry and fold.'
+  'How to change a flat bike tire.'
 ];
 
 function renderWorkShell(app){
@@ -1558,7 +1568,6 @@ function renderWorkShell(app){
       <div class="composer">
         <textarea id="msg" placeholder="Describe the process in your own words… (tip: use your keyboard's dictation to talk)" aria-label="Describe the process"></textarea>
         <div class="composer-row">
-          <label class="toggle"><input type="checkbox" id="deep"> Deeper thinking</label>
           <div class="composer-acts"><button class="btn" id="voice" aria-label="Talk to the interviewer" title="Talk instead of typing. It talks back and asks you questions.">${ICON.mic}Talk</button><button class="btn" id="finish">Finish map</button><button class="btn" id="stop" hidden>Stop</button><button class="btn primary" id="sendb">Send</button></div>
         </div>
       </div>
@@ -1574,7 +1583,7 @@ function renderWorkShell(app){
       <div id="checks"></div>
     </section>
   </div>`;
-  $('#back').onclick = () => { stopGuide(); stopVoice(); flush(); if (S.compare) closeCompare(); S.view = 'home'; S.cur = null; S.confirmDel = null; S.panel = null; loadMine(); loadPublic(); render(); };
+  $('#back').onclick = () => { setUrl('/'); stopGuide(); stopVoice(); flush(); if (S.compare) closeCompare(); S.view = 'home'; S.cur = null; S.confirmDel = null; S.panel = null; loadMine(); loadPublic(); render(); };
   $('#wmenu-btn').onclick = e => { e.stopPropagation(); S.panel = S.panel === 'menu' ? null : 'menu'; S.panelMsg = ''; renderPanel(); };
   $('#wprimary').onclick = onAction; $('#pubbar').onclick = onAction;
   $('#tagbar').addEventListener('submit', e => { const f = e.target.closest('[data-tagform]'); if (!f) return; e.preventDefault(); addTag(f.elements.tag.value); });
@@ -1582,6 +1591,7 @@ function renderWorkShell(app){
   $('#tagbar').addEventListener('change', e => { const f = e.target.closest('[data-thumb-file]'); if (f && f.files[0]) { setThumb(f.files[0]); f.value = ''; } }); $('#wpanel').onclick = onAction; $('#compare').onclick = onAction;
   $('#wpanel').addEventListener('submit', onPanelSubmit);
   $('#wpanel').addEventListener('change', onPanelChange);
+  $('#wpanel').addEventListener('input', e => { if (e.target.matches('[data-combine-q]')){ S.combine.q = e.target.value; const l = $('#cmb-list'); if (l) l.innerHTML = combineRowsHTML(); } });
   $('#title').onchange = e => { ensureOwned(); const v = e.target.value.trim() || 'Untitled process'; logEvent(S.cur,{who:'human',op:'rename_process',before:S.cur.title,after:v}); S.cur.title = v; S.cur.maps.m_root.title = v; touch(); renderWork(); };
   const msg = $('#msg');
   msg.onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey && !matchMedia('(max-width: 820px)').matches){ e.preventDefault(); send(msg.value); } };
@@ -1591,7 +1601,6 @@ function renderWorkShell(app){
   renderVoice();
   $('#stop').onclick = () => S.ctl?.abort();
   $('#finish').onclick = () => S.cur?.status === 'done' ? resume() : finish();
-  $('#deep').checked = S.deep; $('#deep').onchange = e => S.deep = e.target.checked;
   $('#zoomctl').onclick = onZoomClick;
   $('#guide').onclick = onGuideClick;
   $('#painlist').onclick = e => { const b = e.target.closest('[data-pjump]'); if (b) jumpTo(b.dataset.pmap, b.dataset.pjump); };
@@ -1600,7 +1609,7 @@ function renderWorkShell(app){
   $('#tabs').onclick = e => { const t = e.target.closest('[data-tab]'); if (!t) return; S.tab = t.dataset.tab; renderWork(); };
   $('#msgs').onclick = e => {
     const b = e.target.closest('[data-starter]'); if (b){ send(b.dataset.starter); return; }
-    if (e.target.closest('[data-edit]')){ editLast(); return; }
+    if (e.target.closest('[data-combine]')){ S.combine = { q:'', sel:[] }; S.panel = 'combine'; renderPanel(); return; }
     const pr = e.target.closest('[data-prop]'); if (pr){ resolveProposal(+pr.dataset.idx, pr.dataset.prop === 'remove'); return; }
     const j = e.target.closest('[data-jump]'); if (j){ jumpTo(j.dataset.jump, j.dataset.step); return; }
     const r = e.target.closest('[data-rate]'); if (r){ rateReply(+r.dataset.idx, +r.dataset.rate); return; }
@@ -1711,6 +1720,7 @@ function renderPanel(){
       <p>This can't be undone${p.publicId ? ', and the public version goes too' : ''}.</p><div class="prop-acts"><button class="btn danger sm" data-act="delete-yes">Delete</button><button class="btn sm" data-act="close">Cancel</button></div></div>`;
   else if (S.panel === 'share') html = shareHTML();
   else if (S.panel === 'comments') html = commentsHTML();
+  else if (S.panel === 'combine') html = combineHTML();
   else if (S.panel === 'review') html = reviewHTML();
   else if (S.panel === 'history') html = historyHTML();
   el.innerHTML = `<div class="wpanel-in ${S.panel === 'menu' ? 'is-menu' : 'is-sheet'}">${html}</div>`;
@@ -1746,6 +1756,7 @@ async function onAction(e){
     case 'unshare': unshare(b.dataset.id); return;
     case 'newown': S.panel = null; startNew(); return;
     case 'guideme': startGuide(); return;
+    case 'combine-go': applyCombine(); return;
     case 'comments': S.panel = S.panel === 'comments' ? null : 'comments'; S.commentsData = null; break;
     case 'delcomment': try { await API.del('/api/public/' + pubId() + '/comments/' + b.dataset.id); } catch (e){ S.panelMsg = e.message; } S.commentsData = null; loadComments(); return;
     case 'jumpc': { const [mid, sid] = String(b.dataset.ref).split('|'); S.panel = null; renderPanel(); jumpTo(mid, sid); return; }
@@ -1819,7 +1830,43 @@ async function onPanelSubmit(e){
   else if (kind === 'comment') await postComment(f);
   if (btn) btn.disabled = false;
 }
+/* Import a public process as a sub process, or combine several */
+function combineList(){
+  const q = (S.combine?.q || '').toLowerCase().trim();
+  return (S.pub || []).filter(p => !q || (p.title + ' ' + (p.tags || []).join(' ')).toLowerCase().includes(q)).slice(0, 40);
+}
+function combineRowsHTML(){
+  const sel = S.combine.sel;
+  return combineList().map(p => `<label class="cmb-row"><input type="checkbox" data-cmb="${esc(p.id)}" ${sel.includes(p.id) ? 'checked' : ''}><span><b>${esc(p.title)}</b><small>${esc((p.tags || []).slice(0, 3).join(' · '))}</small></span>${sel.includes(p.id) ? `<i class="cmb-n">${sel.indexOf(p.id) + 1}</i>` : ''}</label>`).join('') || '<p class="hint">Nothing matches.</p>';
+}
+function combineHTML(){
+  const close = '<button class="btn ghost sm" data-act="close" aria-label="Close">✕</button>', n = S.combine.sel.length;
+  return `<div class="sheet"><div class="ins-head"><span class="label">Add public processes</span>${close}</div>
+    <p class="hint">Pick one to add it as a sub process, or pick several to chain them in order.</p>
+    <input type="search" data-combine-q placeholder="Search public processes" value="${esc(S.combine.q)}" aria-label="Search public processes" autocomplete="off">
+    <div class="cmb-list" id="cmb-list">${combineRowsHTML()}</div>
+    <div class="prop-acts"><button class="btn primary sm" data-act="combine-go" ${n ? '' : 'disabled'}>Add ${n || ''} to my process</button></div></div>`;
+}
+function applyCombine(){
+  const picks = S.combine.sel.map(id => (S.pub || []).find(x => x.id === id)).filter(Boolean); if (!picks.length) return;
+  ensureOwned(); const p = S.cur, m = p.maps.m_root;
+  if (!m.lanes.length) m.lanes.push({ id:rid('l'), name:'The whole process', type:'person' });
+  const lane = m.lanes[0].id, mk = (label, kind, extra = {}) => ({ id:rid('s'), lane, label, kind, uses:[], next:[], ...extra });
+  const parts = picks.map(x => mk(x.title, 'subprocess', { link:{ id:x.id, title:x.title, scope:'public' } }));
+  const chain = a => { for (let i = 0; i < a.length - 1; i++) a[i].next.push({ to:a[i + 1].id }); };
+  if (!m.steps.length){ const seq = [mk('Start', 'start'), ...parts, mk('Done', 'end')]; chain(seq); m.steps.push(...seq); }
+  else {
+    const tail = [...m.steps].reverse().find(s => !s.next.length), end = mk('Done', 'end');
+    if (tail && tail.kind === 'end') tail.kind = 'task';
+    chain([...(tail ? [tail] : []), ...parts, end]); m.steps.push(...parts, end);
+  }
+  if (!p.title || p.title === 'Untitled process'){ p.title = picks.length === 1 ? picks[0].title : 'Combined: ' + picks.map(x => x.title).join(', ').slice(0, 90); m.title = p.title; }
+  logEvent(p, { who:'human', op:'combine_public', ids:picks.map(x => x.id) });
+  S.panel = null; touch(); renderWork(); alertBox(picks.length === 1 ? 'Added as a sub process.' : 'Combined ' + picks.length + ' processes.');
+}
 function onPanelChange(e){
+  const cb = e.target.closest('[data-cmb]');
+  if (cb){ const id = cb.dataset.cmb, a = S.combine.sel; if (cb.checked && !a.includes(id)) a.push(id); else if (!cb.checked){ const i = a.indexOf(id); if (i >= 0) a.splice(i, 1); } renderPanel(); return; }
   const s = e.target.closest('[data-role-for]'); if (s) setRole(s.dataset.roleFor, s.value);
 }
 /* Public processes get a link of their own; people arriving from it are invited to edit or build their own */
@@ -1905,14 +1952,14 @@ function renderMsgs(){
   const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
   if (!p.chat.length){
     el.innerHTML = `<div class="msg assistant">Tell me about a process: what it's called, who's involved, and what happens first. I'll build the map as you go and ask about anything that's missing.</div>
-    <div class="starters"><div class="label">Or start with</div>${STARTERS.map(s => `<button class="starter" data-starter="${esc(s)}">${esc(s)}</button>`).join('')}</div>`;
+    <div class="starters"><div class="label">Or start with</div>${STARTERS.map(s => `<button class="starter" data-starter="${esc(s)}">${esc(s)}</button>`).join('')}<button class="starter" data-combine>Import a public process as a sub process, or combine several public processes.</button></div>`;
     return;
   }
   const lastU = lastUserIndex(p);
   const canEdit = !S.busy && p.undo && p.undo.chatIndex === lastU;
   el.innerHTML = p.chat.map((m, i) => {
     if (m.role === 'note') return `<div class="msg note">${esc(m.content)}</div>`;
-    if (m.role === 'user') return `<div class="msg user">${esc(m.content)}</div>${i === lastU && canEdit ? '<button class="edit-last" data-edit>Edit message</button>' : ''}`;
+    if (m.role === 'user') return `<div class="msg user">${esc(m.content)}</div>`;
     if (m.pending && !m.content) return `<div class="msg assistant"><span class="thinking"><i></i><i></i><i></i>&nbsp;${m.checking ? 'Checking the map' : m.ops ? 'Mapping · ' + m.ops + ' change' + (m.ops === 1 ? '' : 's') : 'Listening'}</span></div>`;
     let x = `<div class="msg assistant${m.err ? ' err' : ''}">${esc(m.content)}`;
     if (m.fixed) x += `<span class="fixed">Checked the map: ${esc(m.fixed)}</span>`;
@@ -1971,16 +2018,23 @@ function renderPainList(){
 const toneOf = lab => /^(yes|y|ok|okay|approved?|pass(ed)?|true|done|found|clear(ed)?|success|accept(ed)?|signed|match(es)?|resolved|enough|ready)\b/i.test(String(lab || '')) ? 'yes' : /^(no|n|not|fail(ed)?|reject(ed)?|denied|false|retry|missing|wait|too|stuck|nothing|blocked|cancel(led)?)\b/i.test(String(lab || '')) ? 'no' : '';
 function gMap(){ return S.cur.maps[S.guide.map]; }
 function gStep(){ return gMap()?.steps.find(x => x.id === S.guide.step); }
+/* The address bar follows what you are looking at */
+function setUrl(path, title){
+  if (location.pathname + location.search !== path) history.pushState(null, '', path);
+  document.title = title || "forks.world: Mapping how the world works";
+}
+function urlFor(p, kind){ return kind === 'pub' ? '/p/' + p.publicId : kind === 'ex' ? '/?example=' + p.id : '/?process=' + p.id; }
 function startGuide(){
   const p = S.cur; if (!p) return;
   stopPlay(); S.sel = null;
   const m = p.maps.m_root, st = m.steps.find(s => s.kind === 'start') || m.steps[0];
   if (!st){ alertBox('Add some steps first, then guide yourself through them.'); return; }
-  S.tab = 'map'; S.painView = false;
+  S.tab = 'map'; S.painView = false; if (S.zoom < 0.9){ S.zoomAuto = false; S.zoom = 0.9; }
   S.guide = { map:'m_root', step:st.id, stack:[], hist:[], after:false, taken:1, done:false, visited:{ ['m_root|' + st.id]:1 } };
   track('guide_started', {}, p.id); guideApply();
 }
 function stopGuide(){
+  try { speechSynthesis.cancel(); } catch {}
   S.guide = null;
   document.querySelector('#board')?.classList.remove('playing');
   document.querySelectorAll('.step.now,.step.trail').forEach(x => x.classList.remove('now', 'trail'));
@@ -2018,27 +2072,50 @@ function guideChoices(){
   }
   return out;
 }
+function guidePath(){
+  const g = S.guide, all = [...g.hist.map(h => ({ map:h.map, step:h.step })), { map:g.map, step:g.step }], out = [];
+  all.forEach(x => { const s = S.cur.maps[x.map]?.steps.find(y => y.id === x.step); if (s && out[out.length - 1]?.label !== s.label) out.push({ label:s.label, pain:s.pain || null }); });
+  return out;
+}
+function speakGuide(text){
+  if (!S.guideSpeak || typeof speechSynthesis === 'undefined') return;
+  try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); const v = pickVoice(); if (v){ u.voice = v; u.lang = v.lang; } speechSynthesis.speak(u); } catch {}
+}
 function guideCard(){
   const g = S.guide, el = $('#guide'); if (!g || !el) return;
+  const totalSteps = Object.values(S.cur.maps).reduce((n, m) => n + m.steps.length, 0) || 1;
+  const pct = g.done ? 100 : Math.min(96, Math.round(Object.keys(g.visited).length / totalSteps * 100));
+  const bar = `<div class="g-bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>`;
   if (g.done){
-    const q = S.cur, pubId = q.publicId;
-    el.innerHTML = `<div class="g-card done"><div class="g-top"><span class="g-count">Done</span><button data-g="exit" aria-label="Exit guide">✕</button></div>
-      <div class="g-q">That's the whole path.</div><p class="g-sub">You went through ${g.taken} step${g.taken === 1 ? '' : 's'}.</p>
-      <div class="g-actions"><button class="g-btn primary" data-g="restart">Start over</button>${pubId ? shareButtons(pubId) : ''}<button class="g-btn" data-g="exit">Close</button></div></div>`;
+    const path = guidePath(), hurt = path.filter(x => x.pain), pubId = S.cur.publicId;
+    el.innerHTML = `<div class="g-card done">${bar}<div class="g-top"><span class="g-count">Finished</span><button data-g="exit" aria-label="Close the guide">✕</button></div>
+      <div class="g-q">That is the whole path.</div>
+      <p class="g-sub">${path.length} step${path.length === 1 ? '' : 's'}${hurt.length ? `, and ${hurt.length} place${hurt.length === 1 ? '' : 's'} where it hurts` : ''}.</p>
+      <ol class="g-path">${path.map(x => `<li${x.pain ? ' class="hurts"' : ''}>${x.pain ? ICON.flame : ''}${esc(x.label)}</li>`).join('')}</ol>
+      <div class="g-actions row"><button class="g-btn primary" data-g="restart">Walk it again</button><button class="g-btn" data-g="copypath">Copy this path</button>${pubId ? shareButtons(pubId) : ''}<button class="g-btn" data-g="exit">Close</button></div></div>`;
     return;
   }
   const m = gMap(), s = gStep(), lane = m.lanes.find(l => l.id === s.lane), choices = guideChoices();
   const uses = (s.uses || []).map(u => m.lanes.find(l => l.id === u)?.name).filter(Boolean);
-  const layerNote = g.stack.length ? `<span class="g-layer">in “${esc(m.title)}”</span>` : '';
-  const trail = g.hist.slice(-3).map(h => S.cur.maps[h.map]?.steps.find(x => x.id === h.step)?.label).filter(Boolean);
-  el.innerHTML = `<div class="g-card">
-    <div class="g-top"><span class="g-lane ${lane?.type === 'system' ? 'sys' : 'per'}">${esc(lane?.name || 'Someone')}</span><span class="g-count">Step ${g.taken}</span>${layerNote}<button data-g="exit" aria-label="Exit guide">✕</button></div>
+  const layerNote = g.stack.length ? `<span class="g-layer">inside "${esc(m.title)}"</span>` : '';
+  const from = Math.max(0, g.hist.length - 3);
+  const chips = g.hist.slice(from).map((h, k) => ({ i:from + k, label:S.cur.maps[h.map]?.steps.find(x => x.id === h.step)?.label })).filter(c => c.label);
+  const kind = s.kind === 'decision' ? 'Decision' : s.kind === 'subprocess' ? 'A process inside this one' : s.kind === 'start' ? 'Start' : s.kind === 'end' ? 'End' : 'Step';
+  el.innerHTML = `<div class="g-card">${bar}
+    <div class="g-top"><span class="g-lane ${lane?.type === 'system' ? 'sys' : 'per'}">${esc(lane?.name || 'Someone')}</span><span class="g-count">${kind} ${g.taken}</span>${layerNote}<button class="g-icon${S.guideSpeak ? ' on' : ''}" data-g="speak" aria-pressed="${!!S.guideSpeak}" title="Read each step aloud">${ICON.mic}</button><button data-g="exit" aria-label="Close the guide">✕</button></div>
     <div class="g-q">${esc(s.label)}</div>
     ${uses.length ? `<p class="g-sub">Using ${esc(uses.join(', '))}</p>` : ''}
     ${s.pain ? `<div class="g-pain l${s.pain.level}">${ICON.flame}<span><b>${PAIN_NAME[s.pain.level] || 'Painful'}.</b> ${esc(s.pain.note || 'This is where it hurts.')}</span></div>` : ''}
     <div class="g-actions">${choices.map((c, i) => `<button class="g-btn${c.tone ? ' ' + c.tone : ''}${i === 0 && !c.tone && !c.soft ? ' primary' : ''}${c.soft ? ' soft' : ''}" data-g="pick" data-i="${i}"><span class="g-n">${i + 1}</span><span class="g-t">${esc(c.label)}${c.sub ? `<small>${esc(c.sub)}</small>` : ''}</span></button>`).join('')}</div>
-    <div class="g-foot"><button class="g-link" data-g="back" ${g.hist.length ? '' : 'disabled'}>← Back</button><button class="g-link" data-g="restart">Restart</button>${trail.length ? `<span class="g-trail">${trail.map(esc).join(' → ')} → <b>now</b></span>` : ''}</div>
+    <div class="g-foot"><button class="g-link" data-g="back" ${g.hist.length ? '' : 'disabled'}>Back</button><button class="g-link" data-g="restart">Restart</button>${chips.length ? `<span class="g-chips">${chips.map(c => `<button class="g-chip" data-g="goto" data-i="${c.i}" title="Go back to this step">${esc(c.label)}</button>`).join('')}</span>` : ''}<span class="g-keys">Keys: 1 to 9 choose, left arrow back</span></div>
   </div>`;
+  const spoken = s.label + (s.kind === 'decision' ? '. Choose: ' + choices.map(c => c.label).join(', or ') : '');
+  if (g.lastSpoken !== g.map + g.step + g.hist.length){ g.lastSpoken = g.map + g.step + g.hist.length; speakGuide((lane?.name ? lane.name + '. ' : '') + spoken); }
+}
+function guideGoto(i){
+  const g = S.guide; if (!g || !g.hist[i]) return;
+  const h = g.hist[i]; g.hist = g.hist.slice(0, i); g.map = h.map; g.step = h.step; g.after = h.after; g.stack = h.stack; g.done = false; g.taken = Math.max(1, i + 1);
+  guideApply();
 }
 function guideChoose(i){
   const g = S.guide; if (!g || g.done) return;
@@ -2064,8 +2141,11 @@ function onGuideClick(e){
   const a = b.dataset.g;
   if (a === 'pick') guideChoose(Number(b.dataset.i));
   else if (a === 'back') guideBack();
+  else if (a === 'goto') guideGoto(Number(b.dataset.i));
   else if (a === 'restart') startGuide();
   else if (a === 'exit') stopGuide();
+  else if (a === 'speak'){ S.guideSpeak = !S.guideSpeak; if (!S.guideSpeak) { try { speechSynthesis.cancel(); } catch {} } else if (S.guide) S.guide.lastSpoken = ''; guideCard(); }
+  else if (a === 'copypath'){ const t = guidePath().map((x, i) => (i + 1) + '. ' + x.label + (x.pain ? ' (pain point)' : '')).join('\n'); navigator.clipboard?.writeText(S.cur.title + '\n' + t).then(() => alertBox('Path copied.')).catch(() => {}); }
 }
 
 /* Zoom: zoom out for the simple picture, zoom in for every detail */
@@ -2078,7 +2158,7 @@ function updateZoomCtl(){
   el.innerHTML = `<button data-tool="select" class="${S.tool === 'select' ? 'on' : ''}" aria-label="Select tool" title="Select (V)">${ICON.pointer}</button><button data-tool="hand" class="${S.tool === 'hand' ? 'on' : ''}" aria-label="Hand tool: drag to move around" title="Hand: drag to move around (hold Space)">${ICON.hand}</button>
     <span class="zsep"></span><button data-z="out" aria-label="Zoom out" title="Zoom out">−</button><button data-z="reset" class="zv" aria-label="Reset to 100%" title="Reset to 100%">${Math.round(S.zoom * 100)}%</button><button data-z="in" aria-label="Zoom in" title="Zoom in">+</button><button data-z="fit" title="Fit the whole map on screen">Fit</button>
     <span class="zsep"></span><button data-detail="simple" class="${d === 'simple' ? 'on' : ''}" title="Names only">Simple</button><button data-detail="full" class="${d === 'full' ? 'on' : ''}" title="Tools, links and labels">Detailed</button>
-    <span class="zsep"></span><button data-guide class="${S.guide ? 'on' : ''}" title="Choose your path through the process">${ICON.compass}Guide me</button>${(() => { const n = countPain(S.cur); return n || (kindOf(S.cur) === 'owned') ? `<button data-pain class="${S.painView ? 'on' : ''}" title="Show where the process hurts">${ICON.flame}Pain${n ? ' ' + n : ''}</button>` : ''; })()}<button data-play class="${S.playing ? 'on' : ''}" title="Walk through the process, step by step">${S.playing ? ICON.stop + 'Stop' : ICON.play + 'Play'}</button><button data-fs aria-label="Full screen" title="Full screen">${ICON.full}</button>`;
+    <span class="zsep"></span><button data-guide class="${S.guide ? 'on' : ''}" title="Choose your path through the process">${ICON.compass}Guide me</button>${(() => { const n = countPain(S.cur); return n || (kindOf(S.cur) === 'owned') ? `<button data-pain class="${S.painView ? 'on' : ''}" title="Show where the process hurts">${ICON.flame}Pain${n ? ' ' + n : ''}</button>` : ''; })()}<button data-fs aria-label="Full screen" title="Full screen">${ICON.full}</button>`;
 }
 function setZoom(z, cx, cy){
   const sc = $('#scroller'), b = $('#board'); if (!sc || !b) return;
@@ -2099,7 +2179,6 @@ function onZoomClick(e){
   else if (b.dataset.tool){ S.tool = b.dataset.tool; updateZoomCtl(); }
   else if ('guide' in b.dataset) S.guide ? stopGuide() : startGuide();
   else if ('pain' in b.dataset){ S.painView = !S.painView; updateZoomCtl(); renderBoard(); }
-  else if ('play' in b.dataset) playWalk();
   else if ('fs' in b.dataset) toggleFull();
 }
 function toggleFull(){
@@ -2180,7 +2259,10 @@ function renderBoard(){
   b.style.width = g.width + 'px'; b.style.height = g.height + 'px';
   const zkey = S.cur.id + '|' + m.id; S.drawNow = false; if (S.zoomKey !== zkey){ S.zoomKey = zkey; S.zoomAuto = true; S.drawNow = true; stopPlay(); }
   const sc0 = $('#scroller');
-  if (S.zoomAuto && sc0 && sc0.clientWidth > 80){ const fitW = (sc0.clientWidth - 12) / g.width; S.zoom = Math.max(ZMIN, Math.min(1, S.fitFull ? fitW : Math.max(0.65, fitW))); }
+  if (S.zoomAuto && sc0 && sc0.clientWidth > 80){
+    const fitW = (sc0.clientWidth - 16) / g.width, fitH = (sc0.clientHeight - 16) / Math.max(g.height, 60), both = Math.min(fitW, fitH);
+    S.zoom = isFull() ? Math.max(ZMIN, Math.min(1.6, both)) : Math.max(ZMIN, Math.min(1, S.fitFull ? both : Math.max(0.65, fitW)));
+  }
   b.style.zoom = S.zoom; updateZoomCtl();
   let html = '';
   g.bands.forEach(bd => html += `<div class="band" style="top:${bd.y}px;width:${g.width}px">${bd.t}</div>`);
@@ -2277,6 +2359,7 @@ document.addEventListener('keydown', e => {
   if (S.guide && S.view === 'work' && !e.target.closest?.('input,textarea,select')){
     if (/^[1-9]$/.test(e.key)){ guideChoose(Number(e.key) - 1); return; }
     if (e.key === 'Backspace' || e.key === 'ArrowLeft'){ e.preventDefault(); guideBack(); return; }
+    if (e.key === 'ArrowRight' || e.key === 'Enter'){ e.preventDefault(); guideChoose(0); return; }
     if (e.key === 'Escape'){ stopGuide(); return; }
   }
   if (e.key === 'Escape' && S.sel){ S.sel = null; renderBoard(); renderInspector(); }
@@ -2464,7 +2547,9 @@ export async function mount(root, opts = {}){
   if (S.me?.email && S.view === 'login') S.view = 'home';
   render();
   loadMine(); loadPublic();
+  { const pid = q.get('process'); if (pid && !opts.open){ S.noPush = true; openProcess(pid, 'mine'); } }
+  { const pid = q.get('process'); if (pid && !opts.open){ S.noPush = true; openProcess(pid, 'mine'); } }
   const ex = q.get('example'); if (ex && EXAMPLES.some(x => x.id === ex)){ ls.set('ptw_in', '1'); openProcess(ex, 'ex'); history.replaceState(null, '', '/'); }
-  if (opts.open){ ls.set('ptw_in', '1'); openProcess(opts.open, 'pub').then(() => { if (opts.embed){ S.tab = 'map'; renderWork(); const l = $('#embedlink'); if (l){ l.href = location.origin + '/p/' + opts.open; l.hidden = false; } } if (q.get('guide')) startGuide(); else if (q.get('play')) setTimeout(playWalk, 400); }); }
+  if (opts.open){ ls.set('ptw_in', '1'); openProcess(opts.open, 'pub').then(() => { if (opts.embed){ S.tab = 'map'; renderWork(); const l = $('#embedlink'); if (l){ l.href = location.origin + '/p/' + opts.open; l.hidden = false; } } if (q.get('guide')) startGuide(); }); }
   addEventListener('beforeunload', () => { if (dirty) flush(); if (outbox.length) navigator.sendBeacon?.('/api/events', new Blob([JSON.stringify({ key:API.key, events:outbox })], { type:'application/json' })); });
 }
