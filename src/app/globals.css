@@ -302,7 +302,7 @@ code{font-family:var(--f-mono);font-size:11px}
 .wm b{font-weight:800;color:var(--ink)}
 .wm em{font-style:normal;font-weight:600;color:var(--accent);letter-spacing:-.02em}
 .mark{gap:9px;text-decoration:none;color:inherit}
-.cn{position:fixed;inset:0;overflow:auto;background:var(--bg);color:var(--ink)}
+.cn{color:var(--ink)}
 .cn-top{display:flex;align-items:center;gap:12px;padding:12px 20px;background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
 .cn-main{max-width:1000px;margin:0 auto;padding:36px 20px 80px;display:flex;flex-direction:column;gap:44px}
 .cn-hero{display:flex;flex-direction:column;gap:14px;align-items:flex-start}

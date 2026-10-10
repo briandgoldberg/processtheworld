@@ -1134,6 +1134,7 @@ function render(){
   document.body.classList.toggle('in-work', S.view === 'work');
   if (S.view === 'login') renderLogin(app);
   else if (S.view === 'home') renderHome(app);
+  else if (S.view === 'connect') renderConnect(app);
   else renderWorkShell(app);
   renderToast();
 }
@@ -1228,6 +1229,67 @@ const FEATURED = ['Your Immune System vs. a Cold Virus', 'Quote, sell, service, 
 function sampleCards(){
   const feat = FEATURED.map(t => (S.pub || []).find(p => p.title.startsWith(t))).filter(Boolean).slice(0, 6);
   return feat.length >= 3 ? feat.map(p => cardHTML(p, 'pub')).join('') : EXAMPLES.map(p => cardHTML(p, 'ex')).join('');
+}
+function renderConnect(app){
+  app.innerHTML = `${topBarHTML()}
+  <div class="home"><main class="cn-main">
+    <section class="cn-hero">
+      <span class="label">Connect my AI</span>
+      <h1>Map your processes with Claude or ChatGPT.</h1>
+      <p>Describe how something gets done, by typing or by talking. Your AI asks the questions, draws the swim-lane process map (who does what, in what order, with which tools), and publishes it on forks.world.</p>
+    </section>
+    <section class="cn-grid">
+      <article class="cn-card">
+        <h2>Claude</h2>
+        <p class="cn-sub">Pick one. The connector is the fastest.</p>
+        <h3>Option A: add the connector</h3>
+        <ol><li>In Claude, open <b>Settings</b>, then <b>Connectors</b>.</li><li>Choose <b>Add custom connector</b> and paste this address.</li><li>Name it <b>forks.world</b> and save.</li></ol>
+        <div class="cn-row"><code>https://processtheworld.vercel.app/api/mcp</code><button class="btn primary" data-copy-text="https://processtheworld.vercel.app/api/mcp">Copy address</button></div>
+        <h3>Option B: install the skill</h3>
+        <ol><li>Download the skill.</li><li>In Claude, open <b>Settings</b>, then <b>Capabilities</b>, then <b>Skills</b>, and upload the zip.</li></ol>
+        <div class="cn-row"><a class="btn" href="/process-the-world-skill.zip" download>Download the Claude skill</a></div>
+      </article>
+      <article class="cn-card">
+        <h2>ChatGPT</h2>
+        <p class="cn-sub">Use the connector, or make a custom GPT.</p>
+        <h3>Option A: add the connector</h3>
+        <ol><li>In ChatGPT, open <b>Settings</b>, then <b>Connectors</b> (developer mode may need to be on).</li><li>Add a custom connector and paste this address.</li></ol>
+        <div class="cn-row"><code>https://processtheworld.vercel.app/api/mcp</code><button class="btn primary" data-copy-text="https://processtheworld.vercel.app/api/mcp">Copy address</button></div>
+        <h3>Option B: make a custom GPT</h3>
+        <ol><li>Create a new GPT and paste the instructions below into <b>Instructions</b>.</li><li>Under <b>Actions</b>, import this schema address.</li></ol>
+        <div class="cn-row"><button class="btn primary" data-copy-url="/chatgpt/instructions.txt">Copy the instructions</button><button class="btn" data-copy-text="https://processtheworld.vercel.app/openapi.json">Copy the schema address</button></div>
+      </article>
+    </section>
+    <section class="cn-block">
+      <h2>Then say something like this</h2>
+      <div class="cn-quote"><p>“Use forks.world to map how we onboard a new customer. Interview me one question at a time, then publish it and give me the link.”</p><button class="btn" data-copy-text="Use forks.world to map how we onboard a new customer. Interview me one question at a time, then publish it and give me the link.">Copy</button></div>
+      <p class="cn-note">Menu names vary a little between plans and app versions. The two addresses above are all that matters.</p>
+    </section>
+    <section class="cn-block">
+      <h2>How a process gets mapped</h2>
+      <p>Your AI can also reuse what is already published here: it searches the library, links existing processes together, or copies one to change, just like you can on the site.</p>
+      <ol class="cn-steps">
+        <li><b>It interviews you.</b> One question at a time: who does what, in what order, with which tools, and where it hurts.</li>
+        <li><b>It builds the map.</b> People and systems get their own lanes. Decisions get a path for every answer, including the "no."</li>
+        <li><b>It publishes it.</b> You get a link on forks.world. Anyone can open it, like it, comment, or make their own copy. Ask it to keep the process private and it will.</li>
+        <li><b>You keep working in the app.</b> Open the link, zoom, walk through it, add tags, or share it.</li>
+      </ol>
+    </section>
+    <section class="cn-block">
+      <h2>Want it saved to your own account?</h2>
+      <p>Your AI signs up as a guest by default, so what it publishes appears under its own name. To have it save to your account instead, open your account menu (top right), choose <b>Copy key for Claude or ChatGPT</b>, and give that key to your AI.</p>
+    </section>
+    <section class="cn-block cn-dev">
+      <h2>For developers and other AI tools</h2>
+      <ul>
+        <li><a href="/agents.md">Agent guide</a>: the whole HTTP API, with examples.</li>
+        <li><a href="/openapi.json">OpenAPI schema</a> and the <a href="/llms.txt">llms.txt</a> summary.</li>
+        <li>One-call publish for any AI that can open a link or send a request: <code>/api/agent/quick</code>.</li>
+      </ul>
+    </section>
+  </main></div>`;
+  $('#new').onclick = startNew;
+  wireAcct(app); wireSignIn(app); wireCopy(app);
 }
 function renderLogin(app){
   app.innerHTML = `
@@ -1402,13 +1464,19 @@ const useAiHTML = () => `<section class="sec use-ai">
       </div>
       <p class="hint">Claude: upload the zip in Settings, Capabilities, Skills. ChatGPT: paste it into a new GPT, then <button class="linkish" data-copy-text="https://processtheworld.vercel.app/openapi.json">copy the action URL</button>. Or add our connector: <button class="linkish" data-copy-text="https://processtheworld.vercel.app/api/mcp">copy the MCP URL</button>.</p>
     </section>`;
+/* The same header on the home page and the Connect my AI page */
+function topBarHTML(){
+  const connect = S.view === 'connect';
+  return `<div class="top"><button class="mark linkish-plain" data-home aria-label="forks.world home">${MARK}</button><span class="topsub hide-sm">Mapping how the world works</span><div class="grow"></div>
+    ${S.notice ? `<span class="save hide-sm" style="color:var(--danger)">${esc(S.notice)}</span>` : ''}
+    ${connect ? `<button class="btn ghost" data-home>${ICON.home}<span class="hide-sm"> Home</span></button>` : ''}
+    <button class="btn primary" id="new">New<span class="hide-sm"> process</span></button>
+    <a class="btn ghost sm" href="/connect"${connect ? ' aria-current="page"' : ''}>Connect my AI</a>${signInHTML()}${acctHTML()}</div>`;
+}
 function renderHome(app){
   const sec = (title, sub, inner) => `<section class="sec"><div class="sec-head"><h2>${title}</h2><p>${sub}</p></div>${inner}</section>`;
   app.innerHTML = `
-  <div class="top"><button class="mark linkish-plain" data-home aria-label="forks.world home">${MARK}</button><span class="topsub hide-sm">Mapping how the world works</span><div class="grow"></div>
-    ${S.notice ? `<span class="save hide-sm" style="color:var(--danger)">${esc(S.notice)}</span>` : ''}
-    <button class="btn primary" id="new">New<span class="hide-sm"> process</span></button>
-    <a class="btn primary" href="/connect">Connect<span class="hide-sm"> my AI</span></a>${signInHTML()}${acctHTML()}</div>
+  ${topBarHTML()}
   <div class="home"><div class="home-in">
     ${S.mine.length ? sec('My processes', 'Private unless you share or publish them.', `<div class="cards">${S.mine.map(p => cardHTML(p,'mine')).join('')}</div>`) : ''}
     ${S.shared.length ? sec('Shared with me', 'Processes people invited you to.', `<div class="cards">${S.shared.map(p => cardHTML(p,'shared')).join('')}</div>`) : ''}
@@ -1421,7 +1489,7 @@ function renderHome(app){
   app.querySelectorAll('[data-del-yes]').forEach(b => b.onclick = () => deleteProcess(b.dataset.delYes));
   app.querySelectorAll('[data-open]').forEach(b => b.onclick = () => openProcess(b.dataset.open, b.dataset.kind));
 }
-document.addEventListener('click', e => { if (e.target.closest('[data-home]')){ if (S.view === 'work') flush(); S.compare = null; S.real = null; S.cur = null; S.view = 'login'; render(); window.scrollTo(0, 0); } });
+document.addEventListener('click', e => { if (e.target.closest('[data-home]')){ if (S.view === 'work') flush(); S.compare = null; S.real = null; S.cur = null; S.view = 'home'; if (location.pathname !== '/') history.replaceState(null, '', '/'); render(); window.scrollTo(0, 0); } });
 
 async function openProcess(id, kind){
   S.guide = null; S.painView = false; stopVoice();
@@ -1454,7 +1522,7 @@ const STARTERS = [
 function renderWorkShell(app){
   app.innerHTML = `
   <div class="top work-top">
-    <button class="btn ghost" id="back" aria-label="Back to library">←<span class="hide-sm"> Library</span></button>
+    <button class="btn ghost" id="back" aria-label="Home" title="Home">${ICON.home}<span class="hide-sm"> Home</span></button>
     <div class="grow"><input class="title-in" id="title" aria-label="Process name" placeholder="Name your process" title="Click to rename" maxlength="120"></div>
     <span id="vis" class="vis"></span>
     <span class="save hide-sm" id="save"></span>
@@ -1560,6 +1628,7 @@ const ICON = {
   compass: ico('<circle cx="8" cy="8" r="6"/><path d="M10.6 5.4L9.1 9.1 5.4 10.6 6.9 6.9z"/>'),
   mic:    ico('<rect x="6" y="1.8" width="4" height="8" rx="2"/><path d="M3.5 7.5a4.5 4.5 0 009 0M8 12v2.2M5.6 14.2h4.8"/>'),
   comment: ico('<path d="M2.5 3.2h11v7.3H8l-3.2 2.6v-2.6H2.5z"/>'),
+  home:   ico('<path d="M2.5 7.6L8 2.8l5.5 4.8M4 6.8V13h8V6.8"/>'),
   globe:  ico('<circle cx="8" cy="8" r="6"/><path d="M2 8h12M8 2c2 1.8 2.8 3.8 2.8 6S10 12.2 8 14M8 2C6 3.8 5.2 5.8 5.2 8S6 12.2 8 14"/>')
 };
 const visPill = (publicId, shareCount, mode) => publicId ? `<span class="pill pub">${ICON.globe}Public${mode === 'locked' ? ' · as is' : ''}</span>` : shareCount ? `<span class="pill sh">${ICON.people}Shared · ${shareCount}</span>` : `<span class="pill">${ICON.lock}Private</span>`;
@@ -2352,7 +2421,7 @@ export async function mount(root, opts = {}){
   API.key = key;
   const q = new URLSearchParams(location.search);
   if (q.get('alert') && ALERTS[q.get('alert')]){ S.toast = ALERTS[q.get('alert')]; history.replaceState(null, '', '/'); }
-  S.view = 'home'; ls.set('ptw_in', '1'); S.sort = ls.get('ptw_sort') || 'new';
+  S.view = opts.connect ? 'connect' : 'home'; ls.set('ptw_in', '1'); S.sort = ls.get('ptw_sort') || 'new';
   render(); if (!opts.embed) renderFeedbackBox();
   try { S.me = await API.post('/api/identity', { key }); } catch {}
   S.ready = true;
