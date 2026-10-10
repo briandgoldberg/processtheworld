@@ -705,3 +705,10 @@ body.embed .crumbs{padding-block:6px}
 /* Lane names stay at the left edge while the map scrolls sideways */
 .lane-head{position:sticky;left:0;z-index:4;box-shadow:2px 0 6px -3px rgba(10,20,40,.25)}
 .more-mine{margin-top:12px}
+.invite{position:relative}
+.suggest{list-style:none;margin:4px 0 0;padding:4px;position:absolute;left:0;right:0;top:100%;z-index:10;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 24px -12px rgba(10,20,40,.35);max-height:220px;overflow:auto}
+.suggest[hidden]{display:none}
+.sug-item{display:block;width:100%;text-align:left;border:0;background:none;padding:8px 10px;border-radius:8px;font-size:14px;color:var(--ink)}
+.sug-item:hover,.sug-item:focus{background:var(--sunk)}
+.inv-state{min-height:18px;margin-top:4px}
+.inv-state.ok{color:var(--system);font-weight:600}

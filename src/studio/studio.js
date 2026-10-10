@@ -904,17 +904,17 @@ async function loadShares(){
 function publishHTML(d){
   const p = S.cur;
   if (!d.canManage || p.proposalFor || !p.maps.m_root.steps.length) return '';
-  if (!p.publicId) return `<form class="pubbox" data-form="publish"><p class="label">${ICON.globe} Publish to everyone</p>
+  if (!p.publicId) return `<form class="pubbox" data-form="publish"><p class="label">${ICON.globe} Public</p>
     <p class="hint">Anyone can open, like, share and copy it. Only you can change it.</p>
-    <div class="prop-acts"><button class="btn primary sm">Publish</button></div></form>`;
+    <div class="prop-acts"><button class="btn primary sm">Make public</button></div></form>`;
   return `<div class="pubbox"><p class="label">${ICON.globe} Public</p>
     <p class="hint">Anyone can open, like, share and copy it. Only you can change it.</p>
-    <div class="prop-acts"><button class="btn primary sm" data-act="update">Update public version</button><button class="btn sm" data-act="openpublic">View public version</button><button class="btn sm" data-act="unpublish">Unpublish</button></div>
+    <div class="prop-acts"><button class="btn primary sm" data-act="update">Update public version</button><button class="btn sm" data-act="openpublic">View public version</button><button class="btn sm" data-act="unpublish">Make private</button></div>
     <div class="prop-acts">${shareButtons(p.publicId)}</div></div>`;
 }
 function shareHTML(){
   const d = S.shareData, close = '<button class="btn ghost sm" data-act="close" aria-label="Close">✕</button>';
-  const head = `<div class="ins-head"><span class="label">Share & publish “${esc(S.cur.title)}”</span>${close}</div>`;
+  const head = `<div class="ins-head"><span></span>${close}</div>`;
   if (!d) return `<div class="sheet">${head}<p class="hint">Loading…</p></div>`;
   if (d.error) return `<div class="sheet">${head}<p class="hint">${esc(d.error)}</p></div>`;
   const msg = S.panelMsg ? `<p class="hint panel-msg" role="status">${esc(S.panelMsg)}</p>` : '';
@@ -927,10 +927,10 @@ function shareHTML(){
     </li>`).join('');
   return `<div class="sheet">${head}
     ${d.canManage ? `<form data-form="invite" class="invite"><label class="label" for="inv-who">Invite by username or email</label>
-      <div class="row-in"><input id="inv-who" name="who" required placeholder="username or name@example.com" autocomplete="off">
+      <div class="row-in"><input id="inv-who" name="who" required placeholder="Start typing a username or email" autocomplete="off" autocapitalize="off" spellcheck="false">
       <select name="role" aria-label="Access"><option value="edit">Can edit</option><option value="view">Can view</option></select>
       <button class="btn primary sm">Invite</button></div>
-      <p class="hint">People without an account get an email invite. Accepting it signs them up. If the email doesn't arrive, copy the invite link below and send it yourself.</p></form>` : '<p class="hint">Only the owner can invite people.</p>'}
+      <ul class="suggest" id="inv-sug" hidden></ul><p class="hint inv-state" id="inv-state" role="status"></p></form>` : '<p class="hint">Only the owner can invite people.</p>'}
     ${msg}
     <p class="label">${ICON.people} People with access</p>
     <ul class="people"><li class="person"><span class="pname">${esc(d.owner)}</span><span class="hint">Owner</span></li>${people}</ul>
@@ -1546,7 +1546,31 @@ function renderHome(app){
   app.querySelectorAll('[data-open]').forEach(b => b.onclick = () => openProcess(b.dataset.open, b.dataset.kind));
   loadCardThumbs();
 }
+/* Invite box: type ahead on usernames, and say clearly when one is found */
+let sugTimer, sugSeq = 0;
+function invState(text, ok){ const st = $('#inv-state'); if (st){ st.textContent = text; st.classList.toggle('ok', !!ok); } }
+document.addEventListener('input', e => {
+  if (e.target.id !== 'inv-who') return;
+  const inp = e.target, v = inp.value.trim(), list = $('#inv-sug'); inp.dataset.found = '';
+  clearTimeout(sugTimer);
+  if (!v){ list.hidden = true; invState(''); return; }
+  if (v.includes('@')){ list.hidden = true; invState(/^[^@s]+@[^@s]+.[^@s]+$/.test(v) ? 'We will email them an invite.' : ''); return; }
+  sugTimer = setTimeout(async () => {
+    const my = ++sugSeq;
+    try {
+      const d = await API.get('/api/users/search?q=' + encodeURIComponent(v));
+      if (my !== sugSeq || inp.value.trim() !== v) return;
+      const exact = d.handles.find(h => h.toLowerCase() === v.toLowerCase());
+      if (exact){ inp.dataset.found = exact; list.hidden = true; invState('✓ Found ' + exact, true); return; }
+      list.innerHTML = d.handles.map(h => `<li><button type="button" class="sug-item" data-pick="${esc(h)}"><b>${esc(h.slice(0, v.length))}</b>${esc(h.slice(v.length))}</button></li>`).join('');
+      list.hidden = !d.handles.length;
+      invState(d.handles.length ? '' : 'No one has that username. Enter an email to invite them.');
+    } catch {}
+  }, 120);
+});
 document.addEventListener('click', e => {
+  const pick = e.target.closest('[data-pick]');
+  if (pick){ const inp = $('#inv-who'); if (inp){ inp.value = pick.dataset.pick; inp.dataset.found = pick.dataset.pick; $('#inv-sug').hidden = true; invState('✓ Found ' + pick.dataset.pick, true); inp.focus(); } return; }
   if (e.target.closest('[data-mine]')){ stopVoice(); if (S.view === 'work') flush(); S.cur = null; S.view = 'mine'; history.pushState(null, '', '/mine'); document.title = 'My processes | forks.world'; render(); window.scrollTo(0, 0); return; }
   if (e.target.closest('[data-connect]')){ stopVoice(); S.view = 'connect'; history.pushState(null, '', '/connect'); render(); window.scrollTo(0, 0); return; }
   if (e.target.closest('[data-backproc]')){ S.view = S.cur ? 'work' : 'home'; history.pushState(null, '', '/'); render(); return; }
