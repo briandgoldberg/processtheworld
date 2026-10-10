@@ -3,6 +3,8 @@ import { prisma } from "./db";
 import { buildDoc } from "./agentDoc";
 import { publishNow } from "./publish";
 import { accessTo } from "./access";
+import { validThumb } from "./thumb";
+import { artDataUrl } from "./art";
 
 type Result = { status: number; body: Record<string, unknown> };
 
@@ -31,6 +33,13 @@ export async function saveForUser(user: { id: string; handle: string }, b: Recor
   let id = wanted, rev = 1;
   const existing = wanted ? await prisma.process.findUnique({ where: { id: wanted }, include: { public: true } }) : null;
   if (existing && existing.userId !== user.id) return { status: 403, body: { error: "That id belongs to someone else." } };
+  if (typeof b.thumbnail === "string") {
+    const t = validThumb(b.thumbnail);
+    if (!t) return { status: 400, body: { error: "thumbnail must be a PNG, JPEG or WebP data URL under 300 KB.", code: "invalid_process" } };
+    (doc as any).thumb = t;
+  } else if (b.thumbnailArt && typeof b.thumbnailArt === "object") {
+    (doc as any).thumb = await artDataUrl(String(b.thumbnailArt.emoji || ""), Number(b.thumbnailArt.hue));
+  } else if ((existing?.doc as any)?.thumb) (doc as any).thumb = (existing!.doc as any).thumb;
   const data = { title: doc.title, status: "done", doc: doc as any, stepCount: doc.stepCount, depth: doc.depth, laneTypes: doc.laneTypes };
   const pub: { id: string; version: number } | null = existing?.public ? { id: existing.public.id, version: existing.public.version } : null;
   if (existing) {

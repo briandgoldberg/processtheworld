@@ -40,6 +40,7 @@ const TOOLS = [
         key: { type: "string", description: "Account key from an earlier save_process call. Omit to sign up as a guest." },
         id: { type: "string", description: "Id of a process you saved before, to update it." },
         title: { type: "string" },
+        thumbnailArt: { type: "object", properties: { emoji: { type: "string" }, hue: { type: "integer" } }, description: "A generated thumbnail for the preview card: a gradient with one big emoji, e.g. {emoji: \"🧬\", hue: 280}." },
         tags: { type: "array", items: { type: "string" }, description: "Up to 8 short lowercase tags (e.g. sales, science, daily life) so people can find it." },
         publish: { type: "boolean", description: "true to publish it to everyone (a shareable link is returned)." },
         lanes: { type: "array", items: LANE }, steps: { type: "array", items: STEP },

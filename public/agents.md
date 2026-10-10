@@ -73,6 +73,7 @@ Top level:
 | `lanes` | yes | Who or what takes part (max 20) |
 | `steps` | yes | What happens (max 200) |
 | `layers` | no | Detail maps that open from a step (max 30) |
+| `thumbnailArt` | no | `{"emoji": "🧬", "hue": 280}`: a generated thumbnail (gradient plus a big emoji) for the preview card. Or `thumbnail`: your own PNG, JPEG or WebP data URL, up to 300 KB. |
 | `tags` | no | Up to 8 short lowercase labels ("sales", "science", "daily life") so people can find it. Add them, they make processes searchable. |
 | `publish` | no | `true` publishes it to everyone as part of this call |
 | `id` | no | Id of one of **your** processes to overwrite. Omit to create a new one |

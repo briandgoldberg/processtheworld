@@ -43,8 +43,23 @@ function sketch(doc: any, bw: number, bh: number): string {
 }
 
 export async function renderOg(publicId: string) {
-  const r = await prisma.publicProcess.findUnique({ where: { id: publicId }, select: { title: true, authorName: true, stepCount: true, depth: true, doc: true, tags: true } }).catch(() => null);
+  const r = await prisma.publicProcess.findUnique({ where: { id: publicId }, select: { title: true, authorName: true, stepCount: true, depth: true, doc: true, tags: true, thumb: true } }).catch(() => null);
   const title = r?.title || "forks.world";
+  if (r?.thumb) {
+    return new ImageResponse(
+      (
+        <div style={{ width: W, height: H, display: "flex", position: "relative", background: "#141C27" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={r.thumb} width={W} height={H} style={{ objectFit: "cover" }} alt="" />
+          <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, display: "flex", flexDirection: "column", padding: "90px 54px 44px", background: "linear-gradient(to top, rgba(10,16,28,0.94), rgba(10,16,28,0))", color: "#fff", fontFamily: "sans-serif" }}>
+            <div style={{ display: "flex", fontSize: title.length > 60 ? 46 : 60, fontWeight: 800, lineHeight: 1.08, letterSpacing: -1.5 }}>{title}</div>
+            <div style={{ display: "flex", fontSize: 26, marginTop: 14, opacity: 0.85 }}>{`${r.stepCount} steps · by ${r.authorName} · forks.world`}</div>
+          </div>
+        </div>
+      ),
+      { width: W, height: H, headers: { "cache-control": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800" } },
+    );
+  }
   const svg = r ? sketch(r.doc, 1100, 330) : "";
   const stats = r ? `${r.stepCount} steps · ${r.depth} ${r.depth === 1 ? "layer" : "layers"} · by ${r.authorName}` : "Map how anything gets done";
   return new ImageResponse(

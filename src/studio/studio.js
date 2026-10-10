@@ -784,7 +784,7 @@ function keptUndo(p){
 function serialize(p){
   const st = stats(p);
   return { id:p.id, title:p.title, updatedAt:p.updatedAt, stepCount:st.steps, depth:st.depth, laneTypes:st.lanes.map(l=>l.type).slice(0,8),
-    tags:cleanTags(p.tags), status:p.status || 'interviewing', forkedFrom:p.forkedFrom || null, proposalFor:p.proposalFor || null, proposalBase:p.proposalBase ?? null,
+    tags:cleanTags(p.tags), thumb:p.thumb || undefined, status:p.status || 'interviewing', forkedFrom:p.forkedFrom || null, proposalFor:p.proposalFor || null, proposalBase:p.proposalBase ?? null,
     suggestTitle:p.suggestTitle || null, suggestAuthor:p.suggestAuthor || null, submitted:p.submitted || null,
     rating:p.rating ?? null, dismissed:(p.dismissed || []).slice(-200),
     maps:p.maps, undo:keptUndo(p), chat:p.chat.filter(x=>!x.pending).slice(-40), events:(p.events||[]).slice(-300) };
@@ -1142,22 +1142,24 @@ function render(){
 /* ---------- Account: anonymous handle, optional email ---------- */
 function acctHTML(){
   const me = S.me; if (!me) return '';
-  const nameForm = `<form data-name-form class="acct-form"><label class="label" for="acct-name">Username</label>
+  const nameForm = `<form data-name-form class="acct-form"><label class="label" for="acct-name">Change your name</label>
       <div class="row-in"><input id="acct-name" name="handle" value="${esc(me.handle)}" maxlength="24" autocomplete="username" aria-describedby="acct-name-msg"><button class="btn sm">Save</button></div>
       <p class="hint" id="acct-name-msg" data-name-msg role="status"></p></form>`;
   const panel = !S.acct ? '' : me.email ? `
     <div class="acct-panel" role="dialog" aria-label="Account">
-      <p>Signed in as <b>${esc(me.email)}</b>.</p>
+      <p class="acct-tag">Signed in as <b>${esc(me.email)}</b></p>
       ${nameForm}
-      <button class="btn sm" data-acct="copykey">Copy key for Claude or ChatGPT</button>
-      ${me.isAdmin ? '<a class="btn sm" href="/admin">Admin dashboard</a>' : ''}
-      <button class="btn sm" data-acct="signout">Sign out</button>
+      <div class="acct-foot"><button class="acct-key" data-acct="copykey">Copy key for AI</button><button class="acct-key" data-acct="signout">Sign out</button>${me.isAdmin ? '<a class="acct-key" href="/admin">Admin</a>' : ''}</div>
     </div>` : `
     <div class="acct-panel" role="dialog" aria-label="Account">
-      <p>You're a guest, mapping as <b>${esc(me.handle)}</b>. Your processes are saved to this browser.</p>
-      <button class="btn sm" data-acct="copykey">Copy key for Claude or ChatGPT</button>
-      <p class="hint">Add your email to choose your own username, keep your processes on any device, or sign in.</p>
-      ${emailFormHTML('acct')}
+      <p class="acct-tag"><span class="guest-pill">Guest</span> mapping as ${esc(me.handle)}</p>
+      <form data-email-form class="acct-form" novalidate>
+        <input id="acct-email" name="email" type="email" required placeholder="Your email" aria-label="Email" autocomplete="email">
+        <input name="handle" type="hidden" value="">
+        <button class="btn primary">Email me a link to sign in or sign up</button>
+        <p class="hint" data-email-msg role="status">No password. Your processes follow you to any device.</p>
+      </form>
+      <div class="acct-foot"><button class="acct-key" data-acct="copykey">Copy key for AI</button></div>
     </div>`;
   return `${me.isAdmin ? '<a class="btn sm admin-link hide-sm" href="/admin">Admin</a>' : ''}<div class="acct"><button class="btn ghost acct-btn" data-acct="toggle" aria-expanded="${S.acct}"><span class="acct-name">${esc(me.handle)}</span> ▾</button>${panel}</div>`;
 }
@@ -1235,7 +1237,7 @@ function renderConnect(app){
   <div class="home"><main class="cn-main">
     <section class="cn-hero">
       <span class="label">Connect my AI</span>
-      <h1>Map your processes with Claude or ChatGPT.</h1>
+      <h1>Create process maps with Claude or ChatGPT.</h1>
       <p>Describe how something gets done, by typing or by talking. Your AI asks the questions, draws the swim-lane process map (who does what, in what order, with which tools), and publishes it on forks.world.</p>
     </section>
     <section class="cn-grid">
@@ -1406,7 +1408,7 @@ const SORTS = {
 function feedCardHTML(p){
   const mine = p.processId && S.mine.some(m => m.id === p.processId);
   const tags = (p.tags || []).slice(0, 3).map(t => `<span>${esc(t)}</span>`).join('');
-  return `<article class="fcard"><div class="fbody"><button class="ftitle" data-open="${esc(p.id)}" data-kind="pub">${esc(p.title)}</button>
+  return `<article class="fcard">${p.hasThumb ? `<button class="fthumb" data-open="${esc(p.id)}" data-kind="pub" aria-label="Open ${esc(p.title)}" tabindex="-1"><img src="/api/public/${esc(p.id)}/thumb?v=${p.updatedAt || 0}" alt="" loading="lazy"></button>` : ''}<div class="fbody"><button class="ftitle" data-open="${esc(p.id)}" data-kind="pub">${esc(p.title)}</button>
       <div class="fby">by ${esc(mine ? 'you' : p.authorName)}${p.publishedAt ? ' · ' + ago(p.publishedAt) : ''}</div>
       ${tags ? `<div class="ctags">${tags}</div>` : ''}
       <div class="ffoot"><button class="flike${p.liked ? ' on' : ''}" data-like="${esc(p.id)}" aria-pressed="${!!p.liked}" aria-label="Like">${ICON.heart}<b>${p.likes || 0}</b></button><button class="fcom" data-comment="${esc(p.id)}" aria-label="Comments">${ICON.comment}<b>${p.commentCount || 0}</b></button><span class="fstats">${p.stepCount} steps · ${p.depth} ${p.depth === 1 ? 'layer' : 'layers'}</span></div></div></article>`;
@@ -1469,9 +1471,9 @@ function topBarHTML(){
   const connect = S.view === 'connect';
   return `<div class="top"><button class="mark linkish-plain" data-home aria-label="forks.world home">${MARK}</button><span class="topsub hide-sm">Mapping how the world works</span><div class="grow"></div>
     ${S.notice ? `<span class="save hide-sm" style="color:var(--danger)">${esc(S.notice)}</span>` : ''}
-    ${connect ? `<button class="btn ghost" data-home>${ICON.home}<span class="hide-sm"> Home</span></button>` : ''}
-    <button class="btn primary" id="new">New<span class="hide-sm"> process</span></button>
-    <a class="btn ghost sm" href="/connect"${connect ? ' aria-current="page"' : ''}>Connect my AI</a>${signInHTML()}${acctHTML()}</div>`;
+    <button class="btn ghost sm" data-home${connect ? '' : ' aria-current="page"'}>Home</button>
+    <a class="btn ghost sm" href="/connect"${connect ? ' aria-current="page"' : ''}>Connect my AI</a>
+    <button class="btn primary" id="new">New<span class="hide-sm"> process</span></button>${signInHTML()}${acctHTML()}</div>`;
 }
 function renderHome(app){
   const sec = (title, sub, inner) => `<section class="sec"><div class="sec-head"><h2>${title}</h2><p>${sub}</p></div>${inner}</section>`;
@@ -1562,7 +1564,8 @@ function renderWorkShell(app){
   $('#wmenu-btn').onclick = e => { e.stopPropagation(); S.panel = S.panel === 'menu' ? null : 'menu'; S.panelMsg = ''; renderPanel(); };
   $('#wprimary').onclick = onAction; $('#pubbar').onclick = onAction;
   $('#tagbar').addEventListener('submit', e => { const f = e.target.closest('[data-tagform]'); if (!f) return; e.preventDefault(); addTag(f.elements.tag.value); });
-  $('#tagbar').addEventListener('click', e => { const b = e.target.closest('[data-untag]'); if (b) removeTag(b.dataset.untag); }); $('#wpanel').onclick = onAction; $('#compare').onclick = onAction;
+  $('#tagbar').addEventListener('click', e => { const b = e.target.closest('[data-untag]'); if (b) removeTag(b.dataset.untag); if (e.target.closest('[data-thumb-remove]')){ delete S.cur.thumb; thumbSaved(S.cur, true); } });
+  $('#tagbar').addEventListener('change', e => { const f = e.target.closest('[data-thumb-file]'); if (f && f.files[0]) { setThumb(f.files[0]); f.value = ''; } }); $('#wpanel').onclick = onAction; $('#compare').onclick = onAction;
   $('#wpanel').addEventListener('submit', onPanelSubmit);
   $('#wpanel').addEventListener('change', onPanelChange);
   $('#title').onchange = e => { ensureOwned(); const v = e.target.value.trim() || 'Untitled process'; logEvent(S.cur,{who:'human',op:'rename_process',before:S.cur.title,after:v}); S.cur.title = v; S.cur.maps.m_root.title = v; touch(); renderWork(); };
@@ -1629,6 +1632,7 @@ const ICON = {
   mic:    ico('<rect x="6" y="1.8" width="4" height="8" rx="2"/><path d="M3.5 7.5a4.5 4.5 0 009 0M8 12v2.2M5.6 14.2h4.8"/>'),
   comment: ico('<path d="M2.5 3.2h11v7.3H8l-3.2 2.6v-2.6H2.5z"/>'),
   home:   ico('<path d="M2.5 7.6L8 2.8l5.5 4.8M4 6.8V13h8V6.8"/>'),
+  image:  ico('<rect x="2" y="3" width="12" height="10" rx="1.5"/><circle cx="6" cy="7" r="1.2"/><path d="M3 12l3.5-3.5 2.5 2.5 2-2 2 3"/>'),
   globe:  ico('<circle cx="8" cy="8" r="6"/><path d="M2 8h12M8 2c2 1.8 2.8 3.8 2.8 6S10 12.2 8 14M8 2C6 3.8 5.2 5.8 5.2 8S6 12.2 8 14"/>')
 };
 const visPill = (publicId, shareCount, mode) => publicId ? `<span class="pill pub">${ICON.globe}Public${mode === 'locked' ? ' · as is' : ''}</span>` : shareCount ? `<span class="pill sh">${ICON.people}Shared · ${shareCount}</span>` : `<span class="pill">${ICON.lock}Private</span>`;
@@ -1811,7 +1815,25 @@ function tagbarHTML(p){
   const editable = k === 'owned' || k === 'shared';
   const pills = tags.map(t => `<span class="tagpill on">${esc(t)}${editable ? `<button data-untag="${esc(t)}" aria-label="Remove tag ${esc(t)}">✕</button>` : ''}</span>`).join('');
   const add = editable && tags.length < 8 ? `<form data-tagform class="tagform"><input name="tag" list="taglist" placeholder="+ add a tag" maxlength="24" autocomplete="off" aria-label="Add a tag"><datalist id="taglist">${allTags().slice(0, 40).map(([t]) => `<option value="${esc(t)}">`).join('')}</datalist></form>` : '';
-  return pills + add;
+  const thumb = editable ? `<span class="thumbctl">${p.thumb ? `<img class="thumbprev" src="${p.thumb}" alt="Thumbnail"><button class="acct-key" data-thumb-remove>Remove</button>` : ''}<label class="tagpill thumbbtn" title="This picture appears on the preview card">${ICON.image}${p.thumb ? 'Change' : 'Add'} thumbnail<input type="file" accept="image/*" hidden data-thumb-file></label></span>` : '';
+  return thumb + pills + add;
+}
+async function setThumb(file){
+  const p = S.cur; if (!p || readOnly(p)) return;
+  try {
+    const bmp = await createImageBitmap(file);
+    const W = 800, H = 420, c = document.createElement('canvas'); c.width = W; c.height = H;
+    const g = c.getContext('2d'), s = Math.max(W / bmp.width, H / bmp.height), w = bmp.width * s, h = bmp.height * s;
+    g.fillStyle = '#fff'; g.fillRect(0, 0, W, H); g.drawImage(bmp, (W - w) / 2, (H - h) / 2, w, h);
+    let q = 0.85, url = c.toDataURL('image/jpeg', q);
+    while (url.length > 250000 && q > 0.4){ q -= 0.1; url = c.toDataURL('image/jpeg', q); }
+    p.thumb = url; thumbSaved(p, false);
+  } catch { alertBox('Could not read that image. Try a JPEG or PNG.'); }
+}
+function thumbSaved(p, removed){
+  touch(); renderTopActions();
+  flush().then(() => API.post('/api/processes/' + p.id + '/thumbnail', removed ? { remove:true } : { image:p.thumb })).then(loadPublic).catch(() => {});
+  alertBox(removed ? 'Thumbnail removed.' : 'Thumbnail saved. It shows on the preview card.');
 }
 let tagTimer = 0;
 function tagsChanged(){

@@ -120,6 +120,8 @@ model PublicProcess {
   likedBy     Like[]
   tags        String[] @default([])
   commentCount Int     @default(0)
+  thumb       String?  // a small image (data URL), shown on the preview card
+  hasThumb    Boolean  @default(false)
   comments    Comment[]
   publishedAt DateTime @default(now())
   updatedAt   DateTime @updatedAt

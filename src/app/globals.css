@@ -296,6 +296,18 @@ code{font-family:var(--f-mono);font-size:11px}
 /* ---------- Sharing, suggestions, compare ---------- */
 .linkish-plain{border:none;background:none;padding:0;cursor:pointer;color:inherit}
 .vi{flex:none}
+.fthumb{display:block;border:0;padding:0;margin:0;width:100%;aspect-ratio:800/420;background:var(--sunk);cursor:pointer;overflow:hidden}
+.fthumb img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .25s}
+.fcard:hover .fthumb img{transform:scale(1.03)}
+.thumbctl{display:inline-flex;align-items:center;gap:8px}
+.thumbprev{width:44px;height:23px;object-fit:cover;border-radius:5px;border:1px solid var(--line)}
+.thumbbtn svg{width:14px;height:14px}
+.top .btn.ghost[aria-current="page"]{background:var(--sunk);color:var(--ink);font-weight:700}
+.acct-tag{margin:0 0 4px;font-size:13px;color:var(--muted);display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.guest-pill{font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;font-weight:700;border:1px solid var(--line);border-radius:999px;padding:1px 8px;color:var(--muted);background:var(--sunk)}
+.acct-foot{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:6px;padding-top:8px;border-top:1px solid var(--line)}
+.acct-key{border:0;background:none;color:var(--muted);font:inherit;font-size:12px;text-decoration:underline;cursor:pointer;padding:0}
+.acct-key:hover{color:var(--ink)}
 .mark i{position:relative;font-size:0!important;color:transparent!important;background:var(--ink)!important;border-radius:7px!important;box-shadow:none!important}
 .mark i::after{content:"";position:absolute;inset:0;background:var(--bg);-webkit-mask:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 22' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 2v6a5 5 0 005 5m0 0a5 5 0 005-5V2M9 2v11m0 0v7'/%3E%3C/svg%3E") center/54% no-repeat;mask:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 22' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 2v6a5 5 0 005 5m0 0a5 5 0 005-5V2M9 2v11m0 0v7'/%3E%3C/svg%3E") center/54% no-repeat}
 .wm{display:inline-flex;align-items:baseline;font-family:var(--f-head,inherit);font-size:1.1em;letter-spacing:-.04em;line-height:1}
