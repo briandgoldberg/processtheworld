@@ -1237,7 +1237,6 @@ function renderConnect(app){
     <div>${S.cur ? '<button class="btn ghost sm" data-backproc>← Back to process</button>' : '<button class="btn ghost sm" data-home>← Back home</button>'}</div>
     <section class="cn-hero">
       <h1>Create process maps with Claude or ChatGPT.</h1>
-      <p>Describe how something gets done, by typing or by talking. Your AI asks the questions, draws the swim-lane process map (who does what, in what order, with which tools), and publishes it on forks.world.</p>
     </section>
     <section class="cn-grid">
       <article class="cn-card">
@@ -1264,7 +1263,6 @@ function renderConnect(app){
     <section class="cn-block">
       <h2>Then say something like this</h2>
       <div class="cn-quote"><p>“Use forks.world to map how we onboard a new customer. Interview me one question at a time, then publish it and give me the link.”</p><button class="btn" data-copy-text="Use forks.world to map how we onboard a new customer. Interview me one question at a time, then publish it and give me the link.">Copy</button></div>
-      <p class="cn-note">Menu names vary a little between plans and app versions. The two addresses above are all that matters.</p>
     </section>
     <section class="cn-block">
       <h2>How a process gets mapped</h2>
