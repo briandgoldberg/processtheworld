@@ -1675,7 +1675,7 @@ function renderWorkShell(app){
   </div>`;
   $('#back').onclick = () => { const toMine = S.backTo === 'mine'; S.backTo = null; setUrl(toMine ? '/mine' : '/'); stopGuide(); stopVoice(); flush(); if (S.compare) closeCompare(); S.view = toMine ? 'mine' : 'home'; S.cur = null; S.confirmDel = null; S.panel = null; loadMine(); loadPublic(); render(); };
   $('#wmenu-btn').onclick = e => { e.stopPropagation(); S.panel = S.panel === 'menu' ? null : 'menu'; S.panelMsg = ''; renderPanel(); };
-  $('#wprimary').onclick = onAction; $('#pubbar').onclick = onAction;
+  $('#wprimary').onclick = onAction; $('#pubbar').onclick = onAction; $('#vis').onclick = onAction;
   $('#tagbar').addEventListener('submit', e => { const f = e.target.closest('[data-tagform]'); if (!f) return; e.preventDefault(); addTag(f.elements.tag.value); });
   $('#tagbar').addEventListener('click', e => { const b = e.target.closest('[data-untag]'); if (b) removeTag(b.dataset.untag); if (e.target.closest('[data-thumb-remove]')){ delete S.cur.thumb; thumbSaved(S.cur, true); } });
   $('#tagbar').addEventListener('change', e => { const f = e.target.closest('[data-thumb-file]'); if (f && f.files[0]) { setThumb(f.files[0]); f.value = ''; } }); $('#wpanel').onclick = onAction; $('#compare').onclick = onAction;
@@ -1769,6 +1769,8 @@ function visHTML(p){
   if (k === 'view') return `<span class="pill">View only</span><span class="by hide-sm">shared by ${esc(q.owner)}</span>`;
   if (k === 'draft') return `<span class="pill ex">Suggestion</span><span class="by hide-sm">for “${esc(q.suggestTitle || 'a public process')}”</span>`;
   if (k === 'shared') return `<span class="pill sh">${ICON.people}Shared</span><span class="by hide-sm">by ${esc(q.owner)}</span>`;
+  // Owned and not public: one button that shows who can see it and opens Share
+  if (!q.publicId){ const t = q.shareCount ? `Shared with ${q.shareCount}. Tap to manage sharing` : 'Private. Tap to share'; return `<button class="btn sm ic vis-share" data-act="share" title="${t}" aria-label="${t}">${q.shareCount ? ICON.people + '<span class="vis-n">' + q.shareCount + '</span>' : ICON.lock}</button>`; }
   return visPill(q.publicId, q.shareCount, q.publicMode);
 }
 const likeHTML = q => `<button class="btn sm like${q.liked ? ' on' : ''}" data-act="like" aria-pressed="${!!q.liked}" aria-label="Like">${ICON.heart}${q.likes || 0}</button>`;
@@ -1782,7 +1784,7 @@ function primaryHTML(p){
   if (k === 'draft') return p.maps.m_root.steps.length ? `<button class="btn primary sm" data-act="submit">${p.submitted ? 'Submit again' : 'Submit for review'}</button>` : '';
   // A public process is frozen and already open to everyone: no Share sheet, just the quick actions
   if (q.publicId) return `<span class="wsmall">${commentBtn(q)}${shareButtons(q.publicId)}</span>`;
-  return `<button class="btn sm" data-act="share">${q.shareCount ? ICON.people : ICON.lock}Share</button>`;
+  return '';
 }
 function menuHTML(p){
   const k = kindOf(p), items = [];
