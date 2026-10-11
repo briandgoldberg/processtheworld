@@ -2030,7 +2030,6 @@ function renderWork(fromStream){
   $('#work').classList.toggle('viewonly', viewonly);
   const tabs = $('#tabs'); if (tabs) tabs.hidden = viewonly;
   $('#work').dataset.tab = S.tab;
-  { const c = document.querySelector('.composer'); if (c && c.offsetHeight) document.body.style.setProperty('--composer-h', c.offsetHeight + 'px'); }
   $('#work').classList.toggle('comparing', !!S.compare);
   document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === S.tab));
   $('#stop').hidden = !S.busy; $('#sendb').disabled = S.busy || !!S.compare;
