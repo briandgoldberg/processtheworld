@@ -612,7 +612,7 @@ function startCombineChat(){
   ensureOwned(); const p = S.cur;
   S.awaitCombine = true; S.cmbPick = null;
   const cands = cmbCandidates(p);
-  cmbSay(p, 'Which process do you want to combine it with, and how? Tap one or type a name.', [...cands.map(cmbPickItem), { label:'Never mind', a:'cmbcancel', v:'1' }]);
+  cmbSay(p, 'Pick a process to combine it with, or type a name. Next I will ask where it fits: before, after, or inside one of your steps.', [...cands.map(cmbPickItem), { label:'Never mind', a:'cmbcancel', v:'1' }]);
   S.tab = 'chat'; touch(); renderWork();
 }
 function pickCombine(c){
