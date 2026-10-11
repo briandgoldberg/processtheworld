@@ -747,3 +747,7 @@ body.embed .crumbs{padding-block:6px}
   .top > #new{order:10;flex:1 0 100%;justify-content:center;padding-block:9px}
   .top{row-gap:8px}
 }
+/* Phone: Copy Process matches New Process, a full-width blue button on its own row */
+@media (max-width:820px){
+  .work-top .wprimary .btn[data-act="copy"]{order:10;flex:1 0 100%;justify-content:center;padding-block:9px;font-size:14px}
+}

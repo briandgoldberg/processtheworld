@@ -1777,8 +1777,8 @@ function primaryHTML(p){
   const n = q.openProposals || 0;
   if (k === 'compare') return '';
   if (k === 'public') return `${likeHTML(q)}${commentBtn(q)}<button class="btn primary sm" data-act="copy">Copy Process</button>${shareButtons(q.publicId)}`;
-  if (k === 'example') return `<button class="btn sm" data-act="copy">Copy Process</button>${shareButtons(q.id)}`;
-  if (k === 'view') return `<button class="btn sm" data-act="copy">Copy Process</button>`;
+  if (k === 'example') return `<button class="btn primary sm" data-act="copy">Copy Process</button>${shareButtons(q.id)}`;
+  if (k === 'view') return `<button class="btn primary sm" data-act="copy">Copy Process</button>`;
   if (k === 'draft') return p.maps.m_root.steps.length ? `<button class="btn primary sm" data-act="submit">${p.submitted ? 'Submit again' : 'Submit for review'}</button>` : '';
   // A public process is frozen and already open to everyone: no Share sheet, just the quick actions
   if (q.publicId) return commentBtn(q) + shareButtons(q.publicId);
