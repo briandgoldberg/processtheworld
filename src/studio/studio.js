@@ -1597,7 +1597,7 @@ function publicMatches(p){
 const SORTS = {
   new:(a, b) => (b.publishedAt || 0) - (a.publishedAt || 0),
   top:(a, b) => (b.likes || 0) - (a.likes || 0) || (b.publishedAt || 0) - (a.publishedAt || 0),
-  // Collaborative: only the community processes, most active first
+  // Build Together: only the community processes, most active first
   community:(a, b) => (b.openProposals || 0) - (a.openProposals || 0) || (b.likes || 0) - (a.likes || 0) || String(a.title).localeCompare(String(b.title)),
 };
 const isCommunity = p => p.mode === 'community';
@@ -1618,7 +1618,7 @@ function publicCardsHTML(){
   return shown.map(feedCardHTML).join('') + exs + (more ? `<div class="fmore"><button class="btn" data-more>Show ${Math.min(12, all.length - shown.length)} more</button></div>` : '');
 }
 function sortBarHTML(){
-  return `<span class="fsort-l">Sort</span>${[['new', 'Newest'], ['top', 'Most liked'], ['community', 'Collaborative']].map(([k, l]) => `<button data-sort="${k}" class="${S.sort === k ? 'on' : ''}">${l}</button>`).join('')}`;
+  return `<span class="fsort-l">Sort</span>${[['new', 'Newest'], ['top', 'Most liked'], ['community', 'Build Together']].map(([k, l]) => `<button data-sort="${k}" class="${S.sort === k ? 'on' : ''}">${l}</button>`).join('')}`;
 }
 async function toggleFeedLike(id, btn){
   const p = (S.pub || []).find(x => x.id === id); if (!p) return;

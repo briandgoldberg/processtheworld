@@ -24,6 +24,12 @@ export function seedCommunityOnce(origin: string) {
       if (!pub) { console.error("seedCommunity", p.title, r.body); continue; }
       await prisma.publicProcess.update({ where: { id: pub.id }, data: { mode: "community", authorName: COMMUNITY_AUTHOR } });
     }
+    // Date them a day before the oldest other public process, so they never show up as the newest
+    const oldest = await prisma.publicProcess.findFirst({ where: { mode: { not: "community" } }, orderBy: { publishedAt: "asc" }, select: { publishedAt: true } });
+    if (oldest) {
+      const t = new Date(oldest.publishedAt.getTime() - 864e5);
+      await prisma.publicProcess.updateMany({ where: { mode: "community", publishedAt: { gt: t } }, data: { publishedAt: t } });
+    }
   })().catch(e => { console.error("seedCommunity", e); once = null; });
   return once;
 }
