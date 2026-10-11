@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // A second address for the same sitemap, so Search Console can fetch it fresh
+  async rewrites() {
+    return [{ source: "/sitemap-main.xml", destination: "/sitemap.xml" }];
+  },
   // Tell any client (and any AI agent) where the machine-readable description lives.
   async headers() {
     return [

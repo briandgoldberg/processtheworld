@@ -10,7 +10,7 @@ export default function robots(): MetadataRoute.Robots {
       { userAgent: "*", ...open },
       ...["GPTBot", "OAI-SearchBot", "ChatGPT-User", "ClaudeBot", "Claude-User", "Claude-SearchBot", "anthropic-ai", "PerplexityBot", "Google-Extended", "Applebot-Extended", "CCBot", "Bytespider", "cohere-ai"].map(userAgent => ({ userAgent, allow: ["/", "/api/public", "/llms.txt", "/agents.md", "/openapi.json"], disallow: open.disallow })),
     ],
-    sitemap: `${SITE}/sitemap.xml`,
+    sitemap: [`${SITE}/sitemap.xml`, `${SITE}/sitemap-main.xml`],
     host: SITE,
   };
 }
