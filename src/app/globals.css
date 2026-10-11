@@ -777,3 +777,12 @@ body.embed .crumbs{padding-block:6px}
 .work-top.fit-title .grow{flex:0 1 auto;min-width:0}
 .work-top.fit-title .title-in{max-width:100%}
 .work-top.fit-title #vis{margin-right:auto}
+/* Phone, viewing a process: "by …" sits right after the title, all on one line */
+@media (max-width:820px){
+  /* cap the title so back, title, "by …" and your name always fit one row; a long title ends in … */
+  .work-top.fit-title .grow{max-width:calc(100% - 190px)}
+  .work-top.fit-title .title-in{overflow:hidden}
+  .work-top.fit-title .vis{flex:0 1 auto;min-width:0}
+  .work-top.fit-title .vis .by{display:inline;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .work-top.fit-title .title-in{text-overflow:ellipsis;white-space:nowrap}
+}
