@@ -20,6 +20,6 @@ export async function POST(req: NextRequest) {
   const ids = agents.map(a => a.id);
   const procs = await prisma.process.updateMany({ where: { userId: { in: ids } }, data: { userId: admin.id } });
   const pubs = await prisma.publicProcess.updateMany({ where: { userId: { in: ids } }, data: { userId: admin.id } });
-  await prisma.publicProcess.updateMany({ where: { userId: admin.id }, data: { authorName: name } });
+  await prisma.publicProcess.updateMany({ where: { userId: admin.id, mode: { not: "community" } }, data: { authorName: name } });
   return json({ ok: true, name, processes: procs.count, published: pubs.count });
 }

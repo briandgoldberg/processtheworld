@@ -189,7 +189,7 @@ function ensureOwned(){
   for (const k of ['example','readonly','publishedBy','publicId','publicMode','mine','role','owner','rev','version','openProposals','viewShare','shareCount']) delete copy[k];
   copy.id = rid('p'); copy.events = []; copy.undo = null; copy.rating = null;
   if (q.publicId && !q.viewShare && q.readonly){ copy.forkedFrom = q.publicId; if (!S.mine.some(m => m.publicId === q.publicId)) API.post('/api/public/' + q.publicId, {}).catch(()=>{}); }
-  copy.chat = (copy.chat || []).concat([{ role:'note', content:`Saved your own private copy of ${from}.` }, { role:'suggest', content:'It is yours now. Here are a few things you could do with it:', items:[{ label:'Combine it with another process', a:'cmbstart', v:'1' }, { label:'Adjust a step', fill:'Change the step where ' }, { label:'Add more detail to a step', fill:'Add more detail to the step ' }, { label:'Add another person or team', fill:'Add another person or team: ' }, { label:'Show the tools used', fill:'Show which tools are used when ' }, { label:'Mark the pain points', send:'Mark the steps that are slow, error prone or painful.' }] }]);
+  copy.chat = (copy.chat || []).filter(m => !m.intro).concat([{ role:'note', content:`Saved your own private copy of ${from}.` }, { role:'suggest', content:'It is yours now. Here are a few things you could do with it:', items:[{ label:'Combine it with another process', a:'cmbstart', v:'1' }, { label:'Adjust a step', fill:'Change the step where ' }, { label:'Add more detail to a step', fill:'Add more detail to the step ' }, { label:'Add another person or team', fill:'Add another person or team: ' }, { label:'Show the tools used', fill:'Show which tools are used when ' }, { label:'Mark the pain points', send:'Mark the steps that are slow, error prone or painful.' }] }]);
   S.cur = copy;
   track('copy_made', { from:q.publicId || q.id, example:!!q.example }, copy.id);
 }
@@ -205,6 +205,80 @@ function startSuggestion(){
   S.cur = d; S.sel = null; S.panel = null; dirty = true;
   track('suggestion_started', { publicId:q.publicId }, d.id);
   flush(); renderWork();
+}
+/* ---------- Community processes: built on by everyone, through the conversation ----------
+   Tweak: describe a change in the chat; it goes into a private suggestion draft that the AI
+   edits, then gets submitted for others to compare and vote on. Validate: confirm the process
+   matches your experience. Review: compare suggested changes and vote. Each earns credits. */
+const EARN_TEXT = 'Confirming a version matches your experience earns 2 credits. Each vote on a suggested change earns 2 (up to 20 a day). When a change you suggested goes live, you earn 20.';
+function communityIntro(p){
+  const n = p.openProposals || 0;
+  return [
+    { role:'assistant', intro:true, content:`This is a community process. People who have been through “${p.title}” build it together, and it gets better every time someone adds what they know. Steps can differ by state, city or situation, so your experience counts.` },
+    { role:'suggest', intro:true, content:'Want to help? You can tweak it, confirm it matches what happened to you, or review changes other people suggested. Each one earns credits. To make your own version you can change freely, tap Copy and Edit Process.', items:[
+      { label:'Suggest a tweak', a:'collab', v:'tweak' },
+      { label:'It matches my experience', a:'collab', v:'confirm' },
+      { label:'Something was different for me', a:'collab', v:'off' },
+      ...(n ? [{ label:`Review ${n} suggested change${n === 1 ? '' : 's'}`, a:'collab', v:'review' }] : []),
+      { label:'How do credits work?', a:'collab', v:'credits' },
+    ] },
+  ];
+}
+function communitySay(content, items){ const p = S.real || S.cur; p.chat.push(items ? { role:'suggest', intro:true, content, items } : { role:'assistant', intro:true, content }); S.tab = 'chat'; renderWork(); }
+/* The first message on a community process starts a private suggestion draft; the message is then mapped on it */
+function beginCommunitySuggestion(text){
+  const q = S.cur; if (!q?.publicId || !q.readonly) return;
+  const d = clone(q);
+  for (const k of ['readonly','publishedBy','mine','role','owner','rev','openProposals','viewShare','example','publicMode','liked','likes','commentCount']) delete d[k];
+  d.id = rid('p'); d.events = []; d.undo = null; d.rating = null; d.status = 'interviewing';
+  d.proposalFor = q.publicId; d.proposalBase = q.version || 1; d.suggestTitle = q.title; d.suggestAuthor = q.publishedBy; d.suggestNote = text.slice(0, 500); delete d.publicId;
+  d.chat = [{ role:'note', content:`You're suggesting a change to the community process “${q.title}”. I'll make your change on a copy of the map. When it looks right, submit it and other people will compare before and after and vote.` }];
+  S.cur = d; S.sel = null; S.panel = null; dirty = true;
+  track('suggestion_started', { publicId:q.publicId, community:true }, d.id);
+}
+async function communityAct(v){
+  const p = S.cur;
+  if (v === 'tweak'){ prefill("Here's what I'd change: "); return; }
+  if (v === 'off'){ prefill('In my experience, '); return; }
+  if (v === 'more'){ prefill(''); return; }
+  if (v === 'credits'){ communitySay(`You start with 100 credits, and each reply from the AI uses 1. ${EARN_TEXT} Voting needs an account with an email, so each person votes once.`); return; }
+  if (v === 'confirm'){
+    const id = pubId(); if (!id) return;
+    (S.real || S.cur).chat.push({ role:'user', intro:true, content:'It matches my experience.' });
+    try {
+      const d = await API.post('/api/public/' + id + '/validate', { ok:true });
+      refreshMe();
+      const who = d.confirmations === 1 ? 'You are the first person to confirm this version.' : `${d.confirmations} people have confirmed this version.`;
+      communitySay(d.earned ? `Thanks for confirming. You earned ${d.earned} credits. ${who}` : `Thanks. Your confirmation of this version is already counted. ${who}`,
+        [{ label:'Something was different for me', a:'collab', v:'off' }, ...((S.real || S.cur).openProposals ? [{ label:'Review suggested changes', a:'collab', v:'review' }] : [])]);
+    } catch (e){ communitySay(e.message || 'That did not go through. Try again.'); }
+    return;
+  }
+  if (v === 'review'){
+    S.reviewData = null; await loadReview();
+    const list = S.reviewData?.proposals || [];
+    if (!list.length){ communitySay('No suggested changes are waiting right now. Describe a tweak below to start one.'); return; }
+    communitySay(`${list.length === 1 ? 'One change is' : list.length + ' changes are'} waiting for votes. Open one to compare before and after, then vote. ${list.length && !S.me?.email ? 'Voting needs you to sign in with your email.' : ''}`.trim(),
+      list.slice(0, 6).map(x => ({ label:`“${x.note.length > 70 ? x.note.slice(0, 70) + '…' : x.note}” by ${x.mine ? 'you' : x.author}`, a:'collabcmp', v:x.id })));
+    return;
+  }
+  if (v === 'submit'){
+    if (!p?.proposalFor) return;
+    const note = p.suggestNote || [...p.chat].reverse().find(m => m.role === 'user')?.content || 'Suggested change';
+    await submitSuggestion(note.slice(0, 500));
+    if (S.panelMsg && !S.cur?.submitted){ S.cur.chat.push({ role:'assistant', err:true, content:S.panelMsg }); S.panelMsg = ''; renderWork(); return; }
+    if (S.cur?.submitted){ S.cur.chat.push({ role:'suggest', content:'If your change goes live, you earn 20 credits.', items:[{ label:'Back to the community process', a:'collab', v:'back' }] }); renderWork(); }
+    return;
+  }
+  if (v === 'back'){ const id = p?.proposalFor || pubId(); if (id){ flush(); openProcess(id, 'pub'); } return; }
+  if (v === 'discard'){
+    if (!p?.proposalFor) return;
+    const id = p.proposalFor, did = p.id;
+    clearTimeout(saveTimer); dirty = false;
+    try { await API.del('/api/processes/' + did); } catch {}
+    S.mine = S.mine.filter(x => x.id !== did);
+    openProcess(id, 'pub');
+  }
 }
 /* ---------- Apply one AI or human change ---------- */
 /* A "turn" carries what this AI turn may and may not do:
@@ -590,7 +664,7 @@ function recorder(p, turn, pass){
 function mapPayload(p, mapId, history, text){
   const prevAsk = [...p.chat].reverse().find(x => x.role === 'assistant' && x.ask);
   return { mode:'map', processId:p.id, model:compactModel(p), mapId, mapTitle:p.maps[mapId]?.title || '', status:p.status || 'interviewing',
-    hasTech:Object.values(p.maps).some(mm => mm.lanes.some(l => l.type === 'system')), history, text, skippedLastQuestion:!!prevAsk?.askSkipped };
+    hasTech:Object.values(p.maps).some(mm => mm.lanes.some(l => l.type === 'system')), history, text, skippedLastQuestion:!!prevAsk?.askSkipped, community:!!p.proposalFor };
 }
 
 /* Combining, as a conversation: suggest related processes, ask which one and how it fits */
@@ -685,6 +759,7 @@ function combineTyped(text){
 async function send(text){
   text = (text || '').trim();
   if (!text || S.busy) return;
+  if (kindOf(S.cur) === 'community') beginCommunitySuggestion(text);
   ensureOwned();
   if (S.awaitCombine && S.cur && S.cur.id && combineTyped(text)) return;
   let p = S.cur;
@@ -752,6 +827,7 @@ async function send(text){
   reply.pending = false;
   if (!reply.content) reply.content = turn.ops ? 'Updated the map.' : 'I could not turn that into changes. Try describing who does what, in order.';
   S.busy = false; S.ctl = null; refreshMe();
+  if (p.proposalFor && !error && turn.ops) p.chat.push({ role:'suggest', content:'Does the map show your change the way it should? When it does, send it to the community. People compare before and after and vote.', items:[{ label:'Submit my change', a:'collab', v:'submit' }, { label:'Keep editing', a:'collab', v:'more' }, { label:'Discard it', a:'collab', v:'discard' }] });
   touch(); renderWork();
   voiceAfterTurn(p, reply);
 
@@ -1188,6 +1264,7 @@ async function vote(id, choice){
   try {
     const d = await API.post('/api/proposals/' + id + '/vote', { choice });
     const x = S.compare?.prop; if (x){ x.after = d.after; x.before = d.before; x.myVote = d.myVote; }
+    if (d.earned){ refreshMe(); if (d.status === 'open') alertBox(`Vote counted. You earned ${d.earned} credits.`); }
     if (d.status === 'accepted'){ alertBox('That change had enough votes and is now live.'); const id2 = pubId(); closeCompare(); openProcess(id2, 'pub'); return; }
     if (d.status === 'rejected'){ alertBox('That change was turned down by the votes.'); closeCompare(); S.panel = 'review'; S.reviewData = null; loadReview(); return; }
     if (d.status === 'superseded'){ alertBox('The public version changed in the meantime, so this suggestion is out of date.'); closeCompare(); S.panel = 'review'; S.reviewData = null; loadReview(); return; }
@@ -1520,25 +1597,28 @@ function publicMatches(p){
 const SORTS = {
   new:(a, b) => (b.publishedAt || 0) - (a.publishedAt || 0),
   top:(a, b) => (b.likes || 0) - (a.likes || 0) || (b.publishedAt || 0) - (a.publishedAt || 0),
+  // Collaborative: only the community processes, most active first
+  community:(a, b) => (b.openProposals || 0) - (a.openProposals || 0) || (b.likes || 0) - (a.likes || 0) || String(a.title).localeCompare(String(b.title)),
 };
+const isCommunity = p => p.mode === 'community';
 function feedCardHTML(p){
   const mine = p.processId && S.mine.some(m => m.id === p.processId);
   const tags = (p.tags || []).slice(0, 3).map(t => `<span>${esc(t)}</span>`).join('');
   return `<article class="fcard">${p.hasThumb ? `<button class="fthumb" data-open="${esc(p.id)}" data-kind="pub" aria-label="Open ${esc(p.title)}" tabindex="-1"><img src="/api/public/${esc(p.id)}/thumb?v=${p.updatedAt || 0}" alt="" loading="lazy"></button>` : ''}<div class="fbody"><button class="ftitle" data-open="${esc(p.id)}" data-kind="pub">${esc(p.title)}</button>
-      <div class="fby">by ${esc(mine ? 'you' : p.authorName)}${p.publishedAt ? ' · ' + ago(p.publishedAt) : ''}</div>
+      <div class="fby">${isCommunity(p) ? `<span class="fcomm">${ICON.people}Community</span> Built together${p.openProposals ? ` · ${p.openProposals} suggestion${p.openProposals === 1 ? '' : 's'} to review` : ''}` : `by ${esc(mine ? 'you' : p.authorName)}${p.publishedAt ? ' · ' + ago(p.publishedAt) : ''}`}</div>
       ${tags ? `<div class="ctags">${tags}</div>` : ''}
       <div class="ffoot"><button class="flike${p.liked ? ' on' : ''}" data-like="${esc(p.id)}" aria-pressed="${!!p.liked}" aria-label="Like">${ICON.heart}<b>${p.likes || 0}</b></button><button class="fcom" data-comment="${esc(p.id)}" aria-label="Comments">${ICON.comment}<b>${p.commentCount || 0}</b></button><span class="fstats">${p.stepCount} steps · ${p.depth} ${p.depth === 1 ? 'layer' : 'layers'}</span></div></div></article>`;
 }
 function publicCardsHTML(){
-  const all = (S.pub || []).filter(publicMatches).sort(SORTS[S.sort] || SORTS.new);
+  const comm = S.sort === 'community';
+  const all = (S.pub || []).filter(p => publicMatches(p) && (!comm || isCommunity(p))).sort(SORTS[S.sort] || SORTS.new);
   const shown = all.slice(0, S.pubLimit), more = all.length > shown.length;
-  const exs = more ? '' : EXAMPLES.filter(publicMatches).map(p => cardHTML(p, 'ex')).join('');
+  const exs = more || comm ? '' : EXAMPLES.filter(publicMatches).map(p => cardHTML(p, 'ex')).join('');
   if (!shown.length && !exs) return '<div class="empty"><b style="color:var(--ink)">Nothing matches</b><span>Try a different word, or clear the tag.</span></div>';
   return shown.map(feedCardHTML).join('') + exs + (more ? `<div class="fmore"><button class="btn" data-more>Show ${Math.min(12, all.length - shown.length)} more</button></div>` : '');
 }
 function sortBarHTML(){
-  const n = (S.pub || []).filter(publicMatches).length;
-  return `<span class="fcount">${n} process${n === 1 ? '' : 'es'}</span><span class="fsort-l">Sort</span>${[['new', 'Newest'], ['top', 'Most liked']].map(([k, l]) => `<button data-sort="${k}" class="${S.sort === k ? 'on' : ''}">${l}</button>`).join('')}`;
+  return `<span class="fsort-l">Sort</span>${[['new', 'Newest'], ['top', 'Most liked'], ['community', 'Collaborative']].map(([k, l]) => `<button data-sort="${k}" class="${S.sort === k ? 'on' : ''}">${l}</button>`).join('')}`;
 }
 async function toggleFeedLike(id, btn){
   const p = (S.pub || []).find(x => x.id === id); if (!p) return;
@@ -1731,7 +1811,9 @@ async function openProcess(id, kind){
   p.chat = p.chat || []; p.events = p.events || [];
   S.compare = null; S.real = null;
   S.cur = p; S.path = ['m_root']; S.sel = null; S.view = 'work'; S.checksOpen = false; S.panel = null; S.confirmDel = null;
-  S.tab = p.maps.m_root.steps.length ? 'map' : 'chat'; render();
+  if (p.publicMode === 'community' && p.readonly){ p.chat = communityIntro(p); S.tab = 'chat'; }
+  else S.tab = p.maps.m_root.steps.length ? 'map' : 'chat';
+  render();
   if (!S.noPush) setUrl(urlFor(p, kind), (p.title || 'Process') + ' | forks.world');
   S.noPush = false;
 }
@@ -1809,6 +1891,8 @@ function renderWorkShell(app){
   $('#tabs').onclick = e => { const t = e.target.closest('[data-tab]'); if (!t) return; S.tab = t.dataset.tab; renderWork(); };
   $('#msgs').onclick = e => {
     const b = e.target.closest('[data-starter]'); if (b){ send(b.dataset.starter); return; }
+    const co = e.target.closest('[data-collab]'); if (co){ communityAct(co.dataset.collab); return; }
+    const cc = e.target.closest('[data-collabcmp]'); if (cc){ openCompare(cc.dataset.collabcmp); return; }
     const cs = e.target.closest('[data-cmbstart]'); if (cs){ startCombineChat(); return; }
     const cp = e.target.closest('[data-cmbpick]'); if (cp){ const [scope, ...r] = cp.dataset.cmbpick.split(':'), id = r.join(':'); const hit = scope === 'public' ? (S.pub || []).find(x => x.id === id) : (S.mine || []).find(x => x.id === id); pickCombine({ scope, id, title:hit?.title || 'Untitled process' }); return; }
     const ch = e.target.closest('[data-cmbhow]'); if (ch){ cmbHow(ch.dataset.cmbhow); return; }
@@ -1872,6 +1956,7 @@ function kindOf(p){
   if (S.compare) return 'compare';
   if (p.example) return 'example';
   if (p.readonly && p.viewShare) return 'view';
+  if (p.readonly && p.publicMode === 'community') return 'community';
   if (p.readonly) return 'public';
   if (p.proposalFor) return 'draft';
   if (p.role === 'edit') return 'shared';
@@ -1881,6 +1966,7 @@ function visHTML(p){
   const k = kindOf(S.real || p);
   const q = S.real || p;
   if (k === 'example') return '';
+  if (k === 'community' || (k === 'compare' && q.publicMode === 'community')) return `<span class="pill sh hide-sm">${ICON.people}Community</span>`;
   if (k === 'public' || k === 'compare') return `<span class="by">by ${esc(q.publishedBy)}</span>`;
   if (k === 'view') return `<span class="pill">View only</span><span class="by hide-sm">shared by ${esc(q.owner)}</span>`;
   if (k === 'draft') return `<span class="pill ex">Suggestion</span><span class="by hide-sm">for “${esc(q.suggestTitle || 'a public process')}”</span>`;
@@ -1893,7 +1979,7 @@ function primaryHTML(p){
   const k = kindOf(p), q = S.real || p;
   const n = q.openProposals || 0;
   if (k === 'compare') return '';
-  if (k === 'public') return `<span class="wsmall">${likeHTML(q)}${commentBtn(q)}${shareButtons(q.publicId)}</span><button class="btn primary sm" data-act="copy">Copy and Edit Process</button>`;
+  if (k === 'public' || k === 'community') return `<span class="wsmall">${likeHTML(q)}${commentBtn(q)}${shareButtons(q.publicId)}</span><button class="btn primary sm" data-act="copy">Copy and Edit Process</button>`;
   if (k === 'example') return `<span class="wsmall">${shareButtons(q.id)}</span><button class="btn primary sm" data-act="copy">Copy and Edit Process</button>`;
   if (k === 'view') return `<button class="btn primary sm" data-act="copy">Copy and Edit Process</button>`;
   if (k === 'draft') return p.maps.m_root.steps.length ? `<button class="btn primary sm" data-act="submit">${p.submitted ? 'Submit again' : 'Submit for review'}</button>` : '';
@@ -1917,6 +2003,7 @@ function menuHTML(p){
     items.push(['delete', 'Delete', 'danger']);
   } else if (k === 'shared'){ items.push(['share', 'People with access'], ['copy', 'Copy and Edit Process'], ['leave', 'Remove from my list', 'danger']); }
   else if (k === 'draft'){ items.push(['openpublic', 'View the public version'], ['delete', 'Discard this suggestion', 'danger']); }
+  else if (k === 'community'){ items.push(['copy', 'Copy and Edit Process'], ['review', 'Suggested changes'], ['history', 'Version history'], ['tweet', 'Share on X'], ['copypub', 'Copy link']); }
   else if (k === 'public'){ items.push(['copy', 'Copy and Edit Process'], ['tweet', 'Share on X'], ['copypub', 'Copy link'], ['copyguide', 'Copy guided link'], ['copyembed', 'Copy embed code'], ['preview', 'Preview image']); }
   else if (k === 'view'){ items.push(['copy', 'Copy and Edit Process'], ['leave', 'Remove from my list', 'danger']); }
   else items.push(['copy', 'Copy and Edit Process']);
@@ -2100,7 +2187,7 @@ function renderTopActions(){
   $('#pubbar').innerHTML = pubbarHTML(p);
   if (!document.activeElement?.closest?.('#tagbar')) $('#tagbar').innerHTML = tagbarHTML(p);
   $('#vis').innerHTML = visHTML(p);
-  { const kk = kindOf(p); $('#wprimary').innerHTML = primaryHTML(p); { const q = S.real || p; $('#wedit').innerHTML = ['owned', 'shared'].includes(kk) && !q.publicId ? editGroupHTML(p, q) : ''; } const mb = $('#wmenu-btn'); if (mb) mb.parentElement.style.display = ['shared', 'draft', 'view'].includes(kk) ? '' : 'none'; }
+  { const kk = kindOf(p); $('#wprimary').innerHTML = primaryHTML(p); { const q = S.real || p; $('#wedit').innerHTML = ['owned', 'shared'].includes(kk) && !q.publicId ? editGroupHTML(p, q) : ''; } const mb = $('#wmenu-btn'); if (mb) mb.parentElement.style.display = ['shared', 'draft', 'view', 'community'].includes(kk) ? '' : 'none'; }
   $('#save').textContent = S.compare ? '' : readOnly(p) ? '' : S.save;
 }
 
@@ -2110,13 +2197,14 @@ function renderWork(fromStream){
   S.path = S.path.filter(id => p.maps[id]); if (!S.path.length) S.path = ['m_root'];
   const t = $('#title'); if (document.activeElement !== t) t.value = p.title === 'Untitled process' ? '' : p.title;
   // Viewing: the title box hugs the title so "by …" follows right after it
-  { const fit = ['public', 'example', 'view', 'compare'].includes(kindOf(p)); t.closest('.work-top').classList.toggle('fit-title', fit);
+  { const fit = ['public', 'example', 'view', 'compare', 'community'].includes(kindOf(p)); t.closest('.work-top').classList.toggle('fit-title', fit);
     if (fit){ const cs = getComputedStyle(t), c = (fitTitle.c ||= document.createElement('canvas').getContext('2d')); c.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`; t.style.width = Math.ceil(c.measureText(t.value || t.placeholder).width + parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight) + 4) + 'px'; }
     else t.style.width = ''; }
   t.readOnly = !!S.compare;
   renderTopActions();
   const wa = $('#wacct'); wa.innerHTML = signInHTML() + acctHTML(); wireAcct(wa); wireSignIn(wa); wireEmailForm(wa);
   const viewonly = ['public', 'example', 'view'].includes(kindOf(p));
+  { const box = $('#msg'), k = kindOf(S.real || p); box.placeholder = k === 'community' || (k === 'compare' && (S.real || p).publicMode === 'community') ? 'Suggest a tweak, or tell us how it went for you…' : p.proposalFor ? 'Describe your change…' : 'Describe the process in your own words… (tip: use your keyboard\'s dictation to talk)'; }
   if (viewonly) S.tab = 'map';
   $('#work').classList.toggle('viewonly', viewonly);
   const tabs = $('#tabs'); if (tabs) tabs.hidden = viewonly;

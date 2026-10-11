@@ -72,6 +72,7 @@ export function mapPrompt(p: Record<string, unknown>) {
     (p.status === "done" ? "\nSTATUS: DONE. The person said they are finished." : "") +
     (!p.hasTech && userTurns >= 1 ? "\nNote: no technology has been captured yet." : "") +
     (p.skippedLastQuestion ? "\nNote: the person skipped your last question. Don't ask it again." : "") +
+    (p.community ? "\nCOMMUNITY PROCESS: this map is built by many people, and the person is suggesting a change to it. Make only the change they describe and keep every other step, lane and connection as it is. Don't restructure, rename or tidy anything they didn't mention. If the change only applies in some places or situations (a state, a country, a kind of case), add it as a decision or a clearly labelled step rather than replacing what's there. In \"ask\", ask one short question that makes the change more accurate, such as where it applies or how they know. Keep \"say\" to one sentence." : "") +
     (convo ? "\n\nCONVERSATION SO FAR:\n" + convo : "") +
     "\n\nNEW MESSAGE FROM THE PERSON:\n" + clip(p.text, 4000) + "\n\nReply now with JSON lines only.";
   return { system: RULES, text };

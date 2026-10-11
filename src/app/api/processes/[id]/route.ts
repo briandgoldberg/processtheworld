@@ -73,6 +73,7 @@ export async function DELETE(req: NextRequest, { params }: Ctx) {
   if (!user) return fail("Reload the page to continue.", 401);
   const { process: p, role } = await accessTo(id, user.id);
   if (!p) return json({ ok: true });
+  if (role === "owner" && (await prisma.publicProcess.findUnique({ where: { processId: id }, select: { mode: true } }))?.mode === "community") return fail("Community processes can't be deleted from here.", 409);
   if (role === "owner") await prisma.process.delete({ where: { id } });
   else await prisma.share.deleteMany({ where: { processId: id, userId: user.id } });
   return json({ ok: true, left: role !== "owner" });

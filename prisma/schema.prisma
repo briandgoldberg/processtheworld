@@ -114,7 +114,7 @@ model PublicProcess {
   laneTypes   String[] @default([])
   copies      Int      @default(0)
   version     Int      @default(1)
-  // "collaborative": changes are suggested and decided by votes. "locked": published as is; others copy it to change it.
+  // "community": one of the community processes; changes are suggested in the chat and decided by votes. "locked": published as is; others copy it to change it. ("collaborative" is a retired value from early publishing and is treated as locked.)
   mode        String   @default("collaborative")
   likes       Int      @default(0)
   likedBy     Like[]

@@ -424,7 +424,7 @@ code{font-family:var(--f-mono);font-size:11px}
 .fsort{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .fsort button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:4px 12px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer}
 .fsort button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.fsort-l{font-size:12px;color:var(--muted);margin-left:8px}.fcount{font-size:12.5px;color:var(--muted);font-weight:600}
+.fsort-l{font-size:12px;color:var(--muted)}.fcount{font-size:12.5px;color:var(--muted);font-weight:600}
 .cms{list-style:none;margin:0 0 10px;padding:0;display:flex;flex-direction:column;gap:10px;max-height:46vh;overflow:auto}
 .cm{border:1px solid var(--line);border-radius:12px;padding:8px 12px;background:var(--bg)}
 .cm p{margin:4px 0 0;white-space:pre-wrap;word-break:break-word}
@@ -799,3 +799,6 @@ body.embed .crumbs{padding-block:6px}
 .lib-list li{padding:9px 0;border-bottom:1px solid var(--line)}
 .lib-list li a{font-weight:600}
 .lib-list li span{color:var(--muted);font-size:13px}
+/* Community processes on the library cards */
+.fcomm{display:inline-flex;align-items:center;gap:4px;font-weight:700;color:var(--accent);font-size:11.5px;background:var(--accent-soft);border-radius:999px;padding:1px 8px 1px 6px;margin-right:4px}
+.fcomm .vi{width:12px;height:12px}

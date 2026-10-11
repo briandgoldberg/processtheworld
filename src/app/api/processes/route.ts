@@ -12,7 +12,8 @@ export async function GET(req: NextRequest) {
   const user = await userFrom(req);
   if (!user) return fail("Reload the page to continue.", 401);
   const [mine, shares] = await Promise.all([
-    prisma.process.findMany({ where: { userId: user.id }, orderBy: { updatedAt: "desc" }, take: 200, select: sel }),
+    // The community processes are stored under the admin's account but belong to everyone: never listed as theirs
+    prisma.process.findMany({ where: { userId: user.id, NOT: { public: { is: { mode: "community" } } } }, orderBy: { updatedAt: "desc" }, take: 200, select: sel }),
     prisma.share.findMany({ where: { userId: user.id, acceptedAt: { not: null } }, take: 200, select: { role: true, process: { select: { ...sel, user: { select: { handle: true } } } } } }),
   ]);
   // Tags live inside each process document; read just those for the My Processes page.

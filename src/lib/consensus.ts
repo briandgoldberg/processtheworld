@@ -17,4 +17,4 @@ export function tally(votes: { choice: string; userId: string }[], authorId: str
   return { after, before, net, decision: net >= NET_TO_DECIDE ? "accepted" : net <= -NET_TO_DECIDE ? "rejected" : null } as const;
 }
 
-export const RULE_TEXT = "A change goes live when “after is better” leads by 2 votes (the person who suggested it counts as one). It's turned down when “before is better” leads by 2.";
+export const RULE_TEXT = "A change goes live when “after is better” leads by 2 votes (the person who suggested it counts as one). It's turned down when “before is better” leads by 2. Voting needs an account with an email, so one person can't vote twice.";

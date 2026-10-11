@@ -9,7 +9,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const { id } = await params;
   const r = await prisma.publicProcess.findUnique({ where: { id } });
   if (!r) return fail("Not found.", 404);
-  const open = 0;
+  const open = r.mode === "community" ? await prisma.proposal.count({ where: { publicId: id, status: "open" } }) : 0;
   const me = await userFrom(req);
   const liked = me ? !!(await prisma.like.findUnique({ where: { publicId_userId: { publicId: id, userId: me.id } } })) : false;
   return json({ id: r.id, processId: r.processId, authorName: r.authorName, publishedAt: r.publishedAt, updatedAt: r.updatedAt, version: r.version, mode: r.mode, tags: r.tags, commentCount: r.commentCount, likes: r.likes, liked, openProposals: open, doc: r.doc });

@@ -4,11 +4,13 @@ import { userFrom } from "@/lib/identity";
 import { cleanTag } from "@/lib/tags";
 import { json } from "@/lib/http";
 import { seedCrmOnce } from "@/lib/seedCrm";
+import { seedCommunityOnce } from "@/lib/seedCommunity";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   await seedCrmOnce(req.nextUrl.origin);
+  await seedCommunityOnce(req.nextUrl.origin);
   const me = await userFrom(req);
   const q = (req.nextUrl.searchParams.get("q") || "").trim().slice(0, 80);
   const tag = cleanTag(req.nextUrl.searchParams.get("tag"));
@@ -21,5 +23,5 @@ export async function GET(req: NextRequest) {
     select: { tags: true, hasThumb: true, publishedAt: true, commentCount: true, id: true, processId: true, title: true, authorName: true, stepCount: true, depth: true, laneTypes: true, updatedAt: true, copies: true, version: true, mode: true, likes: true, _count: { select: { proposals: { where: { status: "open" } } } } },
   });
   const mine = me ? new Set((await prisma.like.findMany({ where: { userId: me.id, publicId: { in: rows.map(r => r.id) } }, select: { publicId: true } })).map(l => l.publicId)) : new Set<string>();
-  return json({ processes: rows.map(r => ({ ...r, _count: undefined, openProposals: 0, liked: mine.has(r.id), updatedAt: r.updatedAt.getTime(), publishedAt: r.publishedAt.getTime() })) });
+  return json({ processes: rows.map(r => ({ ...r, _count: undefined, openProposals: r.mode === "community" ? r._count.proposals : 0, liked: mine.has(r.id), updatedAt: r.updatedAt.getTime(), publishedAt: r.publishedAt.getTime() })) });
 }
