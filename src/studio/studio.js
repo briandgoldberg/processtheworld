@@ -938,8 +938,8 @@ function summaryHTML(p){
   if (!readOnly(p) && p.rating == null) S.askedThisSession = true;
   return `<div class="summary">
     <div class="label">Map summary</div>
-    <div class="sum-grid"><div><b>${steps}</b><span>steps</span></div><div><b>${stats(p).depth}</b><span>layers</span></div><div><b>${people.size}</b><span>people</span></div><div><b>${tech.size}</b><span>technology</span></div></div>
-    ${people.size ? `<p><span class="label">People</span> ${esc([...people].join(', '))}</p>` : ''}
+    <div class="sum-grid"><div><b>${steps}</b><span>steps</span></div><div><b>${stats(p).depth}</b><span>layers</span></div><div><b>${people.size}</b><span>${people.size === 1 ? 'persona' : 'personas'}</span></div><div><b>${tech.size}</b><span>technology</span></div></div>
+    ${people.size ? `<p><span class="label">Persona</span> ${esc([...people].join(', '))}</p>` : ''}
     <p><span class="label">Technology</span> ${tech.size ? esc([...tech].join(', ')) : 'None captured'}</p>
     ${issues.length ? `<p><span class="label">Still to check</span></p><ul>${issues.slice(0,5).map(i => `<li>${esc(i.text)}</li>`).join('')}</ul>` : '<p class="ok">Every step is connected.</p>'}
     ${rate}
@@ -1300,7 +1300,7 @@ function layout(m){
   const firstSys = lanes.findIndex(l => l.type === 'system');
   let y = 0; const laneY = {}, laneH = {}, bands = [];
   lanes.forEach((l, i) => {
-    if (i === 0 && l.type !== 'system'){ bands.push({ y, t:'People' }); y += L.BAND; }
+    if (i === 0 && l.type !== 'system'){ bands.push({ y, t:'Persona' }); y += L.BAND; }
     if (i === firstSys){ bands.push({ y, t:'Technology' }); y += L.BAND; }
     const n = rows[l.id] || 1; laneY[l.id] = y; laneH[l.id] = rowTop(l.id, n) + L.PADY * 2 - L.ROWGAP + 8; y += laneH[l.id];
   });
@@ -1461,7 +1461,7 @@ function renderConnect(app){
       <p>Your AI can also reuse what is already published here: it searches the library, links existing processes together, or copies one to change, just like you can on the site.</p>
       <ol class="cn-steps">
         <li><b>It interviews you.</b> One question at a time: who does what, in what order, with which tools, and where it hurts.</li>
-        <li><b>It builds the map.</b> People and systems get their own lanes. Decisions get a path for every answer, including the "no."</li>
+        <li><b>It builds the map.</b> Personas and technology get their own lanes. Decisions get a path for every answer, including the "no."</li>
         <li><b>It publishes it.</b> You get a link on forks.world. Anyone can open it, like it, comment, or make their own copy. Ask it to keep the process private and it will.</li>
         <li><b>You keep working in the app.</b> Open the link, zoom, walk through it, add tags, or share it.</li>
       </ol>
@@ -1587,7 +1587,7 @@ function cardHTML(p, kind){
     ${by}
     ${(p.tags || []).length ? `<div class="ctags">${p.tags.slice(0, 3).map(t => `<span>${esc(t)}</span>`).join('')}</div>` : ''}
     ${kind === 'mine' || kind === 'shared' ? `<div class="cthumb" data-tid="${esc(p.id)}"></div>` : `<div class="spark">${types.slice(0,8).map(t => `<b class="${t==='system'?'s':''}"></b>`).join('')}</div>`}
-    <div class="meta"><span>${st.steps} steps</span><span>${st.depth} ${st.depth === 1 ? 'layer' : 'layers'}</span><span>${types.filter(t=>t!=='system').length} people · ${types.filter(t=>t==='system').length} tech</span></div>
+    <div class="meta"><span>${st.steps} steps</span><span>${st.depth} ${st.depth === 1 ? 'layer' : 'layers'}</span><span>${types.filter(t=>t!=='system').length} persona · ${types.filter(t=>t==='system').length} tech</span></div>
   </button></div>`;
 }
 
@@ -2677,7 +2677,7 @@ function renderInspector(){
   box.innerHTML = `<div class="inspector" role="dialog" aria-label="Step details">
     <div class="ins-head"><span class="label">Step · <span class="mono">${esc(s.id)}</span></span><button class="btn ghost" id="ix" aria-label="Close">✕</button></div>
     <div class="row"><label class="label" for="i-label">Name</label><input id="i-label" value="${esc(s.label)}"></div>
-    <div class="row"><label class="label" for="i-lane">Lane</label><select id="i-lane">${m.lanes.map(l => `<option value="${esc(l.id)}" ${l.id === s.lane ? 'selected' : ''}>${esc(l.name)} (${l.type === 'system' ? 'technology' : 'person'})</option>`).join('')}${m.lanes.some(l=>l.id===s.lane)?'':'<option selected>Unassigned</option>'}</select></div>
+    <div class="row"><label class="label" for="i-lane">Lane</label><select id="i-lane">${m.lanes.map(l => `<option value="${esc(l.id)}" ${l.id === s.lane ? 'selected' : ''}>${esc(l.name)} (${l.type === 'system' ? 'technology' : 'persona'})</option>`).join('')}${m.lanes.some(l=>l.id===s.lane)?'':'<option selected>Unassigned</option>'}</select></div>
     <div class="row"><label class="label" for="i-kind">Type</label><select id="i-kind">${KINDS.map(k => `<option ${k === s.kind ? 'selected' : ''}>${k}</option>`).join('')}</select></div>
     <div class="row"><label class="label" for="i-link">Linked process</label><select id="i-link"><option value="">None</option>${linkOptions(s)}</select><p class="hint">Connect this step to a process you can open, saved or published, to build a bigger one.</p></div>
     <div class="row"><label class="label" for="i-pain">Pain point</label><select id="i-pain"><option value="0">None</option><option value="1" ${s.pain?.level === 1 ? 'selected' : ''}>Annoying</option><option value="2" ${s.pain?.level === 2 ? 'selected' : ''}>Painful</option><option value="3" ${s.pain?.level === 3 ? 'selected' : ''}>Critical</option></select>${s.pain ? `<input id="i-pain-note" placeholder="Where does it hurt?" maxlength="200" value="${esc(s.pain.note || '')}">` : ''}<p class="hint">Mark where this step is slow, error-prone, manual or costly.</p></div>

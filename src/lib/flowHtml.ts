@@ -1,4 +1,4 @@
-// Draws a process as the same swim-lane flow the app shows: People lanes on
+// Draws a process as the same swim-lane flow the app shows: Persona lanes on
 // top, Technology lanes below, steps flowing left to right, one diagram per
 // layer. The result is one self-contained HTML file (inline SVG, no scripts).
 // The layout matches layout() in src/studio/studio.js.
@@ -72,7 +72,7 @@ export function layout(m: MapT) {
   let y = 0;
   const laneY: Record<string, number> = {}, laneH: Record<string, number> = {}, bands: { y: number; t: string }[] = [];
   lanes.forEach((l, i) => {
-    if (i === 0 && l.type !== "system") { bands.push({ y, t: "People" }); y += L.BAND; }
+    if (i === 0 && l.type !== "system") { bands.push({ y, t: "Persona" }); y += L.BAND; }
     if (i === firstSys) { bands.push({ y, t: "Technology" }); y += L.BAND; }
     laneY[l.id] = y;
     laneH[l.id] = (rows[l.id] || 1) * (L.BOXH + L.ROWGAP) + L.PADY * 2 - L.ROWGAP + 8;

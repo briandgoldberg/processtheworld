@@ -5,7 +5,7 @@ img{max-width:100%}
 [hidden]{display:none!important}
 
 
-/* Layout: a working studio. Library of maps → workspace with conversation on the left and a swim-lane board on the right; lanes split into People and Technology bands. */
+/* Layout: a working studio. Library of maps → workspace with conversation on the left and a swim-lane board on the right; lanes split into Persona and Technology bands. */
 :root{
   --bg:#F3F5F8; --surface:#FFFFFF; --sunk:#E9EDF2; --ink:#141C27; --muted:#5A6573; --line:#D7DDE5;
   --accent:#2448C9; --accent-ink:#FFFFFF; --accent-soft:#E6ECFC;
@@ -137,6 +137,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:700;margin:0;text-wrap:balance
 .lane.person .lane-head small{color:var(--person)}
 .lane.system .lane-head{background:var(--system-bg)}
 .lane.system .lane-head small{color:var(--system)}
+.lane.person{background:color-mix(in srgb,var(--person-bg) 45%,transparent)}
 .lane.system{background:color-mix(in srgb,var(--system-bg) 45%,transparent)}
 .band{position:absolute;left:0;height:22px;display:flex;align-items:center;padding-inline:12px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--muted);background:var(--bg);border-bottom:1px solid var(--line)}
 svg.edges{position:absolute;left:0;top:0;pointer-events:none;overflow:visible}

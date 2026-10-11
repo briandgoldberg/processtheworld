@@ -86,7 +86,7 @@ export function exportMarkdown(doc: Doc, opts: { url?: string; author?: string }
   out.push(`- ${steps} steps across ${all.length} layer${all.length === 1 ? "" : "s"}`);
   const people = (root?.lanes || []).filter(l => l.type !== "system").map(l => clean(l.name));
   const tech = (root?.lanes || []).filter(l => l.type === "system").map(l => clean(l.name));
-  if (people.length) out.push(`- People / roles: ${people.join(", ")}`);
+  if (people.length) out.push(`- Persona: ${people.join(", ")}`);
   if (tech.length) out.push(`- Technology / systems: ${tech.join(", ")}`);
   const pains = all.flatMap(m => m.steps.filter(s => s.pain).map(s => ({ s, layer: clean(m.title) || m.id }))).sort((a, b) => (b.s.pain!.level) - (a.s.pain!.level));
   if (pains.length) {
@@ -95,7 +95,7 @@ export function exportMarkdown(doc: Doc, opts: { url?: string; author?: string }
   }
   out.push("", "## How to read this file", "");
   out.push("- A process is made of **layers**. The main layer is the top level; any step of kind `subprocess` opens a detail layer with its own lanes and steps.");
-  out.push("- **Lanes** are either people/roles or technology/systems. Each step belongs to one lane; `using` lists tools a person uses for that step.");
+  out.push("- **Lanes** are either persona (people/roles) or technology (systems). Each step belongs to one lane; `using` lists tools a person uses for that step.");
   out.push("- Step kinds: `start`, `task`, `decision` (its arrows carry the answer as a label), `subprocess`, `end`.", "");
   if (root) out.push(section(root, { maps }, "##"));
   all.filter(m => m !== root).forEach(m => out.push(section(m, { maps }, "###")));
