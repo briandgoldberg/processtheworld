@@ -1776,9 +1776,9 @@ function primaryHTML(p){
   const k = kindOf(p), q = S.real || p;
   const n = q.openProposals || 0;
   if (k === 'compare') return '';
-  if (k === 'public') return `${likeHTML(q)}${commentBtn(q)}<button class="btn primary sm" data-act="copy">Make a Private Copy</button>${shareButtons(q.publicId)}`;
-  if (k === 'example') return `<button class="btn sm" data-act="copy">Make a Private Copy</button>${shareButtons(q.id)}`;
-  if (k === 'view') return `<button class="btn sm" data-act="copy">Make a Private Copy</button>`;
+  if (k === 'public') return `${likeHTML(q)}${commentBtn(q)}<button class="btn primary sm" data-act="copy">Copy Process</button>${shareButtons(q.publicId)}`;
+  if (k === 'example') return `<button class="btn sm" data-act="copy">Copy Process</button>${shareButtons(q.id)}`;
+  if (k === 'view') return `<button class="btn sm" data-act="copy">Copy Process</button>`;
   if (k === 'draft') return p.maps.m_root.steps.length ? `<button class="btn primary sm" data-act="submit">${p.submitted ? 'Submit again' : 'Submit for review'}</button>` : '';
   // A public process is frozen and already open to everyone: no Share sheet, just the quick actions
   if (q.publicId) return commentBtn(q) + shareButtons(q.publicId);
@@ -1790,11 +1790,11 @@ function menuHTML(p){
     items.push(['share', 'Share & publish…']);
     if (p.publicId) items.push(['openpublic', 'View public version'], ['tweet', 'Share on X'], ['copypub', 'Copy public link'], ['copyguide', 'Copy guided link'], ['copyembed', 'Copy embed code'], ['preview', 'Preview image']);
     items.push(['delete', 'Delete', 'danger']);
-  } else if (k === 'shared'){ items.push(['share', 'People with access'], ['copy', 'Make a Private Copy'], ['leave', 'Remove from my list', 'danger']); }
+  } else if (k === 'shared'){ items.push(['share', 'People with access'], ['copy', 'Copy Process'], ['leave', 'Remove from my list', 'danger']); }
   else if (k === 'draft'){ items.push(['openpublic', 'View the public version'], ['delete', 'Discard this suggestion', 'danger']); }
-  else if (k === 'public'){ items.push(['copy', 'Make a Private Copy'], ['tweet', 'Share on X'], ['copypub', 'Copy link'], ['copyguide', 'Copy guided link'], ['copyembed', 'Copy embed code'], ['preview', 'Preview image']); }
-  else if (k === 'view'){ items.push(['copy', 'Make a Private Copy'], ['leave', 'Remove from my list', 'danger']); }
-  else items.push(['copy', 'Make a Private Copy']);
+  else if (k === 'public'){ items.push(['copy', 'Copy Process'], ['tweet', 'Share on X'], ['copypub', 'Copy link'], ['copyguide', 'Copy guided link'], ['copyembed', 'Copy embed code'], ['preview', 'Preview image']); }
+  else if (k === 'view'){ items.push(['copy', 'Copy Process'], ['leave', 'Remove from my list', 'danger']); }
+  else items.push(['copy', 'Copy Process']);
   return `<div class="menu" role="menu">${items.map(([a, l, c]) => `<button role="menuitem" class="menu-item${c ? ' ' + c : ''}" data-act="${a}">${esc(l)}</button>`).join('')}</div>`;
 }
 function renderPanel(){
@@ -1828,7 +1828,7 @@ async function onAction(e){
   switch (a){
     case 'close': S.panel = null; break;
     case 'suggest': S.panel = null; startSuggestion(); return;
-    case 'copy': S.panel = null; ensureOwned(); renderWork(); flushSoon(); return;
+    case 'copy': S.panel = null; ensureOwned(); S.tab = 'chat'; renderWork(); flushSoon(); return;
     case 'review': S.panel = 'review'; S.reviewData = null; loadReview(); break;
     case 'history': S.panel = 'history'; S.historyData = null; loadHistory(); break;
     case 'publish': S.panel = 'share'; S.shareData = null; break;

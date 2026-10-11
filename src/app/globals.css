@@ -666,6 +666,12 @@ body.embed .crumbs{padding-block:6px}
   .title-in{font-size:16px}
   .vis .pill{font-size:11px}
   .wprimary .btn{padding:6px 10px}
+  /* Row 1: back, title, account at top right. Row 2: the process actions */
+  .work-top{row-gap:8px}
+  .work-top>*{order:1}
+  .work-top #wacct{order:2;margin-left:auto}
+  .work-top #wprimary{order:3;flex:1 0 100%}
+  .work-top #wprimary:empty{display:none}
   .hero{grid-template-columns:1fr;gap:20px;padding-top:4px}
   .steps3{grid-template-columns:1fr}
   .landing{gap:36px}
