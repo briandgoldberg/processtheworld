@@ -752,12 +752,12 @@ body.embed .crumbs{padding-block:6px}
   .work-top .wprimary .btn[data-act="copy"]{order:10;flex:1 0 100%;justify-content:center;padding-block:9px;font-size:14px}
 }
 .wsmall{display:inline-flex;gap:6px;align-items:center}
-/* Phone: the like, comment and share buttons sit at the bottom left; Feedback is bottom right */
+/* Phone: the process's small buttons (like/comment/share, or share/thumbnail on your own) sit bottom right, just above Feedback */
 @media (max-width:820px){
-  .work-top .wsmall{position:fixed;left:10px;bottom:calc(6px + env(safe-area-inset-bottom, 0px));z-index:40}
+  .work-top .wsmall{position:fixed;right:10px;bottom:calc(48px + env(safe-area-inset-bottom, 0px));z-index:40}
   .work-top .wsmall .btn{background:var(--surface);box-shadow:0 6px 18px -8px rgba(10,20,40,.4)}
   body:has(.work[data-tab="chat"]) .work-top .wsmall,body:has(.guide .g-card) .work-top .wsmall{display:none}
-  body:has(.work-top .wsmall) .zoomctl{bottom:56px}
+  body:has(.work-top .wsmall) .zoomctl{bottom:98px}
 }
 .vis-share .vis-n{font-size:11px;font-weight:700;margin-left:3px}
 /* The privacy/share icon sits right after the title, where the Private label was */
@@ -766,3 +766,4 @@ body.embed .crumbs{padding-block:6px}
   .work-top .grow{flex:1 1 0;min-width:0}
   .work-top .vis .vis-share{min-height:30px;min-width:30px}
 }
+.thumbic{cursor:pointer}.thumbic .thumbprev{width:30px;height:16px;border-radius:3px}
