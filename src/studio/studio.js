@@ -598,9 +598,12 @@ const norm = t => String(t || '').toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').rep
 function cmbCandidates(p){
   const words = new Set(norm((p.title || '') + ' ' + (p.tags || []).join(' ') + ' ' + p.maps.m_root.steps.map(x => x.label).slice(0, 12).join(' ')).split(' ').filter(w => w.length > 3));
   const score = x => norm(x.title + ' ' + (x.tags || []).join(' ')).split(' ').filter(w => words.has(w)).length;
-  const pub = [...(S.pub || [])].map(x => ({ x, n:score(x) })).sort((a, b) => b.n - a.n || (b.x.likes || 0) - (a.x.likes || 0)).slice(0, 2).map(r => ({ scope:'public', id:r.x.id, title:r.x.title }));
-  const mine = (S.mine || []).filter(x => x.id !== p.id && !x.proposalFor && !x.publicId).map(x => ({ x, n:score(x) })).sort((a, b) => b.n - a.n).slice(0, 2).map(r => ({ scope:'private', id:r.x.id, title:r.x.title || 'Untitled process' }));
-  return [...pub, ...mine];
+  const pub = [...(S.pub || [])].map(x => ({ x, n:score(x) })).sort((a, b) => b.n - a.n || (b.x.likes || 0) - (a.x.likes || 0)).slice(0, 6).map(r => ({ scope:'public', id:r.x.id, title:r.x.title }));
+  const mine = (S.mine || []).filter(x => x.id !== p.id && !x.proposalFor && !x.publicId).map(x => ({ x, n:score(x) })).sort((a, b) => b.n - a.n).slice(0, 4).map(r => ({ scope:'private', id:r.x.id, title:r.x.title || 'Untitled process' }));
+  // Never offer the same process twice, the one you are in, or the one it was copied from; two of each kind
+  const seen = new Set([norm(p.title)]);
+  const fresh = (list, n) => list.filter(c => { const k = norm(c.title); if (!k || seen.has(k) || c.id === p.forkedFrom) return false; seen.add(k); return true; }).slice(0, n);
+  return [...fresh(pub, 2), ...fresh(mine, 2)];
 }
 function cmbFind(text){
   const t = norm(text); if (t.length < 3) return null;
