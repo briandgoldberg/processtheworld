@@ -596,8 +596,8 @@ body.embed .crumbs{padding-block:6px}
 .invite .row-in input{flex:1 1 180px}
 .panel-msg{color:var(--accent)}
 .people,.props{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
-.person{display:flex;align-items:center;gap:8px;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:8px}
-.person:last-child{border-bottom:none}
+.people .person{display:flex;align-items:center;gap:8px;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:8px}
+.people .person:last-child{border-bottom:none}
 .pname{flex:1;min-width:0;overflow-wrap:anywhere}
 .prop-card{border:1px solid var(--line);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:6px;background:var(--bg)}
 .prop-card p{margin:0}
