@@ -189,7 +189,7 @@ function ensureOwned(){
   for (const k of ['example','readonly','publishedBy','publicId','publicMode','mine','role','owner','rev','version','openProposals','viewShare','shareCount']) delete copy[k];
   copy.id = rid('p'); copy.events = []; copy.undo = null; copy.rating = null;
   if (q.publicId && !q.viewShare && q.readonly){ copy.forkedFrom = q.publicId; if (!S.mine.some(m => m.publicId === q.publicId)) API.post('/api/public/' + q.publicId, {}).catch(()=>{}); }
-  copy.chat = (copy.chat || []).concat([{ role:'note', content:`Saved your own private copy of ${from}.` }]);
+  copy.chat = (copy.chat || []).concat([{ role:'note', content:`Saved your own private copy of ${from}.` }, { role:'suggest', content:'It is yours now. Here are a few things you could do with it:', items:[{ label:'Combine it with another public process', combine:true }, { label:'Adjust a step', fill:'Change the step where ' }, { label:'Add more detail to a step', fill:'Add more detail to the step ' }, { label:'Add another person or team', fill:'Add another person or team: ' }, { label:'Show the tools used', fill:'Show which tools are used when ' }, { label:'Mark where it hurts', send:'Mark the steps that are slow, error prone or painful.' }] }]);
   S.cur = copy;
   track('copy_made', { from:q.publicId || q.id, example:!!q.example }, copy.id);
 }
@@ -1718,6 +1718,7 @@ function renderWorkShell(app){
   $('#tabs').onclick = e => { const t = e.target.closest('[data-tab]'); if (!t) return; S.tab = t.dataset.tab; renderWork(); };
   $('#msgs').onclick = e => {
     const b = e.target.closest('[data-starter]'); if (b){ send(b.dataset.starter); return; }
+    const fl = e.target.closest('[data-fill]'); if (fl){ const box = $('#msg'); box.value = fl.dataset.fill; box.focus(); box.setSelectionRange(box.value.length, box.value.length); return; }
     if (e.target.closest('[data-combine]')){ S.combine = { q:'', sel:[] }; S.panel = 'combine'; renderPanel(); return; }
     const pr = e.target.closest('[data-prop]'); if (pr){ resolveProposal(+pr.dataset.idx, pr.dataset.prop === 'remove'); return; }
     const j = e.target.closest('[data-jump]'); if (j){ jumpTo(j.dataset.jump, j.dataset.step); return; }
@@ -2082,6 +2083,7 @@ function renderMsgs(){
   const canEdit = !S.busy && p.undo && p.undo.chatIndex === lastU;
   el.innerHTML = p.chat.map((m, i) => {
     if (m.role === 'note') return `<div class="msg note">${esc(m.content)}</div>`;
+    if (m.role === 'suggest') return `<div class="msg assistant">${esc(m.content)}</div><div class="starters">${m.items.map(it => it.combine ? `<button class="starter" data-combine>${esc(it.label)}</button>` : it.fill ? `<button class="starter" data-fill="${esc(it.fill)}">${esc(it.label)}</button>` : `<button class="starter" data-starter="${esc(it.send)}">${esc(it.label)}</button>`).join('')}</div>`;
     if (m.role === 'user') return `<div class="msg user">${esc(m.content)}</div>`;
     if (m.pending && !m.content) return `<div class="msg assistant"><span class="thinking"><i></i><i></i><i></i>&nbsp;${m.checking ? 'Checking the map' : m.ops ? 'Mapping · ' + m.ops + ' change' + (m.ops === 1 ? '' : 's') : 'Listening'}</span></div>`;
     let x = `<div class="msg assistant${m.err ? ' err' : ''}">${esc(m.content)}`;
@@ -2608,7 +2610,7 @@ function checkin(a){
 function ctxSnapshot(){
   const p = S.cur;
   return { view:S.view, processId:p?.id || null, title:p?.title || null, layer:p ? curMap()?.title : null, selected:S.sel || null, tab:S.tab,
-    recent:p ? p.chat.filter(m => m.role !== 'note').slice(-4).map(m => ({ role:m.role, text:String(m.content).slice(0, 300) })) : [],
+    recent:p ? p.chat.filter(m => m.role !== 'note' && m.role !== 'suggest').slice(-4).map(m => ({ role:m.role, text:String(m.content).slice(0, 300) })) : [],
     screen:`${innerWidth}x${innerHeight}`, ua:navigator.userAgent.slice(0, 160) };
 }
 const FB_KINDS = ['Bug','Confusing','Idea','Like it'];
