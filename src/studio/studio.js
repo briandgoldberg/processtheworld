@@ -598,8 +598,8 @@ const norm = t => String(t || '').toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').rep
 function cmbCandidates(p){
   const words = new Set(norm((p.title || '') + ' ' + (p.tags || []).join(' ') + ' ' + p.maps.m_root.steps.map(x => x.label).slice(0, 12).join(' ')).split(' ').filter(w => w.length > 3));
   const score = x => norm(x.title + ' ' + (x.tags || []).join(' ')).split(' ').filter(w => words.has(w)).length;
-  const pub = [...(S.pub || [])].map(x => ({ x, n:score(x) })).sort((a, b) => b.n - a.n || (b.x.likes || 0) - (a.x.likes || 0)).slice(0, 4).map(r => ({ scope:'public', id:r.x.id, title:r.x.title }));
-  const mine = (S.mine || []).filter(x => x.id !== p.id && !x.proposalFor && !x.publicId).map(x => ({ x, n:score(x) })).sort((a, b) => b.n - a.n).slice(0, 3).map(r => ({ scope:'private', id:r.x.id, title:r.x.title || 'Untitled process' }));
+  const pub = [...(S.pub || [])].map(x => ({ x, n:score(x) })).sort((a, b) => b.n - a.n || (b.x.likes || 0) - (a.x.likes || 0)).slice(0, 2).map(r => ({ scope:'public', id:r.x.id, title:r.x.title }));
+  const mine = (S.mine || []).filter(x => x.id !== p.id && !x.proposalFor && !x.publicId).map(x => ({ x, n:score(x) })).sort((a, b) => b.n - a.n).slice(0, 2).map(r => ({ scope:'private', id:r.x.id, title:r.x.title || 'Untitled process' }));
   return [...pub, ...mine];
 }
 function cmbFind(text){
@@ -612,7 +612,7 @@ function startCombineChat(){
   ensureOwned(); const p = S.cur;
   S.awaitCombine = true; S.cmbPick = null;
   const cands = cmbCandidates(p);
-  cmbSay(p, 'Which process would you like to combine this with, and how? Tap one below, or type the name of any public process or one of your own. Then I will ask whether it should run before, after, or inside one of your steps.', [...cands.map(cmbPickItem), { label:'Never mind', a:'cmbcancel', v:'1' }]);
+  cmbSay(p, 'Which process would you like to combine this with, and how? Tap one below or type any process name. Then I will ask if it runs before, after, or inside a step.', [...cands.map(cmbPickItem), { label:'Never mind', a:'cmbcancel', v:'1' }]);
   S.tab = 'chat'; touch(); renderWork();
 }
 function pickCombine(c){
