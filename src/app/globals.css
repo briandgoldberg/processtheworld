@@ -802,3 +802,4 @@ body.embed .crumbs{padding-block:6px}
 /* Community processes on the library cards */
 .fcomm{display:inline-flex;align-items:center;gap:4px;font-weight:700;color:var(--accent);font-size:11.5px;background:var(--accent-soft);border-radius:999px;padding:1px 8px 1px 6px;margin-right:4px}
 .fcomm .vi{width:12px;height:12px}
+@media (max-width:820px){.tagbar.ro{display:none}}
