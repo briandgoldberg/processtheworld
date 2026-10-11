@@ -2187,7 +2187,7 @@ function renderTopActions(){
   if (!document.activeElement?.closest?.('#tagbar')) $('#tagbar').innerHTML = tagbarHTML(p);
   $('#tagbar').classList.toggle('ro', !['owned', 'shared'].includes(kindOf(p))); // tags you can't edit are hidden on a phone
   $('#vis').innerHTML = visHTML(p);
-  { const kk = kindOf(p); $('#wprimary').innerHTML = primaryHTML(p); { const q = S.real || p; $('#wedit').innerHTML = ['owned', 'shared'].includes(kk) && !q.publicId ? editGroupHTML(p, q) : ''; } const mb = $('#wmenu-btn'); if (mb) mb.parentElement.style.display = ['shared', 'draft', 'view', 'community'].includes(kk) ? '' : 'none'; }
+  { const kk = kindOf(p); $('#wprimary').innerHTML = primaryHTML(p); { const q = S.real || p; $('#wedit').innerHTML = ['owned', 'shared'].includes(kk) && !q.publicId ? editGroupHTML(p, q) : ''; } const mb = $('#wmenu-btn'); if (mb) mb.parentElement.style.display = ['shared', 'draft', 'view'].includes(kk) ? '' : 'none'; }
   $('#save').textContent = S.compare ? '' : readOnly(p) ? '' : S.save;
 }
 
