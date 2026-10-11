@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { slugOf, niceTag } from "@/lib/library";
 import { prisma } from "@/lib/db";
 import { ordered } from "@/lib/exportMd";
 import Studio from "../../Studio";
@@ -28,6 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function PublicProcessPage({ params }: Props) {
   const { id } = await params;
   const r = await load(id);
+  if (!r) notFound();
   let ld: object | null = null, steps: { label: string; lane: string }[] = [];
   if (r) {
     const maps: any = (r.doc as any)?.maps || {}, root = maps.m_root || Object.values(maps)[0] as any;
@@ -51,6 +54,7 @@ export default async function PublicProcessPage({ params }: Props) {
           <p>Process map by {r.authorName}. {r.stepCount} steps, {r.depth} {r.depth === 1 ? "layer" : "layers"}. Tags: {r.tags.join(", ")}.</p>
           <ol>{steps.map((s, i) => <li key={i}>{s.lane ? `${s.lane}: ` : ""}{s.label}</li>)}</ol>
           <p><a href={`/api/public/${id}/export`}>Read this process as Markdown</a></p>
+          <p>{r.tags.map(t => <a key={t} href={`/topics/${slugOf(t)}`}>${niceTag(t)} </a>)}<a href="/library">All process maps</a></p>
         </article>
       )}
       <Studio open={id} />
