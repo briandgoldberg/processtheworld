@@ -214,7 +214,7 @@ const EARN_TEXT = 'Confirming a version matches your experience earns 2 credits.
 function communityIntro(p){
   const n = p.openProposals || 0;
   return [
-    { role:'suggest', intro:true, content:`Built by people who've done it. Steps vary by place and situation, so your experience counts. Want to help? Tweak it, confirm it matches what happened to you, or review changes others suggested. Each earns credits. For your own version to change freely, tap Copy and Edit Process.`, items:[
+    { role:'suggest', intro:true, content:`This process is built together, by consensus. Steps vary by place and situation, so your experience counts. Want to help? Tweak it, confirm it matches what happened to you, or review changes others suggested. Each earns credits. For your own version to change freely, tap Copy and Edit Process.`, items:[
       { label:'Suggest a tweak', a:'collab', v:'tweak' },
       { label:'It matches my experience', a:'collab', v:'confirm' },
       { label:'Something was different for me', a:'collab', v:'off' },
