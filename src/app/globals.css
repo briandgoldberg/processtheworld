@@ -774,3 +774,6 @@ body.embed .crumbs{padding-block:6px}
 /* Viewing a process (map only, any screen size): like/comment/share sit bottom left, same as on a phone */
 body:has(.work.viewonly) .work-top .wsmall{position:fixed;left:10px;bottom:calc(8px + env(safe-area-inset-bottom, 0px));z-index:40}
 body:has(.work.viewonly) .work-top .wsmall .btn{background:var(--surface);box-shadow:0 6px 18px -8px rgba(10,20,40,.4)}
+.work-top.fit-title .grow{flex:0 1 auto;min-width:0}
+.work-top.fit-title .title-in{max-width:100%}
+.work-top.fit-title #vis{margin-right:auto}

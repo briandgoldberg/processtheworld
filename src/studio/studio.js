@@ -2048,6 +2048,10 @@ function renderWork(fromStream){
   const p = S.cur;
   S.path = S.path.filter(id => p.maps[id]); if (!S.path.length) S.path = ['m_root'];
   const t = $('#title'); if (document.activeElement !== t) t.value = p.title === 'Untitled process' ? '' : p.title;
+  // Viewing: the title box hugs the title so "by …" follows right after it
+  { const fit = ['public', 'example', 'view', 'compare'].includes(kindOf(p)); t.closest('.work-top').classList.toggle('fit-title', fit);
+    if (fit){ const cs = getComputedStyle(t), c = (fitTitle.c ||= document.createElement('canvas').getContext('2d')); c.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`; t.style.width = Math.ceil(c.measureText(t.value || t.placeholder).width + parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight) + 4) + 'px'; }
+    else t.style.width = ''; }
   t.readOnly = !!S.compare;
   renderTopActions();
   const wa = $('#wacct'); wa.innerHTML = signInHTML() + acctHTML(); wireAcct(wa); wireSignIn(wa); wireEmailForm(wa);
@@ -2096,6 +2100,7 @@ function renderMsgs(){
   if (nearBottom || S.busy) el.scrollTop = el.scrollHeight;
 }
 
+function fitTitle(){}
 function renderCrumbs(){
   const p = S.cur, ev = p.events || [], viewer = readOnly(p);
   if (viewer && S.path.length === 1){ $('#crumbs').innerHTML = ''; $('#crumbs').hidden = true; return; }
