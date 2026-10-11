@@ -1776,12 +1776,12 @@ function primaryHTML(p){
   const k = kindOf(p), q = S.real || p;
   const n = q.openProposals || 0;
   if (k === 'compare') return '';
-  if (k === 'public') return `${likeHTML(q)}${commentBtn(q)}<button class="btn primary sm" data-act="copy">Copy Process</button>${shareButtons(q.publicId)}`;
-  if (k === 'example') return `<button class="btn primary sm" data-act="copy">Copy Process</button>${shareButtons(q.id)}`;
+  if (k === 'public') return `<span class="wsmall">${likeHTML(q)}${commentBtn(q)}${shareButtons(q.publicId)}</span><button class="btn primary sm" data-act="copy">Copy Process</button>`;
+  if (k === 'example') return `<span class="wsmall">${shareButtons(q.id)}</span><button class="btn primary sm" data-act="copy">Copy Process</button>`;
   if (k === 'view') return `<button class="btn primary sm" data-act="copy">Copy Process</button>`;
   if (k === 'draft') return p.maps.m_root.steps.length ? `<button class="btn primary sm" data-act="submit">${p.submitted ? 'Submit again' : 'Submit for review'}</button>` : '';
   // A public process is frozen and already open to everyone: no Share sheet, just the quick actions
-  if (q.publicId) return commentBtn(q) + shareButtons(q.publicId);
+  if (q.publicId) return `<span class="wsmall">${commentBtn(q)}${shareButtons(q.publicId)}</span>`;
   return `<button class="btn sm" data-act="share">${q.shareCount ? ICON.people : ICON.lock}Share</button>`;
 }
 function menuHTML(p){
@@ -2030,6 +2030,7 @@ function renderWork(fromStream){
   $('#work').classList.toggle('viewonly', viewonly);
   const tabs = $('#tabs'); if (tabs) tabs.hidden = viewonly;
   $('#work').dataset.tab = S.tab;
+  { const c = document.querySelector('.composer'); if (c && c.offsetHeight) document.body.style.setProperty('--composer-h', c.offsetHeight + 'px'); }
   $('#work').classList.toggle('comparing', !!S.compare);
   document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === S.tab));
   $('#stop').hidden = !S.busy; $('#sendb').disabled = S.busy || !!S.compare;
