@@ -2679,7 +2679,7 @@ function renderInspector(){
   const ro = locked(S.cur), dis = ro ? ' disabled' : '';
   box.innerHTML = `<div class="inspector${ro ? ' locked' : ''}" role="dialog" aria-label="Step details">
     <div class="ins-head"><span class="label">Step · <span class="mono">${esc(s.id)}</span></span><button class="btn ghost" id="ix" aria-label="Close">✕</button></div>
-    ${ro ? '<div class="ins-lock"><p class="hint">This process can\'t be changed. Copy it to make your own version you can edit.</p><button class="btn primary sm" id="i-copy">Copy and Edit Process</button></div>' : ''}
+    ${ro ? '<p class="hint ins-lock">This process can\'t be changed. Use Copy and Edit Process at the top to make your own version.</p>' : ''}
     <div class="row"><label class="label" for="i-label">Name</label><input id="i-label" value="${esc(s.label)}"${dis}></div>
     <div class="row"><label class="label" for="i-lane">Lane</label><select id="i-lane"${dis}>${m.lanes.map(l => `<option value="${esc(l.id)}" ${l.id === s.lane ? 'selected' : ''}>${esc(l.name)} (${l.type === 'system' ? 'technology' : 'persona'})</option>`).join('')}${m.lanes.some(l=>l.id===s.lane)?'':'<option selected>Unassigned</option>'}</select></div>
     <div class="row"><label class="label" for="i-kind">Type</label><select id="i-kind"${dis}>${KINDS.map(k => `<option ${k === s.kind ? 'selected' : ''}>${k}</option>`).join('')}</select></div>
@@ -2698,7 +2698,6 @@ function renderInspector(){
   };
   $('#ix').onclick = () => { S.sel = null; renderBoard(); renderInspector(); };
   if (ro){
-    $('#i-copy').onclick = () => { S.panel = null; ensureOwned(); S.tab = 'chat'; renderWork(); flushSoon(); };
     const dr = $('#i-drill'); if (dr) dr.onclick = () => s.link ? openLinked(s.link.id, s.link.scope === 'private' ? 'mine' : 'pub') : drill(s.id);
     return;
   }
