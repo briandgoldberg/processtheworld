@@ -5,12 +5,14 @@ import { cleanTag } from "@/lib/tags";
 import { json } from "@/lib/http";
 import { seedCrmOnce } from "@/lib/seedCrm";
 import { seedCommunityOnce } from "@/lib/seedCommunity";
+import { featureNewestOnce } from "@/lib/featureNewest";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   await seedCrmOnce(req.nextUrl.origin);
   await seedCommunityOnce(req.nextUrl.origin);
+  await featureNewestOnce();
   const me = await userFrom(req);
   const q = (req.nextUrl.searchParams.get("q") || "").trim().slice(0, 80);
   const tag = cleanTag(req.nextUrl.searchParams.get("tag"));
