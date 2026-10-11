@@ -688,16 +688,19 @@ const cmbPickItem = c => ({ label:c.title + (c.scope === 'private' ? ' (yours)' 
 function startCombineChat(){
   ensureOwned(); const p = S.cur;
   S.awaitCombine = true; S.cmbPick = null;
-  const cands = cmbCandidates(p);
-  cmbSay(p, 'Pick a process to combine it with, or type a name. Next I will ask where it fits: before, after, or inside one of your steps.', [...cands.map(cmbPickItem), { label:'Never mind', a:'cmbcancel', v:'1' }]);
+  const cands = cmbCandidates(p), empty = !p.maps.m_root.steps.length;
+  cmbSay(p, empty ? 'Pick a process to start from, or type its name. After that you can add more processes before or after it, or describe your own steps around it.'
+    : 'Pick a process to combine it with, or type a name. Next I will ask where it fits: before, after, or inside one of your steps.', [...cands.map(cmbPickItem), { label:'Never mind', a:'cmbcancel', v:'1' }]);
   S.tab = 'chat'; touch(); renderWork();
 }
 function pickCombine(c){
   const p = S.cur; S.cmbPick = c;
-  p.chat.push({ role:'user', content:'Combine it with “' + c.title + '”' });
   const hasSteps = p.maps.m_root.steps.length > 0;
+  // A brand new process has nothing to fit it around yet: it simply becomes the first part
+  if (!hasSteps){ p.chat.push({ role:'user', content:'Start with “' + c.title + '”' }); combineWith(c, 'after'); return; }
+  p.chat.push({ role:'user', content:'Combine it with “' + c.title + '”' });
   cmbSay(p, 'How should “' + c.title + '” fit in?', [
-    ...(hasSteps ? [{ label:'Run it after this process', a:'cmbhow', v:'after' }, { label:'Run it before this process', a:'cmbhow', v:'before' }, { label:'Use it inside one of my steps', a:'cmbhow', v:'inside' }] : [{ label:'Start the process with it', a:'cmbhow', v:'after' }]),
+    { label:'Run it after this process', a:'cmbhow', v:'after' }, { label:'Run it before this process', a:'cmbhow', v:'before' }, { label:'Use it inside one of my steps', a:'cmbhow', v:'inside' },
     { label:'Pick a different one', a:'cmbstart', v:'1' },
   ]);
   touch(); renderWork();
@@ -706,7 +709,7 @@ function combineWith(c, how, stepId){
   const p = S.cur, m = p.maps.m_root;
   if (!m.lanes.length) m.lanes.push({ id:rid('l'), name:'The whole process', type:'person' });
   const lane = m.lanes[0].id, mk = (label, kind, extra = {}) => ({ id:rid('s'), lane, label, kind, uses:[], next:[], ...extra });
-  const link = { id:c.id, title:c.title, scope:c.scope };
+  const link = { id:c.id, title:c.title, scope:c.scope }, wasEmpty = !m.steps.length;
   let said;
   if (how === 'inside'){
     const st = m.steps.find(x => x.id === stepId); if (!st) return;
@@ -724,7 +727,12 @@ function combineWith(c, how, stepId){
   if (!p.title || p.title === 'Untitled process'){ p.title = c.title; m.title = p.title; }
   logEvent(p, { who:'human', op:'combine_chat', id:c.id, scope:c.scope, how });
   S.awaitCombine = false; S.cmbPick = null;
-  cmbSay(p, 'Done. ' + said + '');
+  if (wasEmpty) cmbSay(p, '“' + c.title + '” is the first part of your new process. What next?', [
+    { label:'Add another process', a:'cmbstart', v:'1' },
+    { label:'Describe what happens before it', fill:'Before “' + c.title + '”, ' },
+    { label:'Describe what happens after it', fill:'After “' + c.title + '”, ' },
+  ]);
+  else cmbSay(p, 'Done. ' + said + '');
   S.tab = 'map'; touch(); renderWork();
 }
 function cmbHow(how){
@@ -2142,7 +2150,7 @@ async function onPanelSubmit(e){
   else if (kind === 'comment') await postComment(f);
   if (btn) btn.disabled = false;
 }
-/* Import a public process as a sub process, or combine several */
+/* Import a process as a sub process, or combine several */
 function onPanelChange(e){
   const s = e.target.closest('[data-role-for]'); if (s) setRole(s.dataset.roleFor, s.value);
 }
@@ -2234,7 +2242,7 @@ function renderMsgs(){
   const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
   if (!p.chat.length){
     el.innerHTML = `<div class="msg assistant">Tell me about a process: what it's called, who's involved, and what happens first. I'll build the map as you go and ask about anything that's missing.</div>
-    <div class="starters"><div class="label">Or start with</div>${STARTERS.map(s => `<button class="starter" data-starter="${esc(s)}">${esc(s)}</button>`).join('')}<button class="starter" data-combine>Import a public process as a sub process, or combine several public processes.</button></div>`;
+    <div class="starters"><div class="label">Or start with</div>${STARTERS.map(s => `<button class="starter" data-starter="${esc(s)}">${esc(s)}</button>`).join('')}<button class="starter" data-combine>Import a process as a sub process, or combine several processes.</button></div>`;
     return;
   }
   const lastU = lastUserIndex(p);
