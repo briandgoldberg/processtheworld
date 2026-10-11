@@ -1278,6 +1278,7 @@ async function withdraw(id){
 let rsz = 0; addEventListener('resize', () => { clearTimeout(rsz); rsz = setTimeout(() => { if (S.view === 'work' && S.cur) renderBoard(); }, 150); });
 /* ---------- Layout ---------- */
 const L = { HEAD:150, COL:196, BOXW:158, BOXH:60, ROWGAP:16, PADX:28, PADY:16, BAND:22 };
+const STEP_H = {}; // measured height of each drawn step box, "mapId|stepId" → px
 function layout(m){
   const col = columnsOf(m, n => isInternal(n, m));
   const laneIds = new Set(m.lanes.map(l => l.id));
@@ -1286,6 +1287,10 @@ function layout(m){
   const laneOf = s => laneIds.has(s.lane) ? s.lane : '__none';
   const slot = {}, rowOf = {}, rows = {};
   m.steps.forEach(s => { const k = laneOf(s) + '|' + col[s.id]; rowOf[s.id] = slot[k] = (slot[k] ?? -1) + 1; rows[laneOf(s)] = Math.max(rows[laneOf(s)] || 1, rowOf[s.id] + 1); });
+  // A step with a long label is taller than the standard box: its row (and so its lane) grows to fit it
+  const hOf = s => Math.max(L.BOXH, STEP_H[m.id + '|' + s.id] || 0), rowH = {};
+  m.steps.forEach(s => { const r = (rowH[laneOf(s)] ||= []); r[rowOf[s.id]] = Math.max(r[rowOf[s.id]] || L.BOXH, hOf(s)); });
+  const rowTop = (lane, r) => { let t = 0; for (let i = 0; i < r; i++) t += ((rowH[lane] || [])[i] || L.BOXH) + L.ROWGAP; return t; };
   const maxCol = Math.max(0, ...Object.values(col));
   const width = L.HEAD + L.PADX * 2 + (maxCol + 1) * L.COL;
   const firstSys = lanes.findIndex(l => l.type === 'system');
@@ -1293,10 +1298,10 @@ function layout(m){
   lanes.forEach((l, i) => {
     if (i === 0 && l.type !== 'system'){ bands.push({ y, t:'People' }); y += L.BAND; }
     if (i === firstSys){ bands.push({ y, t:'Technology' }); y += L.BAND; }
-    laneY[l.id] = y; laneH[l.id] = (rows[l.id] || 1) * (L.BOXH + L.ROWGAP) + L.PADY * 2 - L.ROWGAP + 8; y += laneH[l.id];
+    const n = rows[l.id] || 1; laneY[l.id] = y; laneH[l.id] = rowTop(l.id, n) + L.PADY * 2 - L.ROWGAP + 8; y += laneH[l.id];
   });
   const pos = {};
-  m.steps.forEach(s => { pos[s.id] = { x:L.HEAD + L.PADX + col[s.id] * L.COL, y:laneY[laneOf(s)] + L.PADY + rowOf[s.id] * (L.BOXH + L.ROWGAP) }; });
+  m.steps.forEach(s => { pos[s.id] = { x:L.HEAD + L.PADX + col[s.id] * L.COL, y:laneY[laneOf(s)] + L.PADY + rowTop(laneOf(s), rowOf[s.id]), h:hOf(s) }; });
   return { lanes, laneY, laneH, bands, pos, width, height:y };
 }
 
@@ -2547,18 +2552,18 @@ function renderBoard(){
   m.steps.forEach(s => s.next.forEach((n, k) => {
     if (!isInternal(n, m)) return;
     const a = g.pos[s.id], z = g.pos[n.to]; if (!a || !z || !byId[n.to]) return;
-    const ay = a.y + L.BOXH / 2, zy = z.y + L.BOXH / 2;
+    const ah = a.h || L.BOXH, zh = z.h || L.BOXH, ay = a.y + ah / 2, zy = z.y + zh / 2;
     let d, lx, ly;
     if (z.x > a.x){
       const sx = a.x + L.BOXW, mid = sx + (z.x - sx) / 2 + (k ? 6 : 0);
       d = `M${sx},${ay} H${mid} V${zy} H${z.x - 2}`; lx = mid; ly = ay === zy ? ay - 10 : (ay + zy) / 2;
     } else if (z.x === a.x){
       const sx = a.x + L.BOXW / 2;
-      d = z.y > a.y ? `M${sx},${a.y + L.BOXH} V${z.y - 2}` : `M${a.x + L.BOXW},${ay} h18 V${zy} H${z.x + L.BOXW + 2}`;
-      lx = sx + 14; ly = (a.y + L.BOXH + z.y) / 2;
+      d = z.y > a.y ? `M${sx},${a.y + ah} V${z.y - 2}` : `M${a.x + L.BOXW},${ay} h18 V${zy} H${z.x + L.BOXW + 2}`;
+      lx = sx + 14; ly = (a.y + ah + z.y) / 2;
     } else {
-      const low = Math.max(a.y, z.y) + L.BOXH + 10;
-      d = `M${a.x + L.BOXW / 2},${a.y + L.BOXH} V${low} H${z.x + L.BOXW / 2} V${z.y + L.BOXH + 2}`; lx = (a.x + z.x + L.BOXW) / 2; ly = low;
+      const low = Math.max(a.y + ah, z.y + zh) + 10;
+      d = `M${a.x + L.BOXW / 2},${a.y + ah} V${low} H${z.x + L.BOXW / 2} V${z.y + zh + 2}`; lx = (a.x + z.x + L.BOXW) / 2; ly = low;
     }
     const lab = String(n.label || '').trim(), tone = /^(yes|y|ok|okay|approved?|pass(ed)?|true|done|found|clear(ed)?|success|accept(ed)?|signed|match(es)?|resolved|enough|ready)\b/i.test(lab) ? 'yes' : /^(no|n|not|fail(ed)?|reject(ed)?|denied|false|retry|missing|wait|too|stuck|nothing|blocked|cancel(led)?)\b/i.test(lab) ? 'no' : '';
     const back = z.x <= a.x && z.y !== a.y || z.x < a.x;
@@ -2594,6 +2599,15 @@ function renderBoard(){
   b.innerHTML = html;
   b.classList.toggle('painview', !!S.painView); renderPainList();
   if (S.guide) markGuide();
+  // Measure the boxes as drawn; if any is taller than its slot, lay the map out again with the real heights
+  if (!renderBoard.again){
+    const k = b.getBoundingClientRect().height / g.height || 1; let changed = false;
+    b.querySelectorAll('.step[data-step]').forEach(el => {
+      const key = m.id + '|' + el.dataset.step, h = Math.ceil(el.getBoundingClientRect().height / k);
+      if (h > 0 && Math.abs((STEP_H[key] || L.BOXH) - Math.max(L.BOXH, h)) > 1){ STEP_H[key] = h; changed = true; }
+    });
+    if (changed){ renderBoard.again = true; try { renderBoard(); } finally { renderBoard.again = false; } }
+  }
 }
 
 function pathTo(mapId){
