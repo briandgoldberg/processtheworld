@@ -189,7 +189,7 @@ function ensureOwned(){
   for (const k of ['example','readonly','publishedBy','publicId','publicMode','mine','role','owner','rev','version','openProposals','viewShare','shareCount']) delete copy[k];
   copy.id = rid('p'); copy.events = []; copy.undo = null; copy.rating = null;
   if (q.publicId && !q.viewShare && q.readonly){ copy.forkedFrom = q.publicId; if (!S.mine.some(m => m.publicId === q.publicId)) API.post('/api/public/' + q.publicId, {}).catch(()=>{}); }
-  copy.chat = (copy.chat || []).concat([{ role:'note', content:`Saved your own private copy of ${from}.` }, { role:'suggest', content:'It is yours now. Here are a few things you could do with it:', items:[{ label:'Combine it with another process', combine:true }, { label:'Adjust a step', fill:'Change the step where ' }, { label:'Add more detail to a step', fill:'Add more detail to the step ' }, { label:'Add another person or team', fill:'Add another person or team: ' }, { label:'Show the tools used', fill:'Show which tools are used when ' }, { label:'Mark where it hurts', send:'Mark the steps that are slow, error prone or painful.' }] }]);
+  copy.chat = (copy.chat || []).concat([{ role:'note', content:`Saved your own private copy of ${from}.` }, { role:'suggest', content:'It is yours now. Here are a few things you could do with it:', items:[{ label:'Combine it with another process', a:'cmbstart', v:'1' }, { label:'Adjust a step', fill:'Change the step where ' }, { label:'Add more detail to a step', fill:'Add more detail to the step ' }, { label:'Add another person or team', fill:'Add another person or team: ' }, { label:'Show the tools used', fill:'Show which tools are used when ' }, { label:'Mark where it hurts', send:'Mark the steps that are slow, error prone or painful.' }] }]);
   S.cur = copy;
   track('copy_made', { from:q.publicId || q.id, example:!!q.example }, copy.id);
 }
@@ -591,10 +591,98 @@ function mapPayload(p, mapId, history, text){
   return { mode:'map', processId:p.id, model:compactModel(p), mapId, mapTitle:p.maps[mapId]?.title || '', status:p.status || 'interviewing',
     hasTech:Object.values(p.maps).some(mm => mm.lanes.some(l => l.type === 'system')), history, text, skippedLastQuestion:!!prevAsk?.askSkipped };
 }
+
+/* Combining, as a conversation: suggest related processes, ask which one and how it fits */
+const cmbSay = (p, content, items) => p.chat.push(items ? { role:'suggest', content, items } : { role:'assistant', content });
+const norm = t => String(t || '').toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+function cmbCandidates(p){
+  const words = new Set(norm((p.title || '') + ' ' + (p.tags || []).join(' ') + ' ' + p.maps.m_root.steps.map(x => x.label).slice(0, 12).join(' ')).split(' ').filter(w => w.length > 3));
+  const score = x => norm(x.title + ' ' + (x.tags || []).join(' ')).split(' ').filter(w => words.has(w)).length;
+  const pub = [...(S.pub || [])].map(x => ({ x, n:score(x) })).sort((a, b) => b.n - a.n || (b.x.likes || 0) - (a.x.likes || 0)).slice(0, 4).map(r => ({ scope:'public', id:r.x.id, title:r.x.title }));
+  const mine = (S.mine || []).filter(x => x.id !== p.id && !x.proposalFor && !x.publicId).map(x => ({ x, n:score(x) })).sort((a, b) => b.n - a.n).slice(0, 3).map(r => ({ scope:'private', id:r.x.id, title:r.x.title || 'Untitled process' }));
+  return [...pub, ...mine];
+}
+function cmbFind(text){
+  const t = norm(text); if (t.length < 3) return null;
+  const all = [...(S.pub || []).map(x => ({ scope:'public', id:x.id, title:x.title })), ...(S.mine || []).filter(x => x.id !== S.cur.id && !x.proposalFor).map(x => ({ scope:'private', id:x.id, title:x.title || 'Untitled process' }))];
+  return all.find(x => norm(x.title) === t) || all.find(x => norm(x.title).includes(t)) || all.find(x => t.includes(norm(x.title)) && norm(x.title).length > 6) || null;
+}
+const cmbPickItem = c => ({ label:c.title + (c.scope === 'private' ? ' (yours)' : ''), a:'cmbpick', v:c.scope + ':' + c.id });
+function startCombineChat(){
+  ensureOwned(); const p = S.cur;
+  S.awaitCombine = true; S.cmbPick = null;
+  const cands = cmbCandidates(p);
+  cmbSay(p, 'Which process would you like to combine this with, and how? Tap one below, or type the name of any public process or one of your own. Then I will ask whether it should run before, after, or inside one of your steps.', [...cands.map(cmbPickItem), { label:'Never mind', a:'cmbcancel', v:'1' }]);
+  S.tab = 'chat'; touch(); renderWork();
+}
+function pickCombine(c){
+  const p = S.cur; S.cmbPick = c;
+  p.chat.push({ role:'user', content:'Combine it with “' + c.title + '”' });
+  const hasSteps = p.maps.m_root.steps.length > 0;
+  cmbSay(p, 'How should “' + c.title + '” fit in?', [
+    ...(hasSteps ? [{ label:'Run it after this process', a:'cmbhow', v:'after' }, { label:'Run it before this process', a:'cmbhow', v:'before' }, { label:'Use it inside one of my steps', a:'cmbhow', v:'inside' }] : [{ label:'Start the process with it', a:'cmbhow', v:'after' }]),
+    { label:'Pick a different one', a:'cmbstart', v:'1' },
+  ]);
+  touch(); renderWork();
+}
+function combineWith(c, how, stepId){
+  const p = S.cur, m = p.maps.m_root;
+  if (!m.lanes.length) m.lanes.push({ id:rid('l'), name:'The whole process', type:'person' });
+  const lane = m.lanes[0].id, mk = (label, kind, extra = {}) => ({ id:rid('s'), lane, label, kind, uses:[], next:[], ...extra });
+  const link = { id:c.id, title:c.title, scope:c.scope };
+  let said;
+  if (how === 'inside'){
+    const st = m.steps.find(x => x.id === stepId); if (!st) return;
+    st.kind = 'subprocess'; st.link = link; said = '“' + c.title + '” now opens from the step “' + st.label + '”.';
+  } else if (how === 'before' && m.steps.length){
+    const first = m.steps.find(x => x.kind === 'start') || m.steps[0], part = mk(c.title, 'subprocess', { link });
+    part.next.push({ to:first.id }); if (first.kind === 'start') first.kind = 'task'; m.steps.unshift(part);
+    said = '“' + c.title + '” now runs before this process.';
+  } else {
+    const part = mk(c.title, 'subprocess', { link });
+    if (!m.steps.length){ const a = mk('Start', 'start'), z = mk('Done', 'end'); a.next.push({ to:part.id }); part.next.push({ to:z.id }); m.steps.push(a, part, z); }
+    else { const tail = [...m.steps].reverse().find(x => !x.next.length), z = mk('Done', 'end'); if (tail && tail.kind === 'end') tail.kind = 'task'; if (tail) tail.next.push({ to:part.id }); part.next.push({ to:z.id }); m.steps.push(part, z); }
+    said = '“' + c.title + '” now runs after this process.';
+  }
+  if (!p.title || p.title === 'Untitled process'){ p.title = c.title; m.title = p.title; }
+  logEvent(p, { who:'human', op:'combine_chat', id:c.id, scope:c.scope, how });
+  S.awaitCombine = false; S.cmbPick = null;
+  cmbSay(p, 'Done. ' + said + ' You can keep going: adjust a step, add more detail, or combine another.');
+  S.tab = 'map'; touch(); renderWork();
+}
+function cmbHow(how){
+  const p = S.cur, c = S.cmbPick; if (!c) return;
+  if (how === 'inside'){
+    const steps = p.maps.m_root.steps.filter(x => x.kind !== 'start' && x.kind !== 'end').slice(0, 10);
+    p.chat.push({ role:'user', content:'Use it inside one of my steps' });
+    cmbSay(p, 'Which step should open “' + c.title + '”?', steps.map(x => ({ label:x.label, a:'cmbstep', v:x.id })));
+    touch(); renderWork(); return;
+  }
+  p.chat.push({ role:'user', content:how === 'before' ? 'Run it before this process' : 'Run it after this process' });
+  combineWith(c, how);
+}
+// Typed answers while a combine is in progress
+function combineTyped(text){
+  const p = S.cur; const box = $('#msg'); if (box) box.value = '';
+  if (!S.cmbPick){
+    const hit = cmbFind(text);
+    if (hit){ pickCombine(hit); return true; }
+    p.chat.push({ role:'user', content:text });
+    cmbSay(p, 'I could not find a process with that name. Tap one of the suggestions above, try another name, or carry on describing your process.', [{ label:'Never mind', a:'cmbcancel', v:'1' }]);
+    touch(); renderWork(); return true;
+  }
+  const t = norm(text);
+  const how = /\binside|within|step\b/.test(t) ? 'inside' : /\bbefore|first|start\b/.test(t) ? 'before' : /\bafter|then|next|end\b/.test(t) ? 'after' : '';
+  if (how){ cmbHow(how); return true; }
+  p.chat.push({ role:'user', content:text });
+  cmbSay(p, 'Should it run before this process, after it, or inside one of your steps?', [{ label:'Run it after this process', a:'cmbhow', v:'after' }, { label:'Run it before this process', a:'cmbhow', v:'before' }, { label:'Use it inside one of my steps', a:'cmbhow', v:'inside' }]);
+  touch(); renderWork(); return true;
+}
 async function send(text){
   text = (text || '').trim();
   if (!text || S.busy) return;
   ensureOwned();
+  if (S.awaitCombine && S.cur && S.cur.id && combineTyped(text)) return;
   let p = S.cur;
   if (p.status === 'done') p.status = 'interviewing'; // no Finish/Resume button: talking again picks the interview back up
 
@@ -1718,8 +1806,13 @@ function renderWorkShell(app){
   $('#tabs').onclick = e => { const t = e.target.closest('[data-tab]'); if (!t) return; S.tab = t.dataset.tab; renderWork(); };
   $('#msgs').onclick = e => {
     const b = e.target.closest('[data-starter]'); if (b){ send(b.dataset.starter); return; }
+    const cs = e.target.closest('[data-cmbstart]'); if (cs){ startCombineChat(); return; }
+    const cp = e.target.closest('[data-cmbpick]'); if (cp){ const [scope, ...r] = cp.dataset.cmbpick.split(':'), id = r.join(':'); const hit = scope === 'public' ? (S.pub || []).find(x => x.id === id) : (S.mine || []).find(x => x.id === id); pickCombine({ scope, id, title:hit?.title || 'Untitled process' }); return; }
+    const ch = e.target.closest('[data-cmbhow]'); if (ch){ cmbHow(ch.dataset.cmbhow); return; }
+    const cst = e.target.closest('[data-cmbstep]'); if (cst && S.cmbPick){ const stp = S.cur.maps.m_root.steps.find(x => x.id === cst.dataset.cmbstep); S.cur.chat.push({ role:'user', content:stp ? stp.label : 'That step' }); combineWith(S.cmbPick, 'inside', cst.dataset.cmbstep); return; }
+    if (e.target.closest('[data-cmbcancel]')){ S.awaitCombine = false; S.cmbPick = null; cmbSay(S.cur, 'No problem. What would you like to do next?'); touch(); renderWork(); return; }
     const fl = e.target.closest('[data-fill]'); if (fl){ const box = $('#msg'); box.value = fl.dataset.fill; box.focus(); box.setSelectionRange(box.value.length, box.value.length); return; }
-    if (e.target.closest('[data-combine]')){ S.combine = { q:'', sel:[] }; S.panel = 'combine'; renderPanel(); return; }
+    if (e.target.closest('[data-combine]')){ startCombineChat(); return; }
     const pr = e.target.closest('[data-prop]'); if (pr){ resolveProposal(+pr.dataset.idx, pr.dataset.prop === 'remove'); return; }
     const j = e.target.closest('[data-jump]'); if (j){ jumpTo(j.dataset.jump, j.dataset.step); return; }
     const r = e.target.closest('[data-rate]'); if (r){ rateReply(+r.dataset.idx, +r.dataset.rate); return; }
@@ -2083,7 +2176,7 @@ function renderMsgs(){
   const canEdit = !S.busy && p.undo && p.undo.chatIndex === lastU;
   el.innerHTML = p.chat.map((m, i) => {
     if (m.role === 'note') return `<div class="msg note">${esc(m.content)}</div>`;
-    if (m.role === 'suggest') return `<div class="msg assistant">${esc(m.content)}</div><div class="starters">${m.items.map(it => it.combine ? `<button class="starter" data-combine>${esc(it.label)}</button>` : it.fill ? `<button class="starter" data-fill="${esc(it.fill)}">${esc(it.label)}</button>` : `<button class="starter" data-starter="${esc(it.send)}">${esc(it.label)}</button>`).join('')}</div>`;
+    if (m.role === 'suggest') return `<div class="msg assistant">${esc(m.content)}</div><div class="starters">${m.items.map(it => it.a ? `<button class="starter" data-${it.a}="${esc(it.v)}">${esc(it.label)}</button>` : it.combine ? `<button class="starter" data-combine>${esc(it.label)}</button>` : it.fill ? `<button class="starter" data-fill="${esc(it.fill)}">${esc(it.label)}</button>` : `<button class="starter" data-starter="${esc(it.send)}">${esc(it.label)}</button>`).join('')}</div>`;
     if (m.role === 'user') return `<div class="msg user">${esc(m.content)}</div>`;
     if (m.pending && !m.content) return `<div class="msg assistant"><span class="thinking"><i></i><i></i><i></i>&nbsp;${m.checking ? 'Checking the map' : m.ops ? 'Mapping · ' + m.ops + ' change' + (m.ops === 1 ? '' : 's') : 'Listening'}</span></div>`;
     let x = `<div class="msg assistant${m.err ? ' err' : ''}">${esc(m.content)}`;
