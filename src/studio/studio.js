@@ -181,7 +181,7 @@ async function sendEvents(){
 
 /* Opening an example or someone's public process is read-only; the first change makes a private copy */
 function ensureOwned(){
-  const p = S.cur; if (!readOnly(p)) return;
+  const p = S.cur; if (!readOnly(p) || p.adminView) return; // an admin looking at someone's private process never copies it
   if (S.compare) closeCompare();
   const q = S.cur;
   const copy = clone(q);
@@ -1810,7 +1810,11 @@ async function openProcess(id, kind){
   let p = null;
   try {
     if (kind === 'ex') p = clone(EXAMPLES.find(x => x.id === id));
-    else if (kind === 'pub'){
+    else if (kind === 'admin'){
+      // Someone's private process, opened by an admin: read-only, nothing saved, no copy
+      const d = await API.get('/api/admin/sessions/' + id);
+      p = { ...d.process.doc, id:'adm_' + id, title:d.process.title || d.process.doc?.title, readonly:true, adminView:true, owner:d.process.who };
+    } else if (kind === 'pub'){
       const d = await API.get('/api/public/' + id);
       p = { ...d.doc, id:'pub_' + id, readonly:true, publishedBy:d.authorName, publicId:id, version:d.version, openProposals:d.openProposals, publicMode:d.mode || 'collaborative', likes:d.likes || 0, liked:!!d.liked, commentCount:d.commentCount || 0, tags:d.doc?.tags || d.tags || [] };
       track('public_opened', { publicId:id }, null);
@@ -1969,9 +1973,10 @@ const visPill = (publicId, shareCount) => publicId ? `<span class="pill pub">${I
 
 /* What kind of process is open decides the buttons */
 /* Published as is, an example, or shared view-only: nothing on it can be changed until you copy it */
-const locked = p => ['public', 'example', 'view'].includes(kindOf(p));
+const locked = p => ['public', 'example', 'view', 'admin'].includes(kindOf(p));
 function kindOf(p){
   if (S.compare) return 'compare';
+  if (p.adminView) return 'admin';
   if (p.example) return 'example';
   if (p.readonly && p.viewShare) return 'view';
   if (p.readonly && p.publicMode === 'community') return 'community';
@@ -1987,6 +1992,7 @@ function visHTML(p){
   if (k === 'community' || (k === 'compare' && q.publicMode === 'community')) return `<span class="pill sh hide-sm">${ICON.people}Build Together</span>`;
   if (k === 'public' || k === 'compare') return `<span class="by">by ${esc(q.publishedBy)}</span>`;
   if (k === 'view') return `<span class="pill">View only</span><span class="by hide-sm">shared by ${esc(q.owner)}</span>`;
+  if (k === 'admin') return `<span class="pill">Admin view</span><span class="by hide-sm">private, by ${esc(q.owner || 'someone')}</span>`;
   if (k === 'draft') return `<span class="pill ex">Suggestion</span><span class="by hide-sm">for “${esc(q.suggestTitle || 'a public process')}”</span>`;
   if (k === 'shared') return `<span class="pill sh">${ICON.people}Shared</span><span class="by hide-sm">by ${esc(q.owner)}</span>`;
   if (!q.publicId) return ''; // Share and Thumbnail live in the bottom group
@@ -1997,6 +2003,7 @@ function primaryHTML(p){
   const k = kindOf(p), q = S.real || p;
   const n = q.openProposals || 0;
   if (k === 'compare') return '';
+  if (k === 'admin') return '';
   if (k === 'public' || k === 'community') return `<span class="wsmall">${likeHTML(q)}${commentBtn(q)}${shareButtons(q.publicId)}</span><button class="btn primary sm" data-act="copy">Copy and Edit Process</button>`;
   if (k === 'example') return `<span class="wsmall">${shareButtons(q.id)}</span><button class="btn primary sm" data-act="copy">Copy and Edit Process</button>`;
   if (k === 'view') return `<button class="btn primary sm" data-act="copy">Copy and Edit Process</button>`;
@@ -2216,13 +2223,13 @@ function renderWork(fromStream){
   S.path = S.path.filter(id => p.maps[id]); if (!S.path.length) S.path = ['m_root'];
   const t = $('#title'); if (document.activeElement !== t) t.value = p.title === 'Untitled process' ? '' : p.title;
   // Viewing: the title box hugs the title so "by …" follows right after it
-  { const fit = ['public', 'example', 'view', 'compare', 'community'].includes(kindOf(p)); t.closest('.work-top').classList.toggle('fit-title', fit);
+  { const fit = ['public', 'example', 'view', 'compare', 'community', 'admin'].includes(kindOf(p)); t.closest('.work-top').classList.toggle('fit-title', fit);
     if (fit){ const cs = getComputedStyle(t), c = (fitTitle.c ||= document.createElement('canvas').getContext('2d')); c.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`; t.style.width = Math.ceil(c.measureText(t.value || t.placeholder).width + parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight) + 4) + 'px'; }
     else t.style.width = ''; }
   t.readOnly = !!S.compare || locked(p); t.title = locked(p) ? 'Copy and Edit Process to rename it' : 'Click to rename';
   renderTopActions();
   const wa = $('#wacct'); wa.innerHTML = signInHTML() + acctHTML(); wireAcct(wa); wireSignIn(wa); wireEmailForm(wa);
-  const viewonly = ['public', 'example', 'view'].includes(kindOf(p));
+  const viewonly = ['public', 'example', 'view', 'admin'].includes(kindOf(p));
   { const box = $('#msg'), k = kindOf(S.real || p); box.placeholder = k === 'community' || (k === 'compare' && (S.real || p).publicMode === 'community') ? 'Suggest a tweak, or tell us how it went for you…' : p.proposalFor ? 'Describe your change…' : 'Describe the process in your own words… (tip: use your keyboard\'s dictation to talk)'; }
   if (viewonly) S.tab = 'map';
   $('#work').classList.toggle('viewonly', viewonly);
@@ -2318,7 +2325,7 @@ function setUrl(path, title){
   if (location.pathname + location.search !== path) history.pushState(null, '', path);
   document.title = title || "forks.world: Mapping how the world works";
 }
-function urlFor(p, kind){ return kind === 'pub' ? '/p/' + p.publicId : kind === 'ex' ? '/?example=' + p.id : '/?process=' + p.id; }
+function urlFor(p, kind){ return kind === 'admin' ? '/?admin=' + p.id.slice(4) : kind === 'pub' ? '/p/' + p.publicId : kind === 'ex' ? '/?example=' + p.id : '/?process=' + p.id; }
 function startGuide(){
   const p = S.cur; if (!p) return;
   stopPlay(); S.sel = null;
@@ -2697,7 +2704,7 @@ function renderInspector(){
   const ro = locked(S.cur), dis = ro ? ' disabled' : '';
   box.innerHTML = `<div class="inspector${ro ? ' locked' : ''}" role="dialog" aria-label="Step details">
     <div class="ins-head"><span class="label">Step · <span class="mono">${esc(s.id)}</span></span><button class="btn ghost" id="ix" aria-label="Close">✕</button></div>
-    ${ro ? '<p class="hint ins-lock">This process can\'t be changed. Use the Copy and Edit Process button above to make your own version.</p>' : ''}
+    ${ro ? `<p class="hint ins-lock">${S.cur.adminView ? 'Someone\'s private process, open for you as an admin. Nothing here can be changed.' : 'This process can\'t be changed. Use the Copy and Edit Process button above to make your own version.'}</p>` : ''}
     <div class="row"><label class="label" for="i-label">Name</label><input id="i-label" value="${esc(s.label)}"${dis}></div>
     <div class="row"><label class="label" for="i-lane">Lane</label><select id="i-lane"${dis}>${m.lanes.map(l => `<option value="${esc(l.id)}" ${l.id === s.lane ? 'selected' : ''}>${esc(l.name)} (${l.type === 'system' ? 'technology' : 'persona'})</option>`).join('')}${m.lanes.some(l=>l.id===s.lane)?'':'<option selected>Unassigned</option>'}</select></div>
     <div class="row"><label class="label" for="i-kind">Type</label><select id="i-kind"${dis}>${KINDS.map(k => `<option ${k === s.kind ? 'selected' : ''}>${k}</option>`).join('')}</select></div>
@@ -2863,12 +2870,13 @@ export async function mount(root, opts = {}){
   S.ready = true;
   if (S.me?.email) ls.set('ptw_in', '1');
   if (S.me?.email && S.view === 'login') S.view = 'home';
-  const deep = !!(q.get('process') || opts.open || (q.get('example') && EXAMPLES.some(x => x.id === q.get('example'))));
+  const deep = !!(q.get('process') || q.get('admin') || opts.open || (q.get('example') && EXAMPLES.some(x => x.id === q.get('example'))));
   const settle = () => { S.loading = false; if (S.view !== 'work') render(); };
   if (deep) setTimeout(settle, 6000);
   else { await Promise.all([loadMine(), loadPublic()]); settle(); }
   if (deep){ loadMine(); loadPublic(); }
   { const pid = q.get('process'); if (pid && !opts.open){ S.noPush = true; openProcess(pid, 'mine').finally(settle); } }
+  { const aid = q.get('admin'); if (aid && !opts.open){ S.noPush = true; openProcess(aid, 'admin').finally(settle); } }
   const ex = q.get('example'); if (ex && EXAMPLES.some(x => x.id === ex)){ ls.set('ptw_in', '1'); openProcess(ex, 'ex').finally(settle); history.replaceState(null, '', '/'); }
   if (opts.open){ ls.set('ptw_in', '1'); openProcess(opts.open, 'pub').then(() => { if (opts.embed){ S.tab = 'map'; renderWork(); const l = $('#embedlink'); if (l){ l.href = location.origin + '/p/' + opts.open; l.hidden = false; } } if (q.get('guide')) startGuide(); }).finally(settle); }
   addEventListener('beforeunload', () => { if (dirty) flush(); if (outbox.length) navigator.sendBeacon?.('/api/events', new Blob([JSON.stringify({ key:API.key, events:outbox })], { type:'application/json' })); });

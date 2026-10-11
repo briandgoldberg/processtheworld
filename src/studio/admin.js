@@ -15,7 +15,7 @@ const pct = (a, b) => b ? Math.round(100 * a / b) + '%' : '—';
 const nice = s => String(s || '').replace(/_/g, ' ');
 
 const A = { tab:'usage', days:90, fbStatus:'all', fbKind:'all', fbQ:'', memberKind:'all', session:null, busy:false };
-const TAB_NAMES = { usage:'Usage', apiusage:'API usage', improve:'What to improve', feedback:'Feedback' };
+const TAB_NAMES = { usage:'Usage', apiusage:'API usage', private:'Private processes', improve:'What to improve', feedback:'Feedback' };
 
 function bars(rows, label, val){
   const max = Math.max(1, ...rows.map(val));
@@ -90,6 +90,18 @@ async function apiusage(el){
   </div>
   <section class="panel"><h3>Who used the most</h3><p class="hint">Calls made while that person was mapping. AI agents saving through the API use their own AI, so they cost you nothing.</p>${list(d.top, 'Who')}</section>
   <p class="hint">These are estimates from each call's token counts at list prices. Your exact bill, credit balance and spend limits are in the <a href="https://platform.claude.com" target="_blank" rel="noopener">Claude Console</a>.</p>`;
+}
+
+/* ---------- New private processes: unpublished work, newest first, viewable only by admins ---------- */
+async function privateList(el){
+  const d = await api('/api/admin/private?days=' + A.days);
+  el.innerHTML = `<section class="panel"><h3>${d.processes.length} new private process${d.processes.length === 1 ? '' : 'es'} in the last ${d.days} days</h3>
+    <p class="hint">Made by others and not published. View map opens it read-only; only admins and the person who made it can open these.</p>
+    ${d.processes.length ? `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Process</th><th>Who</th><th>Steps</th><th>Made</th><th>Last change</th><th></th></tr></thead><tbody>${d.processes.map(p => `<tr>
+      <td><a href="/?admin=${encodeURIComponent(p.id)}" target="_blank" rel="noopener">${esc(p.title || 'Untitled process')}</a>${p.copy ? ' <span class="hint">copy</span>' : ''}${p.shared ? ` <span class="hint">shared with ${p.shared}</span>` : ''}${p.status === 'done' ? ' <span class="hint">finished</span>' : ''}</td>
+      <td>${esc(p.who)}</td><td>${p.steps}${p.layers > 1 ? ` <span class="hint">${p.layers} layers</span>` : ''}</td><td>${when(p.created)}</td><td>${when(p.updated)}</td>
+      <td><a class="btn sm" href="/?admin=${encodeURIComponent(p.id)}" target="_blank" rel="noopener">View map</a> <button class="btn sm ghost" data-open="${esc(p.id)}">Details</button></td></tr>`).join('')}</tbody></table></div>` : '<p class="hint">None yet.</p>'}
+  </section>`;
 }
 
 async function session(el, id){
@@ -167,10 +179,10 @@ async function feedback(el){
   A.fbRows = rows;
 }
 
-const TABS = { usage, apiusage, improve, feedback };
+const TABS = { usage, apiusage, private:privateList, improve, feedback };
 async function draw(){
   const root = $('#adm');
-  const periodTabs = ['usage', 'apiusage', 'improve'];
+  const periodTabs = ['usage', 'apiusage', 'private', 'improve'];
   root.innerHTML = `<div class="top"><div class="mark"><i>f</i><span class="wm"><b>forks</b><em>.world</em></span></div><span class="pill">Admin</span><div class="grow"></div><a class="btn ghost sm" href="/">Back to the app</a></div>
   <div class="home"><div class="home-in">
     <nav class="seg">${Object.keys(TABS).map(t => `<button class="btn sm${A.tab === t ? ' primary' : ''}" data-tab="${t}">${TAB_NAMES[t]}</button>`).join('')}
