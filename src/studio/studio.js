@@ -596,6 +596,7 @@ async function send(text){
   if (!text || S.busy) return;
   ensureOwned();
   let p = S.cur;
+  if (p.status === 'done') p.status = 'interviewing'; // no Finish/Resume button: talking again picks the interview back up
 
   // A near-copy of the last message is a retype: replace it instead of stacking a new instruction on top.
   const li = lastUserIndex(p);
@@ -1638,7 +1639,7 @@ const STARTERS = [
 function renderWorkShell(app){
   app.innerHTML = `
   <div class="top work-top">
-    <button class="btn ghost" id="back" aria-label="${S.backTo === 'mine' ? 'Back to My Processes' : 'Home'}" title="${S.backTo === 'mine' ? 'Back to My Processes' : 'Home'}">${S.backTo === 'mine' ? '←' : ICON.home}<span class="hide-sm"> ${S.backTo === 'mine' ? 'My Processes' : 'Home'}</span></button>
+    <button class="btn ghost" id="back" aria-label="Back" title="Back">←<span class="hide-sm"> ${S.backTo === 'mine' ? 'My Processes' : 'Back'}</span></button>
     <div class="grow"><input class="title-in" id="title" aria-label="Process name" placeholder="Name your process" title="Click to rename" maxlength="120"></div>
     <span id="vis" class="vis"></span>
     <span class="save hide-sm" id="save"></span>
@@ -1658,7 +1659,7 @@ function renderWorkShell(app){
       <div class="composer">
         <textarea id="msg" placeholder="Describe the process in your own words… (tip: use your keyboard's dictation to talk)" aria-label="Describe the process"></textarea>
         <div class="composer-row">
-          <div class="composer-acts"><button class="btn" id="voice" aria-label="Talk to the interviewer" title="Talk instead of typing. It talks back and asks you questions.">${ICON.mic}Talk</button><button class="btn" id="finish">Finish map</button><button class="btn" id="stop" hidden>Stop</button><button class="btn primary" id="sendb">Send</button></div>
+          <div class="composer-acts"><button class="btn" id="voice" aria-label="Talk to the interviewer" title="Talk instead of typing. It talks back and asks you questions.">${ICON.mic}Talk</button><button class="btn" id="stop" hidden>Stop</button><button class="btn primary" id="sendb">Send</button></div>
         </div>
       </div>
     </aside>
@@ -1690,7 +1691,6 @@ function renderWorkShell(app){
   $('#voicepanel').onclick = onVoiceClick;
   renderVoice();
   $('#stop').onclick = () => S.ctl?.abort();
-  $('#finish').onclick = () => S.cur?.status === 'done' ? resume() : finish();
   $('#zoomctl').onclick = onZoomClick;
   $('#guide').onclick = onGuideClick;
   $('#painlist').onclick = e => { const b = e.target.closest('[data-pjump]'); if (b) jumpTo(b.dataset.pmap, b.dataset.pjump); };
@@ -2035,7 +2035,7 @@ function renderWork(fromStream){
   $('#work').classList.toggle('comparing', !!S.compare);
   document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === S.tab));
   $('#stop').hidden = !S.busy; $('#sendb').disabled = S.busy || !!S.compare;
-  const fb = $('#finish'); fb.textContent = p.status === 'done' ? 'Resume' : 'Finish map'; fb.disabled = S.busy || readOnly(p);
+
   if (S.checksOpen && !findIssues(p).length) S.checksOpen = false;
   renderMsgs(); renderCompare(); renderCrumbs(); renderBoard(); renderInspector(); renderChecks();
   if (!fromStream) renderPanel();
