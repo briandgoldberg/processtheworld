@@ -1789,7 +1789,6 @@ function renderWorkShell(app){
   $('#tagbar').addEventListener('change', e => { const f = e.target.closest('[data-thumb-file]'); if (f && f.files[0]) { setThumb(f.files[0]); f.value = ''; } }); $('#wpanel').onclick = onAction; $('#compare').onclick = onAction;
   $('#wpanel').addEventListener('submit', onPanelSubmit);
   $('#wpanel').addEventListener('change', onPanelChange);
-  $('#wpanel').addEventListener('input', e => { if (e.target.matches('[data-combine-q]')){ S.combine.q = e.target.value; const l = $('#cmb-list'); if (l) l.innerHTML = combineRowsHTML(); } });
   $('#title').onchange = e => { ensureOwned(); const v = e.target.value.trim() || 'Untitled process'; logEvent(S.cur,{who:'human',op:'rename_process',before:S.cur.title,after:v}); S.cur.title = v; S.cur.maps.m_root.title = v; touch(); renderWork(); };
   const msg = $('#msg');
   msg.onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey && !matchMedia('(max-width: 820px)').matches){ e.preventDefault(); send(msg.value); } };
@@ -1934,7 +1933,6 @@ function renderPanel(){
       <p>This can't be undone${p.publicId ? ', and the public version goes too' : ''}.</p><div class="prop-acts"><button class="btn danger sm" data-act="delete-yes">Delete</button><button class="btn sm" data-act="close">Cancel</button></div></div>`;
   else if (S.panel === 'share') html = shareHTML();
   else if (S.panel === 'comments') html = commentsHTML();
-  else if (S.panel === 'combine') html = combineHTML();
   else if (S.panel === 'review') html = reviewHTML();
   else if (S.panel === 'history') html = historyHTML();
   el.innerHTML = `<div class="wpanel-in ${S.panel === 'menu' ? 'is-menu' : 'is-sheet'}">${html}</div>`;
@@ -1970,7 +1968,6 @@ async function onAction(e){
     case 'unshare': unshare(b.dataset.id); return;
     case 'newown': S.panel = null; startNew(); return;
     case 'guideme': startGuide(); return;
-    case 'combine-go': applyCombine(); return;
     case 'comments': S.panel = S.panel === 'comments' ? null : 'comments'; S.commentsData = null; break;
     case 'delcomment': try { await API.del('/api/public/' + pubId() + '/comments/' + b.dataset.id); } catch (e){ S.panelMsg = e.message; } S.commentsData = null; loadComments(); return;
     case 'jumpc': { const [mid, sid] = String(b.dataset.ref).split('|'); S.panel = null; renderPanel(); jumpTo(mid, sid); return; }
@@ -2045,42 +2042,7 @@ async function onPanelSubmit(e){
   if (btn) btn.disabled = false;
 }
 /* Import a public process as a sub process, or combine several */
-function combineList(){
-  const q = (S.combine?.q || '').toLowerCase().trim();
-  return (S.pub || []).filter(p => !q || (p.title + ' ' + (p.tags || []).join(' ')).toLowerCase().includes(q)).slice(0, 40);
-}
-function combineRowsHTML(){
-  const sel = S.combine.sel;
-  return combineList().map(p => `<label class="cmb-row"><input type="checkbox" data-cmb="${esc(p.id)}" ${sel.includes(p.id) ? 'checked' : ''}><span><b>${esc(p.title)}</b><small>${esc((p.tags || []).slice(0, 3).join(' · '))}</small></span>${sel.includes(p.id) ? `<i class="cmb-n">${sel.indexOf(p.id) + 1}</i>` : ''}</label>`).join('') || '<p class="hint">Nothing matches.</p>';
-}
-function combineHTML(){
-  const close = '<button class="btn ghost sm" data-act="close" aria-label="Close">✕</button>', n = S.combine.sel.length;
-  return `<div class="sheet"><div class="ins-head"><span class="label">Add public processes</span>${close}</div>
-    <p class="hint">Pick one to add it as a sub process, or pick several to chain them in order.</p>
-    <input type="search" data-combine-q placeholder="Search public processes" value="${esc(S.combine.q)}" aria-label="Search public processes" autocomplete="off">
-    <div class="cmb-list" id="cmb-list">${combineRowsHTML()}</div>
-    <div class="prop-acts"><button class="btn primary sm" data-act="combine-go" ${n ? '' : 'disabled'}>Add ${n || ''} to my process</button></div></div>`;
-}
-function applyCombine(){
-  const picks = S.combine.sel.map(id => (S.pub || []).find(x => x.id === id)).filter(Boolean); if (!picks.length) return;
-  ensureOwned(); const p = S.cur, m = p.maps.m_root;
-  if (!m.lanes.length) m.lanes.push({ id:rid('l'), name:'The whole process', type:'person' });
-  const lane = m.lanes[0].id, mk = (label, kind, extra = {}) => ({ id:rid('s'), lane, label, kind, uses:[], next:[], ...extra });
-  const parts = picks.map(x => mk(x.title, 'subprocess', { link:{ id:x.id, title:x.title, scope:'public' } }));
-  const chain = a => { for (let i = 0; i < a.length - 1; i++) a[i].next.push({ to:a[i + 1].id }); };
-  if (!m.steps.length){ const seq = [mk('Start', 'start'), ...parts, mk('Done', 'end')]; chain(seq); m.steps.push(...seq); }
-  else {
-    const tail = [...m.steps].reverse().find(s => !s.next.length), end = mk('Done', 'end');
-    if (tail && tail.kind === 'end') tail.kind = 'task';
-    chain([...(tail ? [tail] : []), ...parts, end]); m.steps.push(...parts, end);
-  }
-  if (!p.title || p.title === 'Untitled process'){ p.title = picks.length === 1 ? picks[0].title : 'Combined: ' + picks.map(x => x.title).join(', ').slice(0, 90); m.title = p.title; }
-  logEvent(p, { who:'human', op:'combine_public', ids:picks.map(x => x.id) });
-  S.panel = null; touch(); renderWork(); alertBox(picks.length === 1 ? 'Added as a sub process.' : 'Combined ' + picks.length + ' processes.');
-}
 function onPanelChange(e){
-  const cb = e.target.closest('[data-cmb]');
-  if (cb){ const id = cb.dataset.cmb, a = S.combine.sel; if (cb.checked && !a.includes(id)) a.push(id); else if (!cb.checked){ const i = a.indexOf(id); if (i >= 0) a.splice(i, 1); } renderPanel(); return; }
   const s = e.target.closest('[data-role-for]'); if (s) setRole(s.dataset.roleFor, s.value);
 }
 /* Public processes get a link of their own; people arriving from it are invited to edit or build their own */
