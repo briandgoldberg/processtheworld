@@ -15,20 +15,20 @@ const pct = (a, b) => b ? Math.round(100 * a / b) + '%' : '—';
 const nice = s => String(s || '').replace(/_/g, ' ');
 
 const A = { tab:'usage', days:90, fbStatus:'all', fbKind:'all', fbQ:'', memberKind:'all', session:null, busy:false };
-const TAB_NAMES = { usage:'Usage', improve:'What to improve', feedback:'Feedback' };
+const TAB_NAMES = { usage:'Usage', apiusage:'API usage', improve:'What to improve', feedback:'Feedback' };
 
 function bars(rows, label, val){
   const max = Math.max(1, ...rows.map(val));
   return rows.length ? `<ul class="bars">${rows.map(r => `<li><span class="bl">${esc(label(r))}</span><span class="bt"><b style="width:${(100 * val(r) / max).toFixed(1)}%"></b></span><span class="bv">${val(r)}</span></li>`).join('')}</ul>` : '<p class="hint">No data yet.</p>';
 }
-function chart(rows, title, color = 'var(--accent)'){
+function chart(rows, title, color = 'var(--accent)', fmt = String){
   if (!rows.length) return '<p class="hint">No data yet.</p>';
   const max = Math.max(1, ...rows.map(r => r.n)), w = 640, h = 110, bw = Math.max(4, Math.floor(w / rows.length) - 3);
   return `<div class="chart-wrap"><svg viewBox="0 0 ${w} ${h + 20}" role="img" aria-label="${esc(title)}">
     <line x1="0" y1="${h}" x2="${w}" y2="${h}" style="stroke:var(--line)"/>
-    ${rows.map((r, i) => { const bh = Math.max(2, h * r.n / max), x = i * (bw + 3); return `<rect x="${x}" y="${h - bh}" width="${bw}" height="${bh}" rx="2" style="fill:${color}"><title>${day(r.day)}: ${r.n}</title></rect>`; }).join('')}
+    ${rows.map((r, i) => { const bh = Math.max(2, h * r.n / max), x = i * (bw + 3); return `<rect x="${x}" y="${h - bh}" width="${bw}" height="${bh}" rx="2" style="fill:${color}"><title>${day(r.day)}: ${fmt(r.n)}</title></rect>`; }).join('')}
     <text x="0" y="${h + 16}" style="fill:var(--muted);font-size:11px">${day(rows[0].day)}</text>
-    <text x="${w}" y="${h + 16}" text-anchor="end" style="fill:var(--muted);font-size:11px">${day(rows[rows.length - 1].day)} · peak ${max}</text>
+    <text x="${w}" y="${h + 16}" text-anchor="end" style="fill:var(--muted);font-size:11px">${day(rows[rows.length - 1].day)} · peak ${fmt(max)}</text>
   </svg></div>`;
 }
 const kpi = (label, value, small = '') => `<div><span class="label">${label}</span><b>${value}</b><small>${small}</small></div>`;
@@ -65,6 +65,31 @@ async function usage(el){
     <div class="seg">${[['all', 'Everyone'], ['email', 'Email members'], ['guest', 'Guests']].map(([k, n]) => `<button class="btn sm${A.memberKind === k ? ' primary' : ''}" data-mkind="${k}">${n}</button>`).join('')}</div>
     ${table(mem.members)}</section>
   <p class="hint">For page views and where visitors come from, open Analytics in the Vercel project.</p>`;
+}
+
+/* ---------- API usage: what the Anthropic API costs, from every logged call ---------- */
+const tok = n => n >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : n >= 1e3 ? Math.round(n / 1e3) + 'k' : String(n);
+const usd = money;
+async function apiusage(el){
+  const d = await api('/api/admin/api-usage?days=' + A.days), p = d.period;
+  const list = (rows, label) => rows.length ? `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>${label}</th><th>Cost</th><th>Calls</th><th>Per call</th></tr></thead><tbody>${rows.map(r => `<tr><td>${esc(nice(r.name))}${r.you ? ' <span class="hint">you</span>' : ''}</td><td>${money(r.cost)}</td><td>${r.calls}</td><td>${money(r.calls ? r.cost / r.calls : 0)}</td></tr>`).join('')}</tbody></table></div>` : '<p class="hint">No AI calls yet.</p>';
+  el.innerHTML = `
+  ${d.lastBillingError && Date.now() - new Date(d.lastBillingError).getTime() < 7 * 864e5 ? `<section class="panel"><h3>The API ran out of credit</h3><p class="hint">The last call refused for billing was ${when(d.lastBillingError)}. The mapper stops working until you add credit in the Claude Console.</p></section>` : ''}
+  <div class="kpis">
+    ${kpi('Last 24 hours', usd(d.today.cost), `${d.today.calls} calls`)}
+    ${kpi('Last 7 days', usd(d.week.cost), `${d.week.calls} calls`)}
+    ${kpi('This month', usd(d.month.cost), `${d.month.calls} calls since the 1st (UTC)`)}
+    ${kpi(`Last ${d.days} days`, usd(p.cost), `${tok(p.input)} tokens in · ${tok(p.output)} out`)}
+    ${kpi('Your own use', usd(d.mine.cost), `${pct(d.mine.cost, p.cost)} of the last ${d.days} days`)}
+    ${kpi('Failed calls', d.errors, `${pct(d.errors, p.calls)} of calls`)}
+  </div>
+  <section class="panel"><h3>Cost each day</h3>${chart(d.daily.map(r => ({ day:r.day, n:r.cost })), 'API cost per day', 'var(--accent)', usd)}</section>
+  <div class="grid2">
+    <section class="panel"><h3>What it was spent on</h3>${list(d.byMode, 'Kind of call')}</section>
+    <section class="panel"><h3>By model</h3>${list(d.byModel, 'Model')}</section>
+  </div>
+  <section class="panel"><h3>Who used the most</h3><p class="hint">Calls made while that person was mapping. AI agents saving through the API use their own AI, so they cost you nothing.</p>${list(d.top, 'Who')}</section>
+  <p class="hint">These are estimates from each call's token counts at list prices. Your exact bill, credit balance and spend limits are in the <a href="https://platform.claude.com" target="_blank" rel="noopener">Claude Console</a>.</p>`;
 }
 
 async function session(el, id){
@@ -142,10 +167,10 @@ async function feedback(el){
   A.fbRows = rows;
 }
 
-const TABS = { usage, improve, feedback };
+const TABS = { usage, apiusage, improve, feedback };
 async function draw(){
   const root = $('#adm');
-  const periodTabs = ['usage', 'improve'];
+  const periodTabs = ['usage', 'apiusage', 'improve'];
   root.innerHTML = `<div class="top"><div class="mark"><i>f</i><span class="wm"><b>forks</b><em>.world</em></span></div><span class="pill">Admin</span><div class="grow"></div><a class="btn ghost sm" href="/">Back to the app</a></div>
   <div class="home"><div class="home-in">
     <nav class="seg">${Object.keys(TABS).map(t => `<button class="btn sm${A.tab === t ? ' primary' : ''}" data-tab="${t}">${TAB_NAMES[t]}</button>`).join('')}
