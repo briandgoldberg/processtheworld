@@ -1692,7 +1692,8 @@ function renderWorkShell(app){
     if (S.trail?.length){ const t = S.trail.pop(), rest = S.trail; stopGuide(); stopVoice(); flush(); S.keepTrail = true; openProcess(t.id, t.kind).then(() => { S.trail = rest; S.path = t.path.filter(id => S.cur?.maps?.[id]); if (!S.path.length) S.path = ['m_root']; renderWork(); }); return; }
     const toMine = S.backTo === 'mine'; S.backTo = null; setUrl(toMine ? '/mine' : '/'); stopGuide(); stopVoice(); flush(); if (S.compare) closeCompare(); S.view = toMine ? 'mine' : 'home'; S.cur = null; S.confirmDel = null; S.panel = null; loadMine(); loadPublic(); render(); };
   $('#wmenu-btn').onclick = e => { e.stopPropagation(); S.panel = S.panel === 'menu' ? null : 'menu'; S.panelMsg = ''; renderPanel(); };
-  $('#wprimary').onclick = onAction;
+  $('#wprimary').onclick = e => { if (e.target.closest('[data-thumb-remove]')){ delete S.cur.thumb; thumbSaved(S.cur, true); return; } onAction(e); };
+  $('#wprimary').addEventListener('change', e => { const f = e.target.closest('[data-thumb-file]'); if (f && f.files[0]) { setThumb(f.files[0]); f.value = ''; } });
   $('#wedit').onclick = e => { if (e.target.closest('[data-thumb-remove]')){ delete S.cur.thumb; thumbSaved(S.cur, true); return; } onAction(e); };
   $('#wedit').addEventListener('change', e => { const f = e.target.closest('[data-thumb-file]'); if (f && f.files[0]) { setThumb(f.files[0]); f.value = ''; } }); $('#pubbar').onclick = onAction; $('#vis').onclick = onAction;
   $('#tagbar').addEventListener('submit', e => { const f = e.target.closest('[data-tagform]'); if (!f) return; e.preventDefault(); addTag(f.elements.tag.value); });
@@ -1801,15 +1802,15 @@ function primaryHTML(p){
   if (k === 'draft') return p.maps.m_root.steps.length ? `<button class="btn primary sm" data-act="submit">${p.submitted ? 'Submit again' : 'Submit for review'}</button>` : '';
   // A public process is frozen and already open to everyone: no Share sheet, just the quick actions
   if (q.publicId) return `<span class="wsmall">${commentBtn(q)}${shareButtons(q.publicId)}</span>`;
-  return '';
+  return ['owned', 'shared'].includes(k) ? editGroupHTML(p, q, 'wedit-top') : '';
 }
 /* Your own process: Share and Thumbnail sit with Talk and Send under the conversation */
-function editGroupHTML(p, q){
+function editGroupHTML(p, q, cls){
   const t = q.shareCount ? `Shared with ${q.shareCount}. Tap to manage sharing` : 'Private. Tap to share';
   const share = `<button class="btn sm ic" data-act="share" title="${t}" aria-label="${t}">${q.shareCount ? ICON.people + '<span class="vis-n">' + q.shareCount + '</span>' : ICON.lock}</button>`;
   const tt = p.thumb ? 'Change thumbnail' : 'Add a thumbnail. It appears on the preview card';
   const thumb = `<label class="btn sm ic thumbic" title="${tt}" aria-label="${tt}">${p.thumb ? `<img class="thumbprev" src="${p.thumb}" alt="">` : ICON.image}<input type="file" accept="image/*" hidden data-thumb-file></label>${p.thumb ? '<button class="btn sm ic" data-thumb-remove title="Remove thumbnail" aria-label="Remove thumbnail">✕</button>' : ''}`;
-  return `<span class="wsmall">${share}${thumb}</span>`;
+  return `<span class="wsmall${cls ? ' ' + cls : ''}">${share}${thumb}</span>`;
 }
 function menuHTML(p){
   const k = kindOf(p), items = [];
