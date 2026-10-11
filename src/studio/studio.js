@@ -1650,7 +1650,7 @@ function wirePublicFilter(root){
   };
   inp.oninput = () => { S.q = inp.value; refresh(); };
   root.querySelector('#ppills').onclick = e => { if (e.target.closest('[data-tagmore]')){ S.tagsAll = !S.tagsAll; root.querySelector('#ppills').innerHTML = tagPillsHTML(); return; } const b = e.target.closest('[data-ptag]'); if (!b) return; S.tag = b.dataset.ptag; refresh(); };
-  root.querySelector('#fsort').onclick = e => { const b = e.target.closest('[data-sort]'); if (!b) return; S.sort = b.dataset.sort; ls.set('ptw_sort', S.sort); refresh(); };
+  root.querySelector('#fsort').onclick = e => { const b = e.target.closest('[data-sort]'); if (!b) return; S.sort = b.dataset.sort; refresh(); };
   root.querySelector('#pcards').onclick = e => {
     const lk = e.target.closest('[data-like]'); if (lk){ e.stopPropagation(); toggleFeedLike(lk.dataset.like, lk); return; }
     const cm = e.target.closest('[data-comment]'); if (cm){ e.stopPropagation(); openProcess(cm.dataset.comment, 'pub').then(() => { S.panel = 'comments'; S.commentsData = null; renderPanel(); }); return; }
@@ -2813,7 +2813,7 @@ export async function mount(root, opts = {}){
   API.key = key;
   const q = new URLSearchParams(location.search);
   if (q.get('alert') && ALERTS[q.get('alert')]){ S.toast = ALERTS[q.get('alert')]; history.replaceState(null, '', '/'); }
-  S.view = opts.connect ? 'connect' : opts.mine ? 'mine' : 'home'; ls.set('ptw_in', '1'); S.sort = SORTS[ls.get('ptw_sort')] ? ls.get('ptw_sort') : 'new';
+  S.view = opts.connect ? 'connect' : opts.mine ? 'mine' : 'home'; ls.set('ptw_in', '1'); S.sort = 'new'; // always open on Newest; the sort you pick lasts for this visit only
   S.loading = true; render(); if (!opts.embed) renderFeedbackBox();
   try { S.me = await API.post('/api/identity', { key }); } catch {}
   S.ready = true;
