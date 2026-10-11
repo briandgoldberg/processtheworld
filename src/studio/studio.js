@@ -1746,6 +1746,7 @@ const ICON = {
   comment: ico('<path d="M2.5 3.2h11v7.3H8l-3.2 2.6v-2.6H2.5z"/>'),
   home:   ico('<path d="M2.5 7.6L8 2.8l5.5 4.8M4 6.8V13h8V6.8"/>'),
   image:  ico('<rect x="2" y="3" width="12" height="10" rx="1.5"/><circle cx="6" cy="7" r="1.2"/><path d="M3 12l3.5-3.5 2.5 2.5 2-2 2 3"/>'),
+  x:      '<svg class="vi" viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M12.2 1.5h2.2L9.6 7l5.6 7.5h-4.4L7.4 9.9 3.4 14.5H1.2l5.1-5.9L.9 1.5h4.5l3.1 4.1zm-.8 11.7h1.2L4.8 2.7H3.5z"/></svg>',
   globe:  ico('<circle cx="8" cy="8" r="6"/><path d="M2 8h12M8 2c2 1.8 2.8 3.8 2.8 6S10 12.2 8 14M8 2C6 3.8 5.2 5.8 5.2 8S6 12.2 8 14"/>')
 };
 const visPill = (publicId, shareCount) => publicId ? `<span class="pill pub">${ICON.globe}Public</span>` : shareCount ? `<span class="pill sh">${ICON.people}Shared · ${shareCount}</span>` : `<span class="pill">${ICON.lock}Private</span>`;
@@ -2004,7 +2005,7 @@ function removeTag(t){
 const pubLink = id => id.startsWith('ex_') ? location.origin + '/?example=' + id : location.origin + '/p/' + id;
 function shareButtons(id){
   if (!id) return '';
-  return `<button class="btn sm" data-act="tweet" data-pub="${esc(id)}">Share on X</button><button class="btn sm" data-act="copypub" data-pub="${esc(id)}">${ICON.link}Copy link</button>`;
+  return `<button class="btn sm ic" data-act="tweet" data-pub="${esc(id)}" title="Share on X" aria-label="Share on X">${ICON.x}</button><button class="btn sm ic" data-act="copypub" data-pub="${esc(id)}" title="Copy link" aria-label="Copy link">${ICON.link}</button>`;
 }
 const pubbarHTML = () => '';
 function renderTopActions(){

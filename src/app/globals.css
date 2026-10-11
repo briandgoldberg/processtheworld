@@ -176,6 +176,8 @@ svg.edges.draw path.e-back{stroke-dasharray:7 5;stroke-dashoffset:0;animation:no
 .chk:last-child{border-bottom:none;padding-bottom:0}
 .chk-acts{display:flex;flex-wrap:wrap;gap:6px}
 .btn.sm{padding:4px 9px;font-size:12px}
+.btn.sm.ic{padding:4px 7px;display:inline-flex;align-items:center;justify-content:center}
+.btn.sm.ic .vi{margin:0}
 .linkish{border:none;background:none;padding:0;color:var(--accent);font:inherit;text-decoration:underline}
 .inspector.checks{width:340px}
 .pill.warn{background:var(--warn);color:var(--warn-ink);border-color:var(--warn);cursor:pointer}
@@ -297,7 +299,7 @@ code{font-family:var(--f-mono);font-size:11px}
 .linkish-plain{border:none;background:none;padding:0;cursor:pointer;color:inherit}
 .vi{flex:none}
 @media (max-width:820px){
-  .btn{min-height:40px}.btn.sm{min-height:38px}
+  .btn{min-height:40px}.btn.sm{min-height:38px}.btn.sm.ic{min-width:38px}
   .top{padding-inline:12px;gap:8px}
   .home{padding-inline:12px}
   .feed{grid-template-columns:1fr;gap:14px}
