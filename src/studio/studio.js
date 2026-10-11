@@ -2540,9 +2540,19 @@ function onBoardWheel(e){
   const sc = $('#scroller'), r = sc.getBoundingClientRect();
   setZoom(S.zoom * (e.deltaY < 0 ? 1.1 : 1 / 1.1), e.clientX - r.left, e.clientY - r.top);
 }
+/* The lane header is at least the standard width, and wider when a lane name has a word that would not fit,
+   up to a cap; names still wrap onto more lines, and only a word longer than the cap is broken. */
+function laneHeadWidth(m){
+  const small = innerWidth <= 420, mid = innerWidth <= 820;
+  const base = small ? 84 : mid ? 96 : 150, cap = small ? 130 : mid ? 150 : 230, pad = small || mid ? 16 : 24;
+  const c = (laneHeadWidth.c ||= document.createElement('canvas').getContext('2d'));
+  c.font = `700 ${small || mid ? 12 : 13}px ${getComputedStyle(document.body).fontFamily}`;
+  const longest = Math.max(0, ...m.lanes.flatMap(l => String(l.name || '').split(/\s+/)).map(w => c.measureText(w).width));
+  return Math.round(Math.min(cap, Math.max(base, longest + pad + 2)));
+}
 function renderBoard(){
-  L.HEAD = innerWidth <= 420 ? 84 : innerWidth <= 820 ? 96 : 150; // matches the lane header width in CSS
   const m = curMap(), b = $('#board');
+  L.HEAD = laneHeadWidth(m);
   if (!m.steps.length && !m.lanes.length){
     b.style.width = '100%'; b.style.height = '100%';
     b.innerHTML = `<div class="board-empty"><div><div class="label">${S.path.length > 1 ? 'Layer ' + S.path.length : 'Empty map'}</div><h3>${S.path.length > 1 ? 'Describe how “' + esc(m.title) + '” works' : 'Your map appears here'}</h3><span>People get their own lanes, technology gets its own lanes, and steps flow left to right. Say “this step has two parts” and it becomes a layer you can open.</span></div></div>`;
@@ -2559,7 +2569,7 @@ function renderBoard(){
   b.style.zoom = S.zoom; updateZoomCtl();
   let html = '';
   g.bands.forEach(bd => html += `<div class="band" style="top:${bd.y}px;width:${g.width}px">${bd.t}</div>`);
-  g.lanes.forEach(l => html += `<div class="lane ${l.type}" style="top:${g.laneY[l.id]}px;height:${g.laneH[l.id]}px;width:${g.width}px"><div class="lane-head"><b>${esc(l.name)}</b></div></div>`);
+  g.lanes.forEach(l => html += `<div class="lane ${l.type}" style="top:${g.laneY[l.id]}px;height:${g.laneH[l.id]}px;width:${g.width}px"><div class="lane-head" style="width:${L.HEAD}px"><b>${esc(l.name)}</b></div></div>`);
   // edges
   let paths = '', labels = '';
   const byId = Object.fromEntries(m.steps.map(s => [s.id, s]));

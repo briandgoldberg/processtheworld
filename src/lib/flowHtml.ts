@@ -14,7 +14,8 @@ const esc = (s: unknown) => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&a
 const clean = (s: unknown) => String(s ?? "").replace(/\s+/g, " ").trim();
 
 function wrap(text: string, max: number, lines: number): string[] {
-  const words = clean(text).split(" "), out: string[] = [];
+  // A word longer than a line is split, so nothing runs past the edge
+  const words = clean(text).split(" ").flatMap(w => w.length > max ? w.match(new RegExp(".{1," + (max - 1) + "}", "g"))!.map((p, i, a) => i < a.length - 1 ? p + "-" : p) : [w]), out: string[] = [];
   let cur = "";
   for (const w of words) {
     if ((cur + " " + w).trim().length > max && cur) { out.push(cur); cur = w; } else cur = (cur + " " + w).trim();
@@ -93,7 +94,7 @@ function svgFor(m: MapT, doc: Doc): string {
   g.lanes.forEach(l => {
     const sys = l.type === "system";
     out.push(`<rect x="0" y="${g.laneY[l.id]}" width="${g.width}" height="${g.laneH[l.id]}" class="lane ${sys ? "sys" : "per"}"/>`);
-    wrap(l.name, 16, 3).forEach((t, i, a) => out.push(`<text x="12" y="${g.laneY[l.id] + g.laneH[l.id] / 2 + (i - (a.length - 1) / 2) * 15 + 4}" class="lanename ${sys ? "sys" : "per"}">${esc(t)}</text>`));
+    wrap(l.name, 16, 3).forEach((t, i, a) => out.push(`<text x="${L.HEAD / 2}" y="${g.laneY[l.id] + g.laneH[l.id] / 2 + (i - (a.length - 1) / 2) * 15 + 4}" text-anchor="middle" class="lanename ${sys ? "sys" : "per"}">${esc(t)}</text>`));
   });
   // edges first so boxes sit on top
   const edgeLabels: string[] = [];

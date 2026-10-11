@@ -130,8 +130,9 @@ h1,h2,h3{font-family:var(--f-display);font-weight:700;margin:0;text-wrap:balance
 .scroller{flex:1;overflow:auto;min-height:0}
 .board{position:relative}
 .lane{position:absolute;left:0;display:flex;border-bottom:1px solid var(--line)}
-.lane-head{width:150px;flex:none;padding:10px 12px;display:flex;flex-direction:column;gap:2px;border-right:1px solid var(--line)}
-.lane-head b{font-size:13px;line-height:1.25}
+.lane-head{width:150px;flex:none;padding:10px 12px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:2px;overflow:hidden;border-right:1px solid var(--line)}
+/* The name sits in the middle of its lane. The header widens to fit its longest word (set by the board), so it never spills; only a word longer than the widest header breaks */
+.lane-head b{font-size:13px;line-height:1.25;max-width:100%;overflow-wrap:anywhere}
 .lane-head small{font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-weight:600}
 .lane.person .lane-head{background:var(--person-bg)}
 .lane.person .lane-head small{color:var(--person)}
