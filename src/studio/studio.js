@@ -1605,7 +1605,19 @@ addEventListener('popstate', async () => {
 });
 document.addEventListener('click', e => { if (e.target.closest('[data-home]')){ if (S.view === 'work') flush(); S.compare = null; S.real = null; S.cur = null; S.view = 'home'; setUrl('/'); render(); window.scrollTo(0, 0); } });
 
+/* Opening a linked process remembers where you came from, so Back returns there */
+function openLinked(id, kind){
+  const c = S.cur;
+  if (c && S.view === 'work'){
+    flush();
+    const pub = c.readonly && c.publicId && !c.viewShare;
+    S.trail = (S.trail || []).concat([{ id:c.example ? c.id : pub ? c.publicId : c.id, kind:c.example ? 'ex' : pub ? 'pub' : c.role ? 'shared' : 'mine', path:S.path.slice() }]);
+  }
+  S.keepTrail = true;
+  return openProcess(id, kind);
+}
 async function openProcess(id, kind){
+  if (!S.keepTrail) S.trail = []; S.keepTrail = false;
   S.guide = null; S.painView = false; stopVoice();
   let p = null;
   try {
@@ -1674,7 +1686,11 @@ function renderWorkShell(app){
       <div id="checks"></div>
     </section>
   </div>`;
-  $('#back').onclick = () => { const toMine = S.backTo === 'mine'; S.backTo = null; setUrl(toMine ? '/mine' : '/'); stopGuide(); stopVoice(); flush(); if (S.compare) closeCompare(); S.view = toMine ? 'mine' : 'home'; S.cur = null; S.confirmDel = null; S.panel = null; loadMine(); loadPublic(); render(); };
+  $('#back').onclick = () => {
+    // Back goes up one layer first, then to the process you came from, then home
+    if (S.path.length > 1){ S.path = S.path.slice(0, -1); S.sel = null; renderWork(); return; }
+    if (S.trail?.length){ const t = S.trail.pop(), rest = S.trail; stopGuide(); stopVoice(); flush(); S.keepTrail = true; openProcess(t.id, t.kind).then(() => { S.trail = rest; S.path = t.path.filter(id => S.cur?.maps?.[id]); if (!S.path.length) S.path = ['m_root']; renderWork(); }); return; }
+    const toMine = S.backTo === 'mine'; S.backTo = null; setUrl(toMine ? '/mine' : '/'); stopGuide(); stopVoice(); flush(); if (S.compare) closeCompare(); S.view = toMine ? 'mine' : 'home'; S.cur = null; S.confirmDel = null; S.panel = null; loadMine(); loadPublic(); render(); };
   $('#wmenu-btn').onclick = e => { e.stopPropagation(); S.panel = S.panel === 'menu' ? null : 'menu'; S.panelMsg = ''; renderPanel(); };
   $('#wprimary').onclick = onAction; $('#pubbar').onclick = onAction; $('#vis').onclick = onAction;
   $('#tagbar').addEventListener('submit', e => { const f = e.target.closest('[data-tagform]'); if (!f) return; e.preventDefault(); addTag(f.elements.tag.value); });
@@ -2220,7 +2236,7 @@ function guideChoose(i){
     const s = gStep(), cm = S.cur.maps[s.child], st = cm.steps.find(x => x.kind === 'start') || cm.steps[0];
     g.stack.push({ map:g.map, step:g.step }); g.map = cm.id; g.step = st.id; g.after = false; g.taken++; g.visited[cm.id + '|' + st.id] = 1;
   } else if (c.k === 'return'){ const top = g.stack.pop(); g.map = top.map; g.step = top.step; g.after = true; }
-  else if (c.k === 'link'){ const s = gStep(); stopGuide(); openProcess(s.link.id, s.link.scope === 'private' ? 'mine' : 'pub').then(() => startGuide()); return; }
+  else if (c.k === 'link'){ const s = gStep(); stopGuide(); openLinked(s.link.id, s.link.scope === 'private' ? 'mine' : 'pub').then(() => startGuide()); return; }
   else if (c.k === 'finish'){ g.done = true; track('guide_finished', { steps:g.taken }, S.cur.id); }
   guideApply();
 }
@@ -2439,7 +2455,7 @@ function drill(stepId){
   S.sel = null; S.tab = 'map'; renderWork();
 }
 function onBoardClick(e){
-  const lk = e.target.closest('[data-link]'); if (lk){ e.stopPropagation(); openProcess(lk.dataset.link, lk.dataset.scope === 'private' ? 'mine' : 'pub'); return; }
+  const lk = e.target.closest('[data-link]'); if (lk){ e.stopPropagation(); openLinked(lk.dataset.link, lk.dataset.scope === 'private' ? 'mine' : 'pub'); return; }
   const d = e.target.closest('[data-drill]'); if (d){ e.stopPropagation(); drill(d.dataset.drill); return; }
   const j = e.target.closest('[data-jump]'); if (j){ e.stopPropagation(); jumpTo(j.dataset.jump, j.dataset.step); return; }
   const st = e.target.closest('[data-step]');
@@ -2512,7 +2528,7 @@ function renderInspector(){
     if (pr){ st.link = { id:pr.id, title:pr.title, scope:scope === 'pub' ? 'public' : 'private' }; st.kind = 'subprocess'; } else delete st.link;
     touch(); renderWork();
   };
-  $('#i-drill').onclick = () => s.link ? openProcess(s.link.id, 'pub') : drill(s.id);
+  $('#i-drill').onclick = () => s.link ? openLinked(s.link.id, s.link.scope === 'private' ? 'mine' : 'pub') : drill(s.id);
   $('#i-del').onclick = () => { ensureOwned(); const mm = curMap(); applyOp(S.cur, { op:'remove_step', map:mm.id, id:S.sel }, 'human'); S.sel = null; touch(); renderWork(); };
   box.querySelectorAll('[data-corr]').forEach(b => b.onclick = () => {
     const c = CORRECTIONS.find(x => x[0] === b.dataset.corr);
