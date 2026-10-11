@@ -1525,6 +1525,8 @@ function renderLogin(app){
   wireEmailForm(app); wireInterest(app); wireCopy(app);
 }
 const MARK = '<i>f</i><span class="wm"><b>forks</b><em>.world</em></span>';
+/* A small footer for the main pages, the way most sites end */
+const miniFootHTML = () => `<footer class="foot mini"><a href="/library">Library</a><a href="/agents.md">For AI agents</a><a href="/privacy">Privacy</a></footer>`;
 const footHTML = () => `<footer class="foot"><details class="sf"><summary>Salesforce connector: get early access</summary>
   <form data-interest><input name="email" type="email" required placeholder="you@company.com" autocomplete="email" aria-label="Email"><button class="btn primary sm">Notify me</button><span class="hint" data-imsg role="status"></span></form></details>
   <a href="/agents.md">For AI agents</a><a href="/privacy">Privacy</a></footer>`;
@@ -1720,7 +1722,7 @@ function renderMine(app){
     <div class="sec-head"><h2>My processes</h2><p>Private unless you share or publish them.</p></div>
     <div class="pfilter"><div class="psrow"><span class="seg-toggle" id="mvis" role="group" aria-label="Show">${[['all', 'All'], ['private', 'Private'], ['public', 'Public']].map(([k, n]) => `<button data-mvis="${k}" class="${(S.mvis || 'all') === k ? 'on' : ''}">${n}</button>`).join('')}</span><input id="msearch" type="search" placeholder="Search my processes" value="${esc(S.mq || '')}" aria-label="Search my processes" autocomplete="off"></div><div class="pills" id="mpills">${mineTagsHTML()}</div></div>
     <div id="mcards">${mineCardsHTML()}</div>
-  </section></div></div>`;
+  </section>${miniFootHTML()}</div></div>`;
   $('#new').onclick = startNew;
   wireAcct(app); wireSignIn(app); wireCopy(app);
   app.querySelector('#mvis').onclick = e => { const b = e.target.closest('[data-mvis]'); if (b){ S.mvis = b.dataset.mvis; app.querySelectorAll('#mvis button').forEach(x => x.classList.toggle('on', x === b)); app.querySelector('#mcards').innerHTML = mineCardsHTML(); wireMineCards(app); } };
@@ -1735,6 +1737,7 @@ function renderHome(app){
   <div class="home"><div class="home-in">
     ${S.shared.length ? sec('Shared with me', 'Processes people invited you to.', `<div class="cards">${S.shared.map(p => cardHTML(p,'shared')).join('')}</div>`) : ''}
     <section class="sec">${publicFilterHTML()}</section>
+    ${miniFootHTML()}
   </div></div>`;
   $('#new').onclick = startNew; const n2 = $('#new2'); if (n2) n2.onclick = startNew;
   wireAcct(app); wireSignIn(app); wireInterest(app); wireImport(app); wirePublicFilter(app); wireCopy(app);
