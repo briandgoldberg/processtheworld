@@ -2545,7 +2545,7 @@ function renderBoard(){
   b.style.zoom = S.zoom; updateZoomCtl();
   let html = '';
   g.bands.forEach(bd => html += `<div class="band" style="top:${bd.y}px;width:${g.width}px">${bd.t}</div>`);
-  g.lanes.forEach(l => html += `<div class="lane ${l.type}" style="top:${g.laneY[l.id]}px;height:${g.laneH[l.id]}px;width:${g.width}px"><div class="lane-head"><small>${l.type === 'system' ? 'Technology' : 'Person'}</small><b>${esc(l.name)}</b></div></div>`);
+  g.lanes.forEach(l => html += `<div class="lane ${l.type}" style="top:${g.laneY[l.id]}px;height:${g.laneH[l.id]}px;width:${g.width}px"><div class="lane-head"><b>${esc(l.name)}</b></div></div>`);
   // edges
   let paths = '', labels = '';
   const byId = Object.fromEntries(m.steps.map(s => [s.id, s]));
