@@ -325,6 +325,7 @@ function incomingLinks(p, mapId, stepId){
 }
 const issueKey = i => i.map + '|' + (i.step || '') + '|' + i.kind;
 function findIssues(p){
+  if (readOnly(p)) return []; // checks are for people who can edit; viewers never see them
   const dismissed = new Set(p.dismissed || []);
   return rawIssues(p).map(i => ({ ...i, key:issueKey(i), at:i.at || i.map })).filter(i => !dismissed.has(i.key));
 }
