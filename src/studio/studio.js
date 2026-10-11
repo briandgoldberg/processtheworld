@@ -1527,7 +1527,7 @@ function renderLogin(app){
 const MARK = '<i>f</i><span class="wm"><b>forks</b><em>.world</em></span>';
 const footHTML = () => `<footer class="foot"><details class="sf"><summary>Salesforce connector: get early access</summary>
   <form data-interest><input name="email" type="email" required placeholder="you@company.com" autocomplete="email" aria-label="Email"><button class="btn primary sm">Notify me</button><span class="hint" data-imsg role="status"></span></form></details>
-  <a href="/agents.md">For AI agents</a></footer>`;
+  <a href="/agents.md">For AI agents</a><a href="/privacy">Privacy</a></footer>`;
 function wireCopy(root){
   root.querySelectorAll('[data-copy-url],[data-copy-text]').forEach(b => b.onclick = async () => {
     try {

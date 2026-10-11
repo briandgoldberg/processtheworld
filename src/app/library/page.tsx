@@ -20,7 +20,7 @@ export default async function Library() {
   return (
     <main className="lib">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
-      <p><a href="/">forks.world</a> · <a href="/connect">Connect my AI</a></p>
+      <p><a href="/">forks.world</a> · <a href="/connect">Connect my AI</a> · <a href="/privacy">Privacy</a></p>
       <h1>Process map library</h1>
       <p className="lib-sub">{items.length} public process maps showing how the world works. Open one to walk through it step by step.</p>
       <h2>Browse by topic</h2>
