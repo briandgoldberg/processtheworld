@@ -1883,7 +1883,7 @@ function renderWorkShell(app){
   $('#tagbar').addEventListener('change', e => { const f = e.target.closest('[data-thumb-file]'); if (f && f.files[0]) { setThumb(f.files[0]); f.value = ''; } }); $('#wpanel').onclick = onAction; $('#compare').onclick = onAction;
   $('#wpanel').addEventListener('submit', onPanelSubmit);
   $('#wpanel').addEventListener('change', onPanelChange);
-  $('#title').onchange = e => { ensureOwned(); const v = e.target.value.trim() || 'Untitled process'; logEvent(S.cur,{who:'human',op:'rename_process',before:S.cur.title,after:v}); S.cur.title = v; S.cur.maps.m_root.title = v; touch(); renderWork(); };
+  $('#title').onchange = e => { if (locked(S.cur)) return; ensureOwned(); const v = e.target.value.trim() || 'Untitled process'; logEvent(S.cur,{who:'human',op:'rename_process',before:S.cur.title,after:v}); S.cur.title = v; S.cur.maps.m_root.title = v; touch(); renderWork(); };
   const msg = $('#msg');
   msg.onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey && !matchMedia('(max-width: 820px)').matches){ e.preventDefault(); send(msg.value); } };
   $('#sendb').onclick = () => send(msg.value);
@@ -1960,6 +1960,8 @@ const ICON = {
 const visPill = (publicId, shareCount) => publicId ? `<span class="pill pub">${ICON.globe}Public</span>` : shareCount ? `<span class="pill sh">${ICON.people}Shared · ${shareCount}</span>` : `<span class="pill">${ICON.lock}Private</span>`;
 
 /* What kind of process is open decides the buttons */
+/* Published as is, an example, or shared view-only: nothing on it can be changed until you copy it */
+const locked = p => ['public', 'example', 'view'].includes(kindOf(p));
 function kindOf(p){
   if (S.compare) return 'compare';
   if (p.example) return 'example';
@@ -2209,7 +2211,7 @@ function renderWork(fromStream){
   { const fit = ['public', 'example', 'view', 'compare', 'community'].includes(kindOf(p)); t.closest('.work-top').classList.toggle('fit-title', fit);
     if (fit){ const cs = getComputedStyle(t), c = (fitTitle.c ||= document.createElement('canvas').getContext('2d')); c.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`; t.style.width = Math.ceil(c.measureText(t.value || t.placeholder).width + parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight) + 4) + 'px'; }
     else t.style.width = ''; }
-  t.readOnly = !!S.compare;
+  t.readOnly = !!S.compare || locked(p); t.title = locked(p) ? 'Copy and Edit Process to rename it' : 'Click to rename';
   renderTopActions();
   const wa = $('#wacct'); wa.innerHTML = signInHTML() + acctHTML(); wireAcct(wa); wireSignIn(wa); wireEmailForm(wa);
   const viewonly = ['public', 'example', 'view'].includes(kindOf(p));
@@ -2596,7 +2598,7 @@ function renderBoard(){
       ${s.kind === 'decision' ? '<span class="k">◇ decision</span>' : s.kind === 'subprocess' ? (s.link ? '<span class="k">↗ linked process</span>' : '<span class="k">▤ subprocess</span>') : ''}
       <span>${esc(s.label)}</span>
       ${s.uses?.length ? `<span class="uses">${s.uses.filter(u => laneName[u]).map(u => `<span>${esc(laneName[u])}</span>`).join('')}</span>` : ''}
-      ${s.link ? `<button class="open" data-link="${esc(s.link.id)}" data-scope="${esc(s.link.scope || 'public')}">Open ${esc(s.link.title || 'process')} ↗</button>` : s.kind === 'subprocess' ? `<button class="open" data-drill="${esc(s.id)}">${s.child ? 'Open · ' + kids + ' steps' : 'Open · empty'} ↘</button>` : ''}
+      ${s.link ? `<button class="open" data-link="${esc(s.link.id)}" data-scope="${esc(s.link.scope || 'public')}">Open ${esc(s.link.title || 'process')} ↗</button>` : s.kind === 'subprocess' && (s.child || !locked(P)) ? `<button class="open" data-drill="${esc(s.id)}">${s.child ? 'Open · ' + kids + ' steps' : 'Open · empty'} ↘</button>` : ''}
       ${back}${outs || ins ? `<span class="xlinks">${outs}${ins}</span>` : ''}
     </div>`;
   });
@@ -2674,18 +2676,20 @@ function linkOptions(s){
 function renderInspector(){
   const box = $('#inspector'); const m = curMap(); const s = m.steps.find(x => x.id === S.sel);
   if (!s){ box.innerHTML = ''; return; }
-  box.innerHTML = `<div class="inspector" role="dialog" aria-label="Step details">
+  const ro = locked(S.cur), dis = ro ? ' disabled' : '';
+  box.innerHTML = `<div class="inspector${ro ? ' locked' : ''}" role="dialog" aria-label="Step details">
     <div class="ins-head"><span class="label">Step · <span class="mono">${esc(s.id)}</span></span><button class="btn ghost" id="ix" aria-label="Close">✕</button></div>
-    <div class="row"><label class="label" for="i-label">Name</label><input id="i-label" value="${esc(s.label)}"></div>
-    <div class="row"><label class="label" for="i-lane">Lane</label><select id="i-lane">${m.lanes.map(l => `<option value="${esc(l.id)}" ${l.id === s.lane ? 'selected' : ''}>${esc(l.name)} (${l.type === 'system' ? 'technology' : 'persona'})</option>`).join('')}${m.lanes.some(l=>l.id===s.lane)?'':'<option selected>Unassigned</option>'}</select></div>
-    <div class="row"><label class="label" for="i-kind">Type</label><select id="i-kind">${KINDS.map(k => `<option ${k === s.kind ? 'selected' : ''}>${k}</option>`).join('')}</select></div>
-    <div class="row"><label class="label" for="i-link">Linked process</label><select id="i-link"><option value="">None</option>${linkOptions(s)}</select><p class="hint">Connect this step to a process you can open, saved or published, to build a bigger one.</p></div>
-    <div class="row"><label class="label" for="i-pain">Pain point</label><select id="i-pain"><option value="0">None</option><option value="1" ${s.pain?.level === 1 ? 'selected' : ''}>Annoying</option><option value="2" ${s.pain?.level === 2 ? 'selected' : ''}>Painful</option><option value="3" ${s.pain?.level === 3 ? 'selected' : ''}>Critical</option></select>${s.pain ? `<input id="i-pain-note" placeholder="Where does it hurt?" maxlength="200" value="${esc(s.pain.note || '')}">` : ''}<p class="hint">Mark where this step is slow, error-prone, manual or costly.</p></div>
-    <div class="acts"><button class="btn primary" id="i-drill">${s.link ? 'Open linked process ↗' : s.child ? 'Open subprocess ↘' : 'Break into a subprocess'}</button><button class="btn danger" id="i-del">Delete step</button></div>
+    ${ro ? '<div class="ins-lock"><p class="hint">This process can\'t be changed. Copy it to make your own version you can edit.</p><button class="btn primary sm" id="i-copy">Copy and Edit Process</button></div>' : ''}
+    <div class="row"><label class="label" for="i-label">Name</label><input id="i-label" value="${esc(s.label)}"${dis}></div>
+    <div class="row"><label class="label" for="i-lane">Lane</label><select id="i-lane"${dis}>${m.lanes.map(l => `<option value="${esc(l.id)}" ${l.id === s.lane ? 'selected' : ''}>${esc(l.name)} (${l.type === 'system' ? 'technology' : 'persona'})</option>`).join('')}${m.lanes.some(l=>l.id===s.lane)?'':'<option selected>Unassigned</option>'}</select></div>
+    <div class="row"><label class="label" for="i-kind">Type</label><select id="i-kind"${dis}>${KINDS.map(k => `<option ${k === s.kind ? 'selected' : ''}>${k}</option>`).join('')}</select></div>
+    <div class="row"><label class="label" for="i-link">Linked process</label><select id="i-link"${dis}><option value="">None</option>${linkOptions(s)}</select><p class="hint">Connect this step to a process you can open, saved or published, to build a bigger one.</p></div>
+    <div class="row"><label class="label" for="i-pain">Pain point</label><select id="i-pain"${dis}><option value="0">None</option><option value="1" ${s.pain?.level === 1 ? 'selected' : ''}>Annoying</option><option value="2" ${s.pain?.level === 2 ? 'selected' : ''}>Painful</option><option value="3" ${s.pain?.level === 3 ? 'selected' : ''}>Critical</option></select>${s.pain ? `<input id="i-pain-note" placeholder="Where does it hurt?" maxlength="200" value="${esc(s.pain.note || '')}"${dis}>` : ''}<p class="hint">Mark where this step is slow, error-prone, manual or costly.</p></div>
+    <div class="acts">${ro && !s.link && !s.child ? '' : `<button class="btn${ro ? '' : ' primary'}" id="i-drill">${s.link ? 'Open linked process ↗' : s.child ? 'Open subprocess ↘' : 'Break into a subprocess'}</button>`}<button class="btn danger" id="i-del"${dis}>Delete step</button></div>
     ${(() => { const mine = findIssues(S.cur).filter(i => i.map === m.id && i.step === s.id); return mine.length ? `<div class="row"><span class="label">To check</span><ul class="chk-list">${mine.map(i => issueRowHTML(i, true)).join('')}</ul></div>` : ''; })()}
-    <div class="row"><span class="label">Did the AI get this wrong?</span>
+    ${ro ? '' : `<div class="row"><span class="label">Did the AI get this wrong?</span>
       <div class="chips">${CORRECTIONS.map(c => `<button class="chip" data-corr="${c[0]}">${c[1]}</button>`).join('')}</div>
-      <p class="hint">Corrections are logged as training signal, then you finish the sentence in the conversation.</p></div>
+      <p class="hint">Corrections are logged as training signal, then you finish the sentence in the conversation.</p></div>`}
   </div>`;
   const edit = (field, val) => {
     ensureOwned(); const mm = curMap(), st = mm.steps.find(x => x.id === S.sel); if (!st) return;
@@ -2693,6 +2697,11 @@ function renderInspector(){
     st[field] = val; touch(); renderWork();
   };
   $('#ix').onclick = () => { S.sel = null; renderBoard(); renderInspector(); };
+  if (ro){
+    $('#i-copy').onclick = () => { S.panel = null; ensureOwned(); S.tab = 'chat'; renderWork(); flushSoon(); };
+    const dr = $('#i-drill'); if (dr) dr.onclick = () => s.link ? openLinked(s.link.id, s.link.scope === 'private' ? 'mine' : 'pub') : drill(s.id);
+    return;
+  }
   $('#i-label').onchange = e => edit('label', e.target.value.trim() || s.label);
   $('#i-lane').onchange = e => edit('lane', e.target.value);
   $('#i-kind').onchange = e => edit('kind', e.target.value);

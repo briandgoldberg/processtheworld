@@ -201,6 +201,8 @@ svg.edges.draw path.e-back{stroke-dasharray:7 5;stroke-dashoffset:0;animation:no
 .inspector .row{display:flex;flex-direction:column;gap:4px}
 .inspector input,.inspector select{border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:7px 9px;width:100%}
 .inspector .acts{display:flex;gap:8px;flex-wrap:wrap}
+.ins-lock{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:10px;border-radius:8px;background:color-mix(in srgb,var(--accent) 8%,var(--surface))}
+.inspector input:disabled,.inspector select:disabled,.inspector .btn:disabled{opacity:.5;cursor:not-allowed}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:4px 10px;font-size:12px;font-weight:600}
 .chip:hover{border-color:var(--accent);color:var(--accent)}
