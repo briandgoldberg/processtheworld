@@ -1671,7 +1671,7 @@ function renderWorkShell(app){
       <div class="composer">
         <textarea id="msg" placeholder="Describe the process in your own words… (tip: use your keyboard's dictation to talk)" aria-label="Describe the process"></textarea>
         <div class="composer-row">
-          <div class="composer-acts"><button class="btn" id="voice" aria-label="Talk to the interviewer" title="Talk instead of typing. It talks back and asks you questions.">${ICON.mic}Talk</button><button class="btn" id="stop" hidden>Stop</button><button class="btn primary" id="sendb">Send</button></div>
+          <div class="composer-acts"><span id="wedit" class="wsmall"></span><button class="btn" id="voice" aria-label="Talk to the interviewer" title="Talk instead of typing. It talks back and asks you questions.">${ICON.mic}Talk</button><button class="btn" id="stop" hidden>Stop</button><button class="btn primary" id="sendb">Send</button></div>
         </div>
       </div>
     </aside>
@@ -1692,8 +1692,9 @@ function renderWorkShell(app){
     if (S.trail?.length){ const t = S.trail.pop(), rest = S.trail; stopGuide(); stopVoice(); flush(); S.keepTrail = true; openProcess(t.id, t.kind).then(() => { S.trail = rest; S.path = t.path.filter(id => S.cur?.maps?.[id]); if (!S.path.length) S.path = ['m_root']; renderWork(); }); return; }
     const toMine = S.backTo === 'mine'; S.backTo = null; setUrl(toMine ? '/mine' : '/'); stopGuide(); stopVoice(); flush(); if (S.compare) closeCompare(); S.view = toMine ? 'mine' : 'home'; S.cur = null; S.confirmDel = null; S.panel = null; loadMine(); loadPublic(); render(); };
   $('#wmenu-btn').onclick = e => { e.stopPropagation(); S.panel = S.panel === 'menu' ? null : 'menu'; S.panelMsg = ''; renderPanel(); };
-  $('#wprimary').onclick = e => { if (e.target.closest('[data-thumb-remove]')){ delete S.cur.thumb; thumbSaved(S.cur, true); return; } onAction(e); };
-  $('#wprimary').addEventListener('change', e => { const f = e.target.closest('[data-thumb-file]'); if (f && f.files[0]) { setThumb(f.files[0]); f.value = ''; } }); $('#pubbar').onclick = onAction; $('#vis').onclick = onAction;
+  $('#wprimary').onclick = onAction;
+  $('#wedit').onclick = e => { if (e.target.closest('[data-thumb-remove]')){ delete S.cur.thumb; thumbSaved(S.cur, true); return; } onAction(e); };
+  $('#wedit').addEventListener('change', e => { const f = e.target.closest('[data-thumb-file]'); if (f && f.files[0]) { setThumb(f.files[0]); f.value = ''; } }); $('#pubbar').onclick = onAction; $('#vis').onclick = onAction;
   $('#tagbar').addEventListener('submit', e => { const f = e.target.closest('[data-tagform]'); if (!f) return; e.preventDefault(); addTag(f.elements.tag.value); });
   $('#tagbar').addEventListener('click', e => { const b = e.target.closest('[data-untag]'); if (b) removeTag(b.dataset.untag); if (e.target.closest('[data-thumb-remove]')){ delete S.cur.thumb; thumbSaved(S.cur, true); } });
   $('#tagbar').addEventListener('change', e => { const f = e.target.closest('[data-thumb-file]'); if (f && f.files[0]) { setThumb(f.files[0]); f.value = ''; } }); $('#wpanel').onclick = onAction; $('#compare').onclick = onAction;
@@ -1800,9 +1801,9 @@ function primaryHTML(p){
   if (k === 'draft') return p.maps.m_root.steps.length ? `<button class="btn primary sm" data-act="submit">${p.submitted ? 'Submit again' : 'Submit for review'}</button>` : '';
   // A public process is frozen and already open to everyone: no Share sheet, just the quick actions
   if (q.publicId) return `<span class="wsmall">${commentBtn(q)}${shareButtons(q.publicId)}</span>`;
-  return editGroupHTML(p, q);
+  return '';
 }
-/* Your own process: Share and Thumbnail, in the same spot as like/comment/share on a public one */
+/* Your own process: Share and Thumbnail sit with Talk and Send under the conversation */
 function editGroupHTML(p, q){
   const t = q.shareCount ? `Shared with ${q.shareCount}. Tap to manage sharing` : 'Private. Tap to share';
   const share = `<button class="btn sm ic" data-act="share" title="${t}" aria-label="${t}">${q.shareCount ? ICON.people + '<span class="vis-n">' + q.shareCount + '</span>' : ICON.lock}</button>`;
@@ -2038,7 +2039,7 @@ function renderTopActions(){
   $('#pubbar').innerHTML = pubbarHTML(p);
   if (!document.activeElement?.closest?.('#tagbar')) $('#tagbar').innerHTML = tagbarHTML(p);
   $('#vis').innerHTML = visHTML(p);
-  { const kk = kindOf(p); $('#wprimary').innerHTML = primaryHTML(p); const mb = $('#wmenu-btn'); if (mb) mb.parentElement.style.display = ['shared', 'draft', 'view'].includes(kk) ? '' : 'none'; }
+  { const kk = kindOf(p); $('#wprimary').innerHTML = primaryHTML(p); { const q = S.real || p; $('#wedit').innerHTML = ['owned', 'shared'].includes(kk) && !q.publicId ? editGroupHTML(p, q) : ''; } const mb = $('#wmenu-btn'); if (mb) mb.parentElement.style.display = ['shared', 'draft', 'view'].includes(kk) ? '' : 'none'; }
   $('#save').textContent = S.compare ? '' : readOnly(p) ? '' : S.save;
 }
 
