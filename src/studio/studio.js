@@ -612,7 +612,7 @@ function startCombineChat(){
   ensureOwned(); const p = S.cur;
   S.awaitCombine = true; S.cmbPick = null;
   const cands = cmbCandidates(p);
-  cmbSay(p, 'Which process would you like to combine this with, and how? Tap one below or type any process name. Then I will ask if it runs before, after, or inside a step.', [...cands.map(cmbPickItem), { label:'Never mind', a:'cmbcancel', v:'1' }]);
+  cmbSay(p, 'Combine it with which process? Tap one or type a name.', [...cands.map(cmbPickItem), { label:'Never mind', a:'cmbcancel', v:'1' }]);
   S.tab = 'chat'; touch(); renderWork();
 }
 function pickCombine(c){
@@ -647,7 +647,7 @@ function combineWith(c, how, stepId){
   if (!p.title || p.title === 'Untitled process'){ p.title = c.title; m.title = p.title; }
   logEvent(p, { who:'human', op:'combine_chat', id:c.id, scope:c.scope, how });
   S.awaitCombine = false; S.cmbPick = null;
-  cmbSay(p, 'Done. ' + said + ' You can keep going: adjust a step, add more detail, or combine another.');
+  cmbSay(p, 'Done. ' + said + '');
   S.tab = 'map'; touch(); renderWork();
 }
 function cmbHow(how){
@@ -2138,7 +2138,7 @@ function renderMsgs(){
   const canEdit = !S.busy && p.undo && p.undo.chatIndex === lastU;
   el.innerHTML = p.chat.map((m, i) => {
     if (m.role === 'note') return `<div class="msg note">${esc(m.content)}</div>`;
-    if (m.role === 'suggest') return `<div class="msg assistant">${esc(m.content)}</div><div class="starters">${m.items.map(it => it.a ? `<button class="starter" data-${it.a}="${esc(it.v)}">${esc(it.label)}</button>` : it.combine ? `<button class="starter" data-combine>${esc(it.label)}</button>` : it.fill ? `<button class="starter" data-fill="${esc(it.fill)}">${esc(it.label)}</button>` : `<button class="starter" data-starter="${esc(it.send)}">${esc(it.label)}</button>`).join('')}</div>`;
+    if (m.role === 'suggest') return `<div class="msg assistant" data-suggest>${esc(m.content)}</div><div class="starters">${m.items.map(it => it.a ? `<button class="starter" data-${it.a}="${esc(it.v)}">${esc(it.label)}</button>` : it.combine ? `<button class="starter" data-combine>${esc(it.label)}</button>` : it.fill ? `<button class="starter" data-fill="${esc(it.fill)}">${esc(it.label)}</button>` : `<button class="starter" data-starter="${esc(it.send)}">${esc(it.label)}</button>`).join('')}</div>`;
     if (m.role === 'user') return `<div class="msg user">${esc(m.content)}</div>`;
     if (m.pending && !m.content) return `<div class="msg assistant"><span class="thinking"><i></i><i></i><i></i>&nbsp;${m.checking ? 'Checking the map' : m.ops ? 'Mapping · ' + m.ops + ' change' + (m.ops === 1 ? '' : 's') : 'Listening'}</span></div>`;
     let x = `<div class="msg assistant${m.err ? ' err' : ''}">${esc(m.content)}`;
@@ -2155,7 +2155,10 @@ function renderMsgs(){
     if (!m.err && !readOnly(p) && m.content && !(m.summary && !m.turnId)) x += rateHTML(m, i);
     return x + '</div>';
   }).join('') + checkinHTML();
-  if (nearBottom || S.busy) el.scrollTop = el.scrollHeight;
+  // A message with options starts at its top, so the question stays in view above the buttons
+  const lastIsSuggest = p.chat.length && p.chat[p.chat.length - 1].role === 'suggest';
+  if (lastIsSuggest){ const t = [...el.querySelectorAll('[data-suggest]')].pop(); if (t) el.scrollTop += t.getBoundingClientRect().top - el.getBoundingClientRect().top - 8; }
+  else if (nearBottom || S.busy) el.scrollTop = el.scrollHeight;
 }
 
 function fitTitle(){}
