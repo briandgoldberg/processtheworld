@@ -111,7 +111,7 @@ const EXAMPLES = [EX_EGG, EX_CAR, EX_TEA];
 
 /* ---------- State ---------- */
 const S = { view:'login', me:null, ready:false,
-  sort:'new', pubLimit:12, commentsData:null, voice:{ on:false, state:'idle', mute:false, note:'' }, guide:null, painView:false, q:'', tag:'', zoom:1, zoomAuto:true, detail:'auto', zoomKey:'', tool:'select', space:false, playing:false, playNow:null, playSeen:{}, drawNow:false,
+  sort:'top', pubLimit:12, commentsData:null, voice:{ on:false, state:'idle', mute:false, note:'' }, guide:null, painView:false, q:'', tag:'', zoom:1, zoomAuto:true, detail:'auto', zoomKey:'', tool:'select', space:false, playing:false, playNow:null, playSeen:{}, drawNow:false,
   mine:[], shared:[], pub:[], cur:null, real:null, compare:null, panel:null, panelMsg:'', path:['m_root'], sel:null, busy:false, ctl:null,
   fresh:new Set(), save:'', tab:'chat', deep:false, confirmPub:false, confirmDel:null, acct:false, notice:'', toast:'',
   sessionTurns:0, askedThisSession:false, lastTurnId:null };
@@ -1627,14 +1627,14 @@ function feedCardHTML(p){
 }
 function publicCardsHTML(){
   const comm = S.sort === 'community';
-  const all = (S.pub || []).filter(p => publicMatches(p) && (!comm || isCommunity(p))).sort(SORTS[S.sort] || SORTS.new);
+  const all = (S.pub || []).filter(p => publicMatches(p) && (!comm || isCommunity(p))).sort(SORTS[S.sort] || SORTS.top);
   const shown = all.slice(0, S.pubLimit), more = all.length > shown.length;
   const exs = more || comm ? '' : EXAMPLES.filter(publicMatches).map(p => cardHTML(p, 'ex')).join('');
   if (!shown.length && !exs) return '<div class="empty"><b style="color:var(--ink)">Nothing matches</b><span>Try a different word, or clear the tag.</span></div>';
   return shown.map(feedCardHTML).join('') + exs + (more ? `<div class="fmore"><button class="btn" data-more>Show ${Math.min(12, all.length - shown.length)} more</button></div>` : '');
 }
 function sortBarHTML(){
-  return `<span class="fsort-l">Sort</span>${[['new', 'Newest'], ['top', 'Most liked'], ['community', 'Build Together']].map(([k, l]) => `<button data-sort="${k}" class="${S.sort === k ? 'on' : ''}">${l}</button>`).join('')}`;
+  return `<span class="fsort-l">Sort</span>${[['top', 'Most liked'], ['new', 'Newest'], ['community', 'Build Together']].map(([k, l]) => `<button data-sort="${k}" class="${S.sort === k ? 'on' : ''}">${l}</button>`).join('')}`;
 }
 async function toggleFeedLike(id, btn){
   const p = (S.pub || []).find(x => x.id === id); if (!p) return;
@@ -2847,7 +2847,7 @@ export async function mount(root, opts = {}){
   API.key = key;
   const q = new URLSearchParams(location.search);
   if (q.get('alert') && ALERTS[q.get('alert')]){ S.toast = ALERTS[q.get('alert')]; history.replaceState(null, '', '/'); }
-  S.view = opts.connect ? 'connect' : opts.mine ? 'mine' : 'home'; ls.set('ptw_in', '1'); S.sort = 'new'; // always open on Newest; the sort you pick lasts for this visit only
+  S.view = opts.connect ? 'connect' : opts.mine ? 'mine' : 'home'; ls.set('ptw_in', '1'); S.sort = 'top'; // always open on Most liked; the sort you pick lasts for this visit only
   S.loading = true; render(); if (!opts.embed) renderFeedbackBox();
   try { S.me = await API.post('/api/identity', { key }); } catch {}
   S.ready = true;
