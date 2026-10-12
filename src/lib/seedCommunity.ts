@@ -9,22 +9,6 @@ const OWNER_EMAIL = "briandgoldberg@gmail.com";
 export const COMMUNITY_AUTHOR = "forks.world community";
 let once: Promise<void> | null = null;
 
-// A step can link to another community process with "@Title"; the title is turned into that process's public id once it exists.
-async function resolveLinks(p: Record<string, any>): Promise<Record<string, any>> {
-  const fix = async (steps: any[] | undefined) => {
-    for (const st of steps || []) {
-      if (typeof st.link === "string" && st.link.startsWith("@")) {
-        const t = await prisma.publicProcess.findFirst({ where: { mode: "community", title: st.link.slice(1) }, select: { id: true } });
-        if (t) st.link = t.id; else delete st.link;
-      }
-    }
-  };
-  const c = JSON.parse(JSON.stringify(p));
-  await fix(c.steps);
-  for (const l of c.layers || []) await fix(l.steps);
-  return c;
-}
-
 export function seedCommunityOnce(origin: string) {
   once ??= (async () => {
     const owner = await prisma.user.findUnique({ where: { email: OWNER_EMAIL }, select: { id: true, handle: true } });
@@ -34,7 +18,7 @@ export function seedCommunityOnce(origin: string) {
       if (have.has(p.title)) continue;
       // A fixed id per process, so two servers seeding at once can't publish it twice
       const id = "community-" + String(p.title).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 50);
-      const r = await saveForUser(owner, { ...(await resolveLinks(p)), id, publish: true }, origin).catch(e => ({ status: 500, body: { error: String(e) } }));
+      const r = await saveForUser(owner, { ...p, id, publish: true }, origin).catch(e => ({ status: 500, body: { error: String(e) } }));
       // Whether this run published it or an earlier, interrupted one did, mark the public version as a community process
       const pub = await prisma.publicProcess.findUnique({ where: { processId: id }, select: { id: true } });
       if (!pub) { console.error("seedCommunity", p.title, r.body); continue; }
