@@ -886,3 +886,8 @@ body.embed .crumbs{padding-block:6px}
   .work:has(.save-close:not([hidden])){padding-bottom:calc(52px + env(safe-area-inset-bottom, 0px))}
   .work:has(.save-close:not([hidden])) .zoomctl{bottom:10px}
 }
+/* Phone: Save and Close belongs to the map, so it is not shown on the Conversation tab */
+@media (max-width:820px){
+  .work[data-tab="chat"] .save-close{display:none!important}
+  .work[data-tab="chat"]:has(.save-close:not([hidden])){padding-bottom:0}
+}
