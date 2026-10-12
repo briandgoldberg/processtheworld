@@ -1775,19 +1775,14 @@ function renderTeam(app){
 }
 function renderHome(app){
   const sec = (title, sub, inner) => `<section class="sec">${title ? `<div class="sec-head"><h2>${title}</h2><p>${sub}</p></div>` : ''}${inner}</section>`;
-  const mineAll = [...S.mine].filter(p => !p.proposalFor).sort((x, y) => (y.updatedAt || 0) - (x.updatedAt || 0));
-  const recent = mineAll.slice(0, 3);
-  const minMine = ls.get('ptw_mine_min') === '1'; // kept on this device until you expand it again
   app.innerHTML = `
   ${topBarHTML()}
   <div class="home"><div class="home-in">
     ${!S.mine.length ? `<section class="sec"><div class="cta-big"><div><h3>Build your first process</h3><p><b>Private by default and shareable when you are ready.</b> Our AI will help you and your team keep documentation connected, complete, and current.</p></div><button class="btn primary lg" id="new2">Start building</button></div></section>` : ''}
-    ${recent.length ? `<section class="sec"><div class="sec-head sec-row"><h2>My Processes</h2><button class="sec-toggle" data-minmine aria-expanded="${!minMine}">${minMine ? 'Expand ▾' : 'Minimize ▴'}</button></div>${minMine ? '' : `<div class="cards">${recent.map(p => cardHTML(p, 'mine')).join('')}</div>${mineAll.length > recent.length ? '<button class="linkish more-mine" data-mine>See all my processes →</button>' : ''}`}</section>` : ''}
     <section class="sec">${publicFilterHTML()}</section>
     ${miniFootHTML()}
   </div></div>`;
   $('#new').onclick = startNew; const n2 = $('#new2'); if (n2) n2.onclick = startNew;
-  app.querySelectorAll('[data-minmine]').forEach(b => b.onclick = () => { ls.set('ptw_mine_min', minMine ? '0' : '1'); render(); });
   wireAcct(app); wireSignIn(app); wireInterest(app); wireImport(app); wirePublicFilter(app); wireCopy(app);
   app.querySelectorAll('[data-del]').forEach(b => b.onclick = () => { S.confirmDel = b.dataset.del; render(); });
   app.querySelectorAll('[data-del-no]').forEach(b => b.onclick = () => { S.confirmDel = null; render(); });
@@ -2936,7 +2931,12 @@ export async function mount(root, opts = {}){
   const deep = !!(q.get('process') || q.get('admin') || opts.open || (q.get('example') && EXAMPLES.some(x => x.id === q.get('example'))));
   const settle = () => { S.loading = false; if (S.view !== 'work') render(); };
   if (deep) setTimeout(settle, 6000);
-  else { await Promise.all([loadMine(), loadPublic()]); settle(); }
+  else {
+    await Promise.all([loadMine(), loadPublic()]);
+    // Once you have a process, or one shared with you, the site opens on My Processes
+    if (S.view === 'home' && location.pathname === '/' && (S.mine.length || S.shared.length)){ S.view = 'mine'; history.replaceState(null, '', '/mine'); document.title = 'My Processes | forks.world'; }
+    settle();
+  }
   if (deep){ loadMine(); loadPublic(); }
   { const pid = q.get('process'); if (pid && !opts.open){ S.noPush = true; openProcess(pid, 'mine').finally(settle); } }
   { const aid = q.get('admin'); if (aid && !opts.open){ S.noPush = true; openProcess(aid, 'admin').finally(settle); } }
