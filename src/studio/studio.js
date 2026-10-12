@@ -951,6 +951,7 @@ function summaryHTML(p){
     <p><span class="label">Technology</span> ${tech.size ? esc([...tech].join(', ')) : 'None captured'}</p>
     ${issues.length ? `<p><span class="label">Still to check</span></p><ul>${issues.slice(0,5).map(i => `<li>${esc(i.text)}</li>`).join('')}</ul>` : '<p class="ok">Every step is connected.</p>'}
     ${rate}
+    ${readOnly(p) || p.status !== 'done' ? '' : '<div class="sum-acts"><button class="btn primary" data-sumclose>Save and close</button><button class="btn" data-sumresume>Keep editing</button></div>'}
   </div>`;
 }
 
@@ -1741,7 +1742,7 @@ function renderHome(app){
   app.innerHTML = `
   ${topBarHTML()}
   <div class="home"><div class="home-in">
-    ${sec('My Processes', '', recent.length ? `<div class="cards">${recent.map(p => cardHTML(p, 'mine')).join('')}</div>${privateAll.length > recent.length ? '<button class="linkish more-mine" data-mine>See all my processes →</button>' : ''}` : !S.mine.length ? '<div class="cta-big"><div><h3>Build your first process</h3><p><b>Private to you, and shareable when you are ready.</b> It is a smart interview that helps you document how something gets done.</p></div><button class="btn primary lg" id="new2">Start building</button></div>' : '<button class="priv-slot" id="new2">+ New process</button>')}
+    ${sec('My Processes', '', recent.length ? `<div class="cards">${recent.map(p => cardHTML(p, 'mine')).join('')}</div>${privateAll.length > recent.length ? '<button class="linkish more-mine" data-mine>See all my processes →</button>' : ''}` : !S.mine.length ? '<div class="cta-big"><div><h3>Build your first process</h3><p><b>Private by default and shareable when you are ready.</b> Our AI, trained on interview best practices, will help you and your team keep documentation complete and current.</p></div><button class="btn primary lg" id="new2">Start building</button></div>' : '<button class="priv-slot" id="new2">+ New process</button>')}
     ${S.shared.length ? sec('Shared with me', 'Processes people invited you to.', `<div class="cards">${S.shared.map(p => cardHTML(p,'shared')).join('')}</div>`) : ''}
     <section class="sec">${publicFilterHTML()}</section>
     ${miniFootHTML()}
@@ -1875,7 +1876,7 @@ function renderWorkShell(app){
       <div class="composer">
         <textarea id="msg" placeholder="Describe the process in your own words… (tip: use your keyboard's dictation to talk)" aria-label="Describe the process"></textarea>
         <div class="composer-row">
-          <div class="composer-acts"><span id="wedit" class="wsmall"></span><button class="btn" id="voice" aria-label="Talk to the interviewer" title="Talk instead of typing. It talks back and asks you questions.">${ICON.mic}Talk</button><button class="btn" id="stop" hidden>Stop</button><button class="btn primary" id="sendb">Send</button></div>
+          <div class="composer-acts"><span id="wedit" class="wsmall"></span><button class="btn" id="voice" aria-label="Talk to the interviewer" title="Talk instead of typing. It talks back and asks you questions.">${ICON.mic}Talk</button><button class="btn" id="stop" hidden>Stop</button><button class="btn complete" id="complete" hidden>Complete interview</button><button class="btn primary" id="sendb">Send</button></div>
         </div>
       </div>
     </aside>
@@ -1918,8 +1919,11 @@ function renderWorkShell(app){
   $('#painlist').onclick = e => { const b = e.target.closest('[data-pjump]'); if (b) jumpTo(b.dataset.pmap, b.dataset.pjump); };
   $('#scroller').addEventListener('wheel', onBoardWheel, { passive:false });
   wirePan($('#scroller'));
+  $('#complete').onclick = () => { if (S.busy || !S.cur) return; if (S.cur.status === 'done') resume(); else { finish(); S.tab = 'chat'; renderWork(); } };
   $('#tabs').onclick = e => { const t = e.target.closest('[data-tab]'); if (!t) return; S.tab = t.dataset.tab; renderWork(); };
   $('#msgs').onclick = e => {
+    if (e.target.closest('[data-sumclose]')){ flush().finally(() => $('#back').click()); return; }
+    if (e.target.closest('[data-sumresume]')){ resume(); return; }
     const b = e.target.closest('[data-starter]'); if (b){ send(b.dataset.starter); return; }
     const co = e.target.closest('[data-collab]'); if (co){ communityAct(co.dataset.collab); return; }
     const cc = e.target.closest('[data-collabcmp]'); if (cc){ openCompare(cc.dataset.collabcmp); return; }
@@ -2248,6 +2252,7 @@ function renderWork(fromStream){
   $('#work').classList.toggle('comparing', !!S.compare);
   document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === S.tab));
   $('#stop').hidden = !S.busy; $('#sendb').disabled = S.busy || !!S.compare;
+  { const cb = $('#complete'); if (cb){ cb.hidden = readOnly(p) || !p.maps.m_root.steps.length || !!S.compare; cb.disabled = S.busy; cb.textContent = p.status === 'done' ? 'Resume interview' : 'Complete interview'; } }
 
   if (S.checksOpen && !findIssues(p).length) S.checksOpen = false;
   renderMsgs(); renderCompare(); renderCrumbs(); renderBoard(); renderInspector(); renderChecks();
