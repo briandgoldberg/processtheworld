@@ -247,7 +247,7 @@ a.btn{text-decoration:none;color:inherit}
 .frate-ends{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);max-width:210px}
 .checkin{align-self:stretch;border:1px solid var(--line);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:8px;background:var(--bg);font-size:13px}
 .checkin textarea,.fbx-panel textarea{width:100%;resize:vertical;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 10px}
-.fbx{position:fixed;right:10px;bottom:calc(6px + env(safe-area-inset-bottom, 0px));z-index:40;display:flex;flex-direction:column;align-items:flex-end}
+.fbx{position:fixed;right:4px;bottom:calc(2px + env(safe-area-inset-bottom, 0px));z-index:40;display:flex;flex-direction:column;align-items:flex-end}
 .fbx-pill{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:7px 14px;font-weight:600;font-size:13px;box-shadow:0 6px 18px -8px rgba(10,20,40,.4)}
 .fbx-pill:hover{border-color:var(--accent);color:var(--accent)}
 .fbx-panel{width:min(340px,calc(100vw - 32px));background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 16px 40px -14px rgba(10,20,40,.45);padding:14px;display:flex;flex-direction:column;gap:10px}
