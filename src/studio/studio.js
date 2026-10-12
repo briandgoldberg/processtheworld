@@ -1742,17 +1742,19 @@ function renderTeam(app){
     <h1>My Team's Processes</h1>
     <p>Build and manage processes with your team.</p>
     <form class="team-form" data-team-form novalidate>
-      <div class="team-row"><input name="email" type="email" required autocomplete="off" placeholder="Work email" aria-label="Work email">
-      <input name="company" type="text" maxlength="80" autocomplete="organization" placeholder="Team or company (optional)" aria-label="Team or company"></div>
+      <div class="team-row"><input name="workemail" type="text" inputmode="email" required autocomplete="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore placeholder="Work email" aria-label="Work email">
+      <input name="company" type="text" maxlength="80" autocomplete="off" data-lpignore="true" data-1p-ignore placeholder="Team or company (optional)" aria-label="Team or company"></div>
       <button class="btn primary lg">Get early access</button>
       <p class="hint" data-team-msg role="status"></p>
     </form>
   </section></div></div>`;
   $('#new').onclick = startNew;
   wireAcct(app); wireSignIn(app); wireCopy(app);
+  // A browser can fill a box just after the page draws: clear anything that was not typed
+  { const tf = app.querySelector('[data-team-form]'); const clearFill = () => { tf.querySelectorAll('input').forEach(i => { if (document.activeElement !== i && !i.dataset.typed) i.value = ''; }); }; tf.addEventListener('input', e => { e.target.dataset.typed = '1'; }); [0, 150, 600, 1500].forEach(t => setTimeout(clearFill, t)); }
   app.querySelector('[data-team-form]').onsubmit = async e => {
     e.preventDefault();
-    const f = e.target, msg = f.querySelector('[data-team-msg]'), btn = f.querySelector('button'), email = f.elements.email.value.trim();
+    const f = e.target, msg = f.querySelector('[data-team-msg]'), btn = f.querySelector('button'), email = f.elements.workemail.value.trim();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ msg.textContent = 'Enter a valid email address.'; return; }
     btn.disabled = true;
     try { await API.post('/api/interest', { email, kind:'team', note:f.elements.company.value.trim() }); msg.textContent = 'You are on the list. We will email you when it opens.'; track('interest_team'); f.reset(); }
