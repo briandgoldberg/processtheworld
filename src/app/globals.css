@@ -881,8 +881,8 @@ body.embed .crumbs{padding-block:6px}
 
 /* Phone: Save and Close is a blue bar fixed to the bottom of the screen, on the Conversation and Map tabs */
 @media (max-width:820px){
-  .save-close{display:flex;position:fixed;left:0;right:0;bottom:0;top:auto;width:100%;z-index:35;border-radius:0;justify-content:center;align-items:center;min-height:42px;padding-top:0;padding-bottom:env(safe-area-inset-bottom, 0px);font-size:15px}
+  .save-close{display:flex;position:fixed;left:0;right:0;bottom:0;top:auto;width:100%;z-index:35;border-radius:0;justify-content:center;align-items:center;min-height:36px;padding-top:0;padding-bottom:env(safe-area-inset-bottom, 0px);font-size:15px}
   .save-close[hidden]{display:none}
-  .work:has(.save-close:not([hidden])){padding-bottom:calc(42px + env(safe-area-inset-bottom, 0px))}
+  .work:has(.save-close:not([hidden])){padding-bottom:calc(36px + env(safe-area-inset-bottom, 0px))}
   .work:has(.save-close:not([hidden])) .zoomctl{bottom:10px}
 }
