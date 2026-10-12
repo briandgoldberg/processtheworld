@@ -1740,7 +1740,7 @@ function renderHome(app){
   app.innerHTML = `
   ${topBarHTML()}
   <div class="home"><div class="home-in">
-    ${recent.length ? sec('Your private processes', 'Only you can see these. Share or publish when you are ready.', `<div class="cards">${recent.map(p => cardHTML(p, 'mine')).join('')}</div><button class="linkish more-mine" data-mine>See all my processes →</button>`) : sec('Your private processes', 'Only you can see these. Share or publish when you are ready.', `<div class="priv-empty"><p>Map something just for you. Nobody else can see it until you decide to share or publish it. You can also copy any public process below to make your own private version.</p><button class="btn primary" id="new2">Start a private process</button></div>`)}
+    ${recent.length ? sec('Your private processes', 'Only you can see these. Share or publish when you are ready.', `<div class="cards">${recent.map(p => cardHTML(p, 'mine')).join('')}</div><button class="linkish more-mine" data-mine>See all my processes →</button>`) : ''}
     ${S.shared.length ? sec('Shared with me', 'Processes people invited you to.', `<div class="cards">${S.shared.map(p => cardHTML(p,'shared')).join('')}</div>`) : ''}
     <section class="sec">${publicFilterHTML()}</section>
     ${miniFootHTML()}
