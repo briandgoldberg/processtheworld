@@ -666,6 +666,18 @@ function mapPayload(p, mapId, history, text){
     hasTech:Object.values(p.maps).some(mm => mm.lanes.some(l => l.type === 'system')), history, text, skippedLastQuestion:!!prevAsk?.askSkipped, community:!!p.proposalFor };
 }
 
+/* A starter that begins with a finished map: load it into this new process, then adjust it in the chat */
+async function startFromTemplate(id){
+  const p = S.cur; if (!p || readOnly(p) || S.busy || p.maps.m_root.steps.length) return;
+  try {
+    const d = await API.get('/api/public/' + id), doc = d.doc || {};
+    p.maps = clone(doc.maps); p.title = doc.title || d.title || p.title; p.tags = cleanTags(doc.tags || d.tags || []); p.status = 'interviewing';
+    p.chat.push({ role:'note', content:'Started from “' + p.title + '”.' }, { role:'assistant', content:'Here is a Lead-to-Cash process in Salesforce to start from. What would you like to change or add? For example, rename a step, add a team, or show a tool.' });
+    logEvent(p, { who:'human', op:'start_from_template', id });
+    S.path = ['m_root']; S.sel = null; S.tab = 'map'; touch(); renderWork();
+  } catch { alertBox('Could not load that process. Try again.'); }
+}
+
 /* Combining, as a conversation: suggest related processes, ask which one and how it fits */
 const cmbSay = (p, content, items) => p.chat.push(items ? { role:'suggest', content, items } : { role:'assistant', content });
 const norm = t => String(t || '').toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
@@ -1879,7 +1891,7 @@ async function openProcess(id, kind){
   S.noPush = false;
 }
 const STARTERS = [
-  'How to manage Lead-to-Cash in Salesforce.',
+  { text:'How to manage Lead-to-Cash in Salesforce.', template:'cmv4vosiv000mjp06ymsi6k06' },
   'How to change a flat bike tire.'
 ];
 
@@ -1914,13 +1926,13 @@ function renderWorkShell(app){
       <div id="compare"></div>
       <div class="crumbs" id="crumbs"></div>
       <div class="scroller" id="scroller"><div class="board" id="board"></div></div>
-      <button class="btn primary save-close" id="saveclose2" hidden>Save and Close</button>
       <div id="zoomctl" class="zoomctl"></div>
       <div id="guide" class="guide"></div>
       <div id="painlist" class="painlist"></div>
       <div id="inspector"></div>
       <div id="checks"></div>
     </section>
+    <button class="btn primary save-close" id="saveclose2" hidden>Save and Close</button>
   </div>`;
   $('#back').onclick = () => {
     // Back goes up one layer first, then to the process you came from, then home
@@ -1956,6 +1968,7 @@ function renderWorkShell(app){
   $('#msgs').onclick = e => {
     if (e.target.closest('[data-sumclose]')){ flush().finally(() => $('#back').click()); return; }
     if (e.target.closest('[data-sumresume]')){ resume(); return; }
+    const tp = e.target.closest('[data-template]'); if (tp){ startFromTemplate(tp.dataset.template); return; }
     const b = e.target.closest('[data-starter]'); if (b){ send(b.dataset.starter); return; }
     const co = e.target.closest('[data-collab]'); if (co){ communityAct(co.dataset.collab); return; }
     const cc = e.target.closest('[data-collabcmp]'); if (cc){ openCompare(cc.dataset.collabcmp); return; }
@@ -2296,7 +2309,7 @@ function renderMsgs(){
   const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
   if (!p.chat.length){
     el.innerHTML = `<div class="msg assistant">Tell me about a process: what it's called, who's involved, and what happens first. I'll build the map as you go and ask about anything that's missing.</div>
-    <div class="starters"><div class="label">Or start with</div>${STARTERS.map(s => `<button class="starter" data-starter="${esc(s)}">${esc(s)}</button>`).join('')}<button class="starter" data-combine>Import a process as a sub process, or combine several processes.</button></div>`;
+    <div class="starters"><div class="label">Or start with</div>${STARTERS.map(s => typeof s === 'string' ? `<button class="starter" data-starter="${esc(s)}">${esc(s)}</button>` : `<button class="starter" data-template="${esc(s.template)}">${esc(s.text)}</button>`).join('')}<button class="starter" data-combine>Import a process as a sub process, or combine several processes.</button></div>`;
     return;
   }
   const lastU = lastUserIndex(p);
