@@ -886,3 +886,15 @@ body.embed .crumbs{padding-block:6px}
   .work:has(.save-close:not([hidden])){padding-bottom:calc(36px + env(safe-area-inset-bottom, 0px))}
   .work:has(.save-close:not([hidden])) .zoomctl{bottom:10px}
 }
+
+/* Tags: a fold that is closed on a phone until you open it */
+.tagtoggle{display:none;border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:999px;padding:4px 12px;font-size:13px;font-weight:600}
+.tags-body{display:contents}
+@media (max-width:820px){
+  .tagbar{flex-wrap:nowrap}
+  .tagbar:not(:empty){padding-block:6px}
+  .tagtoggle{display:inline-flex;align-items:center;gap:4px}
+  .tagbar .tags-body{display:none}
+  .tagbar.open{flex-wrap:wrap}
+  .tagbar.open .tags-body{display:contents}
+}
