@@ -4,12 +4,12 @@ import { useEffect, useRef } from "react";
 // The mapper is a self-contained browser app (src/studio/studio.js); React
 // only gives it a place to live. `open` is a public process to show first;
 // `embed` shows just the map, for use inside an iframe.
-export default function Studio({ open, embed, connect, mine }: { open?: string; embed?: boolean; connect?: boolean; mine?: boolean }) {
+export default function Studio({ open, embed, connect, mine, build }: { open?: string; embed?: boolean; connect?: boolean; mine?: boolean; build?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     let done = false;
-    import("@/studio/studio.js").then((m: any) => { if (!done && ref.current) m.mount(ref.current, { open, embed, connect, mine }); });
+    import("@/studio/studio.js").then((m: any) => { if (!done && ref.current) m.mount(ref.current, { open, embed, connect, mine, build }); });
     return () => { done = true; };
-  }, [open, embed, connect, mine]);
+  }, [open, embed, connect, mine, build]);
   return <div ref={ref} style={{ height: "100%" }} />;
 }

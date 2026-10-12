@@ -1089,6 +1089,12 @@ function publishHTML(d){
     <p class="hint warn-line">This process is public and frozen. It cannot be changed.</p>
     <div class="prop-acts"><button class="btn sm" data-act="copypub" data-pub="${esc(p.publicId)}">${ICON.link}Copy link</button></div></div>`;
 }
+function buildTogetherHTML(d){
+  const link = location.origin + '/build/' + S.cur.id;
+  return `<div class="pubbox"><p class="label">${ICON.people} Build together</p>
+    <p class="hint">${d.openEdit ? 'Anyone with this link can join and edit this process.' : 'Let anyone with a link join and edit this process with you.'}</p>
+    <div class="prop-acts"><button class="btn ${d.openEdit ? '' : 'primary '}sm" data-act="buildtoggle" data-on="${d.openEdit ? '0' : '1'}">${d.openEdit ? 'Turn off' : 'Let anyone with the link edit'}</button>${d.openEdit ? `<button class="btn sm" data-act="copylink" data-link="${esc(link)}">Copy link</button>` : ''}</div></div>`;
+}
 function shareHTML(){
   const d = S.shareData, close = '<button class="btn ghost sm" data-act="close" aria-label="Close">✕</button>';
   const head = `<div class="ins-head"><span></span>${close}</div>`;
@@ -1108,6 +1114,7 @@ function shareHTML(){
       <select name="role" aria-label="Access"><option value="edit">Can edit</option><option value="view">Can view</option></select>
       <button class="btn primary sm">Invite</button></div>
       <ul class="suggest" id="inv-sug" hidden></ul><p class="hint inv-state" id="inv-state" role="status"></p></form>` : '<p class="hint">Only the owner can invite people.</p>'}
+    ${d.canManage && !S.cur.publicId ? buildTogetherHTML(d) : ''}
     ${msg}
     <p class="label">${ICON.people} People with access</p>
     <ul class="people"><li class="person"><span class="pname">${esc(d.owner)}</span><span class="hint">Owner</span></li>${people}</ul>
@@ -2074,6 +2081,7 @@ async function onAction(e){
     case 'update': S.panel = null; publish(); return;
     case 'submit': S.panel = 'submit'; break;
     case 'share': S.panel = 'share'; S.shareData = null; break;
+    case 'buildtoggle': { try { await API.post('/api/processes/' + p.id + '/open', { on:b.dataset.on === '1' }); S.panelMsg = ''; } catch (e){ S.panelMsg = e.message; } S.shareData = null; S.panel = 'share'; break; }
     case 'delete': S.panel = 'delete'; break;
     case 'delete-yes': S.panel = null; deleteProcess(p.id); return;
     case 'leave': S.panel = null; deleteProcess(p.id); return;
@@ -2873,11 +2881,13 @@ export async function mount(root, opts = {}){
   S.ready = true;
   if (S.me?.email) ls.set('ptw_in', '1');
   if (S.me?.email && S.view === 'login') S.view = 'home';
-  const deep = !!(q.get('process') || q.get('admin') || opts.open || (q.get('example') && EXAMPLES.some(x => x.id === q.get('example'))));
+  const deep = !!(q.get('process') || q.get('admin') || opts.open || opts.build || (q.get('example') && EXAMPLES.some(x => x.id === q.get('example'))));
   const settle = () => { S.loading = false; if (S.view !== 'work') render(); };
+  if (opts.build){ try { await API.post('/api/processes/' + opts.build + '/join', {}); } catch (e){ S.notice = e.message || 'This link is not open for editing.'; } }
   if (deep) setTimeout(settle, 6000);
   else { await Promise.all([loadMine(), loadPublic()]); settle(); }
   if (deep){ loadMine(); loadPublic(); }
+  if (opts.build && !S.notice){ S.noPush = true; loadMine().then(() => openProcess(opts.build, 'shared')).finally(settle); }
   { const pid = q.get('process'); if (pid && !opts.open){ S.noPush = true; openProcess(pid, 'mine').finally(settle); } }
   { const aid = q.get('admin'); if (aid && !opts.open){ S.noPush = true; openProcess(aid, 'admin').finally(settle); } }
   const ex = q.get('example'); if (ex && EXAMPLES.some(x => x.id === ex)){ ls.set('ptw_in', '1'); openProcess(ex, 'ex').finally(settle); history.replaceState(null, '', '/'); }

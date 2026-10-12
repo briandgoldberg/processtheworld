@@ -20,7 +20,7 @@ export async function GET(req: NextRequest, { params }: Ctx) {
     prisma.share.findMany({ where: { processId: id }, orderBy: { createdAt: "asc" }, include: { user: { select: { handle: true } } } }),
   ]);
   return json({
-    owner: owner?.handle, canManage: role === "owner",
+    owner: owner?.handle, canManage: role === "owner", openEdit: p.openEdit,
     people: rows.map(s => ({ id: s.id, name: s.user?.handle || s.email, role: s.role, pending: !s.acceptedAt, you: s.userId === user.id, ...(role === "owner" && !s.acceptedAt && s.token ? { link: `${appUrl()}/invite?token=${s.token}` } : {}) })),
   });
 }

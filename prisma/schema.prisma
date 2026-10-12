@@ -85,6 +85,7 @@ model Process {
   proposalFor  String?
   proposalBase Int?
   rev       Int      @default(1) // bumps on every save, so two editors can't overwrite each other
+  openEdit  Boolean  @default(false) // build together: anyone with the link can join as an editor
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
