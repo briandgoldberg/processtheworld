@@ -2939,6 +2939,8 @@ export async function mount(root, opts = {}){
     await Promise.all([loadMine(), loadPublic()]);
     // Once you have a process, or one shared with you, the site opens on My Processes
     if (S.view === 'home' && location.pathname === '/' && (S.mine.length || S.shared.length)){ S.view = 'mine'; history.replaceState(null, '', '/mine'); document.title = 'My Processes | forks.world'; }
+    // With nothing of your own yet, My Processes has nothing to show, so go to Home
+    if (S.view === 'mine' && !S.mine.length && !S.shared.length){ S.view = 'home'; history.replaceState(null, '', '/'); document.title = 'forks.world: Mapping how the world works'; }
     settle();
   }
   if (deep){ loadMine(); loadPublic(); }
