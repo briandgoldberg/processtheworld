@@ -1742,7 +1742,7 @@ function renderTeam(app){
     <h1>My Team's Processes</h1>
     <p>Build and manage processes with your team.</p>
     <form class="team-form" data-team-form novalidate>
-      <div class="team-row"><input name="email" type="email" required autocomplete="email" placeholder="Work email" aria-label="Work email" value="${esc(S.me?.email || '')}">
+      <div class="team-row"><input name="email" type="email" required autocomplete="off" placeholder="Work email" aria-label="Work email">
       <input name="company" type="text" maxlength="80" autocomplete="organization" placeholder="Team or company (optional)" aria-label="Team or company"></div>
       <button class="btn primary lg">Get early access</button>
       <p class="hint" data-team-msg role="status"></p>
