@@ -811,3 +811,5 @@ body.embed .crumbs{padding-block:6px}
 @media (max-width:820px){.tagbar.ro{display:none}}
 /* Phone: smaller titles so more of the name fits. Your own titles stay 16px, since iPhones zoom in on smaller text boxes when you tap to rename */
 @media (max-width:820px){.work-top.fit-title .title-in{font-size:15px}}
+.priv-empty{border:1px dashed var(--line);border-radius:var(--r);padding:18px;background:var(--surface);display:flex;flex-direction:column;align-items:flex-start;gap:12px}
+.priv-empty p{margin:0;max-width:560px;color:var(--muted);line-height:1.5}
