@@ -1879,7 +1879,7 @@ async function openProcess(id, kind){
   S.noPush = false;
 }
 const STARTERS = [
-  'How I make pancakes from scratch.',
+  'How to manage Lead-to-Cash in Salesforce.',
   'How to change a flat bike tire.'
 ];
 
