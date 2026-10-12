@@ -2297,7 +2297,8 @@ function renderWork(fromStream){
   $('#work').classList.toggle('comparing', !!S.compare);
   document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === S.tab));
   $('#stop').hidden = !S.busy; $('#sendb').disabled = S.busy || !!S.compare;
-  { const hide = readOnly(p) || !p.maps.m_root.steps.length || !!S.compare; ['#complete', '#saveclose2'].forEach(id => { const cb = $(id); if (cb){ cb.hidden = hide; cb.disabled = S.busy; } }); }
+  // Always there while you can edit: it says Close until the map has a step, then Save and Close
+  { const hide = readOnly(p) || !!S.compare, label = p.maps.m_root.steps.length ? 'Save and Close' : 'Close'; ['#complete', '#saveclose2'].forEach(id => { const cb = $(id); if (cb){ cb.hidden = hide; cb.disabled = S.busy; cb.textContent = label; } }); }
 
   if (S.checksOpen && !findIssues(p).length) S.checksOpen = false;
   renderMsgs(); renderCompare(); renderCrumbs(); renderBoard(); renderInspector(); renderChecks();
