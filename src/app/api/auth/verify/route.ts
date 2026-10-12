@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { grantSignupCredits } from "@/lib/points";
 import { handleTaken } from "@/lib/identity";
 
 export const dynamic = "force-dynamic";
@@ -20,6 +21,7 @@ export async function GET(req: NextRequest) {
       prisma.user.update({ where: { id: row.userId }, data: { email: row.email, emailVerifiedAt: new Date(), ...(newHandle ? { handle: newHandle } : {}) } }),
       prisma.emailToken.update({ where: { id: row.id }, data: { usedAt: new Date() } }),
     ]);
+    await grantSignupCredits(row.userId);
   }
   return NextResponse.redirect(new URL("/?alert=saved", req.url));
 }

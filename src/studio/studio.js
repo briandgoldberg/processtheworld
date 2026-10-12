@@ -1349,7 +1349,7 @@ function render(){
 }
 
 /* ---------- Account: anonymous handle, optional email ---------- */
-const creditsHTML = () => S.me && S.me.credits != null ? `<div class="credits"><b>${S.me.credits}</b> credits<small>For creating processes. Adding more credits is coming soon.</small></div>` : '';
+const creditsHTML = () => S.me && S.me.credits != null ? `<div class="credits"><b>${S.me.credits}</b> credits<small>${S.me.email ? 'For creating processes. Adding more credits is coming soon.' : 'For creating processes. Sign up with your email address for more credits.'}</small></div>` : '';
 async function refreshMe(){ try { S.me = await API.post('/api/identity', { key:API.key }); } catch {} const el = document.querySelector('.credits'); if (el) el.outerHTML = creditsHTML(); }
 function acctHTML(){
   const me = S.me; if (!me) return '';
@@ -1736,7 +1736,7 @@ function wireMineCards(app){
 function renderMine(app){
   app.innerHTML = `${topBarHTML()}
   <div class="home"><div class="home-in"><section class="sec">
-    <div class="pfilter"><div class="psrow"><span class="seg-toggle" id="mvis" role="group" aria-label="Show">${[['all', 'All'], ['private', 'Private'], ['public', 'Public'], ['shared', 'Shared With Me']].map(([k, n]) => `<button data-mvis="${k}" class="${(S.mvis || 'all') === k ? 'on' : ''}">${n}</button>`).join('')}</span><input id="msearch" type="search" placeholder="Search my processes" value="${esc(S.mq || '')}" aria-label="Search my processes" autocomplete="off"></div><div class="pills" id="mpills">${mineTagsHTML()}</div></div>
+    <div class="pfilter"><div class="psrow"><span class="seg-toggle" id="mvis" role="group" aria-label="Show">${[['all', 'All'], ['private', 'Private'], ['public', 'Public'], ['shared', 'Shared With Me']].map(([k, n]) => `<button data-mvis="${k}" class="${(S.mvis || 'all') === k ? 'on' : ''}">${n}</button>`).join('')}</span></div><div class="psrow"><input id="msearch" type="search" placeholder="Search my processes" value="${esc(S.mq || '')}" aria-label="Search my processes" autocomplete="off"></div><div class="pills" id="mpills">${mineTagsHTML()}</div></div>
     <div id="mcards">${mineCardsHTML()}</div>
   </section>${miniFootHTML()}</div></div>`;
   $('#new').onclick = startNew;

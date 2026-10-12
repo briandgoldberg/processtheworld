@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { body, fail, hashIp, json, str, token as newToken } from "@/lib/http";
+import { grantSignupCredits } from "@/lib/points";
 import { cleanHandle, getOrCreateUser, handleTaken, publicUser, validKey } from "@/lib/identity";
 
 export const dynamic = "force-dynamic";
@@ -27,6 +28,7 @@ export async function POST(req: NextRequest) {
     if (handle && (await handleTaken(handle, base.id))) return fail("That username is taken. Try another.", 409);
     await prisma.user.updateMany({ where: { email, id: { not: base.id } }, data: { email: null } });
     target = await prisma.user.update({ where: { id: base.id }, data: { email, emailVerifiedAt: new Date(), ...(handle ? { handle } : {}) } });
+    await grantSignupCredits(target.id);
   }
   const dupe = await prisma.share.findFirst({ where: { processId: share.processId, userId: target.id } });
   if (dupe) await prisma.share.delete({ where: { id: share.id } });

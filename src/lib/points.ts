@@ -3,7 +3,9 @@ import { prisma } from "./db";
 // Everyone starts with 100 credits. One credit is used each time the built in
 // AI helper answers a message while you map a process. Using your own Claude or
 // ChatGPT (the connector, skill or API) never uses credits. Stored in User.points.
-export const START_CREDITS = 100;
+export const START_CREDITS = 10; // a new guest
+export const MEMBER_CREDITS = 100; // after signing up with an email
+const CHANGE_DATE = new Date("2026-10-12T00:00:00Z"); // accounts made before this keep what they had
 export const LOW_CREDITS = 20; // 20 credits or fewer counts as low
 
 /** Use credits. Never throws. */
@@ -41,4 +43,17 @@ export async function earnCredits(userId: string, kind: Earn, refId: string): Pr
   } catch {
     return 0; // unique (userId, reason, refId): already given
   }
+}
+
+/** Confirming an email tops a new account up from 10 to 100 credits, once. Accounts made before the change are left alone. Never throws. */
+export async function grantSignupCredits(userId: string) {
+  try {
+    const u = await prisma.user.findUnique({ where: { id: userId }, select: { createdAt: true } });
+    if (!u || u.createdAt < CHANGE_DATE) return;
+    const extra = MEMBER_CREDITS - START_CREDITS;
+    await prisma.$transaction([
+      prisma.pointEvent.create({ data: { userId, delta: extra, reason: "signup", refId: "email" } }),
+      prisma.user.update({ where: { id: userId }, data: { points: { increment: extra } } }),
+    ]);
+  } catch { /* already granted, or the unique key says so */ }
 }

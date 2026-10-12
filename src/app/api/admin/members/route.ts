@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
   const low = req.nextUrl.searchParams.get("low") === "1";
   const where: any = kind === "email" ? { emailVerifiedAt: { not: null } } : kind === "guest" ? { emailVerifiedAt: null } : {};
   where.id = { notIn: await ownerIds() };
-  if (low) where.points = { lt: 21 };
+  if (low) where.OR = [{ emailVerifiedAt: { not: null }, points: { lt: 21 } }, { emailVerifiedAt: null, points: { lt: 4 } }];
   const rows = await prisma.user.findMany({
     where, orderBy: [{ points: "asc" }, { lastSeenAt: "desc" }], take: 300,
     select: { handle: true, email: true, emailVerifiedAt: true, createdAt: true, lastSeenAt: true, points: true, _count: { select: { processes: true, published: true, turns: true } } },

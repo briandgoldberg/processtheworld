@@ -36,7 +36,7 @@ model User {
   createdAt       DateTime  @default(now())
   lastSeenAt      DateTime  @default(now())
   // 1 point = 1 cent of AI usage. Everyone starts with 100; contributing earns more, mapping spends.
-  points          Float     @default(100)
+  points          Float     @default(10) // guests start with 10; confirming an email adds 90 more (see lib/points.ts)
   pointEvents     PointEvent[]
   likes           Like[]
   comments        Comment[]
