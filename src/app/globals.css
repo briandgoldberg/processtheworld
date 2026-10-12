@@ -839,3 +839,12 @@ body.embed .crumbs{padding-block:6px}
   body.in-work .fbx{bottom:calc(6px + env(safe-area-inset-bottom, 0px));right:8px}
   body.in-work .fbx-pill{padding:5px 10px;font-size:12px;line-height:1.1}
 }
+
+/* My Team's Processes */
+.team-page{max-width:620px}
+.team-page h1{font-family:var(--f-display);font-size:34px;letter-spacing:-.02em;margin:6px 0 12px}
+.team-lead{margin:0 0 12px;color:var(--muted);line-height:1.55;font-size:16px}
+.team-lead b{color:var(--ink)}
+.team-form{display:flex;flex-direction:column;gap:6px;margin-top:18px;padding:20px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+.team-form input,.team-form select{width:100%;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:11px 12px;font-size:16px}
+.team-form .btn{margin-top:10px;justify-content:center}

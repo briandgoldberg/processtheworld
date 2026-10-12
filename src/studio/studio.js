@@ -1330,6 +1330,7 @@ function render(){
   if (S.view === 'login') renderLogin(app);
   else if (S.view === 'home') renderHome(app);
   else if (S.view === 'connect') renderConnect(app);
+  else if (S.view === 'team') renderTeam(app);
   else if (S.view === 'mine') renderMine(app);
   else renderWorkShell(app);
   renderToast();
@@ -1688,7 +1689,7 @@ const useAiHTML = () => `<section class="sec use-ai">
 /* The same header on the home page and the Connect my AI page */
 function topBarHTML(){
   const connect = S.view === 'connect';
-  const items = (cls) => `<button class="btn ghost sm${cls}" data-home${S.view === 'home' ? ' aria-current="page"' : ''}>Home</button><button class="btn ghost sm${cls}" data-mine${S.view === 'mine' ? ' aria-current="page"' : ''}>My Processes</button><button class="btn ghost sm${cls}" data-connect${connect ? ' aria-current="page"' : ''}>Connect my AI</button>`;
+  const items = (cls) => `<button class="btn ghost sm${cls}" data-home${S.view === 'home' ? ' aria-current="page"' : ''}>Home</button><button class="btn ghost sm${cls}" data-mine${S.view === 'mine' ? ' aria-current="page"' : ''}>My Processes</button><button class="btn ghost sm${cls}" data-team${S.view === 'team' ? ' aria-current="page"' : ''}>My Team's Processes</button><button class="btn ghost sm${cls}" data-connect${connect ? ' aria-current="page"' : ''}>Connect my AI</button>`;
   return `<div class="top"><span class="burger-wrap"><button class="btn ghost burger" data-burger aria-label="Menu" aria-haspopup="true" aria-expanded="false">☰</button><div class="burger-menu" id="burger" hidden>${items(' menu-item')}</div></span><span class="brand"><button class="mark linkish-plain" data-home aria-label="forks.world home">${MARK}</button><span class="topsub">Mapping how the world works</span></span><div class="grow"></div>
     ${S.notice ? `<span class="save hide-sm" style="color:var(--danger)">${esc(S.notice)}</span>` : ''}
     <button class="btn primary" id="new">New Process</button>
@@ -1733,6 +1734,36 @@ function renderMine(app){
   app.querySelector('#msearch').oninput = e => { S.mq = e.target.value; app.querySelector('#mcards').innerHTML = mineCardsHTML(); wireMineCards(app); };
   app.querySelector('#mpills').onclick = e => { const b = e.target.closest('[data-mtag]'); if (b){ S.mtag = b.dataset.mtag; app.querySelector('#mcards').innerHTML = mineCardsHTML(); app.querySelector('#mpills').innerHTML = mineTagsHTML(); wireMineCards(app); } };
   wireMineCards(app);
+}
+/* My Team's Processes: early access for Team Processes */
+function renderTeam(app){
+  app.innerHTML = `${topBarHTML()}
+  <div class="home"><div class="home-in"><section class="sec team-page">
+    <h1>My Team's Processes</h1>
+    <p class="team-lead">Build and keep your organization's processes together, in one place your whole team can use. Great for organizations or large teams.</p>
+    <p class="team-lead"><b>Team Processes is coming soon.</b> Join the early access list and we will email you when it opens.</p>
+    <form class="team-form" data-team-form novalidate>
+      <label class="label" for="tm-email">Work email</label>
+      <input id="tm-email" name="email" type="email" required autocomplete="email" placeholder="you@company.com" value="${esc(S.me?.email || '')}">
+      <label class="label" for="tm-co">Team or company <span class="opt">(optional)</span></label>
+      <input id="tm-co" name="company" type="text" maxlength="80" autocomplete="organization">
+      <label class="label" for="tm-size">Team size <span class="opt">(optional)</span></label>
+      <select id="tm-size" name="size"><option value="">Choose one</option><option>Just me</option><option>2 to 10 people</option><option>11 to 50 people</option><option>51 to 200 people</option><option>More than 200 people</option></select>
+      <button class="btn primary lg">Join the early access list</button>
+      <p class="hint" data-team-msg role="status"></p>
+    </form>
+  </section></div></div>`;
+  $('#new').onclick = startNew;
+  wireAcct(app); wireSignIn(app); wireCopy(app);
+  app.querySelector('[data-team-form]').onsubmit = async e => {
+    e.preventDefault();
+    const f = e.target, msg = f.querySelector('[data-team-msg]'), btn = f.querySelector('button'), email = f.elements.email.value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ msg.textContent = 'Enter a valid email address.'; return; }
+    btn.disabled = true;
+    try { await API.post('/api/interest', { email, kind:'team', note:[f.elements.company.value.trim(), f.elements.size.value].filter(Boolean).join(' | ') }); msg.textContent = 'Thanks. You are on the list. We will email you when Team Processes opens.'; track('interest_team'); f.reset(); }
+    catch (err){ msg.textContent = err.message; }
+    btn.disabled = false;
+  };
 }
 function renderHome(app){
   const sec = (title, sub, inner) => `<section class="sec"><div class="sec-head"><h2>${title}</h2><p>${sub}</p></div>${inner}</section>`;
@@ -1784,6 +1815,7 @@ document.addEventListener('click', e => {
   if (menu && !menu.hidden){ menu.hidden = true; const b = $('[data-burger]'); if (b) b.setAttribute('aria-expanded', 'false'); }
   const pick = e.target.closest('[data-pick]');
   if (pick){ const inp = $('#inv-who'); if (inp){ inp.value = pick.dataset.pick; inp.dataset.found = pick.dataset.pick; $('#inv-sug').hidden = true; invState('✓ Found ' + pick.dataset.pick, true); inp.focus(); } return; }
+  if (e.target.closest('[data-team]')){ stopVoice(); if (S.view === 'work') flush(); S.cur = null; S.view = 'team'; history.pushState(null, '', '/team'); document.title = "My Team's Processes | forks.world"; render(); window.scrollTo(0, 0); return; }
   if (e.target.closest('[data-mine]')){ stopVoice(); if (S.view === 'work') flush(); S.cur = null; S.view = 'mine'; history.pushState(null, '', '/mine'); document.title = 'My processes | forks.world'; render(); window.scrollTo(0, 0); return; }
   if (e.target.closest('[data-connect]')){ stopVoice(); S.view = 'connect'; history.pushState(null, '', '/connect'); render(); window.scrollTo(0, 0); return; }
   if (e.target.closest('[data-backproc]')){ S.view = S.cur ? 'work' : 'home'; history.pushState(null, '', '/'); render(); return; }
@@ -1793,6 +1825,7 @@ addEventListener('popstate', async () => {
   stopGuide(); stopVoice();
   if (path === '/connect'){ S.view = 'connect'; render(); return; }
   if (path === '/mine'){ S.cur = null; S.view = 'mine'; render(); return; }
+  if (path === '/team'){ S.cur = null; S.view = 'team'; render(); return; }
   S.noPush = true;
   const m = /^\/p\/([^/]+)/.exec(path);
   if (m){ await openProcess(m[1], 'pub'); return; }
@@ -2879,7 +2912,7 @@ export async function mount(root, opts = {}){
   API.key = key;
   const q = new URLSearchParams(location.search);
   if (q.get('alert') && ALERTS[q.get('alert')]){ S.toast = ALERTS[q.get('alert')]; history.replaceState(null, '', '/'); }
-  S.view = opts.connect ? 'connect' : opts.mine ? 'mine' : 'home'; ls.set('ptw_in', '1'); S.sort = 'top'; // always open on Most liked; the sort you pick lasts for this visit only
+  S.view = opts.connect ? 'connect' : opts.mine ? 'mine' : opts.team ? 'team' : 'home'; ls.set('ptw_in', '1'); S.sort = 'top'; // always open on Most liked; the sort you pick lasts for this visit only
   S.loading = true; render(); if (!opts.embed) renderFeedbackBox();
   try { S.me = await API.post('/api/identity', { key }); } catch {}
   S.ready = true;
