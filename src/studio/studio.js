@@ -1735,12 +1735,9 @@ function renderMine(app){
 }
 function renderHome(app){
   const sec = (title, sub, inner) => `<section class="sec"><div class="sec-head"><h2>${title}</h2><p>${sub}</p></div>${inner}</section>`;
-  // A few of your most recently updated private processes, with a way to the full list
-  const recent = [...S.mine].filter(p => !p.publicId && !p.proposalFor).sort((x, y) => (y.updatedAt || 0) - (x.updatedAt || 0)).slice(0, 3);
   app.innerHTML = `
   ${topBarHTML()}
   <div class="home"><div class="home-in">
-    ${sec('My Processes', '', recent.length ? `<div class="cards">${recent.map(p => cardHTML(p, 'mine')).join('')}</div><button class="linkish more-mine" data-mine>See all my processes →</button>` : '<button class="priv-slot" id="new2">+ New process</button>')}
     ${S.shared.length ? sec('Shared with me', 'Processes people invited you to.', `<div class="cards">${S.shared.map(p => cardHTML(p,'shared')).join('')}</div>`) : ''}
     <section class="sec">${publicFilterHTML()}</section>
     ${miniFootHTML()}
