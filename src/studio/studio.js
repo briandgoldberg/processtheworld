@@ -1775,10 +1775,13 @@ function renderTeam(app){
 }
 function renderHome(app){
   const sec = (title, sub, inner) => `<section class="sec">${title ? `<div class="sec-head"><h2>${title}</h2><p>${sub}</p></div>` : ''}${inner}</section>`;
+  const mineAll = [...S.mine].filter(p => !p.proposalFor).sort((x, y) => (y.updatedAt || 0) - (x.updatedAt || 0));
+  const recent = mineAll.slice(0, 3);
   app.innerHTML = `
   ${topBarHTML()}
   <div class="home"><div class="home-in">
     ${!S.mine.length ? `<section class="sec"><div class="cta-big"><div><h3>Build your first process</h3><p><b>Private by default and shareable when you are ready.</b> Our AI will help you and your team keep documentation connected, complete, and current.</p></div><button class="btn primary lg" id="new2">Start building</button></div></section>` : ''}
+    ${recent.length ? sec('My Processes', '', `<div class="cards">${recent.map(p => cardHTML(p, 'mine')).join('')}</div>${mineAll.length > recent.length ? '<button class="linkish more-mine" data-mine>See all my processes →</button>' : ''}`) : ''}
     <section class="sec">${publicFilterHTML()}</section>
     ${miniFootHTML()}
   </div></div>`;
