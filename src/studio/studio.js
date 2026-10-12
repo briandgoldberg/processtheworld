@@ -1876,7 +1876,7 @@ function renderWorkShell(app){
       <div class="composer">
         <textarea id="msg" placeholder="Describe the process in your own words… (tip: use your keyboard's dictation to talk)" aria-label="Describe the process"></textarea>
         <div class="composer-row">
-          <div class="composer-acts"><span id="wedit" class="wsmall"></span><button class="btn" id="voice" aria-label="Talk to the interviewer" title="Talk instead of typing. It talks back and asks you questions.">${ICON.mic}Talk</button><button class="btn" id="stop" hidden>Stop</button><button class="btn complete" id="complete" hidden>Complete interview</button><button class="btn primary" id="sendb">Send</button></div>
+          <div class="composer-acts"><span id="wedit" class="wsmall"></span><button class="btn" id="voice" aria-label="Talk to the interviewer" title="Talk instead of typing. It talks back and asks you questions.">${ICON.mic}Talk</button><button class="btn" id="stop" hidden>Stop</button><button class="btn complete" id="complete" hidden>Save</button><button class="btn primary" id="sendb">Send</button></div>
         </div>
       </div>
     </aside>
@@ -1919,7 +1919,7 @@ function renderWorkShell(app){
   $('#painlist').onclick = e => { const b = e.target.closest('[data-pjump]'); if (b) jumpTo(b.dataset.pmap, b.dataset.pjump); };
   $('#scroller').addEventListener('wheel', onBoardWheel, { passive:false });
   wirePan($('#scroller'));
-  $('#complete').onclick = () => { if (S.busy || !S.cur) return; if (S.cur.status === 'done') resume(); else { finish(); S.tab = 'chat'; renderWork(); } };
+  $('#complete').onclick = async () => { if (S.busy || !S.cur) return; if (S.cur.status !== 'done'){ finish(); S.tab = 'chat'; renderWork(); } try { await flush(); alertBox('Saved.'); } catch { alertBox('Could not save. Try again.'); } };
   $('#tabs').onclick = e => { const t = e.target.closest('[data-tab]'); if (!t) return; S.tab = t.dataset.tab; renderWork(); };
   $('#msgs').onclick = e => {
     if (e.target.closest('[data-sumclose]')){ flush().finally(() => $('#back').click()); return; }
@@ -2252,7 +2252,7 @@ function renderWork(fromStream){
   $('#work').classList.toggle('comparing', !!S.compare);
   document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === S.tab));
   $('#stop').hidden = !S.busy; $('#sendb').disabled = S.busy || !!S.compare;
-  { const cb = $('#complete'); if (cb){ cb.hidden = readOnly(p) || !p.maps.m_root.steps.length || !!S.compare; cb.disabled = S.busy; cb.textContent = p.status === 'done' ? 'Resume interview' : 'Complete interview'; } }
+  { const cb = $('#complete'); if (cb){ cb.hidden = readOnly(p) || !p.maps.m_root.steps.length || !!S.compare; cb.disabled = S.busy; cb.textContent = 'Save'; } }
 
   if (S.checksOpen && !findIssues(p).length) S.checksOpen = false;
   renderMsgs(); renderCompare(); renderCrumbs(); renderBoard(); renderInspector(); renderChecks();
