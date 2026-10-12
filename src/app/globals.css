@@ -853,3 +853,13 @@ body.embed .crumbs{padding-block:6px}
 .team-form .btn{justify-content:center;padding:14px 22px;font-size:17px;border-radius:12px}
 .team-form .hint{min-height:20px;margin:0}
 @media (max-width:820px){.team-hero{margin-top:36px}.team-hero h1{font-size:32px}.team-hero p{font-size:16px}}
+
+/* Desktop: logo and slogan on the left, the links in the middle, New Process and your name on the right */
+.top-nav{display:none}
+@media (min-width:821px){
+  .top:not(.work-top) .brand{order:1}
+  .top:not(.work-top) > .top-nav{display:flex;align-items:center;gap:4px;margin-inline:auto;order:2}
+  .top:not(.work-top) > .grow{display:none}
+  .top:not(.work-top) > #new{order:3}
+  .top:not(.work-top) > .admin-link,.top:not(.work-top) > .acct{order:4}
+}
