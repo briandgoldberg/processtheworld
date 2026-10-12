@@ -832,3 +832,5 @@ body.embed .crumbs{padding-block:6px}
   .sum-acts .btn{flex:1 1 140px;min-height:44px;justify-content:center}
 }
 .composer-acts{display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:100%}
+/* Leave room under the message buttons so the feedback pill never covers Send */
+body.in-work .composer{padding-bottom:calc(42px + env(safe-area-inset-bottom, 0px))}
