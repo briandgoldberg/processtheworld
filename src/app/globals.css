@@ -898,3 +898,8 @@ body.embed .crumbs{padding-block:6px}
   .tagbar.open{flex-wrap:wrap}
   .tagbar.open .tags-body{display:contents}
 }
+/* Phone: no big gap between the title row and the tags */
+@media (max-width:820px){
+  .top.work-top{padding-block:6px}
+  .tagbar:not(:empty){padding-top:0;padding-bottom:6px}
+}
