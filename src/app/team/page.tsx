@@ -3,7 +3,7 @@ import Studio from "../Studio";
 
 export const metadata: Metadata = {
   title: "Team Processes: early access",
-  description: "Build and keep your organization's processes together. Early access for organizations or large teams.",
+  description: "Build and keep processes together with your coworkers or team. Early access for coworkers and formal teams.",
 };
 
 export default function Team() {

@@ -1740,7 +1740,7 @@ function renderTeam(app){
   app.innerHTML = `${topBarHTML()}
   <div class="home"><div class="home-in"><section class="sec team-page">
     <h1>My Team's Processes</h1>
-    <p class="team-lead">Build and keep your organization's processes together, in one place your whole team can use. Great for organizations or large teams.</p>
+    <p class="team-lead">Build and keep processes together with the people you work with, in one place everyone can use. Great for coworkers and formal teams.</p>
     <p class="team-lead"><b>Team Processes is coming soon.</b> Join the early access list and we will email you when it opens.</p>
     <form class="team-form" data-team-form novalidate>
       <label class="label" for="tm-email">Work email</label>
