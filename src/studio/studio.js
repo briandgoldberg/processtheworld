@@ -1957,7 +1957,10 @@ function renderWorkShell(app){
   $('#painlist').onclick = e => { const b = e.target.closest('[data-pjump]'); if (b) jumpTo(b.dataset.pmap, b.dataset.pjump); };
   $('#scroller').addEventListener('wheel', onBoardWheel, { passive:false });
   wirePan($('#scroller'));
-  const saveAndClose = async () => { if (S.busy || !S.cur) return; try { await flush(); } catch {} if (dirty){ alertBox('Could not save yet. Try again.'); return; } S.path = ['m_root']; S.trail = []; S.backTo = 'mine'; $('#back').click(); };
+  const saveAndClose = async () => { if (S.busy || !S.cur) return; try { await flush(); } catch {} if (dirty){ alertBox('Could not save yet. Try again.'); return; } // Inside a drill down it saves and goes up one level; at the top it closes to My Processes
+    if (S.path.length > 1){ S.path = S.path.slice(0, -1); S.sel = null; renderWork(); return; }
+    if (!S.trail?.length) S.backTo = 'mine';
+    $('#back').click(); };
   $('#complete').onclick = saveAndClose; $('#saveclose2').onclick = saveAndClose;
   $('#tabs').onclick = e => { const t = e.target.closest('[data-tab]'); if (!t) return; S.tab = t.dataset.tab; renderWork(); };
   $('#msgs').onclick = e => {
