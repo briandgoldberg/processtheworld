@@ -863,3 +863,11 @@ body.embed .crumbs{padding-block:6px}
   .top:not(.work-top) > #new{order:3}
   .top:not(.work-top) > .admin-link,.top:not(.work-top) > .acct{order:4}
 }
+
+/* Save and Close: in the message box on desktop, on the map on a phone */
+.save-close{display:none}
+@media (max-width:820px){
+  .composer .complete{display:none!important}
+  .save-close{display:inline-flex;position:absolute;top:10px;right:10px;z-index:8;min-height:44px;padding-inline:18px;box-shadow:0 6px 18px -8px rgba(10,20,40,.5)}
+  .save-close[hidden]{display:none}
+}
