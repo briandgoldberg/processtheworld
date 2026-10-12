@@ -1778,7 +1778,7 @@ function renderHome(app){
   app.innerHTML = `
   ${topBarHTML()}
   <div class="home"><div class="home-in">
-    ${!S.mine.length ? `<section class="sec"><div class="cta-big"><div><h3>Build your first process</h3><p><b>Private by default and shareable when you are ready.</b> Our AI will help you and your team keep documentation connected, complete, and current.</p></div><button class="btn primary lg" id="new2">Start building</button></div></section>` : ''}
+    ${!S.mine.length ? `<section class="sec"><div class="cta-big"><div><h3>Build your first process</h3><p>Private by default and shareable when you are ready. Our AI will help you and your team keep documentation connected, complete, and current.</p></div><button class="btn primary lg" id="new2">Start building</button></div></section>` : ''}
     <section class="sec">${publicFilterHTML()}</section>
     ${miniFootHTML()}
   </div></div>`;
