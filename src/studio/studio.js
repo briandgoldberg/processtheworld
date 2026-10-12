@@ -1736,11 +1736,12 @@ function renderMine(app){
 function renderHome(app){
   const sec = (title, sub, inner) => `<section class="sec"><div class="sec-head"><h2>${title}</h2><p>${sub}</p></div>${inner}</section>`;
   // A few of your most recently updated private processes, with a way to the full list
-  const recent = [...S.mine].filter(p => !p.publicId && !p.proposalFor).sort((x, y) => (y.updatedAt || 0) - (x.updatedAt || 0)).slice(0, 3);
+  const privateAll = [...S.mine].filter(p => !p.publicId && !p.proposalFor).sort((x, y) => (y.updatedAt || 0) - (x.updatedAt || 0));
+  const recent = privateAll.slice(0, 3);
   app.innerHTML = `
   ${topBarHTML()}
   <div class="home"><div class="home-in">
-    ${sec('My Processes', '', recent.length ? `<div class="cards">${recent.map(p => cardHTML(p, 'mine')).join('')}</div><button class="linkish more-mine" data-mine>See all my processes →</button>` : '<button class="priv-slot" id="new2">+ New process</button>')}
+    ${sec('My Processes', '', recent.length ? `<div class="cards">${recent.map(p => cardHTML(p, 'mine')).join('')}</div>${privateAll.length > recent.length ? '<button class="linkish more-mine" data-mine>See all my processes →</button>' : ''}` : !S.mine.length ? '<div class="cta-big"><div><h3>Build your first process</h3><p>Tell the AI how something gets done. It draws the map as you talk.</p></div><button class="btn primary lg" id="new2">Start building</button></div>' : '<button class="priv-slot" id="new2">+ New process</button>')}
     ${S.shared.length ? sec('Shared with me', 'Processes people invited you to.', `<div class="cards">${S.shared.map(p => cardHTML(p,'shared')).join('')}</div>`) : ''}
     <section class="sec">${publicFilterHTML()}</section>
     ${miniFootHTML()}
