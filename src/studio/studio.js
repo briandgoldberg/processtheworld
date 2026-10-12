@@ -1704,7 +1704,7 @@ function topBarHTML(){
   const items = (cls) => `<button class="btn ghost sm${cls}" data-home${S.view === 'home' ? ' aria-current="page"' : ''}>Home</button><button class="btn ghost sm${cls}" data-mine${S.view === 'mine' ? ' aria-current="page"' : ''}>My Processes</button><button class="btn ghost sm${cls}" data-team${S.view === 'team' ? ' aria-current="page"' : ''}>My Team's Processes</button><button class="btn ghost sm${cls}" data-connect${connect ? ' aria-current="page"' : ''}>Connect my AI</button>`;
   return `<div class="top"><span class="burger-wrap"><button class="btn ghost burger" data-burger aria-label="Menu" aria-haspopup="true" aria-expanded="false">☰</button><div class="burger-menu" id="burger" hidden>${items(' menu-item')}</div></span><span class="brand"><button class="mark linkish-plain" data-home aria-label="forks.world home">${MARK}</button><span class="topsub">Mapping how the world works</span></span><div class="grow"></div>
     ${S.notice ? `<span class="save hide-sm" style="color:var(--danger)">${esc(S.notice)}</span>` : ''}
-    <button class="btn primary" id="new">New Process</button>
+    <button class="btn primary${S.view === 'home' && !S.mine.length ? ' hide-sm' : ''}" id="new">New Process</button>
     <nav class="top-nav">${items(' nav-d')}</nav>${signInHTML()}${acctHTML()}</div>`;
 }
 /* My Processes: everything private, with search and tags */
