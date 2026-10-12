@@ -1741,7 +1741,7 @@ function renderHome(app){
   app.innerHTML = `
   ${topBarHTML()}
   <div class="home"><div class="home-in">
-    ${sec('My Processes', '', recent.length ? `<div class="cards">${recent.map(p => cardHTML(p, 'mine')).join('')}</div>${privateAll.length > recent.length ? '<button class="linkish more-mine" data-mine>See all my processes →</button>' : ''}` : !S.mine.length ? '<div class="cta-big"><div><h3>Build your first process</h3><p>Tell the AI how something gets done and it draws the map as you talk. It is private to you until you share it.</p></div><button class="btn primary lg" id="new2">Start building</button></div>' : '<button class="priv-slot" id="new2">+ New process</button>')}
+    ${sec('My Processes', '', recent.length ? `<div class="cards">${recent.map(p => cardHTML(p, 'mine')).join('')}</div>${privateAll.length > recent.length ? '<button class="linkish more-mine" data-mine>See all my processes →</button>' : ''}` : !S.mine.length ? '<div class="cta-big"><div><h3>Build your first process</h3><p><b>Private to you, and shareable when you are ready.</b> It is a smart interview that helps you document how something gets done, and draws the map as you talk. A great way to keep your business processes alive across your company.</p></div><button class="btn primary lg" id="new2">Start building</button></div>' : '<button class="priv-slot" id="new2">+ New process</button>')}
     ${S.shared.length ? sec('Shared with me', 'Processes people invited you to.', `<div class="cards">${S.shared.map(p => cardHTML(p,'shared')).join('')}</div>`) : ''}
     <section class="sec">${publicFilterHTML()}</section>
     ${miniFootHTML()}
