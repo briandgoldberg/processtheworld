@@ -672,9 +672,9 @@ async function startFromTemplate(id){
   try {
     const d = await API.get('/api/public/' + id), doc = d.doc || {};
     p.maps = clone(doc.maps); p.title = doc.title || d.title || p.title; p.tags = cleanTags(doc.tags || d.tags || []); p.status = 'interviewing';
-    p.chat.push({ role:'note', content:'Started from “' + p.title + '”.' }, { role:'assistant', content:'Here is a Lead-to-Cash process in Salesforce to start from. What would you like to change or add? For example, rename a step, add a team, or show a tool.' });
+    p.chat.push({ role:'note', content:'Started from “' + p.title + '”.' }, { role:'assistant', content:'I have added a basic Salesforce lead-to-cash process. What would you like to change or add? For example, rename a step, add a team, or show a tool.' });
     logEvent(p, { who:'human', op:'start_from_template', id });
-    S.path = ['m_root']; S.sel = null; S.tab = 'map'; touch(); renderWork();
+    S.path = ['m_root']; S.sel = null; S.tab = 'chat'; touch(); renderWork();
   } catch { alertBox('Could not load that process. Try again.'); }
 }
 
