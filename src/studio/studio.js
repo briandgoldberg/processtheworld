@@ -1364,7 +1364,7 @@ function acctHTML(){
       <div class="acct-foot"><button class="acct-key" data-acct="signout">Sign out</button>${me.isAdmin ? '<a class="acct-key" href="/admin">Admin</a>' : ''}</div>
     </div>` : `
     <div class="acct-panel" role="dialog" aria-label="Account">
-      <p class="acct-tag"><span class="guest-pill">Guest</span> Processes you build will only be available on this computer.</p>
+      <p class="acct-tag"><span class="guest-pill">Guest</span> Your processes stay on this computer.</p>
       <p class="acct-user">Your username: <b>${esc(me.handle)}</b></p>
       ${creditsHTML()}
       <form data-email-form class="acct-form" novalidate>
