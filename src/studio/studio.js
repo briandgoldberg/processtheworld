@@ -1736,7 +1736,6 @@ function wireMineCards(app){
 function renderMine(app){
   app.innerHTML = `${topBarHTML()}
   <div class="home"><div class="home-in"><section class="sec">
-    <div class="sec-head"><h2>My processes</h2><p>Private unless you share or publish them.</p></div>
     <div class="pfilter"><div class="psrow"><span class="seg-toggle" id="mvis" role="group" aria-label="Show">${[['all', 'All'], ['private', 'Private'], ['public', 'Public'], ['shared', 'Shared With Me']].map(([k, n]) => `<button data-mvis="${k}" class="${(S.mvis || 'all') === k ? 'on' : ''}">${n}</button>`).join('')}</span><input id="msearch" type="search" placeholder="Search my processes" value="${esc(S.mq || '')}" aria-label="Search my processes" autocomplete="off"></div><div class="pills" id="mpills">${mineTagsHTML()}</div></div>
     <div id="mcards">${mineCardsHTML()}</div>
   </section>${miniFootHTML()}</div></div>`;
@@ -1780,7 +1779,6 @@ function renderHome(app){
   ${topBarHTML()}
   <div class="home"><div class="home-in">
     ${!S.mine.length ? `<section class="sec"><div class="cta-big"><div><h3>Build your first process</h3><p><b>Private by default and shareable when you are ready.</b> Our AI will help you and your team keep documentation connected, complete, and current.</p></div><button class="btn primary lg" id="new2">Start building</button></div></section>` : ''}
-    ${S.shared.length ? sec('Shared with me', 'Processes people invited you to.', `<div class="cards">${S.shared.map(p => cardHTML(p,'shared')).join('')}</div>`) : ''}
     <section class="sec">${publicFilterHTML()}</section>
     ${miniFootHTML()}
   </div></div>`;
