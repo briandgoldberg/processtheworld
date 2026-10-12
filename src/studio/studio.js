@@ -1699,6 +1699,7 @@ function mineMatches(p){
   if (S.mtag && !(p.tags || []).includes(S.mtag)) return false;
   if (S.mvis === 'public' && !p.publicId) return false;
   if (S.mvis === 'private' && p.publicId) return false;
+  if (S.mvis === 'shared' && p.role == null) return false;
   return !needle || ((p.title || '') + ' ' + (p.tags || []).join(' ')).toLowerCase().includes(needle);
 }
 function mineTagsHTML(){
@@ -1706,8 +1707,10 @@ function mineTagsHTML(){
   return `<button class="tagpill${S.mtag ? '' : ' on'}" data-mtag="">All</button>` + allTags().slice(0, 16).map(([t]) => `<button class="tagpill${S.mtag === t ? ' on' : ''}" data-mtag="${esc(t)}">${esc(t)}</button>`).join('');
 }
 function mineCardsHTML(){
-  const list = S.mine.filter(mineMatches);
-  return list.length ? `<div class="cards">${list.map(p => cardHTML(p, 'mine')).join('')}</div>` : '<p class="hint">Nothing matches.</p>';
+  // Shared With Me are other people's processes you can edit; All shows yours first, then those
+  const mine = S.mvis === 'shared' ? [] : S.mine.filter(mineMatches), shared = ['all', 'shared'].includes(S.mvis || 'all') ? (S.shared || []).filter(mineMatches) : [];
+  const cards = [...mine.map(p => cardHTML(p, 'mine')), ...shared.map(p => cardHTML(p, 'shared'))];
+  return cards.length ? `<div class="cards">${cards.join('')}</div>` : `<p class="hint">${S.mvis === 'shared' && !(S.shared || []).length ? 'Nothing has been shared with you yet. When someone invites you to a process, it shows up here.' : 'Nothing matches.'}</p>`;
 }
 function wireMineCards(app){
   app.querySelectorAll('#mcards [data-del]').forEach(b => b.onclick = () => { S.confirmDel = b.dataset.del; render(); });
@@ -1720,7 +1723,7 @@ function renderMine(app){
   app.innerHTML = `${topBarHTML()}
   <div class="home"><div class="home-in"><section class="sec">
     <div class="sec-head"><h2>My processes</h2><p>Private unless you share or publish them.</p></div>
-    <div class="pfilter"><div class="psrow"><span class="seg-toggle" id="mvis" role="group" aria-label="Show">${[['all', 'All'], ['private', 'Private'], ['public', 'Public']].map(([k, n]) => `<button data-mvis="${k}" class="${(S.mvis || 'all') === k ? 'on' : ''}">${n}</button>`).join('')}</span><input id="msearch" type="search" placeholder="Search my processes" value="${esc(S.mq || '')}" aria-label="Search my processes" autocomplete="off"></div><div class="pills" id="mpills">${mineTagsHTML()}</div></div>
+    <div class="pfilter"><div class="psrow"><span class="seg-toggle" id="mvis" role="group" aria-label="Show">${[['all', 'All'], ['private', 'Private'], ['public', 'Public'], ['shared', 'Shared With Me']].map(([k, n]) => `<button data-mvis="${k}" class="${(S.mvis || 'all') === k ? 'on' : ''}">${n}</button>`).join('')}</span><input id="msearch" type="search" placeholder="Search my processes" value="${esc(S.mq || '')}" aria-label="Search my processes" autocomplete="off"></div><div class="pills" id="mpills">${mineTagsHTML()}</div></div>
     <div id="mcards">${mineCardsHTML()}</div>
   </section>${miniFootHTML()}</div></div>`;
   $('#new').onclick = startNew;
