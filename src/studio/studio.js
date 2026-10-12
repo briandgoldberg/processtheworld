@@ -1738,18 +1738,14 @@ function renderMine(app){
 /* My Team's Processes: early access for Team Processes */
 function renderTeam(app){
   app.innerHTML = `${topBarHTML()}
-  <div class="home"><div class="home-in"><section class="sec team-page">
+  <div class="home"><div class="home-in"><section class="team-hero">
+    <span class="team-pill">Coming soon</span>
     <h1>My Team's Processes</h1>
-    <p class="team-lead">Build and keep processes together with the people you work with, in one place everyone can use. Great for coworkers and formal teams.</p>
-    <p class="team-lead"><b>Team Processes is coming soon.</b> Join the early access list and we will email you when it opens.</p>
+    <p>Build and keep processes together with your coworkers or formal team.</p>
     <form class="team-form" data-team-form novalidate>
-      <label class="label" for="tm-email">Work email</label>
-      <input id="tm-email" name="email" type="email" required autocomplete="email" placeholder="you@company.com" value="${esc(S.me?.email || '')}">
-      <label class="label" for="tm-co">Team or company <span class="opt">(optional)</span></label>
-      <input id="tm-co" name="company" type="text" maxlength="80" autocomplete="organization">
-      <label class="label" for="tm-size">Team size <span class="opt">(optional)</span></label>
-      <select id="tm-size" name="size"><option value="">Choose one</option><option>Just me</option><option>2 to 10 people</option><option>11 to 50 people</option><option>51 to 200 people</option><option>More than 200 people</option></select>
-      <button class="btn primary lg">Join the early access list</button>
+      <div class="team-row"><input name="email" type="email" required autocomplete="email" placeholder="Work email" aria-label="Work email" value="${esc(S.me?.email || '')}">
+      <input name="company" type="text" maxlength="80" autocomplete="organization" placeholder="Team or company (optional)" aria-label="Team or company"></div>
+      <button class="btn primary lg">Get early access</button>
       <p class="hint" data-team-msg role="status"></p>
     </form>
   </section></div></div>`;
@@ -1760,7 +1756,7 @@ function renderTeam(app){
     const f = e.target, msg = f.querySelector('[data-team-msg]'), btn = f.querySelector('button'), email = f.elements.email.value.trim();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ msg.textContent = 'Enter a valid email address.'; return; }
     btn.disabled = true;
-    try { await API.post('/api/interest', { email, kind:'team', note:[f.elements.company.value.trim(), f.elements.size.value].filter(Boolean).join(' | ') }); msg.textContent = 'Thanks. You are on the list. We will email you when Team Processes opens.'; track('interest_team'); f.reset(); }
+    try { await API.post('/api/interest', { email, kind:'team', note:f.elements.company.value.trim() }); msg.textContent = 'You are on the list. We will email you when it opens.'; track('interest_team'); f.reset(); }
     catch (err){ msg.textContent = err.message; }
     btn.disabled = false;
   };

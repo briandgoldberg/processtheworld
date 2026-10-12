@@ -30,3 +30,9 @@ export const sendInviteEmail = (to: string, inviter: string, title: string, toke
 
 export const sendShareNotice = (to: string, inviter: string, title: string) =>
   send(to, `${inviter} shared “${title}” with you`, `${inviter} shared the process “${title}” with you on forks.world. You'll find it under “Shared with me”.`, "Open forks.world", `${appUrl()}/`);
+
+const escHtml = (t: string) => t.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] as string));
+
+/** Tells the owner that someone signed up for early access. */
+export const sendInterestNotice = (kind: string, email: string, note: string | null) =>
+  send("briandgoldberg@gmail.com", `New early access sign up: ${kind}`, `<b>${escHtml(email)}</b> signed up for ${escHtml(kind)} early access${note ? `<br>Team or company: ${escHtml(note)}` : ""}.`, "Open the dashboard", `${appUrl()}/admin`);

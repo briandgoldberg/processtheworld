@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { body, fail, hashIp, isEmail, json, str } from "@/lib/http";
 import { userFrom } from "@/lib/identity";
 import { limited } from "@/lib/rateLimit";
+import { sendInterestNotice } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,10 @@ export async function POST(req: NextRequest) {
   if (!isEmail(email)) return fail("Enter a valid email address.");
   if (await limited("interest", hashIp(req), null, 10, 1000)) return fail("Too many requests. Try again later.", 429);
   const user = await userFrom(req);
-  await prisma.interest.upsert({ where: { kind_email: { kind, email } }, create: { kind, email, userId: user?.id ?? null, note: str(b?.note, 500) || null }, update: {} });
+  const note = str(b?.note, 500) || null;
+  const isNew = !(await prisma.interest.findUnique({ where: { kind_email: { kind, email } }, select: { id: true } }));
+  await prisma.interest.upsert({ where: { kind_email: { kind, email } }, create: { kind, email, userId: user?.id ?? null, note }, update: {} });
+  // Every new sign up emails the owner. A failed email never fails the sign up.
+  if (isNew) await sendInterestNotice(kind, email, note).catch(() => null);
   return json({ ok: true });
 }
