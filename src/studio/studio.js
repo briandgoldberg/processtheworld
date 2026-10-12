@@ -1373,7 +1373,7 @@ function acctHTML(){
         <p class="hint" data-email-msg role="status">We'll email you a link. No password needed.</p>
       </form>
     </div>`;
-  return `${me.isAdmin ? '<a class="btn sm admin-link hide-sm" href="/admin">Admin</a>' : ''}<div class="acct"><button class="btn ghost acct-btn" data-acct="toggle" aria-expanded="${S.acct}">${me.email ? '' : '<span class="acct-signin">Sign in</span> '}<span class="acct-name${me.email ? '' : ' guest-name'}">${esc(me.handle)}</span> ▾</button>${panel}</div>`;
+  return `${me.isAdmin ? '<a class="btn sm admin-link hide-sm" href="/admin">Admin</a>' : ''}<div class="acct"><button class="btn ghost acct-btn" data-acct="toggle" aria-expanded="${S.acct}">${me.email ? `<span class="acct-name">${esc(me.handle)}</span>` : '<span class="acct-signin">Sign in</span>'} ▾</button>${panel}</div>`;
 }
 function wireAcct(root){
   root.querySelectorAll('[data-acct]').forEach(b => b.onclick = e => {
