@@ -26,7 +26,7 @@ export default function Invite() {
     const d = await r.json().catch(() => ({}));
     if (!r.ok) { setBusy(false); setErr(d.error || "That didn't work. Try again."); return; }
     try { localStorage.setItem("ptw_key", d.key); localStorage.setItem("ptw_in", "1"); } catch {}
-    location.href = "/?alert=invited";
+    location.href = "/mine?alert=invited";
   }
   return (
     <div className="login"><div className="login-card">

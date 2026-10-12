@@ -15,7 +15,7 @@ export default function Restore() {
     const d = await r.json().catch(() => ({}));
     if (!r.ok) { setState("error"); setMsg(d.error || "That link didn't work. Request a new one."); return; }
     try { localStorage.setItem("ptw_key", d.key); localStorage.setItem("ptw_in", "1"); } catch {}
-    location.href = "/?alert=signed-in";
+    location.href = "/mine?alert=signed-in";
   }
   return (
     <div className="login"><div className="login-card">

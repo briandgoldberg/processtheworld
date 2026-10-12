@@ -23,5 +23,5 @@ export async function GET(req: NextRequest) {
     ]);
     await grantSignupCredits(row.userId);
   }
-  return NextResponse.redirect(new URL("/?alert=saved", req.url));
+  return NextResponse.redirect(new URL("/mine?alert=saved", req.url));
 }

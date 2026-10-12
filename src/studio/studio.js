@@ -2925,7 +2925,7 @@ export async function mount(root, opts = {}){
   let key = ls.get('ptw_key'); if (!key || key.length < 16){ key = freshKey(); ls.set('ptw_key', key); }
   API.key = key;
   const q = new URLSearchParams(location.search);
-  if (q.get('alert') && ALERTS[q.get('alert')]){ S.toast = ALERTS[q.get('alert')]; history.replaceState(null, '', '/'); }
+  if (q.get('alert') && ALERTS[q.get('alert')]){ S.toast = ALERTS[q.get('alert')]; history.replaceState(null, '', location.pathname); }
   S.view = opts.connect ? 'connect' : opts.mine ? 'mine' : opts.team ? 'team' : 'home'; ls.set('ptw_in', '1'); S.sort = 'top'; // always open on Most liked; the sort you pick lasts for this visit only
   S.loading = true; render(); if (!opts.embed) renderFeedbackBox();
   try { S.me = await API.post('/api/identity', { key }); } catch {}
