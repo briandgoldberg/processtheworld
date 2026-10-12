@@ -1740,7 +1740,7 @@ function renderHome(app){
   app.innerHTML = `
   ${topBarHTML()}
   <div class="home"><div class="home-in">
-    ${recent.length ? sec('Your private processes', 'Only you can see these. Share or publish when you are ready.', `<div class="cards">${recent.map(p => cardHTML(p, 'mine')).join('')}</div><button class="linkish more-mine" data-mine>See all my processes →</button>`) : ''}
+    ${sec('Your private processes', '', recent.length ? `<div class="cards">${recent.map(p => cardHTML(p, 'mine')).join('')}</div><button class="linkish more-mine" data-mine>See all my processes →</button>` : '<button class="priv-slot" id="new2">+ New process</button>')}
     ${S.shared.length ? sec('Shared with me', 'Processes people invited you to.', `<div class="cards">${S.shared.map(p => cardHTML(p,'shared')).join('')}</div>`) : ''}
     <section class="sec">${publicFilterHTML()}</section>
     ${miniFootHTML()}
