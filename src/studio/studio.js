@@ -1739,9 +1739,8 @@ function renderMine(app){
 function renderTeam(app){
   app.innerHTML = `${topBarHTML()}
   <div class="home"><div class="home-in"><section class="team-hero">
-    <span class="team-pill">Coming soon</span>
     <h1>My Team's Processes</h1>
-    <p>Build and keep processes together with your coworkers or formal team.</p>
+    <p>Build and manage processes with your team.</p>
     <form class="team-form" data-team-form novalidate>
       <div class="team-row"><input name="email" type="email" required autocomplete="email" placeholder="Work email" aria-label="Work email" value="${esc(S.me?.email || '')}">
       <input name="company" type="text" maxlength="80" autocomplete="organization" placeholder="Team or company (optional)" aria-label="Team or company"></div>
