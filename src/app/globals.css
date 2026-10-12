@@ -836,6 +836,6 @@ body.embed .crumbs{padding-block:6px}
 /* Feedback: a compact pill. On a phone it sits on the message buttons' row, to the right of Send */
 .fbx-pill{padding:5px 11px;font-size:12px}
 @media (max-width:820px){
-  body.in-work .fbx{bottom:calc(20px + env(safe-area-inset-bottom, 0px));right:8px}
+  body.in-work .fbx{bottom:calc(6px + env(safe-area-inset-bottom, 0px));right:8px}
   body.in-work .fbx-pill{padding:5px 10px;font-size:12px;line-height:1.1}
 }
