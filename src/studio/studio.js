@@ -1349,7 +1349,7 @@ function render(){
 }
 
 /* ---------- Account: anonymous handle, optional email ---------- */
-const creditsHTML = () => S.me && S.me.credits != null ? `<div class="credits"><b>${S.me.credits}</b> credits<small>${S.me.email ? 'For creating processes. Adding more credits is coming soon.' : 'For creating processes. Sign up with your email address for more credits.'}</small></div>` : '';
+const creditsHTML = () => S.me && S.me.credits != null ? `<div class="credits"><b>${S.me.credits}</b> credits<small>${S.me.email ? 'For creating processes. Adding more credits is coming soon.' : 'For creating processes. Sign up or sign in with your email address for more credits.'}</small></div>` : '';
 async function refreshMe(){ try { S.me = await API.post('/api/identity', { key:API.key }); } catch {} const el = document.querySelector('.credits'); if (el) el.outerHTML = creditsHTML(); }
 function acctHTML(){
   const me = S.me; if (!me) return '';
@@ -1364,12 +1364,13 @@ function acctHTML(){
       <div class="acct-foot"><button class="acct-key" data-acct="signout">Sign out</button>${me.isAdmin ? '<a class="acct-key" href="/admin">Admin</a>' : ''}</div>
     </div>` : `
     <div class="acct-panel" role="dialog" aria-label="Account">
-      <p class="acct-tag"><span class="guest-pill">Guest</span> signed in as <b>${esc(me.handle)}</b></p>
+      <p class="acct-tag"><span class="guest-pill">Guest</span> You are using forks.world as a guest.</p>
+      <p class="acct-user">Your username: <b>${esc(me.handle)}</b></p>
       ${creditsHTML()}
       <form data-email-form class="acct-form" novalidate>
         <input id="acct-email" name="email" type="email" required placeholder="Your email" aria-label="Email" autocomplete="email">
         <input name="handle" type="hidden" value="">
-        <button class="btn primary">Send me a sign-in link</button>
+        <button class="btn primary">Send me a sign in link</button>
         <p class="hint" data-email-msg role="status">We'll email you a link. No password needed.</p>
       </form>
     </div>`;
@@ -1411,7 +1412,7 @@ function signInHTML(){
         <label class="label" for="si-email">Email</label>
         <input id="si-email" name="email" type="email" required placeholder="you@example.com" autocomplete="email">
         <input name="handle" type="hidden" value="">
-        <button class="btn primary">Send me a sign-in link</button>
+        <button class="btn primary">Send me a sign in link</button>
         <p class="hint" data-email-msg role="status">We'll email you a link. No password needed.</p>
       </form>
     </div>` : ''}</div>`;
@@ -1431,7 +1432,7 @@ function wireEmailForm(root){
     try {
       await flush();
       await API.post('/api/auth/email', { email, handle });
-      msg.textContent = f.dataset.mode === 'signin' ? `If ${email} has an account, a sign-in link is on its way. It may land in spam.` : `Check ${email} for a link. It may land in spam.`; track('email_link_requested', { mode:f.dataset.mode || 'save' });
+      msg.textContent = f.dataset.mode === 'signin' ? `If ${email} has an account, a sign in link is on its way. It may land in spam.` : `Check ${email} for a link. It may land in spam.`; track('email_link_requested', { mode:f.dataset.mode || 'save' });
       f.elements.email.value = ''; f.elements.handle.value = '';
     } catch (err){ msg.textContent = err.message; }
     btn.disabled = false;
@@ -2917,7 +2918,7 @@ function renderToast(){
 }
 
 /* ---------- Boot ---------- */
-const ALERTS = { invited:'Invite accepted. You’ll find the process under “Shared with me”.', saved:'Email confirmed. Your processes now follow you to any device.', 'signed-in':'Signed in. Your processes are here.', 'link-invalid':'That link expired or was already used. Request a new one from the account menu.', 'email-taken':'That email is already in use. Enter it again to get a sign-in link.' };
+const ALERTS = { invited:'Invite accepted. You’ll find the process under “Shared with me”.', saved:'Email confirmed. Your processes now follow you to any device.', 'signed-in':'Signed in. Your processes are here.', 'link-invalid':'That link expired or was already used. Request a new one from the account menu.', 'email-taken':'That email is already in use. Enter it again to get a sign in link.' };
 export async function mount(root, opts = {}){
   if (opts.embed){ document.body.classList.add('embed'); S.embed = true; }
   root.innerHTML = '<div id="app"></div>';

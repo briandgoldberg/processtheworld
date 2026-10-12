@@ -919,3 +919,6 @@ body.embed .crumbs{padding-block:6px}
 .sec-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .sec-toggle{border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:999px;padding:5px 14px;font-size:13px;font-weight:600}
 .sec-toggle:hover{border-color:var(--accent);color:var(--accent)}
+
+.acct-user{margin:0;font-size:13px;color:var(--muted)}
+.acct-user b{color:var(--ink);font-weight:600}
