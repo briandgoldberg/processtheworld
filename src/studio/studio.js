@@ -1945,7 +1945,7 @@ function renderWorkShell(app){
   $('#wedit').onclick = e => { if (e.target.closest('[data-thumb-remove]')){ delete S.cur.thumb; thumbSaved(S.cur, true); return; } onAction(e); };
   $('#wedit').addEventListener('change', e => { const f = e.target.closest('[data-thumb-file]'); if (f && f.files[0]) { setThumb(f.files[0]); f.value = ''; } }); $('#pubbar').onclick = onAction; $('#vis').onclick = onAction;
   $('#tagbar').addEventListener('submit', e => { const f = e.target.closest('[data-tagform]'); if (!f) return; e.preventDefault(); addTag(f.elements.tag.value); });
-  $('#tagbar').addEventListener('click', e => { if (e.target.closest('[data-tagtoggle]')){ S.tagsOpen = !S.tagsOpen; $('#tagbar').classList.toggle('open', S.tagsOpen); $('#tagbar').innerHTML = tagbarHTML(S.cur); return; } const b = e.target.closest('[data-untag]'); if (b) removeTag(b.dataset.untag); if (e.target.closest('[data-thumb-remove]')){ delete S.cur.thumb; thumbSaved(S.cur, true); } });
+  $('#tagbar').addEventListener('click', e => { if (e.target.closest('[data-tagopen]')){ S.tagsOpen = true; $('#tagbar').classList.add('open'); $('#tagbar').innerHTML = tagbarHTML(S.cur); $('#tagbar input[name="tag"]')?.focus(); return; } if (e.target.closest('[data-tagtoggle]')){ S.tagsOpen = !S.tagsOpen; $('#tagbar').classList.toggle('open', S.tagsOpen); $('#tagbar').innerHTML = tagbarHTML(S.cur); return; } const b = e.target.closest('[data-untag]'); if (b) removeTag(b.dataset.untag); if (e.target.closest('[data-thumb-remove]')){ delete S.cur.thumb; thumbSaved(S.cur, true); } });
   $('#tagbar').addEventListener('change', e => { const f = e.target.closest('[data-thumb-file]'); if (f && f.files[0]) { setThumb(f.files[0]); f.value = ''; } }); $('#wpanel').onclick = onAction; $('#compare').onclick = onAction;
   $('#wpanel').addEventListener('submit', onPanelSubmit);
   $('#wpanel').addEventListener('change', onPanelChange);
@@ -2229,7 +2229,7 @@ function tagbarHTML(p){
   const add = editable && tags.length < 8 ? `<form data-tagform class="tagform"><input name="tag" list="taglist" placeholder="+ add a tag" maxlength="24" autocomplete="off" aria-label="Add a tag"><datalist id="taglist">${allTags().slice(0, 40).map(([t]) => `<option value="${esc(t)}">`).join('')}</datalist></form>` : '';
   if (!pills && !add) return '';
   const open = !!S.tagsOpen;
-  return `<button class="tagtoggle" data-tagtoggle aria-expanded="${open}">Tags${tags.length ? ' (' + tags.length + ')' : ''} <span aria-hidden="true">${open ? '▴' : '▾'}</span></button><span class="tags-body">${pills}${add}</span>`;
+  return `<button class="tagtoggle" data-tagtoggle aria-expanded="${open}">Tags${tags.length ? ' (' + tags.length + ')' : ''} <span aria-hidden="true">${open ? '▴' : '▾'}</span></button>${editable && tags.length < 8 ? '<button class="tagadd" data-tagopen>+ Add a tag</button>' : ''}<span class="tags-body">${pills}${add}</span>`;
 }
 async function setThumb(file){
   const p = S.cur; if (!p || readOnly(p)) return;
