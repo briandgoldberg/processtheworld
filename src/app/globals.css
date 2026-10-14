@@ -861,7 +861,7 @@ body.embed .crumbs{padding-block:6px}
   .top:not(.work-top) > .top-nav{display:flex;align-items:center;gap:4px;margin-inline:auto;order:2}
   .top:not(.work-top) > .grow{display:none}
   .top:not(.work-top) > #new{order:3}
-  .top:not(.work-top) > .admin-link,.top:not(.work-top) > .acct{order:4}
+  .top:not(.work-top) > .acct{order:4}
 }
 
 /* Save and Close: in the message box on desktop, on the map on a phone */
