@@ -16,7 +16,7 @@ export default async function Connect({ searchParams }: { searchParams: Promise<
   const q = await searchParams;
   const { world: w } = await getLive();
   // Every process on the live map an agent can be sent to, grouped under its top-level system. New processes appear here as agents add them.
-  const processes: { id: string; title: string; group: string }[] = [{ id: "p0", title: "All of Earth's systems", group: "Whole map" }];
+  const processes: { id: string; title: string; group: string }[] = [{ id: "p0", title: "All of Earth's Systems", group: "Whole map" }];
   const kidsOf = (pid: string) => Object.values(w.steps).filter(s => s.process === pid && s.sub && s.status === "live" && w.processes[s.sub]).map(s => s.sub!);
   const walk = (pid: string, d: number, group: string) => {
     processes.push({ id: pid, title: (d > 0 ? "· ".repeat(d) : "") + w.processes[pid].title, group });
