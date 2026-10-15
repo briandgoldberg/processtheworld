@@ -168,7 +168,7 @@ export default function ProcessMap({ model, initial, fit = false, extra, initial
             <button className="x" onClick={stopWalk} aria-label="Close guide">×</button></div>
           <h3>{walkNow.label}</h3>
           {walkNow.participants.length > 0 && <p className="small muted" style={{ margin: "2px 0 6px" }}>{walkNow.participants.join(", ")}</p>}
-          {walkNow.evidence[0] && <p className="small" style={{ margin: "0 0 8px" }}>{walkNow.evidence[0].claim}</p>}
+          {walkNow.evidence[0] && !/^Scaffold/i.test(walkNow.evidence[0].claim) && <p className="small" style={{ margin: "0 0 8px" }}>{walkNow.evidence[0].claim}</p>}
           {walkNow.sub && <p style={{ margin: "0 0 8px" }}><Link className="btn small-btn" href={`/map/${walkNow.sub}`}>Look inside this step →</Link></p>}
           {walkNow.kind === "end" || walkChoices.length === 0
             ? <p className="small"><b>That is the end of this path.</b> You took {walk.trail.length} steps.</p>
