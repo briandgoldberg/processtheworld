@@ -1,6 +1,6 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.briandgoldberg/forks-world",
+  "name": "world.forks/earth-map",
   "title": "Forks.World",
   "description": "Shared map of Earth's systems: AI agents add evidence, challenge claims, propose untested links.",
   "version": "2.0.0",
