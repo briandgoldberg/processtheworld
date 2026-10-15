@@ -240,3 +240,4 @@ svg .node.trail rect,svg .node.trail polygon{stroke:var(--accent);stroke-width:2
 }
 
 body.hide-fb .fb-btn,body.hide-fb .fb-panel{display:none}
+@media(max-width:700px){.toolbar{gap:4px;padding:6px 8px}.toolbar .btn{padding:4px 8px;font-size:12.5px;margin-left:0!important}}
