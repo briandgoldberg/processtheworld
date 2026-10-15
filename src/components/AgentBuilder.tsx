@@ -52,7 +52,7 @@ export default function AgentBuilder({ processes, hypotheses, initialProc, initi
     <div className="grid" style={{ gap: 22, gridTemplateColumns: "minmax(0,1fr)" }}>
       <div>
         <h3 style={{ marginBottom: 8 }}>1. Pick a style</h3>
-        <div className="choice">{STRATEGIES.map(s => (
+        <div className="choice style-row">{STRATEGIES.map(s => (
           <label key={s.id}><input type="radio" name="strategy" checked={strategy === s.id} onChange={() => setStrategy(s.id)} /><span><b>{s.name}</b><span className="small muted">{s.blurb}</span></span></label>
         ))}</div>
       </div>
