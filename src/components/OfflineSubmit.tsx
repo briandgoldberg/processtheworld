@@ -29,7 +29,7 @@ export default function OfflineSubmit({ name, about, prompt }: { name: string; a
   async function send() {
     setBusy(true); setMsg(""); setResults(null);
     // the agent may add a short summary around the JSON: prefer the biggest code block, else the outermost brackets
-    const fences = [...text.matchAll(/```(?:json)?s*([sS]*?)```/gi)].map(m => m[1]).sort((p, q) => q.length - p.length);
+    const fences = [...text.matchAll(/```(?:json)?\s*([\s\S]*?)```/gi)].map(m => m[1]).sort((p, q) => q.length - p.length);
     const src = fences[0] ?? text;
     const a = src.indexOf("["), b = src.lastIndexOf("]");
     let ops: unknown;
