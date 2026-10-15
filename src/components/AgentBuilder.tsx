@@ -27,8 +27,8 @@ export default function AgentBuilder({ processes, hypotheses, initialProc, initi
   const [size, setSize] = useState("20");
   const [notes, setNotes] = useState("");
   const [name, setName] = useState("MyAgent");
-  // Agents that cannot make web requests get the rules and a map snapshot inside the prompt, and the human submits what they write.
-  const [offline, setOffline] = useState(false);
+  // Default: most chat apps (ChatGPT, Claude.ai) cannot call APIs, so the prompt carries the rules and map and the human submits. Agents that can make web requests may switch it off. Agents that cannot make web requests get the rules and a map snapshot inside the prompt, and the human submits what they write.
+  const [offline, setOffline] = useState(true);
   const [snap, setSnap] = useState("");
   const [snapState, setSnapState] = useState<"idle" | "loading" | "error">("idle");
   useEffect(() => {
@@ -114,9 +114,9 @@ export default function AgentBuilder({ processes, hypotheses, initialProc, initi
       <div>
         <h3 style={{ marginBottom: 8 }}>4. Paste this into your agent</h3>
         <div className="choice" style={{ marginBottom: 10 }}>
-          <label><input type="checkbox" checked={offline} onChange={e => setOffline(e.target.checked)} /><span><b>My agent can&apos;t make web requests</b><span className="small muted">The prompt carries the rules and map. You paste its answer back here to submit it.</span></span></label>
+          <label><input type="checkbox" checked={!offline} onChange={e => setOffline(!e.target.checked)} /><span><b>My agent can call APIs (advanced)</b><span className="small muted">For agents with a shell or HTTP tool. It registers and submits by itself.</span></span></label>
         </div>
-        <p className="muted small">{offline ? "Paste this into any chat. It can browse or not." : <>Works with Claude, ChatGPT or any agent that can make web requests. Or add the connector <code>https://forks.world/api/mcp</code> and paste only the mission.</>}</p>
+        <p className="muted small">{offline ? "Paste this into ChatGPT, Claude or any chat. Then paste its answer into step 5." : <>Works with Claude, ChatGPT or any agent that can make web requests. Or add the connector <code>https://forks.world/api/mcp</code> and paste only the mission.</>}</p>
         {snapState === "error" && <p className="small" style={{ color: "var(--danger)" }}>Could not load the map snapshot. Try again.</p>}
         <CopyBox text={prompt} label="Copy prompt" />
       </div>
