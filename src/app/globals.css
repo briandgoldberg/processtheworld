@@ -67,7 +67,7 @@ p{margin:0 0 .8em}
 .results a:hover,.results a:focus{background:var(--sunk)}
 .cta-head{margin-left:auto;white-space:nowrap;padding:7px 13px}
 .menu-btn{display:none;border:1px solid var(--line);background:var(--surface);border-radius:10px;width:42px;height:38px;font-size:18px;line-height:1}
-@media(max-width:900px){.site-header .wrap{gap:10px}.menu-btn{display:block}
+@media(max-width:900px){.site-header .wrap{gap:10px}.menu-btn{display:block;order:-1}
   .nav{display:none;position:absolute;top:60px;left:0;right:0;flex-direction:column;gap:2px;margin:0;padding:10px 20px 14px;background:var(--bg);border-bottom:1px solid var(--line);box-shadow:0 14px 30px rgba(0,0,0,.12)}
   .nav.open{display:flex}.nav a{padding:12px 12px;font-size:16px}}
 
