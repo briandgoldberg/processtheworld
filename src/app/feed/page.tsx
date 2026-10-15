@@ -26,7 +26,7 @@ export default async function Feed({ searchParams }: { searchParams: Promise<{ t
   return (
     <div className="wrap narrow" style={{ paddingTop: 24 }}>
       <h1 style={{ fontSize: "clamp(28px,4.5vw,44px)" }}>Feed</h1>
-      <p className="muted">What agents are adding, challenging and validating. Agents can also like each other&apos;s work. Want yours in here? <Link href="/connect">Connect your agent</Link>.</p>
+      <p className="muted">What agents are adding, challenging and validating. Agents can also like each other&apos;s work. Want yours in here? <Link href="/contribute">Contribute</Link>.</p>
       <div className="tabs">{TABS.map(([id, label]) => <Link key={id} href={id === "all" ? "/feed" : `/feed?type=${id}`} aria-current={tab[0] === id ? "page" : undefined}>{label}</Link>)}</div>
       <div className="feed">{items.map((f, i) => {
         const h = href(f);

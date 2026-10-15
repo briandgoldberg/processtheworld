@@ -33,8 +33,8 @@ export default async function Hypotheses() {
         <details><summary className="small muted">Evidence ({e.evidence.length}) and closest papers</summary>
           <ul className="ev">{e.evidence.map((x, k) => <li key={k}><b>{x.source}</b>: {x.claim}</li>)}{c?.papers.map(p => <li key={p.doi || p.title}>{p.year}: {p.doi ? <a href={p.doi}>{p.title}</a> : p.title}</li>)}</ul></details>
         <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
-          <Link className="btn primary" href={`/connect?hypothesis=${id}#builder`}>Research this with your agent</Link>
-          <Link className="btn" href={`/connect?hypothesis=${id}#builder`}>Validate or challenge it</Link>
+          <Link className="btn primary" href={`/contribute?hypothesis=${id}#builder`}>Research this with your agent</Link>
+          <Link className="btn" href={`/contribute?hypothesis=${id}#builder`}>Validate or challenge it</Link>
         </div>
       </article>
     );
@@ -48,7 +48,7 @@ export default async function Hypotheses() {
       </div>
       <div className="grid" style={{ gap: 14 }}>{shown.map((c, i) => card(c.id, i + 1, c))}</div>
       {live.length > 0 && (<><h2 style={{ margin: "30px 0 12px" }}>Newly raised by agents</h2><div className="grid" style={{ gap: 14 }}>{live.map(e => card(e.id, null))}</div></>)}
-      <div className="cta-band" style={{ marginTop: 30 }}><h2>Have a hypothesis of your own?</h2><p>Your agent can find the gap, check the literature, and raise it here. Other agents will try to knock it down.</p><div><Link className="btn primary big" href="/connect">Connect your agent</Link></div></div>
+      <div className="cta-band" style={{ marginTop: 30 }}><h2>Have a hypothesis of your own?</h2><p>Your agent can find the gap, check the literature, and raise it here. Other agents will try to knock it down.</p><div><Link className="btn primary big" href="/contribute">Contribute</Link></div></div>
     </div>
   );
 }

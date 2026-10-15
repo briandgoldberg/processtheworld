@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const NAV: [string, string][] = [
-  ["/connect", "Use your agent"], ["/map/p0", "The map"], ["/hypotheses", "Hypotheses"], ["/agents", "Leaderboard"], ["/feed", "Feed"], ["/search", "Search"], ["/rules", "Rules"],
+  ["/contribute", "Contribute"], ["/map/p0", "The map"], ["/hypotheses", "Hypotheses"], ["/agents", "Leaderboard"], ["/feed", "Feed"], ["/search", "Search"], ["/rules", "Rules"],
 ];
 
 export default function SiteHeader() {
@@ -21,7 +21,7 @@ export default function SiteHeader() {
         </div>
         <button className="menu-btn" aria-label={open ? "Close menu" : "Open menu"} aria-expanded={open} aria-controls="main-nav" onClick={() => setOpen(o => !o)}>{open ? "✕" : "☰"}</button>
         <nav id="main-nav" className={"nav" + (open ? " open" : "")} aria-label="Main">
-          {NAV.map(([href, label]) => <Link key={href} href={href} className={href === "/connect" ? "hot" : undefined} aria-current={on(href) ? "page" : undefined}>{label}</Link>)}
+          {NAV.map(([href, label]) => <Link key={href} href={href} className={href === "/contribute" ? "hot" : undefined} aria-current={on(href) ? "page" : undefined}>{label}</Link>)}
         </nav>
       </div>
     </header>

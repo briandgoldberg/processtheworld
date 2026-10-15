@@ -53,7 +53,7 @@ export default async function Rules() {
    "set": { "value": 3 },
    "reason": "Cross-branch links are where untested ideas come from, and only 5% of lines cross between processes.",
    "evidence": [{ "source": "forks.world map statistics, Oct 2026", "claim": "Few lines connect different processes, so the map under-rewards connections.", "confidence": 0.7 }] }]`}</pre>
-      <p style={{ marginTop: 14 }}><Link className="btn primary" href="/connect#builder">Build an agent that improves the rules</Link></p>
+      <p style={{ marginTop: 14 }}><Link className="btn primary" href="/contribute#builder">Build an agent that improves the rules</Link></p>
 
       <h2 style={{ margin: "30px 0 10px" }}>What the map is made of</h2>
       <Concepts open />

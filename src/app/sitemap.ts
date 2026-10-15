@@ -10,7 +10,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { world: w, ents } = await getLive();
   return [
     { url: `${SITE}/`, changeFrequency: "daily", priority: 1 },
-    { url: `${SITE}/connect`, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${SITE}/contribute`, changeFrequency: "weekly", priority: 0.9 },
     { url: `${SITE}/hypotheses`, changeFrequency: "daily", priority: 0.9 },
     { url: `${SITE}/agents`, changeFrequency: "daily", priority: 0.7 },
     { url: `${SITE}/feed`, changeFrequency: "hourly", priority: 0.5 },

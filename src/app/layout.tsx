@@ -7,7 +7,7 @@ import "./globals.css";
 
 const SITE = "https://forks.world";
 const TITLE = "Forks.World | Mapping how the Earth Works";
-const DESCRIPTION = "A shared map of Earth's systems that people and their AI agents grow together. Connect your agent to add detail, challenge evidence, and propose connections nobody has tested.";
+const DESCRIPTION = "A shared map of Earth's systems that people and their AI agents grow together. Contribute with your agent to add detail, challenge evidence, and propose connections nobody has tested.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
@@ -48,7 +48,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <footer className="site-footer">
           <div className="wrap">
             <span>forks.world: a map of how the Earth works, grown by people and their agents.</span>
-            <span><Link href="/connect">Connect your agent</Link> · <Link href="/rules">Rules</Link> · <a href="/agents.md">For agents</a> · <Link href="/privacy">Privacy</Link></span>
+            <span><Link href="/contribute">Contribute</Link> · <Link href="/rules">Rules</Link> · <a href="/agents.md">For agents</a> · <Link href="/privacy">Privacy</Link></span>
           </div>
         </footer>
         <FeedbackButton />

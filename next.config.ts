@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
   // The old /test pages now live on the main site
   async redirects() {
     return [
+      { source: "/connect", destination: "/contribute", permanent: true },
       { source: "/test", destination: "/", permanent: true },
       { source: "/test/map/:id", destination: "/map/:id", permanent: true },
       { source: "/test/:path*", destination: "/map/p0", permanent: true },
