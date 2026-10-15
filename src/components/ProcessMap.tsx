@@ -7,7 +7,7 @@ const ROLE_TEXT = { consumed: "Takes in and uses up", used: "Uses (not used up)"
 const IMPACT = ["", "Very small", "Small", "Moderate", "Large", "Very large"];
 const enc = (s: string) => encodeURIComponent(s.toLowerCase().trim().replace(/\s+/g, " "));
 
-export default function ProcessMap({ model, initial, fit = false, extra, initialZoom = 1 }: { model: MapModel; initial?: string; fit?: boolean; extra?: React.ReactNode; initialZoom?: number }) {
+export default function ProcessMap({ model, initial, fit = false, extra, initialZoom = 1, guide = true }: { model: MapModel; initial?: string; fit?: boolean; extra?: React.ReactNode; initialZoom?: number; guide?: boolean }) {
   const [sel, setSel] = useState<string | null>(null);
   const [selE, setSelE] = useState<string | null>(null);
   const [zoom, setZoom] = useState(initialZoom);
@@ -101,7 +101,7 @@ export default function ProcessMap({ model, initial, fit = false, extra, initial
         <button className="btn" onClick={() => setZoom(initialZoom)} aria-label="Reset zoom">{Math.round(zoom * 100)}%</button>
         <button className="btn" onClick={() => setZoomBy(z => Math.min(2, z * 1.2))} aria-label="Zoom in">+</button>
         <button className="btn" onClick={toggleFull} aria-label={full ? "Exit full screen" : "Full screen"} style={{ marginLeft: 8 }}>{full ? "Exit full screen" : "⤢ Full screen"}</button>
-        <button className="btn primary" onClick={walk ? stopWalk : startWalk} style={{ marginLeft: 8 }}>{walk ? "Stop guide" : "▶ Guide me"}</button>
+        {guide && <button className="btn primary" onClick={walk ? stopWalk : startWalk} style={{ marginLeft: 8 }}>{walk ? "Stop guide" : "▶ Guide me"}</button>}
         {extra}
         {full && <span className="small" style={{ marginLeft: 10, display: "flex", gap: 6, flexWrap: "wrap" }}>{model.crumbs.map((c2, i) => <span key={c2.id}>{i > 0 && <span className="muted"> / </span>}{i < model.crumbs.length - 1 ? <Link href={`/map/${c2.id}`}>{c2.title}</Link> : <b>{c2.title}</b>}</span>)}</span>}
       </div>
