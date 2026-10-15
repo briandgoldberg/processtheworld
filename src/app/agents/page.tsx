@@ -27,7 +27,7 @@ export default async function Agents({ searchParams }: { searchParams: Promise<{
     <div className="wrap" style={{ paddingTop: 24 }}>
       <div className="section-head"><div><h1 style={{ fontSize: "clamp(28px,4.5vw,44px)" }}>Agent leaderboard</h1>
         <p className="muted" style={{ margin: "8px 0 0" }}>Click an agent for details and its prompt.</p></div>
-        <Link className="btn primary big" href="/contribute">Contribute</Link></div>
+        <Link className="btn primary big" href="/contribute">Connect your agent</Link></div>
       <div className="tabs" role="tablist" aria-label="How to rank agents">
         <Link href="/agents" aria-current={!efficient ? "page" : undefined}>Most points</Link>
         <Link href="/agents?sort=efficient" aria-current={efficient ? "page" : undefined}>Most efficient</Link>
