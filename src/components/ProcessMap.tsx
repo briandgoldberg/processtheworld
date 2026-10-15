@@ -38,6 +38,20 @@ export default function ProcessMap({ model, initial, fit = false, extra, initial
   useEffect(() => { document.body.style.overflow = full ? "hidden" : ""; return () => { document.body.style.overflow = ""; }; }, [full]);
   const byId = useMemo(() => new Map(model.nodes.map(n => [n.id, n])), [model]);
   const laneBy = useMemo(() => new Map(model.lanes.map(l => [l.id, l])), [model]);
+  // Walk through: follow the process one step at a time, choosing a branch at each fork.
+  const [walk, setWalk] = useState<{ trail: string[] } | null>(null);
+  const startId = model.boundarySteps?.start && byId.has(model.boundarySteps.start) ? model.boundarySteps.start : (model.nodes.find(n => n.kind === "start") || model.nodes[0])?.id;
+  const hypEdges = useMemo(() => new Set(model.edges.filter(e => e.hyp).map(e => e.id)), [model]);
+  const walkNow = walk ? byId.get(walk.trail[walk.trail.length - 1]) : undefined;
+  const walkChoices = walkNow ? walkNow.out.filter(o => byId.has(o.to) && !hypEdges.has(o.edge)) : [];
+  const goTo = (id: string) => {
+    setWalk(w => ({ trail: [...(w?.trail || []), id] })); setSel(id); setSelE(null);
+    const n = byId.get(id), b = board.current;
+    if (n && b) b.scrollTo({ left: Math.max(0, (n.x + n.w / 2) * zoom - b.clientWidth / 2), top: Math.max(0, (n.y + n.h / 2) * zoom - b.clientHeight / 2 + 60), behavior: "smooth" });
+  };
+  const startWalk = () => { if (!startId) return; setWalk({ trail: [] }); goTo(startId); };
+  const stopWalk = () => { setWalk(null); setSel(null); };
+  const walkBack = () => { if (!walk || walk.trail.length < 2) return; const t = walk.trail.slice(0, -1); setWalk({ trail: t }); focus(t[t.length - 1]); };
   const node = sel ? byId.get(sel) : undefined;
   const edge = selE ? model.edges.find(e => e.id === selE) : undefined;
 
@@ -87,6 +101,7 @@ export default function ProcessMap({ model, initial, fit = false, extra, initial
         <button className="btn" onClick={() => setZoom(initialZoom)} aria-label="Reset zoom">{Math.round(zoom * 100)}%</button>
         <button className="btn" onClick={() => setZoomBy(z => Math.min(2, z * 1.2))} aria-label="Zoom in">+</button>
         <button className="btn" onClick={toggleFull} aria-label={full ? "Exit full screen" : "Full screen"} style={{ marginLeft: 8 }}>{full ? "Exit full screen" : "⤢ Full screen"}</button>
+        <button className="btn primary" onClick={walk ? stopWalk : startWalk} style={{ marginLeft: 8 }}>{walk ? "Stop guide" : "▶ Guide me"}</button>
         {extra}
         {full && <span className="small" style={{ marginLeft: 10, display: "flex", gap: 6, flexWrap: "wrap" }}>{model.crumbs.map((c2, i) => <span key={c2.id}>{i > 0 && <span className="muted"> / </span>}{i < model.crumbs.length - 1 ? <Link href={`/map/${c2.id}`}>{c2.title}</Link> : <b>{c2.title}</b>}</span>)}</span>}
       </div>
@@ -133,7 +148,7 @@ export default function ProcessMap({ model, initial, fit = false, extra, initial
               </g>
             </a>
           ))}
-          {model.nodes.map(n => <Node key={n.id} n={n} selected={sel === n.id} dim={!!related && !related.has(n.id)} onSelect={() => { setSel(n.id); setSelE(null); }} />)}
+          {model.nodes.map(n => <Node key={n.id} n={n} trail={!!walk && walk.trail.includes(n.id) && sel !== n.id} selected={sel === n.id} dim={!!related && !related.has(n.id)} onSelect={() => { setSel(n.id); setSelE(null); }} />)}
         </svg>
       </div>
       <div className="legend">
@@ -147,7 +162,27 @@ export default function ProcessMap({ model, initial, fit = false, extra, initial
         <span><i style={{ borderTopColor: "var(--system)", borderTopStyle: "dashed" }} />Resource used, not used up</span>
         <span><i style={{ borderTopColor: "var(--ok)", borderTopStyle: "dashed" }} />Resource made or released (arrow out of the step)</span>
       </div>
-      {edge && (
+      {walk && walkNow && (
+        <div className="walkcard" role="dialog" aria-label="Guide me">
+          <div className="wk-top"><span className="pill">{walkNow.kind === "fork" ? "Decision fork" : walkNow.kind === "end" ? "End" : walkNow.kind === "start" ? "Start" : walkNow.kind === "subprocess" ? "Subprocess" : "Step"} · {walk.trail.length}</span>
+            <button className="x" onClick={stopWalk} aria-label="Close guide">×</button></div>
+          <h3>{walkNow.label}</h3>
+          {walkNow.participants.length > 0 && <p className="small muted" style={{ margin: "2px 0 6px" }}>{walkNow.participants.join(", ")}</p>}
+          {walkNow.evidence[0] && <p className="small" style={{ margin: "0 0 8px" }}>{walkNow.evidence[0].claim}</p>}
+          {walkNow.sub && <p style={{ margin: "0 0 8px" }}><Link className="btn small-btn" href={`/map/${walkNow.sub}`}>Look inside this step →</Link></p>}
+          {walkNow.kind === "end" || walkChoices.length === 0
+            ? <p className="small"><b>That is the end of this path.</b> You took {walk.trail.length} steps.</p>
+            : <div className="wk-choices">
+                <div className="small muted">{walkChoices.length > 1 ? (walkNow.kind === "fork" ? "Which way does it go?" : "What happens next?") : "Next"}</div>
+                {walkChoices.map(o => <button key={o.edge} className="btn wk-opt" onClick={() => goTo(o.to)}>{o.prob != null && <b>{o.prob}%</b>}{o.loop ? "↻ " : ""}<span>{o.toLabel}</span></button>)}
+              </div>}
+          <div className="wk-nav">
+            <button className="btn small-btn" onClick={walkBack} disabled={walk.trail.length < 2}>← Back</button>
+            <button className="btn small-btn" onClick={startWalk}>Restart</button>
+          </div>
+        </div>
+      )}
+      {edge && !walk && (
         <aside className="panel" aria-label="Line details">
           <button className="x" onClick={() => setSelE(null)} aria-label="Close">×</button>
           <span className="pill">{edge.hypothesis ? "Hypothesis (unverified)" : edge.prob != null ? `Fork outcome · ${edge.prob}%` : "Line between steps"}</span>
@@ -163,7 +198,7 @@ export default function ProcessMap({ model, initial, fit = false, extra, initial
           <p className="small muted" style={{ marginTop: 14 }}>Think the number or the link is wrong? Ask your agent to <Link href="/contribute">challenge this line with evidence</Link>.</p>
         </aside>
       )}
-      {node && (
+      {node && !walk && (
         <aside className="panel" aria-label="Step details">
           <button className="x" onClick={() => setSel(null)} aria-label="Close">×</button>
           <span className="pill">{node.kind === "fork" ? "Decision fork" : node.kind === "subprocess" ? "Subprocess" : node.kind === "start" ? "Start" : node.kind === "end" ? "End" : "Step"}</span>
@@ -202,14 +237,14 @@ function wrapName(name: string): string[] {
   return out.slice(0, 3);
 }
 
-function Node({ n, selected, dim, onSelect }: { n: NodeM; selected: boolean; dim: boolean; onSelect: () => void }) {
+function Node({ n, selected, trail = false, dim, onSelect }: { n: NodeM; selected: boolean; trail?: boolean; dim: boolean; onSelect: () => void }) {
   const cx = n.x + n.w / 2;
   const y0 = n.y + n.h / 2 - (n.lines.length * 14) / 2 + 11;
   const shape = n.kind === "fork"
     ? <polygon points={`${n.x + 14},${n.y} ${n.x + n.w - 14},${n.y} ${n.x + n.w},${n.y + n.h / 2} ${n.x + n.w - 14},${n.y + n.h} ${n.x + 14},${n.y + n.h} ${n.x},${n.y + n.h / 2}`} />
     : <rect x={n.x} y={n.y} width={n.w} height={n.h} rx={n.kind === "start" || n.kind === "end" ? n.h / 2 : 10} />;
   const body = (
-    <g className={`node ${n.kind}${selected ? " sel" : ""}${dim ? " dim" : ""}`} tabIndex={0} role="button" aria-label={n.label}
+    <g className={`node ${n.kind}${selected ? " sel" : ""}${trail ? " trail" : ""}${dim ? " dim" : ""}`} tabIndex={0} role="button" aria-label={n.label}
        onClick={n.sub ? undefined : onSelect} onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); if (!n.sub) onSelect(); } }} id={n.id}>
       {shape}
       {n.lines.map((t, i) => <text key={i} x={cx} y={y0 + i * 14} textAnchor="middle" className="nt">{t}</text>)}
