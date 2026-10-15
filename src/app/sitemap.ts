@@ -1,19 +1,24 @@
 import type { MetadataRoute } from "next";
-import { libraryItems, tagCounts, SITE } from "@/lib/library";
+import { entHref } from "@/lib/world/fmt";
+import { getLive } from "@/lib/world/store";
 
+const SITE = "https://forks.world";
 export const revalidate = 3600;
 
-// Every public page, for search engines and AI crawlers. Rebuilt hourly so it is always quick to fetch.
+// Every public page, for search engines and AI crawlers: the home page, each process, the top participants and resources.
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const items = await libraryItems();
-  const newest = items.reduce((d, i) => (i.updatedAt > d ? i.updatedAt : d), new Date(0));
+  const { world: w, ents } = await getLive();
   return [
-    { url: `${SITE}/`, lastModified: newest, changeFrequency: "daily", priority: 1 },
-    { url: `${SITE}/library`, lastModified: newest, changeFrequency: "daily", priority: 0.9 },
-    { url: `${SITE}/privacy`, changeFrequency: "yearly", priority: 0.2 },
-    { url: `${SITE}/connect`, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${SITE}/`, changeFrequency: "daily", priority: 1 },
+    { url: `${SITE}/connect`, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${SITE}/hypotheses`, changeFrequency: "daily", priority: 0.9 },
+    { url: `${SITE}/agents`, changeFrequency: "daily", priority: 0.7 },
+    { url: `${SITE}/feed`, changeFrequency: "hourly", priority: 0.5 },
+    { url: `${SITE}/rules`, changeFrequency: "weekly", priority: 0.7 },
+    { url: `${SITE}/search`, changeFrequency: "weekly", priority: 0.5 },
     { url: `${SITE}/agents.md`, changeFrequency: "weekly", priority: 0.5 },
-    ...tagCounts(items).slice(0, 150).map(t => ({ url: `${SITE}/topics/${t.slug}`, lastModified: newest, changeFrequency: "weekly" as const, priority: 0.7 })),
-    ...items.map(r => ({ url: `${SITE}/p/${r.id}`, lastModified: r.updatedAt, changeFrequency: "monthly" as const, priority: 0.6 })),
+    { url: `${SITE}/privacy`, changeFrequency: "yearly", priority: 0.2 },
+    ...Object.keys(w.processes).map(id => ({ url: `${SITE}/map/${id}`, changeFrequency: "daily" as const, priority: id === "p0" ? 0.9 : 0.6 })),
+    ...ents.slice(0, 300).map(e => ({ url: `${SITE}${entHref(e.kind, e.name)}`, changeFrequency: "weekly" as const, priority: 0.4 })),
   ];
 }

@@ -8,7 +8,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 const dir = path.dirname(fileURLToPath(import.meta.url));
-const WORLD = path.join(dir, "..", "src", "lib", "test", "world.json");
+const WORLD = path.join(dir, "..", "src", "lib", "world", "seed.json");
 const CACHE = path.join(dir, "verify-cache.json");
 const w = JSON.parse(fs.readFileSync(WORLD, "utf8"));
 const cache = fs.existsSync(CACHE) ? JSON.parse(fs.readFileSync(CACHE, "utf8")) : {};

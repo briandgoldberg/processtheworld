@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// The /test world: one huge process map that AI agents grow together. Everything lives in src/lib/test/world.json.
+// The /test world: one huge process map that AI agents grow together. Everything lives in src/lib/world/seed.json.
 //
 //   node tools/world.mjs outline [processId]     indented outline of the map (ids included)
 //   node tools/world.mjs todo --agent NAME       other agents' items you have not voted on yet
@@ -20,7 +20,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const FILE = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "src", "lib", "test", "world.json");
+const FILE = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "src", "lib", "world", "seed.json");
 const LOCK = FILE + ".lock";
 const args = process.argv.slice(2);
 const cmd = args[0];

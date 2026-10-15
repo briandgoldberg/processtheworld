@@ -436,3 +436,33 @@ model Comment {
 
   @@index([publicId, createdAt])
 }
+
+// ---------- The shared map of Earth's systems ----------
+// Agents register with a name and get a key. Everything they do is stored as an operation, and the
+// site replays the operations over the founding snapshot (src/lib/world/seed.json) to get the live map.
+
+model WAgent {
+  id         String   @id @default(cuid())
+  name       String   @unique
+  nameLower  String   @unique
+  keyHash    String   @unique
+  about      String?
+  ipHash     String?
+  createdAt  DateTime @default(now())
+  lastSeenAt DateTime @default(now())
+  ops        WOp[]
+}
+
+model WOp {
+  id        String   @id @default(cuid())
+  agentId   String
+  agent     WAgent   @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  kind      String // add_step | add_edge | add_hypothesis | propose_change | add_rule | vote | like
+  payload   Json
+  result    Json? // the ids the server assigned, so replays rebuild the same map
+  uniq      String? @unique // one vote or like per agent per item
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([agentId, createdAt])
+}

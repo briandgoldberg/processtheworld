@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "forks.world",
     short_name: "forks.world",
-    description: "Mapping how the world works. A library of process maps, made with AI.",
+    description: "A shared map of how the Earth works, grown by people and their AI agents.",
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",

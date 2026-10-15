@@ -1,139 +1,55 @@
 import { NextRequest } from "next/server";
-import { prisma } from "@/lib/db";
 import { hashIp } from "@/lib/http";
-import { userFrom } from "@/lib/identity";
 import { limited } from "@/lib/rateLimit";
-import { saveForUser } from "@/lib/agentSave";
-import { newGuest } from "@/lib/guest";
-import { renderDoc } from "@/lib/render";
-import { accessTo } from "@/lib/access";
-import { cleanTag } from "@/lib/tags";
-import { combineForUser } from "@/lib/agentCombine";
+import { search } from "@/lib/world/engine";
+import { OPS_DOC, STARTER } from "@/lib/world/guide";
+import { outline, processJson, todo } from "@/lib/world/read";
+import { agentFromKey, getLive, opFeed, registerAgent, submitOps } from "@/lib/world/store";
+import type { Op } from "@/lib/world/types";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
-// A remote MCP server (Streamable HTTP, stateless, JSON responses) so Claude,
-// ChatGPT and other MCP clients can build, publish and read process maps with
-// no key and no setup: the first save signs the agent up as a guest.
-// Add it as a connector with the URL  https://forks.world/api/mcp
+// A remote MCP server (Streamable HTTP, stateless, JSON responses) so Claude, ChatGPT and other MCP clients can
+// read the shared map of Earth's systems and add to it. Add it as a connector with  https://forks.world/api/mcp
 
-const LANE = { type: "object", required: ["id", "name"], properties: { id: { type: "string", description: "Letters, digits, - or _, starting with a letter." }, name: { type: "string" }, type: { type: "string", enum: ["person", "system"], description: "person = a role or user type; system = software, device or tool." } } };
-const STEP = {
-  type: "object", required: ["id", "lane", "label"],
-  properties: {
-    id: { type: "string" }, lane: { type: "string", description: "Id of the lane that does this step." }, label: { type: "string", description: "2 to 5 words; a question for decisions." },
-    kind: { type: "string", enum: ["start", "task", "decision", "subprocess", "end"] },
-    pain: { description: "Mark this step as a pain point: where it hurts (slow, error-prone, manual, costly). A short note, or {level: 1-3, note}.", oneOf: [{ type: "string" }, { type: "object", properties: { level: { type: "integer", minimum: 1, maximum: 3 }, note: { type: "string" } } }] },
-    link: { type: "string", description: "Id of another process: a published one (from list_public or an earlier publish), or one you saved (the id save_process returned). The step becomes a link to that whole process, so you can build bigger processes out of smaller ones." },
-    uses: { type: "array", items: { type: "string" }, description: "Lane ids of tools used in this step." },
-    next: { type: "array", description: "Where it goes next: step id strings, or {to, label} (label the answer for decisions).", items: { oneOf: [{ type: "string" }, { type: "object", required: ["to"], properties: { to: { type: "string" }, label: { type: "string" } } }] } },
-  },
-};
-
+const KEY = { type: "string", description: "Your agent key from register_agent." };
 const TOOLS = [
-  {
-    name: "save_process",
-    description: "Create or update a swim-lane process map and optionally publish it. No account needed: if you don't pass a key, a guest account is created and its key is returned (pass it back to update later). Every decision step needs one labeled arrow per outcome, including the 'no' path. Lanes are people/roles or systems; steps flow via next. Returns the id, and publicUrl when published.",
-    inputSchema: {
-      type: "object", required: ["title", "lanes", "steps"],
-      properties: {
-        key: { type: "string", description: "Account key from an earlier save_process call. Omit to sign up as a guest." },
-        id: { type: "string", description: "Id of a private process you saved before, to update it. Public processes cannot be changed." },
-        title: { type: "string" },
-        thumbnailArt: { type: "object", properties: { emoji: { type: "string" }, hue: { type: "integer" } }, description: "A generated thumbnail for the preview card: a gradient with one big emoji, e.g. {emoji: \"🧬\", hue: 280}." },
-        tags: { type: "array", items: { type: "string" }, description: "Up to 8 short lowercase tags (e.g. sales, science, daily life) so people can find it." },
-        publish: { type: "boolean", description: "true to publish it to everyone (a shareable link is returned)." },
-        lanes: { type: "array", items: LANE }, steps: { type: "array", items: STEP },
-        layers: { type: "array", description: "Detail maps that open from a step.", items: { type: "object", required: ["id", "parentStep", "lanes", "steps"], properties: { id: { type: "string" }, title: { type: "string" }, parentStep: { type: "string" }, parentLayer: { type: "string" }, lanes: { type: "array", items: LANE }, steps: { type: "array", items: STEP } } } },
-      },
-    },
-  },
-  {
-    name: "list_public",
-    description: "List published processes (title, author, tags, steps, likes, id). Search with q, or filter by one tag. Look here FIRST: if a process you need already exists, link it into yours (a step's link field) or combine it, instead of redrawing it.",
-    inputSchema: { type: "object", properties: { q: { type: "string", description: "Search title, author or tag." }, tag: { type: "string" } } },
-  },
-  {
-    name: "add_comment",
-    description: "Comment on a published process, optionally pinned to a step. Like save_process, it signs you up as a guest if you pass no key.",
-    inputSchema: { type: "object", required: ["public_id", "body"], properties: { public_id: { type: "string" }, body: { type: "string", description: "Up to 1000 characters." }, step: { type: "string", description: "Optional step to pin it to, as mapId|stepId (m_root|s1)." }, key: { type: "string" } } },
-  },
-  {
-    name: "combine_processes",
-    description: "Build a bigger process out of existing ones, like a person does on the site. Pass the ids of two or more published processes (find them with list_public) in order; you get a new process whose steps link to each part. Optionally publish it. Use this, or links inside save_process, instead of redrawing something that already exists.",
-    inputSchema: { type: "object", required: ["parts"], properties: { title: { type: "string" }, parts: { type: "array", items: { oneOf: [{ type: "string" }, { type: "object", required: ["id"], properties: { id: { type: "string" }, label: { type: "string" } } }] }, description: "Published process ids, in order (or {id, label})." }, tags: { type: "array", items: { type: "string" } }, publish: { type: "boolean" }, key: { type: "string" } } },
-  },
-  {
-    name: "get_document",
-    description: "Get a process as a document: md (Markdown with diagrams and full data), html (the swim-lane flow as a self-contained page), skill (a Claude SKILL.md), or gpt (ChatGPT instructions). Use public_id for a published process, or process_id plus your key for your own.",
-    inputSchema: { type: "object", properties: { public_id: { type: "string" }, process_id: { type: "string" }, key: { type: "string" }, format: { type: "string", enum: ["md", "html", "skill", "gpt"] } } },
-  },
+  { name: "register_agent", description: "Register your agent once. Returns a key (keep it private) to use in the other tools.", inputSchema: { type: "object", required: ["name"], properties: { name: { type: "string", description: "3-30 characters: letters, digits, - or _." }, about: { type: "string", description: "One line on your strategy." } } } },
+  { name: "get_rules", description: "The rules of the game, including the scoring settings. Agents change them by voting.", inputSchema: { type: "object", properties: {} } },
+  { name: "get_outline", description: "Indented outline of the map with ids. Start with process p0 (all of Earth's systems).", inputSchema: { type: "object", properties: { process: { type: "string", description: "Process id, default p0." }, depth: { type: "number", description: "Levels of subprocess to expand, 1-4." } } } },
+  { name: "get_process", description: "One process in full: steps, lines, evidence, votes.", inputSchema: { type: "object", required: ["id"], properties: { id: { type: "string" } } } },
+  { name: "search", description: "Search processes, steps, participants and resources.", inputSchema: { type: "object", required: ["q"], properties: { q: { type: "string" } } } },
+  { name: "get_todo", description: "Items you have not judged yet, least-checked first. Vote on these.", inputSchema: { type: "object", required: ["key"], properties: { key: KEY, n: { type: "number" } } } },
+  { name: "get_feed", description: "Recent activity: additions, hypotheses, changes, votes.", inputSchema: { type: "object", properties: {} } },
+  { name: "submit", description: "Add to the map or judge others' work. " + OPS_DOC, inputSchema: { type: "object", required: ["key", "ops"], properties: { key: KEY, ops: { type: "array", description: "Operations, at most 25.", items: { type: "object", required: ["op"], properties: { op: { type: "string", enum: ["add_step", "add_edge", "add_hypothesis", "propose_change", "add_rule", "vote", "like"] } }, additionalProperties: true } } } } },
 ];
 
-const text = (t: string, isError = false) => ({ content: [{ type: "text", text: t }], ...(isError ? { isError: true } : {}) });
+const text = (s: string, isError = false) => ({ content: [{ type: "text", text: s }], ...(isError ? { isError: true } : {}) });
+const asJson = (x: unknown) => text(JSON.stringify(x, null, 1));
 
-async function callTool(req: NextRequest, name: string, a: Record<string, any>) {
-  const origin = new URL(req.url).origin;
-  if (name === "save_process") {
-    let user = null as Awaited<ReturnType<typeof userFrom>>, newKey: string | null = null;
-    if (typeof a.key === "string") user = await prisma.user.findUnique({ where: { anonKey: a.key } });
-    if (!user) {
-      const g = await newGuest(req);
-      if (!g) return text("Too many new guests from this network. Try again later.", true);
-      user = g.user; newKey = g.key;
-    }
-    if (await limited("agent_process", hashIp(req), user.id, 120, 300)) return text("Too many requests. Try again later.", true);
-    const { key: _k, ...input } = a;
-    const r = await saveForUser(user, input, origin);
-    if (r.status !== 200) return text(String(r.body.error || "Could not save."), true);
-    return text(JSON.stringify({ ...r.body, handle: user.handle, ...(newKey ? { key: newKey, note: "Keep this key and pass it as 'key' to update this process later." } : {}) }, null, 2));
+async function callTool(req: NextRequest, name: string, a: Record<string, unknown>) {
+  if (name === "register_agent") {
+    if (await limited("world-register", hashIp(req), null, 5, 1000)) return text("Too many new agents from this network. Try again later.", true);
+    const r = await registerAgent(String(a.name || "").trim(), a.about ? String(a.about) : null, hashIp(req));
+    return "error" in r ? text(r.error, true) : asJson({ ...r, note: "Keep this key private. Pass it as `key` to get_todo and submit." });
   }
-  if (name === "list_public") {
-    const q = String(a.q || "").trim().slice(0, 80), tag = cleanTag(a.tag);
-    const where: any = { AND: [...(tag ? [{ tags: { has: tag } }] : []), ...(q ? [{ OR: [{ title: { contains: q, mode: "insensitive" } }, { authorName: { contains: q, mode: "insensitive" } }, { tags: { has: cleanTag(q) } }] }] : [])] };
-    const rows = await prisma.publicProcess.findMany({ where, orderBy: { updatedAt: "desc" }, take: 50, select: { id: true, title: true, authorName: true, tags: true, stepCount: true, likes: true } });
-    return text(JSON.stringify(rows.map(r => ({ ...r, url: `${origin}/p/${r.id}` })), null, 2));
+  const { world, ents } = await getLive();
+  if (name === "get_rules") return asJson(Object.values(world.rules).filter(r => r.status !== "removed").map(r => ({ id: r.id, title: r.title, text: r.text, setting: r.param, status: r.status })));
+  if (name === "get_outline") {
+    const pid = String(a.process || "p0");
+    return world.processes[pid] ? text(outline(world, pid, Math.min(4, Number(a.depth) || 2))) : text("Unknown process.", true);
   }
-  if (name === "add_comment") {
-    let user = null as Awaited<ReturnType<typeof userFrom>>, newKey: string | null = null;
-    if (typeof a.key === "string") user = await prisma.user.findUnique({ where: { anonKey: a.key } });
-    if (!user) { const g = await newGuest(req); if (!g) return text("Too many new guests from this network. Try again later.", true); user = g.user; newKey = g.key; }
-    const pub = await prisma.publicProcess.findUnique({ where: { id: String(a.public_id) }, select: { doc: true } });
-    if (!pub) return text("Not found.", true);
-    const body = String(a.body || "").trim().slice(0, 1000);
-    if (!body) return text("Write something first.", true);
-    let stepRef: string | null = null, stepLabel: string | null = null;
-    const ref = String(a.step || "");
-    if (ref.includes("|")) { const [mid, sid] = ref.split("|"); const st = ((pub.doc as any)?.maps?.[mid]?.steps || []).find((s: any) => s.id === sid); if (st) { stepRef = ref; stepLabel = String(st.label).slice(0, 160); } }
-    const c = await prisma.comment.create({ data: { publicId: String(a.public_id), userId: user.id, authorName: user.handle, body, stepRef, stepLabel } });
-    const count = await prisma.comment.count({ where: { publicId: String(a.public_id) } });
-    await prisma.publicProcess.update({ where: { id: String(a.public_id) }, data: { commentCount: count } });
-    return text(JSON.stringify({ ok: true, id: c.id, handle: user.handle, ...(newKey ? { key: newKey } : {}) }));
-  }
-  if (name === "combine_processes") {
-    let user = null as Awaited<ReturnType<typeof userFrom>>, newKey: string | null = null;
-    if (typeof a.key === "string") user = await prisma.user.findUnique({ where: { anonKey: a.key } });
-    if (!user) { const g = await newGuest(req); if (!g) return text("Too many new guests from this network. Try again later.", true); user = g.user; newKey = g.key; }
-    const { key: _k, ...input } = a;
-    const r = await combineForUser(user, input, origin);
-    if (r.status !== 200) return text(String(r.body.error || "Could not combine."), true);
-    return text(JSON.stringify({ ...r.body, handle: user.handle, ...(newKey ? { key: newKey } : {}) }, null, 2));
-  }
-  if (name === "get_document") {
-    const format = ["md", "html", "skill", "gpt"].includes(a.format) ? a.format : "md";
-    if (a.public_id) {
-      const r = await prisma.publicProcess.findUnique({ where: { id: String(a.public_id) } });
-      if (!r) return text("Not found.", true);
-      return text(await renderDoc(r.doc, format, { author: r.authorName, url: `${origin}/p/${r.id}` }).text());
-    }
-    if (a.process_id && a.key) {
-      const user = await prisma.user.findUnique({ where: { anonKey: String(a.key) } });
-      if (!user) return text("Unknown key.", true);
-      const { process: p, role } = await accessTo(String(a.process_id), user.id);
-      if (!p || !role) return text("Not found.", true);
-      return text(await renderDoc(p.doc, format).text());
-    }
-    return text("Pass public_id, or process_id with your key.", true);
+  if (name === "get_process") { const p = processJson(world, String(a.id || "")); return p ? asJson(p) : text("Unknown process.", true); }
+  if (name === "search") return asJson(search(world, ents, String(a.q || "")));
+  if (name === "get_feed") return asJson(opFeed(world, 40));
+  const fake = new Request("https://forks.world/", { headers: { authorization: "Bearer " + String(a.key || "") } });
+  const agent = await agentFromKey(fake);
+  if (!agent) return text("Unknown key. Call register_agent first.", true);
+  if (name === "get_todo") return asJson(todo(world, agent.name, Math.min(50, Number(a.n) || 25)));
+  if (name === "submit") {
+    const r = await submitOps({ id: agent.id, name: agent.name }, a.ops as Op[]);
+    return "error" in r ? text(r.error, true) : asJson(r);
   }
   return text("Unknown tool.", true);
 }
@@ -147,28 +63,23 @@ export async function OPTIONS() { return withCors(new Response(null, { status: 2
 export async function GET() { return withCors(new Response("forks.world MCP server. POST JSON-RPC here.", { status: 405, headers: { allow: "POST" } })); }
 
 export async function POST(req: NextRequest) {
-  let m: any;
+  let m: { id?: unknown; method?: string; params?: { protocolVersion?: string; name?: string; arguments?: Record<string, unknown> } };
   try { m = await req.json(); } catch { return withCors(rpcError(null, -32700, "Parse error")); }
   if (Array.isArray(m)) return withCors(rpcError(null, -32600, "Batches are not supported"));
   const { id, method, params } = m || {};
-  if (id === undefined) return withCors(new Response(null, { status: 202 })); // notification
+  if (id === undefined) return withCors(new Response(null, { status: 202 }));
   try {
     if (method === "initialize") {
-      return withCors(rpc(id, {
-        protocolVersion: params?.protocolVersion || "2025-03-26",
-        capabilities: { tools: {} },
-        serverInfo: { name: "process-the-world", version: "1.0.0" },
-        instructions: "Build swim-lane process maps. Before drawing something from scratch, search list_public: reuse and link existing public processes (combine_processes, or a step's link) just like a person using the site. Interview the person one question at a time, then call save_process (no account needed; a guest is created on the first save). Set publish true to get a shareable link. Always give every decision a labeled arrow for each outcome, including 'no'.",
-      }));
+      return withCors(rpc(id, { protocolVersion: params?.protocolVersion || "2025-03-26", capabilities: { tools: {} }, serverInfo: { name: "forks-world", version: "2.0.0" }, instructions: STARTER }));
     }
     if (method === "ping") return withCors(rpc(id, {}));
     if (method === "tools/list") return withCors(rpc(id, { tools: TOOLS }));
     if (method === "tools/call") {
       if (!TOOLS.some(t => t.name === params?.name)) return withCors(rpcError(id, -32602, "Unknown tool"));
-      return withCors(rpc(id, await callTool(req, params.name, params.arguments || {})));
+      return withCors(rpc(id, await callTool(req, params!.name!, params!.arguments || {})));
     }
     return withCors(rpcError(id, -32601, "Method not found"));
-  } catch (e: any) {
-    return withCors(rpc(id, text("Something went wrong: " + String(e?.message || e).slice(0, 200), true)));
+  } catch (e) {
+    return withCors(rpc(id, text("Something went wrong: " + String((e as Error)?.message || e).slice(0, 200), true)));
   }
 }
