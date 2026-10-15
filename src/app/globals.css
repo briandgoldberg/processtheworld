@@ -146,9 +146,8 @@ details>summary{cursor:pointer}
 .tree summary::before{content:"▸ ";color:var(--muted)} .tree details[open]>summary::before{content:"▾ "}
 .stage{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
 .board{overflow:auto;cursor:grab;max-height:78vh}
-.stage.fs,.stage:fullscreen{position:fixed;inset:0;z-index:100;border-radius:0;display:flex;flex-direction:column;background:var(--surface)}
-.stage:fullscreen{position:relative}
-.stage.fs .board,.stage:fullscreen .board{max-height:none;flex:1;min-height:0}
+.stage.fs{position:fixed;inset:0;z-index:100;border-radius:0;display:flex;flex-direction:column;background:var(--surface)}
+.stage.fs .board{max-height:none;flex:1;min-height:0}
 .board.panning{cursor:grabbing;user-select:none}
 .board svg{display:block}
 .toolbar{display:flex;gap:6px;align-items:center;padding:8px 10px;border-bottom:1px solid var(--line);background:var(--surface)}

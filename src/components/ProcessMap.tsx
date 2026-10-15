@@ -11,19 +11,29 @@ export default function ProcessMap({ model, initial }: { model: MapModel; initia
   const [selE, setSelE] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
   const board = useRef<HTMLDivElement>(null);
-  const stage = useRef<HTMLDivElement>(null);
   const [full, setFull] = useState(false);
+  // Full screen belongs to the whole page, not to one map, so it survives clicking from one process to the next.
+  const KEY = "fw-fullscreen";
   const toggleFull = async () => {
-    const el = stage.current; if (!el) return;
-    if (document.fullscreenElement || full) { if (document.fullscreenElement) await document.exitFullscreen().catch(() => {}); setFull(false); return; }
-    try { await el.requestFullscreen(); } catch { setFull(true); }
+    if (full) {
+      try { sessionStorage.removeItem(KEY); } catch { /* private mode */ }
+      if (document.fullscreenElement) await document.exitFullscreen().catch(() => {});
+      setFull(false); return;
+    }
+    try { sessionStorage.setItem(KEY, "1"); } catch { /* private mode */ }
+    setFull(true);
+    try { await document.documentElement.requestFullscreen(); } catch { /* the overlay still fills the window */ }
   };
   useEffect(() => {
-    const h = () => setFull(!!document.fullscreenElement);
-    const k = (e: KeyboardEvent) => { if (e.key === "Escape") setFull(false); };
-    document.addEventListener("fullscreenchange", h); document.addEventListener("keydown", k);
-    return () => { document.removeEventListener("fullscreenchange", h); document.removeEventListener("keydown", k); };
+    let was = false;
+    try { was = sessionStorage.getItem(KEY) === "1"; } catch { /* ignore */ }
+    if (was || document.fullscreenElement) setFull(true);
+    if (was && !document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+    const h = () => { if (!document.fullscreenElement) { setFull(false); try { sessionStorage.removeItem(KEY); } catch { /* ignore */ } } };
+    document.addEventListener("fullscreenchange", h);
+    return () => document.removeEventListener("fullscreenchange", h);
   }, []);
+  useEffect(() => { document.body.style.overflow = full ? "hidden" : ""; return () => { document.body.style.overflow = ""; }; }, [full]);
   const byId = useMemo(() => new Map(model.nodes.map(n => [n.id, n])), [model]);
   const laneBy = useMemo(() => new Map(model.lanes.map(l => [l.id, l])), [model]);
   const node = sel ? byId.get(sel) : undefined;
@@ -65,12 +75,13 @@ export default function ProcessMap({ model, initial }: { model: MapModel; initia
   );
 
   return (
-    <div className={"stage" + (full ? " fs" : "")} ref={stage}>
+    <div className={"stage" + (full ? " fs" : "")}>
       <div className="toolbar">
         <button className="btn" onClick={() => setZoom(z => Math.max(0.4, z / 1.2))} aria-label="Zoom out">−</button>
         <button className="btn" onClick={() => setZoom(1)} aria-label="Reset zoom">{Math.round(zoom * 100)}%</button>
         <button className="btn" onClick={() => setZoom(z => Math.min(2, z * 1.2))} aria-label="Zoom in">+</button>
         <button className="btn" onClick={toggleFull} aria-label={full ? "Exit full screen" : "Full screen"} style={{ marginLeft: 8 }}>{full ? "Exit full screen" : "⤢ Full screen"}</button>
+        {full && <span className="small" style={{ marginLeft: 10, display: "flex", gap: 6, flexWrap: "wrap" }}>{model.crumbs.map((c2, i) => <span key={c2.id}>{i > 0 && <span className="muted"> / </span>}{i < model.crumbs.length - 1 ? <Link href={`/map/${c2.id}`}>{c2.title}</Link> : <b>{c2.title}</b>}</span>)}</span>}
       </div>
       <div className="board" ref={board}>
         <svg width={W * zoom} height={H * zoom} viewBox={`0 0 ${W} ${H}`} role="img" aria-label={model.title}>
