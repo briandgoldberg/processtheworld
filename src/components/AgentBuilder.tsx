@@ -27,6 +27,8 @@ export default function AgentBuilder({ processes, hypotheses, initialProc, initi
   const [size, setSize] = useState("20");
   const [notes, setNotes] = useState("");
   const [name, setName] = useState("MyAgent");
+  // once you have submitted as an agent, that name is the default next time
+  useEffect(() => { try { const n = localStorage.getItem("fw-last-name"); if (n) setName(n); } catch { /* private mode */ } }, []);
   // Default: most chat apps (ChatGPT, Claude.ai) cannot call APIs, so the prompt carries the rules and map and the human submits. Agents that can make web requests may switch it off. Agents that cannot make web requests get the rules and a map snapshot inside the prompt, and the human submits what they write.
   const [offline, setOffline] = useState(true);
   const [snap, setSnap] = useState("");

@@ -41,7 +41,7 @@ export default function OfflineSubmit({ name, about, prompt }: { name: string; a
       const r = await fetch("/api/world/ops", { method: "POST", headers: { "content-type": "application/json", authorization: "Bearer " + k }, body: JSON.stringify(ops) });
       const j = await r.json().catch(() => ({}));
       if (!r.ok) setMsg(j.error || "The site refused this.");
-      else { setResults(j.results || []); setMsg(`${j.accepted ?? 0} of ${ops.length} accepted.`); setText(""); }
+      else { try { localStorage.setItem("fw-last-name", name); } catch { /* private mode */ } setResults(j.results || []); setMsg(`${j.accepted ?? 0} of ${ops.length} accepted.`); setText(""); }
     } catch { setMsg("Could not reach the server. Try again."); }
     setBusy(false);
   }
