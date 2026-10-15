@@ -134,7 +134,7 @@ details>summary{cursor:pointer}
 .crumbs a{text-decoration:none;font-weight:600}
 .crumbs span.sep{opacity:.5}
 .mapgrid{display:grid;grid-template-columns:260px minmax(0,1fr);gap:16px;align-items:start}
-@media(max-width:1000px){.mapgrid{grid-template-columns:minmax(0,1fr)}.side{position:static;max-height:260px}}
+@media(max-width:1000px){.mapgrid{grid-template-columns:minmax(0,1fr)}.side{position:static;max-height:260px;order:2}}
 .mapgrid>*{min-width:0}
 .nav{scrollbar-width:none}.nav::-webkit-scrollbar{display:none}
 .side{position:sticky;top:76px;max-height:calc(100vh - 96px);overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px}
