@@ -257,3 +257,6 @@ body.hide-fb .fb-btn,body.hide-fb .fb-panel{display:none}
 }
 
 .brand i svg{width:58%;height:58%}
+.grid>*,.choice>*,.field{min-width:0}
+.field select,.field input,.field textarea{max-width:100%;width:100%;box-sizing:border-box}
+.choice label>span{min-width:0}

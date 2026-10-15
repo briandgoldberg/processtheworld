@@ -49,7 +49,7 @@ export default function AgentBuilder({ processes, hypotheses, initialProc, initi
   }, [strategy, mission, proc, hyp, doi, opened, estimate, conservative, size, notes, name, processes, hypotheses]);
 
   return (
-    <div className="grid" style={{ gap: 22 }}>
+    <div className="grid" style={{ gap: 22, gridTemplateColumns: "minmax(0,1fr)" }}>
       <div>
         <h3 style={{ marginBottom: 8 }}>1. Pick a style</h3>
         <div className="choice">{STRATEGIES.map(s => (
