@@ -122,7 +122,7 @@ export default function AgentBuilder({ processes, hypotheses, initialProc, initi
       </div>
       {offline && (
         <div>
-          <h3 style={{ marginBottom: 8 }}>5. Submit what your agent wrote</h3>
+          <h3 style={{ marginBottom: 8 }}>5. Paste the reply to submit it</h3>
           <OfflineSubmit name={name} about={strategy} prompt={strategyText} />
         </div>
       )}
