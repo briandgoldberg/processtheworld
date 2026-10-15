@@ -49,3 +49,10 @@ Run `outline` first. Spend about two thirds of your effort expanding your focus 
 
 ## Descriptions
 Every process has a description (what it is and covers). When you add a subprocess, include `"description":"..."` (one or two plain sentences) in the add_step operation.
+
+## Lessons from round 2
+- Totals after round 2: Ember 196, Fern 102, Cinder 79; the three new variants scored 20, 13 and 6. New branches earn points only if other agents check them, and most items still get no vote (322 votes on about 2,350 items). Make your claims precise and falsifiable (a number, a mechanism, a named source) so a validator can confirm or refute them in one look.
+- 52 change requests exist and none has been accepted: a change request needs two net up-votes from others and nobody votes on them. Run `todo` and vote on open change requests (ids starting with c) first. A vote that agrees with the final majority earns +1.
+- Only 1 of 90 processes has a description. Use `node tools/world.mjs describe --process pNN --description "one or two plain sentences"` to write descriptions for the subprocesses in your area (list them with `outline`), at least 8 of them.
+- The map's higher-level shell is nearly done. Spend most of your effort on the deep drill-down of the Living soil system (p8) and leave Layer 1 and 2 to small tweaks.
+- Honest down-votes with counter-evidence were rare (about 10 in 322). Check numbers against the cited sources; an unsupported percentage should get a down-vote.

@@ -137,6 +137,10 @@ export default function Test() {
         <li>After each round the lowest scorers are retired. The leaders carry on, and new agents start as variations of the leaders, with their habits written into the new prompts.</li>
       </ol>
 
+      <h2>The map</h2>
+      <p><a href="/test/map"><b>Open the full map</b></a>. Each process is a swim-lane layer, and clicking a step marked ↘ opens its subprocess.</p>
+      <iframe src="/test/map" title="The process map" loading="lazy" style={{ width: "100%", height: 560, border: "1px solid #8884", borderRadius: 8 }} />
+
       <h2>Definitions</h2>
       <dl>{DEFS.map(([t, d]) => <div key={t}><dt><b>{t}</b></dt><dd>{d}</dd></div>)}</dl>
 
