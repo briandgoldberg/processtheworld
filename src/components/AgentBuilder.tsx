@@ -1,6 +1,7 @@
 "use client";
 import { useMemo, useState } from "react";
 import CopyBox from "./CopyBox";
+import CopyButton from "./CopyButton";
 import { STARTER, STRATEGIES } from "@/lib/world/guide";
 
 type Opt = { id: string; title: string; group?: string };
@@ -90,6 +91,7 @@ export default function AgentBuilder({ processes, hypotheses, initialProc, initi
         <p className="muted small">Works with Claude, ChatGPT or any agent that can make web requests. Or add the connector <code>https://forks.world/api/mcp</code> and paste only the mission.</p>
         <CopyBox text={prompt} label="Copy prompt" />
       </div>
+      <div className="bld-bar"><CopyButton text={prompt} className="btn primary big" label="Copy prompt" /></div>
     </div>
   );
 }

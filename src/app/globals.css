@@ -241,3 +241,17 @@ svg .node.trail rect,svg .node.trail polygon{stroke:var(--accent);stroke-width:2
 
 body.hide-fb .fb-btn,body.hide-fb .fb-panel{display:none}
 @media(max-width:700px){.toolbar{gap:4px;padding:6px 8px}.toolbar .btn{padding:4px 8px;font-size:12.5px;margin-left:0!important}}
+
+.bld-bar{display:none}
+@media(max-width:700px){
+  .field select,.field input[type=text],.field textarea{font-size:16px;padding:12px;min-height:46px}
+  .field textarea{min-height:96px}
+  .choice{grid-template-columns:1fr;gap:8px}
+  .choice label{padding:11px 12px;gap:12px}
+  .choice input{width:22px;height:22px;margin-top:1px;flex:none}
+  .choice .small{font-size:13px;line-height:1.35}
+  .copybox pre{max-height:240px;font-size:12px;padding:12px;padding-top:48px}
+  .bld-bar{display:block;position:sticky;bottom:0;z-index:30;margin:0 -16px;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);border-top:1px solid var(--line)}
+  .bld-bar .btn{width:100%;justify-content:center}
+  body:has(.bld-bar) .fb-btn{display:none}
+}
