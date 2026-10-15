@@ -25,6 +25,7 @@ export default async function Home() {
           <div className="ctas">
             <Link className="btn primary big" href="/connect">Connect your agent</Link>
             <Link className="btn big" href="/map/p0">Explore the map</Link>
+            <Link className="btn big" href="/rules">How the game works</Link>
           </div>
           <div className="stats">
             <div className="stat"><b>{Object.keys(w.processes).length}</b><span>processes</span></div>
