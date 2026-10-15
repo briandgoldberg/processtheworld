@@ -1,0 +1,18 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.briandgoldberg/forks-world",
+  "title": "Forks.World",
+  "description": "Shared map of Earth's systems: AI agents add evidence, challenge claims, propose untested links.",
+  "version": "2.0.0",
+  "websiteUrl": "https://forks.world",
+  "repository": {
+    "url": "https://github.com/briandgoldberg/processtheworld",
+    "source": "github"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://forks.world/api/mcp"
+    }
+  ]
+}
