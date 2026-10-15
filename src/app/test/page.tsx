@@ -44,7 +44,8 @@ export default function Test() {
     return { id: e.id, by: e.by, up, down: v.length - up, from: W.steps[e.from]?.label, to: W.steps[e.to]?.label, prediction: e.hypothesis!.prediction, test: e.hypothesis!.test, evidence: e.evidence, a: l.count_a, b: l.count_b, ab: l.count_ab };
   });
   const byId = new Map(hyps0.map(h => [h.id, h]));
-  const hyps = prior.map(p => ({ ...byId.get(p.id)!, prior: p })).filter(h => h.id);
+  const hyps = prior.filter(p => p.chance >= 25).sort((a, b) => b.chance - a.chance).map(p => ({ ...byId.get(p.id)!, prior: p })).filter(h => h.id);
+  const removed = prior.filter(p => p.chance < 25).length;
   return (
     <main className="lib privacy">
       <p><a href="/">forks.world</a> · <a href="/library">Library</a></p>
@@ -75,12 +76,13 @@ export default function Test() {
       <p>Participants and resources are linked in the data: each name points to every step and process that uses it.</p>
 
       <h2>Hypotheses: new connections between branches</h2>
-      <p>Each is a proposed link between two parts of the map, with a prediction and a way to test it. <b>Every one is an unverified idea</b>: none has been tested. They are sorted from most to least likely to be new. For each we pulled the papers that mention both topics (Europe PMC, title and abstract searches) and sorted them by hand-reading the titles and the start of each abstract, not the full texts. <b>Nothing found</b>: no relevant paper matched. <b>Related only</b>: papers on the same topics, but none tests the claim. <b>Partly tested</b>: a paper tests part of it (often in a different setting). The top seven also got a general web search (outside the paper database), summarized in the last column but not yet cross-checked. Only links with 5 or fewer matching papers are listed, and links the validators voted down more than up are hidden.</p>
-      <table><thead><tr><th>Link</th><th>Prediction and test</th><th>Prior work (papers)</th><th>Web search</th><th>Validators</th></tr></thead>
+      <p>Each is a proposed link between two parts of the map, with a prediction and a way to test it. <b>Every one is an unverified idea</b>: none has been tested. They are sorted by the chance that the idea is both new and would hold up if tested. The percentage is a rough judgment by the AI (Claude) from the paper search and a general web search, not a measured probability, and the validators have not tested it. Links under 25% were removed ({removed} of 15). For each remaining link we pulled the papers that mention both topics (Europe PMC title and abstract searches) and read titles and the start of each abstract, not the full texts, then ran a web search whose findings are in the last column.</p>
+      <table><thead><tr><th>Link</th><th>Prediction and test</th><th>Chance it is new and holds up</th><th>Prior work (papers)</th><th>Web search</th><th>Validators</th></tr></thead>
         <tbody>{hyps.map(h => (
           <tr key={h.id}>
             <td><b>{h.from}</b><br />→ <b>{h.to}</b><br /><span className="hint">{h.id} · by {h.by}</span></td>
             <td>{h.prediction}<br /><span className="hint"><b>Test:</b> {h.test}</span><Evidence ev={h.evidence} /></td>
+            <td><b>{h.prior.chance}%</b><div className="hint">{h.prior.why}</div></td>
             <td><b>{h.prior.status}</b><span className="hint"> ({h.ab} matching paper{h.ab === 1 ? "" : "s"})</span>{h.prior.papers.map(p => <div key={p.doi || p.title} className="hint">{p.year}: {p.doi ? <a href={p.doi}>{p.title}</a> : p.title}</div>)}<div className="hint"><b>Still untested:</b> {h.prior.untested}</div></td>
             <td>{h.prior.web ? <><b>{h.prior.web.verdict}</b><div className="hint">{h.prior.web.text}</div>{h.prior.web.links.map(l => <div key={l.url} className="hint"><a href={l.url}>{l.label}</a></div>)}</> : <span className="hint">Not searched yet</span>}</td>
           </tr>

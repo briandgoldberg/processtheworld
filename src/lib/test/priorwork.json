@@ -21,7 +21,9 @@
      "url": "https://repository.upnjatim.ac.id/48306/"
     }
    ]
-  }
+  },
+  "chance": 30,
+  "why": "The sodium rise near coasts is known; the aggregate-stability part is new but expected."
  },
  {
   "id": "e2308",
@@ -41,7 +43,9 @@
      "url": "https://www.kunc.org/npr-news/2017-03-07/watch-raindrops-catapult-bacteria-into-the-air-and-its-beautiful"
     }
    ]
-  }
+  },
+  "chance": 12,
+  "why": "Spores are rare cloud nuclei and no evidence points to Streptomyces or geosmin."
  },
  {
   "id": "e2307",
@@ -63,7 +67,9 @@
      "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9723712/"
     }
    ]
-  }
+  },
+  "chance": 35,
+  "why": "No soil data; evidence for and against the direction."
  },
  {
   "id": "e2300",
@@ -89,7 +95,9 @@
      "url": "https://egusphere.copernicus.org/preprints/2025/egusphere-2025-2849/egusphere-2025-2849.pdf"
     }
    ]
-  }
+  },
+  "chance": 30,
+  "why": "Diffuse light does raise photosynthesis; a root-respiration response is plausible but hard to separate from temperature."
  },
  {
   "id": "e2311",
@@ -111,7 +119,9 @@
    "verdict": "Supports half",
    "text": "After the 2011 Puyehue-Cordon Caulle ash fall in Patagonia, nematode numbers and soil enzyme activity dropped. That study did not report life-history (c-p) groups, so the claim about which nematodes go first is untested.",
    "links": []
-  }
+  },
+  "chance": 40,
+  "why": "Fits known nematode ecology, so likely true, but part of it is expected from existing theory."
  },
  {
   "id": "e2790",
@@ -142,7 +152,9 @@
      "url": "https://doi.org/10.1016/j.dib.2018.10.164"
     }
    ]
-  }
+  },
+  "chance": 20,
+  "why": "Evidence may point the opposite way, and the earthworm part is untested."
  },
  {
   "id": "e2591",
@@ -168,7 +180,9 @@
      "url": "https://arxiv.org/pdf/1212.5436"
     }
    ]
-  }
+  },
+  "chance": 35,
+  "why": "Lab mechanism is shown; detecting it at real strike sites is hard."
  },
  {
   "id": "e2594",
@@ -181,7 +195,22 @@
     "doi": "https://doi.org/10.1016/j.chemosphere.2015.03.094"
    }
   ],
-  "web": null
+  "web": {
+   "verdict": "Supports most of it",
+   "text": "Mesocosm work shows enchytraeids drop at once under seawater intrusion, with delayed effects on earthworms and plants. Lab tests show salinity cuts survival and reproduction of standard soil invertebrates, including springtails. Bioturbation and litter breakdown in coastal soils were not measured.",
+   "links": [
+    {
+     "label": "Seawater and NaCl on soil invertebrates",
+     "url": "https://agris.fao.org/search/es/records/65dfd57a4c5aef494fe5d798"
+    },
+    {
+     "label": "Salinization of coastal ecosystems",
+     "url": "https://www.medecc.org/salinization-effects-on-coastal-ecosystems-article/"
+    }
+   ]
+  },
+  "chance": 28,
+  "why": "Most of the fauna effect is already shown; the bioturbation consequence is the new part."
  },
  {
   "id": "e2310",
@@ -199,7 +228,18 @@
     "doi": "https://doi.org/10.1111/j.1462-2920.2007.01414.x"
    }
   ],
-  "web": null
+  "web": {
+   "verdict": "No direct evidence",
+   "text": "No study of protist grazing on upland methane oxidizers. Upland methane uptake is mostly explained by soil moisture and diffusion, and grazing does not appear in that work.",
+   "links": [
+    {
+     "label": "Upland forest methane uptake, 2026 abstract",
+     "url": "https://meetingorganizer.copernicus.org/EGU26/EGU26-16812.html"
+    }
+   ]
+  },
+  "chance": 45,
+  "why": "Grazing of methane oxidizers is shown in rice soil, upland is untested, and slow-growing upland oxidizers may be limited by other things."
  },
  {
   "id": "e2312",
@@ -217,7 +257,22 @@
     "doi": "https://doi.org/10.1016/j.soilbio.2016.08.019"
    }
   ],
-  "web": null
+  "web": {
+   "verdict": "Plausible by analogy",
+   "text": "No direct measurement of springtail N2O. Earthworm guts emit N2O, and antibiotics cut earthworm emission by 80%, which points to gut bacteria. Aquatic invertebrates emit N2O from anoxic guts. The Folsomia gut is dense with bacteria.",
+   "links": [
+    {
+     "label": "Folsomia candida gut",
+     "url": "https://portal.fis.tum.de/en/publications/the-gut-of-the-soil-microarthropod-folsomia-candida-collembola-is/"
+    },
+    {
+     "label": "Aquatic invertebrate N2O project",
+     "url": "https://gepris.dfg.de/gepris/projekt/172557344"
+    }
+   ]
+  },
+  "chance": 42,
+  "why": "Springtail guts are anoxic and bacteria-rich like earthworm guts, but nobody has measured it."
  },
  {
   "id": "e2590",
@@ -230,7 +285,22 @@
     "doi": "https://doi.org/10.13287/j.1001-9332.202504.020"
    }
   ],
-  "web": null
+  "web": {
+   "verdict": "Mostly supported for earthworms",
+   "text": "Earthworms amplified basalt weathering signals (pH, alkalinity, calcium, magnesium, silicon) in mesocosms, and ants broke down silicate minerals 50 to 300 times faster in a burial study. Net CO2 drawdown is unclear because worms also speed organic matter decomposition. No termite study.",
+   "links": [
+    {
+     "label": "Earthworms and basalt, 2026 preprint",
+     "url": "https://egusphere.copernicus.org/preprints/2026/egusphere-2026-603/egusphere-2026-603.pdf"
+    },
+    {
+     "label": "Ants and silicate minerals",
+     "url": "https://www.americangeosciences.org/news/press-releases/earths-abundant-silicate-minerals-degraded-50-to-300-times-faster-by-ants/"
+    }
+   ]
+  },
+  "chance": 15,
+  "why": "Largely shown for earthworms and ants already."
  },
  {
   "id": "e2318",
@@ -243,7 +313,18 @@
     "doi": "https://doi.org/10.1016/j.scitotenv.2023.165889"
    }
   ],
-  "web": null
+  "web": {
+   "verdict": "Partly supported",
+   "text": "Chronosequences show soil communities shift with age after eruptions, and acidophilic iron oxidizers pioneer fresh deposits. No study compared diversity before and after burial, so the severity-diversity link is untested.",
+   "links": [
+    {
+     "label": "Soils of different ages after eruptions",
+     "url": "https://ueaeprints.uea.ac.uk/id/eprint/82323"
+    }
+   ]
+  },
+  "chance": 27,
+  "why": "Community shifts are known; the severity-diversity gradient is untested."
  },
  {
   "id": "e2302",
@@ -261,7 +342,18 @@
     "doi": "https://doi.org/10.1371/journal.pone.0220991"
    }
   ],
-  "web": null
+  "web": {
+   "verdict": "Supports the first half",
+   "text": "Organic-rich agricultural soil dust nucleates ice about as well as desert dust, and organic particles dominate above -36 C. Nothing found on earlier rain or snow over the dust source region.",
+   "links": [
+    {
+     "label": "Organic matter and ice nuclei of agricultural soil",
+     "url": "https://acp.copernicus.org/articles/14/8521/2014/"
+    }
+   ]
+  },
+  "chance": 16,
+  "why": "Ice nucleation is established; a measurable rain effect over the source is unlikely to be detectable."
  },
  {
   "id": "e2314",
@@ -279,7 +371,22 @@
     "doi": "https://doi.org/10.1371/journal.pone.0220991"
    }
   ],
-  "web": null
+  "web": {
+   "verdict": "Largely established",
+   "text": "Soil dust with organic matter nucleates ice at warmer temperatures than mineral dust, and arable emissions peak at harvest. Climate models do not separate soil dust from mineral dust, and no study quantified how land management changes cloud glaciation.",
+   "links": [
+    {
+     "label": "Organic matter and ice nuclei of agricultural soil",
+     "url": "https://acp.copernicus.org/articles/14/8521/2014/"
+    },
+    {
+     "label": "Ice nucleating particles from soils",
+     "url": "https://hal.inrae.fr/hal-02644235/document"
+    }
+   ]
+  },
+  "chance": 22,
+  "why": "The ice-nucleation part is established; the downstream effect is hard to test."
  },
  {
   "id": "e2315",
@@ -297,6 +404,21 @@
     "doi": "https://doi.org/10.1016/j.foreco.2008.03.051"
    }
   ],
-  "web": null
+  "web": {
+   "verdict": "Already studied, results mixed",
+   "text": "A burned ponderosa pine soil took up 49% more methane than unburned soil 10 years after fire, mostly because the organic layer was lost. A Swedish chronosequence ties uptake to humus depth. Fire can raise, lower or leave the sink unchanged depending on the ecosystem.",
+   "links": [
+    {
+     "label": "Wildfire and methane uptake, Arizona",
+     "url": "https://pure.psu.edu/en/publications/wildfire-reduces-carbon-dioxide-efflux-and-increases-methane-upta/"
+    },
+    {
+     "label": "Methane sink along a fire chronosequence",
+     "url": "https://ueaeprints.uea.ac.uk/57486/"
+    }
+   ]
+  },
+  "chance": 10,
+  "why": "Already studied, with mixed results."
  }
 ]
