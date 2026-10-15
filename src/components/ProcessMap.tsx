@@ -36,14 +36,14 @@ export default function ProcessMap({ model, initial, fit = false, extra, initial
     return () => document.removeEventListener("fullscreenchange", h);
   }, []);
   useEffect(() => { document.body.style.overflow = full ? "hidden" : ""; return () => { document.body.style.overflow = ""; }; }, [full]);
-  // the feedback button gets out of the way in full screen and during the guide
-  useEffect(() => { document.body.classList.toggle("hide-fb", full || !!walk); return () => document.body.classList.remove("hide-fb"); }, [full, walk]);
   const byId = useMemo(() => new Map(model.nodes.map(n => [n.id, n])), [model]);
   const laneBy = useMemo(() => new Map(model.lanes.map(l => [l.id, l])), [model]);
   // Walk through: follow the process one step at a time, choosing a branch at each fork.
   const [walk, setWalk] = useState<{ trail: string[] } | null>(null);
   const startId = model.boundarySteps?.start && byId.has(model.boundarySteps.start) ? model.boundarySteps.start : (model.nodes.find(n => n.kind === "start") || model.nodes[0])?.id;
   const hypEdges = useMemo(() => new Set(model.edges.filter(e => e.hyp).map(e => e.id)), [model]);
+  // the feedback button gets out of the way in full screen and during the guide
+  useEffect(() => { document.body.classList.toggle("hide-fb", full || !!walk); return () => document.body.classList.remove("hide-fb"); }, [full, walk]);
   const walkNow = walk ? byId.get(walk.trail[walk.trail.length - 1]) : undefined;
   const walkChoices = walkNow ? walkNow.out.filter(o => byId.has(o.to) && !hypEdges.has(o.edge)) : [];
   const goTo = (id: string) => {
