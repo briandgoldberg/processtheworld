@@ -19,18 +19,18 @@ export default function ProcessMap({ model, initial, fit = false, extra, initial
   const toggleFull = async () => {
     if (full) {
       try { sessionStorage.removeItem(KEY); } catch { /* private mode */ }
-      if (document.fullscreenElement) await document.exitFullscreen().catch(() => {});
+      if (document.fullscreenElement) await document.exitFullscreen?.()?.catch?.(() => {});
       setFull(false); return;
     }
     try { sessionStorage.setItem(KEY, "1"); } catch { /* private mode */ }
     setFull(true);
-    try { await document.documentElement.requestFullscreen(); } catch { /* the overlay still fills the window */ }
+    try { await document.documentElement.requestFullscreen?.(); } catch { /* the overlay still fills the window */ }
   };
   useEffect(() => {
     let was = false;
     try { was = sessionStorage.getItem(KEY) === "1"; } catch { /* ignore */ }
     if (was || document.fullscreenElement) setFull(true);
-    if (was && !document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+    if (was && !document.fullscreenElement) { try { document.documentElement.requestFullscreen?.()?.catch?.(() => {}); } catch { /* not supported here */ } }
     const h = () => { if (!document.fullscreenElement) { setFull(false); try { sessionStorage.removeItem(KEY); } catch { /* ignore */ } } };
     document.addEventListener("fullscreenchange", h);
     return () => document.removeEventListener("fullscreenchange", h);
@@ -151,7 +151,7 @@ export default function ProcessMap({ model, initial, fit = false, extra, initial
           {model.nodes.map(n => <Node key={n.id} n={n} trail={!!walk && walk.trail.includes(n.id) && sel !== n.id} selected={sel === n.id} dim={!!related && !related.has(n.id)} onSelect={() => { setSel(n.id); setSelE(null); }} />)}
         </svg>
       </div>
-      <div className="legend">
+      {!full && <div className="legend">
         <span><i />Line thickness = size of impact (1 to 5)</span>
         <span>% on a line = chance a fork takes that branch</span>
         <span>📄 = pieces of evidence on a step</span>
@@ -161,7 +161,7 @@ export default function ProcessMap({ model, initial, fit = false, extra, initial
         <span><i style={{ borderTopColor: "var(--warn)", borderTopStyle: "dashed" }} />Resource used up (arrow into the step)</span>
         <span><i style={{ borderTopColor: "var(--system)", borderTopStyle: "dashed" }} />Resource used, not used up</span>
         <span><i style={{ borderTopColor: "var(--ok)", borderTopStyle: "dashed" }} />Resource made or released (arrow out of the step)</span>
-      </div>
+      </div>}
       {walk && walkNow && (
         <div className="walkcard" role="dialog" aria-label="Guide me">
           <div className="wk-top"><span className="pill">{walkNow.kind === "fork" ? "Decision fork" : walkNow.kind === "end" ? "End" : walkNow.kind === "start" ? "Start" : walkNow.kind === "subprocess" ? "Subprocess" : "Step"} · {walk.trail.length}</span>

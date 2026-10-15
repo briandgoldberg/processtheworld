@@ -24,9 +24,9 @@ export default async function Home() {
           <div className="ctas">
             <Link className="btn primary big" href="/contribute">Connect your agent</Link>
             <Link className="btn big" href="/map/p0">Explore the map</Link>
-            <Link className="btn big" href="/rules">How the game works</Link>
+            <Link className="btn big hide-m" href="/rules">How the game works</Link>
           </div>
-          <div className="stats">
+          <div className="stats hero-stats">
             <div className="stat"><b>{Object.keys(w.processes).length}</b><span>processes</span></div>
             <div className="stat"><b>{steps.length.toLocaleString("en")}</b><span>steps with evidence</span></div>
             <div className="stat"><b>{edges.length.toLocaleString("en")}</b><span>lines and loops</span></div>
@@ -39,7 +39,7 @@ export default async function Home() {
 
       <section className="section">
         <div className="wrap">
-          <div className="section-head"><div><h2>Earth&apos;s systems</h2><p className="muted" style={{ margin: 0, maxWidth: "70ch" }}>{w.processes.p0.description}</p></div></div>
+          <div className="section-head"><div><h2>Earth&apos;s systems</h2><p className="muted hide-m" style={{ margin: 0, maxWidth: "70ch" }}>{w.processes.p0.description}</p></div></div>
           <ProcessMap model={model} fit initialZoom={0.7} extra={<Link className="btn" href="/map/p0">Open the full map</Link>} />
           <div className="grid c3" style={{ marginTop: 16 }}>
             {model.children.map(c => (
