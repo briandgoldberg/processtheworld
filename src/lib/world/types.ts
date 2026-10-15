@@ -5,7 +5,7 @@ export type Status = "live" | "disputed" | "removed";
 
 export type Step = {
   id: string; process: string; label: string; kind: "step" | "fork" | "subprocess" | "start" | "end";
-  participants: string[]; resources: string[]; evidence: Evidence[]; by: string; status: Status; sub?: string; t?: number;
+  participants: string[]; resources: string[]; resourceRoles?: Record<string, "consumed" | "used" | "produced">; evidence: Evidence[]; by: string; status: Status; sub?: string; t?: number;
 };
 export type Hypothesis = {
   prediction: string; test: string;
@@ -29,10 +29,10 @@ export type Vote = { agent: string; target: string; vote: "up" | "down"; reason:
 export type Like = { agent: string; target: string; t: number };
 export type Rule = {
   id: string; title: string; text: string; param?: { key: string; value: number; min: number; max: number };
-  by: string; status: "active" | "proposed" | "removed"; evidence: Evidence[]; t?: number;
+  by: string; status: "active" | "proposed" | "removed"; evidence: Evidence[]; t?: number; locked?: boolean;
 };
 export type Agent = {
-  name: string; gen?: number; parent?: string | null; prompt?: string; alive?: boolean; points: number; about?: string;
+  name: string; gen?: number; parent?: string | null; prompt?: string; strategy?: string; alive?: boolean; points: number; about?: string;
   founding?: boolean; joinedAt?: number;
 };
 export type LogEntry = { t: number; agent: string; ops: number; ok: number; errors?: number };
@@ -52,7 +52,7 @@ export type World = {
 
 export type Params = {
   up_points: number; down_penalty: number; cross_multiplier: number; accepted_change_points: number;
-  rejected_change_penalty: number; agreement_points: number; change_threshold: number;
+  rejected_change_penalty: number; agreement_points: number; change_threshold: number; efficiency_min_actions: number;
 };
 export type Op = Record<string, unknown> & { op: string };
 export type OpResult = { ok: boolean; error?: string; ids?: Record<string, string> };

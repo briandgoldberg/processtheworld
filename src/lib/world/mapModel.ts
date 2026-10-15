@@ -3,6 +3,7 @@
 // to the resources it uses. The layout rules are the same ones the rest of the site has always used.
 import type { Edge, Step, World } from "./types";
 import { net } from "./engine";
+import { ROLE_LABEL, roleOf, type Role } from "./roles";
 
 const L = { HEAD: 150, COL: 200, BOXW: 160, BOXH: 62, ROWGAP: 16, PADX: 28, PADY: 16, BAND: 22, CHIPW: 138, CHIPH: 30 };
 const MAX_PEOPLE = 5, MAX_RES = 5;
@@ -11,7 +12,7 @@ type LaneT = { id: string; name: string; kind: "participant" | "resource"; key: 
 export type NodeM = {
   id: string; label: string; kind: Step["kind"]; x: number; y: number; w: number; h: number; lane: string; by: string;
   sub?: string; up: number; down: number; status: string; uses: string[]; lines: string[]; crossTo: { id: string; process: string; title: string; label: string }[];
-  participants: string[]; resources: string[]; evidence: Step["evidence"]; col: number; evidenceCount: number;
+  participants: string[]; resources: string[]; resourceUse: { name: string; role: Role; inferred: boolean }[]; evidence: Step["evidence"]; col: number; evidenceCount: number;
   out: { edge: string; to: string; toLabel: string; prob?: number; impact: Edge["impact"]; loop?: Edge["loop"]; label: string }[];
   inc: { edge: string; from: string; fromLabel: string; fromProcess: string }[];
 };
@@ -21,7 +22,7 @@ export type EdgeM = {
   hypothesis?: Edge["hypothesis"];
 };
 export type ChipM = { id: string; lane: string; name: string; x: number; y: number; w: number; h: number; key: string };
-export type ArrowM = { d: string; step: string; chip: string };
+export type ArrowM = { d: string; step: string; chip: string; role: Role; label: string; lx: number; ly: number; name: string };
 export type MapModel = {
   id: string; title: string; description?: string; boundary?: { start?: string; end?: string }; boundarySteps: { start: string; ends: string[] };
   parent: { id: string; title: string } | null; crumbs: { id: string; title: string }[];
@@ -115,7 +116,10 @@ export function buildMap(w: World, pid: string): MapModel | null {
         chipAt.set(ck, chip); chips.push(chip);
       }
       const x1 = pos[s.id].x + L.BOXW / 2 + (usesOf[s.id].length - 1) * 8, y1 = pos[s.id].y + L.BOXH, x2 = chip.x + chip.w / 2 + (usesOf[s.id].length - 1) * 8 - 8, y2 = chip.y;
-      arrows.push({ d: `M${x1} ${y1} C${x1} ${y1 + 26} ${x2} ${y2 - 26} ${x2} ${y2}`, step: s.id, chip: chip.id });
+      const { role } = roleOf(s, lane.name);
+      // inputs and mechanisms run from the resource up into the step; outputs run from the step down to the resource
+      const d = role === "produced" ? `M${x1} ${y1} C${x1} ${y1 + 26} ${x2} ${y2 - 26} ${x2} ${y2}` : `M${x2} ${y2} C${x2} ${y2 - 26} ${x1} ${y1 + 26} ${x1} ${y1}`;
+      arrows.push({ d, step: s.id, chip: chip.id, role, label: ROLE_LABEL[role], lx: (x1 + x2) / 2, ly: (y1 + y2) / 2, name: lane.name });
     }
   }
 
@@ -144,7 +148,7 @@ export function buildMap(w: World, pid: string): MapModel | null {
     const crossTo = edgesAll.filter(e => e.from === s.id && !idset.has(e.to) && w.steps[e.to] && visible(w.steps[e.to])).slice(0, 6).map(e => ({ id: e.to, process: w.steps[e.to].process, title: w.processes[w.steps[e.to].process]?.title || "", label: stepLabel(e.to) }));
     return {
       id: s.id, label: s.label, kind: s.kind, x: pos[s.id].x, y: pos[s.id].y, w: L.BOXW, h: L.BOXH, lane: lane.id, by: s.by, sub: s.sub && w.processes[s.sub] ? s.sub : undefined,
-      up: n.up, down: n.down, status: s.status, uses: usesOf[s.id], lines: wrap(s.label, 23, 3), crossTo, participants: s.participants, resources: s.resources, evidence: s.evidence, col: col[s.id], evidenceCount: s.evidence.length,
+      up: n.up, down: n.down, status: s.status, uses: usesOf[s.id], lines: wrap(s.label, 23, 3), crossTo, participants: s.participants, resources: s.resources, resourceUse: s.resources.map(r => { const x = roleOf(s, r); return { name: r, role: x.role, inferred: x.inferred }; }), evidence: s.evidence, col: col[s.id], evidenceCount: s.evidence.length,
       out: edges.filter(e => e.from === s.id).map(e => ({ edge: e.id, to: e.to, toLabel: stepLabel(e.to), prob: e.prob, impact: e.impact, loop: e.loop, label: e.label })),
       inc: edgesAll.filter(e => e.to === s.id && w.steps[e.from]).map(e => ({ edge: e.id, from: e.from, fromLabel: stepLabel(e.from), fromProcess: w.steps[e.from].process })),
     };

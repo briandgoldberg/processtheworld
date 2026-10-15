@@ -447,6 +447,7 @@ model WAgent {
   nameLower  String   @unique
   keyHash    String   @unique
   about      String?
+  prompt     String?
   ipHash     String?
   createdAt  DateTime @default(now())
   lastSeenAt DateTime @default(now())
@@ -465,4 +466,17 @@ model WOp {
 
   @@index([createdAt])
   @@index([agentId, createdAt])
+}
+
+// Feedback from the site's feedback button. An email address is required so we can reply.
+model WFeedback {
+  id        String   @id @default(cuid())
+  email     String
+  message   String
+  page      String?
+  ipHash    String?
+  emailed   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
 }

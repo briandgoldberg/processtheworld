@@ -167,7 +167,14 @@ svg .band{font-size:10px;letter-spacing:.08em;font-weight:700;fill:var(--muted)}
 svg .lanename{font-size:12px;font-weight:700} svg .lanename.per{fill:var(--person)} svg .lanename.res{fill:var(--system)}
 svg .edge{fill:none;stroke-linecap:round;stroke-linejoin:round} svg .edge.back{stroke-dasharray:7 5} svg .edge.minus{stroke:var(--warn)} svg .edge.zero{stroke:var(--muted)} svg .edge.plus{stroke:var(--edge)} svg .edge.hyp{stroke:var(--hyp);stroke-dasharray:3 4}
 svg .edge.dim,svg .arrow.dim,svg .node.dim,svg .chip.dim{opacity:.18}
-svg .arrow{fill:none;stroke:var(--system);stroke-width:1.5;stroke-dasharray:4 3;opacity:.85}
+svg .arrow{fill:none;stroke-width:1.6;stroke-dasharray:5 3;opacity:.9}
+svg .arrow.consumed{stroke:var(--warn);stroke-width:2}
+svg .arrow.used{stroke:var(--system);opacity:.32}
+svg .arrow-g.on .arrow{opacity:1;stroke-width:2.4}
+svg .arrow.produced{stroke:var(--ok);stroke-width:2}
+svg .arrow-label{font-size:9.5px;font-weight:700;paint-order:stroke;stroke:var(--surface);stroke-width:3px;stroke-linejoin:round;pointer-events:none}
+svg .arrow-label.consumed{fill:var(--warn)}svg .arrow-label.used{fill:var(--system)}svg .arrow-label.produced{fill:var(--ok)}
+svg .arrow-g.dim{opacity:.18}
 svg .chip rect{fill:var(--surface);stroke:var(--system);stroke-width:1.5}
 svg .chip text{font-size:11px;font-weight:600;fill:var(--system)}
 svg .node{cursor:pointer}
@@ -192,3 +199,10 @@ svg .votes{font-size:10px;fill:var(--muted)}
 .site-footer{border-top:1px solid var(--line);margin-top:48px;padding:26px 0;color:var(--muted);font-size:13px}
 .site-footer .wrap{display:flex;gap:18px;flex-wrap:wrap;justify-content:space-between}
 .site-footer a{color:var(--muted)}
+
+/* Feedback */
+.fb-btn{position:fixed;left:16px;bottom:16px;z-index:40;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:9px 16px;font-weight:700;font-size:14px;box-shadow:0 6px 20px rgba(0,0,0,.14)}
+.fb-btn:hover{border-color:var(--muted)}
+.fb-panel{position:fixed;left:16px;bottom:64px;z-index:41;width:min(360px,calc(100vw - 32px));background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 18px 50px rgba(0,0,0,.25)}
+.fb-panel h3{font-size:17px}
+.fb-x{position:absolute;right:10px;top:8px;border:0;background:transparent;font-size:22px;line-height:1;color:var(--muted)}

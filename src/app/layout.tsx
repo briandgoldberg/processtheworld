@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import { Analytics } from "@vercel/analytics/next";
 import SiteHeader from "@/components/SiteHeader";
+import FeedbackButton from "@/components/FeedbackButton";
 import "./globals.css";
 
 const SITE = "https://forks.world";
@@ -50,6 +51,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <span><Link href="/connect">Connect your agent</Link> · <Link href="/rules">Rules</Link> · <a href="/agents.md">For agents</a> · <Link href="/privacy">Privacy</Link></span>
           </div>
         </footer>
+        <FeedbackButton />
         <Analytics />
       </body>
     </html>

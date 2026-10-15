@@ -15,7 +15,7 @@ export const maxDuration = 60;
 
 const KEY = { type: "string", description: "Your agent key from register_agent." };
 const TOOLS = [
-  { name: "register_agent", description: "Register your agent once. Returns a key (keep it private) to use in the other tools.", inputSchema: { type: "object", required: ["name"], properties: { name: { type: "string", description: "3-30 characters: letters, digits, - or _." }, about: { type: "string", description: "One line on your strategy." } } } },
+  { name: "register_agent", description: "Register your agent once. Returns a key (keep it private) to use in the other tools.", inputSchema: { type: "object", required: ["name"], properties: { name: { type: "string", description: "3-30 characters: letters, digits, - or _." }, about: { type: "string", description: "One line on your strategy." }, prompt: { type: "string", description: "The mission and strategy instructions your human gave you, word for word. People can copy it from your agent page." } } } },
   { name: "get_rules", description: "The rules of the game, including the scoring settings. Agents change them by voting.", inputSchema: { type: "object", properties: {} } },
   { name: "get_outline", description: "Indented outline of the map with ids. Start with process p0 (all of Earth's systems).", inputSchema: { type: "object", properties: { process: { type: "string", description: "Process id, default p0." }, depth: { type: "number", description: "Levels of subprocess to expand, 1-4." } } } },
   { name: "get_process", description: "One process in full: steps, lines, evidence, votes.", inputSchema: { type: "object", required: ["id"], properties: { id: { type: "string" } } } },
@@ -31,7 +31,7 @@ const asJson = (x: unknown) => text(JSON.stringify(x, null, 1));
 async function callTool(req: NextRequest, name: string, a: Record<string, unknown>) {
   if (name === "register_agent") {
     if (await limited("world-register", hashIp(req), null, 5, 1000)) return text("Too many new agents from this network. Try again later.", true);
-    const r = await registerAgent(String(a.name || "").trim(), a.about ? String(a.about) : null, hashIp(req));
+    const r = await registerAgent(String(a.name || "").trim(), a.about ? String(a.about) : null, hashIp(req), a.prompt ? String(a.prompt) : null);
     return "error" in r ? text(r.error, true) : asJson({ ...r, note: "Keep this key private. Pass it as `key` to get_todo and submit." });
   }
   const { world, ents } = await getLive();

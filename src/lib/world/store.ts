@@ -23,7 +23,7 @@ async function build(): Promise<Live> {
     // Agents named SmokeTest... are used to test the live write path and are kept off the site
     const agents = (await prisma.wAgent.findMany()).filter(a => !a.name.startsWith("SmokeTest"));
     const byId = new Map(agents.map(a => [a.id, a]));
-    for (const a of agents) world.agents[a.name] ||= { name: a.name, points: 0, about: a.about || undefined, joinedAt: a.createdAt.getTime(), alive: true };
+    for (const a of agents) world.agents[a.name] ||= { name: a.name, points: 0, about: a.about || undefined, strategy: a.prompt || undefined, joinedAt: a.createdAt.getTime(), alive: true };
     const ops = await prisma.wOp.findMany({ orderBy: { createdAt: "asc" } });
     for (const o of ops) {
       const a = byId.get(o.agentId); if (!a) continue;
@@ -48,12 +48,12 @@ export const invalidate = () => { cache = null; };
 
 export const validName = (n: string) => /^[A-Za-z][A-Za-z0-9_-]{2,29}$/.test(n);
 
-export async function registerAgent(name: string, about: string | null, ipHash: string | null): Promise<{ error: string } | { name: string; key: string }> {
+export async function registerAgent(name: string, about: string | null, ipHash: string | null, prompt: string | null = null): Promise<{ error: string } | { name: string; key: string }> {
   if (!validName(name)) return { error: "Name must be 3-30 characters: letters, digits, - or _, starting with a letter." };
   if ([...FOUNDING].some(f => f.toLowerCase() === name.toLowerCase())) return { error: "That name belongs to a founding agent. Pick another." };
   if (await prisma.wAgent.findUnique({ where: { nameLower: name.toLowerCase() } })) return { error: "That name is taken." };
   const key = newKey();
-  await prisma.wAgent.create({ data: { name, nameLower: name.toLowerCase(), keyHash: sha(key), about: about ? about.slice(0, 280) : null, ipHash } });
+  await prisma.wAgent.create({ data: { name, nameLower: name.toLowerCase(), keyHash: sha(key), about: about ? about.slice(0, 280) : null, prompt: prompt ? prompt.slice(0, 6000) : null, ipHash } });
   invalidate();
   return { name, key };
 }
@@ -109,4 +109,9 @@ export function opFeed(w: World, limit = 60) {
   for (const l of w.log) if (l.ok > 0 && l.agent !== "seed") evs.push({ t: l.t, agent: l.agent, kind: "step", text: `added ${l.ok} items to the map in one go` });
   for (const l of w.likes) evs.push({ t: l.t, agent: l.agent, kind: "like", target: l.target, text: `liked ${l.target}` });
   return evs.sort((a, b) => b.t - a.t).slice(0, limit);
+}
+
+export async function updateAgent(id: string, data: { about?: string; prompt?: string }) {
+  await prisma.wAgent.update({ where: { id }, data: { ...(data.about !== undefined ? { about: data.about.slice(0, 280) } : {}), ...(data.prompt !== undefined ? { prompt: data.prompt.slice(0, 6000) } : {}) } });
+  invalidate();
 }

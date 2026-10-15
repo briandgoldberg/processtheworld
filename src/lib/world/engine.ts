@@ -4,12 +4,16 @@ import type { Agent, Edge, Evidence, Op, OpResult, Params, Proc, Proposal, Rule,
 
 export const MAX_BATCH = 25;
 const norm = (s: string) => String(s).trim().toLowerCase().replace(/\s+/g, " ");
-const clip = (s: unknown, n: number) => String(s ?? "").trim().slice(0, n);
+// Text from agents is plain text: markup is stripped, so nobody can change how the site looks through content.
+const clip = (s: unknown, n: number) => String(s ?? "").replace(/<[^>]*>/g, "").trim().slice(0, n);
+// Agents change what the map says and how the game is scored. They do not change how the site looks or its main components.
+const LOOKS = /\b(colou?rs?|fonts?|css|styles?|styling|themes?|layouts?|logos?|buttons?|icons?|animations?|dark mode|html|svg|navigation|menu|homepage|home page|ui|ux)\b/i;
+const LOCKED_MSG = "Agents cannot change how the site looks or its main components (participants, resources, steps, forks, loops, evidence, impact, boundaries, subprocesses, descriptions, hypotheses). You can change what the map says and the scoring settings.";
 const rid = (kind: string) => kind + "_" + Math.random().toString(36).slice(2, 8) + Date.now().toString(36).slice(-3);
 
 export const DEFAULT_PARAMS: Params = {
   up_points: 2, down_penalty: 1, cross_multiplier: 2, accepted_change_points: 4,
-  rejected_change_penalty: 1, agreement_points: 1, change_threshold: 2,
+  rejected_change_penalty: 1, agreement_points: 1, change_threshold: 2, efficiency_min_actions: 30,
 };
 
 /** Scoring settings are rules: whatever the active rules currently say. */
@@ -30,6 +34,15 @@ function checkEvidence(ev: unknown): string | null {
   return null;
 }
 const cleanEv = (ev: Evidence[]): Evidence[] => ev.map(e => ({ source: clip(e.source, 400), claim: clip(e.claim, 600), confidence: typeof e.confidence === "number" ? Math.max(0, Math.min(1, e.confidence)) : null }));
+const cleanRoles = (r: unknown, resources: string[]): Step["resourceRoles"] | undefined => {
+  if (!r || typeof r !== "object") return undefined;
+  const out: NonNullable<Step["resourceRoles"]> = {};
+  for (const [k, v] of Object.entries(r as Record<string, unknown>)) {
+    const name = resources.find(x => x.toLowerCase() === k.toLowerCase());
+    if (name && (v === "consumed" || v === "used" || v === "produced")) out[name] = v;
+  }
+  return Object.keys(out).length ? out : undefined;
+};
 const names = (a: unknown) => [...new Set((Array.isArray(a) ? a : []).map(x => clip(x, 80)).filter(Boolean))].slice(0, 12);
 
 export function net(w: World, target: string, except?: string) {
@@ -56,7 +69,9 @@ export function applyOp(w: World, agent: string, o: Op, ctx: Ctx): OpResult {
     const kind = (o.kind as string) || "step";
     if (!["step", "fork", "subprocess"].includes(kind)) return fail("kind must be step, fork or subprocess");
     const participants = names(o.participants); if (!participants.length) return fail("a step needs at least one participant");
-    const s: Step = { id: mint(ctx, "step", "s"), process: proc.id, label, kind: kind as Step["kind"], participants, resources: names(o.resources), evidence: cleanEv(o.evidence as Evidence[]), by: agent, status: "live", t: ctx.t };
+    const resources = names(o.resources);
+    const s: Step = { id: mint(ctx, "step", "s"), process: proc.id, label, kind: kind as Step["kind"], participants, resources, resourceRoles: cleanRoles(o.resourceRoles, resources), evidence: cleanEv(o.evidence as Evidence[]), by: agent, status: "live", t: ctx.t };
+    if (!s.resourceRoles) delete s.resourceRoles;
     w.steps[s.id] = s;
     if (o.ref) ctx.refs[String(o.ref)] = s.id;
     if (kind === "subprocess") {
@@ -106,18 +121,21 @@ export function applyOp(w: World, agent: string, o: Op, ctx: Ctx): OpResult {
     if (!t) return fail(`unknown target ${o.target}`);
     if (!o.reason) return fail("reason required");
     const kind = w.steps[tid] ? "step" : w.edges[tid] ? "edge" : w.processes[tid] ? "process" : "rule";
-    const allowed: Record<string, string[]> = { step: ["label", "participants", "resources"], edge: ["label", "prob", "impact", "loop"], process: ["description", "boundary"], rule: ["title", "text", "value"] };
+    const allowed: Record<string, string[]> = { step: ["label", "participants", "resources", "resourceRoles"], edge: ["label", "prob", "impact", "loop"], process: ["description", "boundary"], rule: ["title", "text", "value"] };
     const set = { ...((o.set as Record<string, unknown>) || {}) };
     if (!o.delete && !Object.keys(set).length) return fail("set or delete required");
     for (const k of Object.keys(set)) if (!allowed[kind].includes(k)) return fail(`cannot change ${k} on a ${kind}; allowed: ${allowed[kind].join(", ")}`);
     if (set.participants) set.participants = names(set.participants);
     if (set.resources) set.resources = names(set.resources);
+    if (set.resourceRoles) { const base = (w.steps[tid]?.resources || []).concat((set.resources as string[]) || []); set.resourceRoles = cleanRoles(set.resourceRoles, base) || {}; }
     if (set.label) set.label = clip(set.label, 160);
     if (set.description) set.description = clip(set.description, 600);
     if (set.title) set.title = clip(set.title, 120);
     if (set.text) set.text = clip(set.text, 800);
     if (kind === "rule") {
       const r = t as unknown as Rule;
+      if (r.locked) return fail(`this rule defines a main component of the map and is locked. ${LOCKED_MSG}`);
+      if (LOOKS.test(String(set.title ?? "") + " " + String(set.text ?? ""))) return fail(LOCKED_MSG);
       if ("value" in set) {
         if (!r.param) return fail("only scoring rules have a value");
         const v = Number(set.value);
@@ -135,6 +153,7 @@ export function applyOp(w: World, agent: string, o: Op, ctx: Ctx): OpResult {
     const bad = checkEvidence(o.evidence); if (bad) return fail(bad);
     const title = clip(o.title, 120), text = clip(o.text, 800);
     if (title.length < 4 || text.length < 20) return fail("a rule needs a title (4+ characters) and text (20+ characters)");
+    if (LOOKS.test(title + " " + text)) return fail(LOCKED_MSG);
     const r: Rule = { id: mint(ctx, "rule", "r"), title, text, by: agent, status: "proposed", evidence: cleanEv(o.evidence as Evidence[]), t: ctx.t };
     w.rules[r.id] = r;
     return { ok: true, ids: { ...ctx.ids } };
@@ -220,7 +239,7 @@ export function score(w: World): Record<string, number> {
   return pts;
 }
 
-export type AgentRow = Agent & { items: number; received: number; cast: number; loops: number; forks: number; cross: number; hypotheses: number; likes: number };
+export type AgentRow = Agent & { items: number; received: number; cast: number; loops: number; forks: number; cross: number; hypotheses: number; likes: number; actions: number; efficiency: number; validatedShare: number };
 export function leaderboard(w: World): AgentRow[] {
   const mine: Record<string, { items: number; ids: Set<string>; loops: number; forks: number; cross: number; hyp: number }> = {};
   const row = (a: string) => (mine[a] ||= { items: 0, ids: new Set(), loops: 0, forks: 0, cross: 0, hyp: 0 });
@@ -231,11 +250,16 @@ export function leaderboard(w: World): AgentRow[] {
   const owner: Record<string, string> = {};
   for (const [a, m] of Object.entries(mine)) for (const id of m.ids) owner[id] = a;
   for (const v of w.votes) if (owner[v.target]) recv[owner[v.target]] = (recv[owner[v.target]] || 0) + 1;
+  const proposed: Record<string, number> = {};
+  for (const p of Object.values(w.proposals)) proposed[p.by] = (proposed[p.by] || 0) + 1;
+  for (const r of Object.values(w.rules)) if (r.by !== "founders") proposed[r.by] = (proposed[r.by] || 0) + 1;
+  const upheld: Record<string, number> = {};
+  for (const [a, m] of Object.entries(mine)) for (const id of m.ids) if (w.votes.some(v => v.target === id && v.vote === "up" && v.agent !== a) && !w.votes.some(v => v.target === id && v.vote === "down" && v.agent !== a)) upheld[a] = (upheld[a] || 0) + 1;
   const likes: Record<string, number> = {};
   for (const l of w.likes) if (owner[l.target]) likes[owner[l.target]] = (likes[owner[l.target]] || 0) + 1;
   return Object.values(w.agents)
     .filter(a => !["test", "t2", "seed", "seed2", "seed3"].includes(a.name))
-    .map(a => ({ ...a, items: mine[a.name]?.items || 0, received: recv[a.name] || 0, cast: cast[a.name] || 0, loops: mine[a.name]?.loops || 0, forks: mine[a.name]?.forks || 0, cross: mine[a.name]?.cross || 0, hypotheses: mine[a.name]?.hyp || 0, likes: likes[a.name] || 0 }))
+    .map(a => { const items = mine[a.name]?.items || 0, cast0 = cast[a.name] || 0, actions = items + cast0 + (proposed[a.name] || 0); return { ...a, actions, efficiency: actions ? Math.round((1000 * a.points) / actions) / 10 : 0, validatedShare: items ? Math.round((100 * (upheld[a.name] || 0)) / items) : 0, items, received: recv[a.name] || 0, cast: cast0, loops: mine[a.name]?.loops || 0, forks: mine[a.name]?.forks || 0, cross: mine[a.name]?.cross || 0, hypotheses: mine[a.name]?.hyp || 0, likes: likes[a.name] || 0 }; })
     .sort((x, y) => y.points - x.points);
 }
 

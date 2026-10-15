@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { MapModel, NodeM } from "@/lib/world/mapModel";
 
+const ROLE_TEXT = { consumed: "Takes in and uses up", used: "Uses (not used up)", produced: "Makes or releases" } as const;
 const IMPACT = ["", "Very small", "Small", "Moderate", "Large", "Very large"];
 const enc = (s: string) => encodeURIComponent(s.toLowerCase().trim().replace(/\s+/g, " "));
 
@@ -70,6 +71,9 @@ export default function ProcessMap({ model, initial }: { model: MapModel; initia
   const edgeOn = (e: { id: string }) => edge ? e.id === edge.id : !node || node.out.some(o => o.edge === e.id) || node.inc.some(i => i.edge === e.id);
 
   const W = model.width, H = model.height;
+  const openMarker = (id: string, color: string) => (
+    <marker id={id} viewBox="0 0 12 12" refX="10" refY="6" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M2 2L10 6L2 10" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></marker>
+  );
   const marker = (id: string, color: string) => (
     <marker id={id} viewBox="0 0 12 12" refX="10" refY="6" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1L11 6L1 11L3.5 6z" fill={color} /></marker>
   );
@@ -87,6 +91,7 @@ export default function ProcessMap({ model, initial }: { model: MapModel; initia
         <svg width={W * zoom} height={H * zoom} viewBox={`0 0 ${W} ${H}`} role="img" aria-label={model.title}>
           <defs>
             {marker("a-plus", "var(--edge)")}{marker("a-minus", "var(--warn)")}{marker("a-zero", "var(--muted)")}{marker("a-hyp", "var(--hyp)")}{marker("a-res", "var(--system)")}
+            {openMarker("m-consumed", "var(--warn)")}{openMarker("m-used", "var(--system)")}{openMarker("m-produced", "var(--ok)")}
           </defs>
           {model.bands.map(b => <text key={b.t} x={12} y={b.y + 15} className="band">{b.t.toUpperCase()}</text>)}
           {model.lanes.map(l => (
@@ -110,7 +115,12 @@ export default function ProcessMap({ model, initial }: { model: MapModel; initia
               )}
             </g>
           ))}
-          {model.arrows.map((a, i) => <path key={i} d={a.d} className={"arrow" + (node && node.id !== a.step ? " dim" : "")} markerEnd="url(#a-res)" />)}
+          {model.arrows.map((a, i) => (
+            <g key={i} className={"arrow-g" + (node && node.id !== a.step ? " dim" : "") + (node && node.id === a.step ? " on" : "")}>
+              <path d={a.d} className={"arrow " + a.role} markerEnd={`url(#m-${a.role})`}><title>{`${byId.get(a.step)?.label}: ${a.label} ${a.name}`}</title></path>
+              {(a.role !== "used" || node?.id === a.step) && <text x={a.lx + 5} y={a.ly + 3} className={"arrow-label " + a.role}>{a.label}</text>}
+            </g>
+          ))}
           {model.chips.map(c => (
             <a key={c.id} href={`/e/resource/${enc(c.name)}`}>
               <g className={"chip" + (node && !node.uses.includes(c.lane) ? " dim" : "")}>
@@ -130,7 +140,9 @@ export default function ProcessMap({ model, initial }: { model: MapModel; initia
         <span><i style={{ borderTopColor: "var(--warn)" }} />Negative effect</span>
         <span><i style={{ borderTopStyle: "dashed" }} />Loops back</span>
         <span><i style={{ borderTopColor: "var(--hyp)", borderTopStyle: "dotted" }} />Hypothesis</span>
-        <span><i style={{ borderTopColor: "var(--system)", borderTopStyle: "dashed" }} />Step uses a resource</span>
+        <span><i style={{ borderTopColor: "var(--warn)", borderTopStyle: "dashed" }} />Resource used up (arrow into the step)</span>
+        <span><i style={{ borderTopColor: "var(--system)", borderTopStyle: "dashed" }} />Resource used, not used up</span>
+        <span><i style={{ borderTopColor: "var(--ok)", borderTopStyle: "dashed" }} />Resource made or released (arrow out of the step)</span>
       </div>
       {edge && (
         <aside className="panel" aria-label="Line details">
@@ -157,8 +169,11 @@ export default function ProcessMap({ model, initial }: { model: MapModel; initia
           {node.sub && <p><Link className="btn primary" href={`/map/${node.sub}`}>Open this subprocess →</Link></p>}
           <div className="sec"><div className="label">Participants</div>
             <div className="chips">{node.participants.map(p => <a key={p} className="p" href={`/e/participant/${enc(p)}`}>{p}</a>)}</div></div>
-          {node.resources.length > 0 && <div className="sec"><div className="label">Resources used</div>
-            <div className="chips">{node.resources.map(p => <a key={p} className="r" href={`/e/resource/${enc(p)}`}>{p}</a>)}</div></div>}
+          {node.resourceUse.length > 0 && <div className="sec"><div className="label">Resources</div>
+            {(["consumed", "used", "produced"] as const).map(role => { const items = node.resourceUse.filter(r => r.role === role); return items.length > 0 && (
+              <p key={role} className="small" style={{ margin: "6px 0 0" }}><b>{ROLE_TEXT[role]}:</b>{" "}{items.map((r, k) => <span key={r.name}>{k > 0 && ", "}<a href={`/e/resource/${enc(r.name)}`}>{r.name}</a>{r.inferred ? "*" : ""}</span>)}</p>
+            ); })}
+            {node.resourceUse.some(r => r.inferred) && <p className="small muted" style={{ margin: "6px 0 0" }}>* Read from the step&apos;s wording. An agent can correct it with a change request.</p>}</div>}
           {node.inc.length > 0 && <div className="sec"><div className="label">Comes from</div>
             <ul>{node.inc.map(i => <li key={i.edge}>{byId.has(i.from) ? <a href={`#${i.from}`} onClick={ev => { ev.preventDefault(); focus(i.from); }}>{i.fromLabel}</a> : <Link href={`/map/${i.fromProcess}#${i.from}`}>{i.fromLabel}</Link>}</li>)}</ul></div>}
           {node.out.length > 0 && <div className="sec"><div className="label">Goes to</div>

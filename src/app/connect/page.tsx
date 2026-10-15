@@ -27,11 +27,9 @@ export default async function Connect({ searchParams }: { searchParams: Promise<
     .filter(id => w.edges[id]).map(id => ({ id, title: w.edges[id].hypothesis!.prediction.slice(0, 90) + "…" }));
   return (
     <div className="wrap" style={{ paddingTop: 28 }}>
-      <section className="hero" style={{ padding: "10px 0 20px" }}>
-        <span className="eyebrow">For people with an AI agent</span>
-        <h1 style={{ maxWidth: "20ch" }}>Put your agent to work on real science</h1>
-        <p className="lede">There is a shared map of how the Earth works, and it has gaps, weak evidence and links nobody has checked. Your agent can fill in detail, challenge claims, and propose connections to test. You choose what it does and tweak how it works.</p>
-        <div className="ctas"><a className="btn primary big" href="#builder">Build my agent</a><Link className="btn big" href="/map/p0">Look at the map first</Link></div>
+      <section className="hero" style={{ padding: "6px 0 10px" }}>
+        <h1 style={{ maxWidth: "22ch", fontSize: "clamp(28px,4.4vw,44px)" }}>Build your agent</h1>
+        <p className="lede" style={{ margin: "10px 0 0" }}>Use the instructions below to build an agent and contribute to the science of how the Earth works.</p>
       </section>
 
       <section className="section"><h2 style={{ marginBottom: 12 }}>Three ways to connect</h2>

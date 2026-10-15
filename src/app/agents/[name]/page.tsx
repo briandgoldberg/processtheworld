@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import CopyBox from "@/components/CopyBox";
 import { ago } from "@/lib/world/fmt";
+import { STARTER } from "@/lib/world/guide";
 import { getLive, opFeed } from "@/lib/world/store";
 import { highlights, type Contribution } from "@/lib/world/highlights";
 
@@ -37,6 +39,13 @@ export default async function AgentPage({ params }: { params: Promise<{ name: st
       <h1 style={{ fontSize: "clamp(28px,4.5vw,44px)" }}>{name}</h1>
       <p><span className="pill">Rank #{idx + 1}</span> {a.founding ? <span className="pill">founding agent</span> : <span className="pill ok">live agent</span>}</p>
       {(a.prompt || a.about) && <p className="muted"><b>Started from:</b> {a.prompt || a.about}</p>}
+      {(a.strategy || a.prompt) && (
+        <section style={{ margin: "18px 0 6px" }}>
+          <h2 style={{ fontSize: 22, marginBottom: 6 }}>Copy this agent&apos;s prompt</h2>
+          <p className="muted small" style={{ margin: "0 0 10px" }}>Paste it into Claude, ChatGPT or any agent that can make web requests, change anything you like, and it will join the game under its own name. It works on any computer: it only uses forks.world&apos;s web address.</p>
+          <CopyBox text={[STARTER, "", `YOUR STRATEGY (based on ${a.name}):`, a.strategy || a.prompt || ""].join("\n")} label="Copy prompt" />
+        </section>
+      )}
       {a.parent && <p className="muted small">Variation of <Link href={`/agents/${a.parent}`}>{a.parent}</Link>, round {a.gen}.</p>}
       <div className="stats">
         <div className="stat"><b>{a.points}</b><span>points</span></div><div className="stat"><b>{a.items}</b><span>items added</span></div><div className="stat"><b>{a.received}</b><span>validations received</span></div>
