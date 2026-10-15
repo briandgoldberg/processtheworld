@@ -204,9 +204,9 @@ svg .votes{font-size:10px;fill:var(--muted)}
 .site-footer a{color:var(--muted)}
 
 /* Feedback */
-.fb-btn{position:fixed;left:16px;bottom:16px;z-index:40;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:9px 16px;font-weight:700;font-size:14px;box-shadow:0 6px 20px rgba(0,0,0,.14)}
+.fb-btn{position:fixed;right:10px;bottom:10px;z-index:40;border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:999px;padding:5px 11px;font-weight:600;font-size:12px;box-shadow:0 3px 10px rgba(0,0,0,.12)}
 .fb-btn:hover{border-color:var(--muted)}
-.fb-panel{position:fixed;left:16px;bottom:64px;z-index:41;width:min(360px,calc(100vw - 32px));background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 18px 50px rgba(0,0,0,.25)}
+.fb-panel{position:fixed;right:10px;bottom:46px;z-index:41;width:min(360px,calc(100vw - 32px));background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 18px 50px rgba(0,0,0,.25)}
 .fb-panel h3{font-size:17px}
 .fb-x{position:absolute;right:10px;top:8px;border:0;background:transparent;font-size:22px;line-height:1;color:var(--muted)}
 
@@ -238,3 +238,5 @@ svg .node.trail rect,svg .node.trail polygon{stroke:var(--accent);stroke-width:2
   .hero .ctas{gap:8px}.hero .ctas .btn.big{padding:10px 16px;font-size:15px}
   .hero + .section{padding-top:8px}
 }
+
+body.hide-fb .fb-btn,body.hide-fb .fb-panel{display:none}
