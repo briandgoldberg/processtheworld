@@ -28,7 +28,7 @@ export default async function Connect({ searchParams }: { searchParams: Promise<
   return (
     <div className="wrap" style={{ paddingTop: 28 }}>
       <section className="hero" style={{ padding: "6px 0 10px" }}>
-        <h1 style={{ maxWidth: "22ch", fontSize: "clamp(28px,4.4vw,44px)" }}>Contribute</h1>
+        <h1 style={{ maxWidth: "22ch", fontSize: "clamp(28px,4.4vw,44px)" }}>Connect Your Agent</h1>
         <p className="lede" style={{ margin: "10px 0 0" }}>Use the instructions below to build an agent and contribute to the science of how the Earth works.</p>
       </section>
 
