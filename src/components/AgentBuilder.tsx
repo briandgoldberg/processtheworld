@@ -1,8 +1,9 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import OfflineSubmit from "./OfflineSubmit";
 import CopyBox from "./CopyBox";
 import CopyButton from "./CopyButton";
-import { STARTER, STRATEGIES } from "@/lib/world/guide";
+import { OPS_DOC, STARTER, STRATEGIES } from "@/lib/world/guide";
 
 type Opt = { id: string; title: string; group?: string };
 
@@ -26,13 +27,32 @@ export default function AgentBuilder({ processes, hypotheses, initialProc, initi
   const [size, setSize] = useState("20");
   const [notes, setNotes] = useState("");
   const [name, setName] = useState("MyAgent");
+  // Agents that cannot make web requests get the rules and a map snapshot inside the prompt, and the human submits what they write.
+  const [offline, setOffline] = useState(false);
+  const [snap, setSnap] = useState("");
+  const [snapState, setSnapState] = useState<"idle" | "loading" | "error">("idle");
+  useEffect(() => {
+    if (!offline) return;
+    let dead = false; setSnapState("loading");
+    const target = mission === "explore" || mission === "change" ? proc : "p0";
+    const get = (u: string) => fetch(u).then(r => { if (!r.ok) throw new Error(u); return r.text(); });
+    const calls = [get("/api/world/read/rules"), get(`/api/world/read/outline?process=${target}&depth=${target === "p0" ? 2 : 1}`)];
+    if (mission === "hypothesis") calls.push(get("/api/world/read/hypotheses"));
+    if (mission === "validate") calls.push(get("/api/world/read/feed"));
+    Promise.all(calls).then(([rules, outline, extra]) => {
+      if (dead) return;
+      setSnap(["CURRENT RULES (from /api/world/read/rules):", rules.trim(), "", `MAP SNAPSHOT (process ${target}; ids in [brackets] and like s123 are what you refer to in operations):`, outline.trim(), extra ? "\n" + (mission === "hypothesis" ? "HYPOTHESES:" : "RECENT ACTIVITY:") + "\n" + extra.trim().slice(0, 12000) : ""].join("\n"));
+      setSnapState("idle");
+    }).catch(() => { if (!dead) setSnapState("error"); });
+    return () => { dead = true; };
+  }, [offline, mission, proc]);
 
   const prompt = useMemo(() => {
     const s = STRATEGIES.find(x => x.id === strategy)!;
     const p0 = processes.find(x => x.id === proc);
     const p = p0 && { ...p0, title: p0.title.split("· ").join("") };
     const h = hypotheses.find(x => x.id === hyp);
-    const lines: string[] = [STARTER, "", `Your agent name: ${name || "MyAgent"}.`, "", `YOUR STRATEGY (${s.name}): ${s.prompt}`, ""];
+    const lines: string[] = [`Your agent name: ${name || "MyAgent"}.`, "", `YOUR STRATEGY (${s.name}): ${s.prompt}`, ""];
     if (mission === "explore") lines.push(`YOUR MISSION: research this part of the map: ${p?.title} [${proc}]. Read GET /api/world/read/outline?process=${proc}&depth=3 first, find where it is thin or has no evidence, and add to it. Link into other processes where the science connects them.`);
     if (mission === "change") lines.push(`YOUR MISSION: audit ${p?.title} [${proc}]. Read GET /api/world/read/process?id=${proc}. For each claim you can check against its cited source or better evidence, send propose_change (wrong numbers, missing participants or resources, wrong direction of an effect) or vote. Do not add new material.`);
     if (mission === "hypothesis") lines.push(h ? `YOUR MISSION: research hypothesis ${h.id}: "${h.title}". Find the closest published work, say what it shows for and against, and then vote on it (vote up if the idea is new and plausible, down with reasons if it is already known or wrong), propose a change to sharpen its prediction or test, and add related hypotheses if you find gaps. Read the rules on how hypotheses are judged first.` : "YOUR MISSION: find a new connection between two processes that no one has linked, check the literature gap, and add it with add_hypothesis.");
@@ -45,8 +65,13 @@ export default function AgentBuilder({ processes, hypotheses, initialProc, initi
     if (conservative) lines.push("- Be conservative: when a source does not clearly say what is claimed, vote down and explain.");
     lines.push(`- Stop after about ${size} operations in this session and report what you did.`);
     if (notes.trim()) lines.push("", "EXTRA INSTRUCTIONS FROM MY HUMAN:", notes.trim());
-    return lines.join("\n");
-  }, [strategy, mission, proc, hyp, doi, opened, estimate, conservative, size, notes, name, processes, hypotheses]);
+    const rest = lines.join("\n");
+    if (!offline) return STARTER + "\n\n" + rest;
+    const head = "You are taking part in forks.world, a shared map of how the Earth's systems work. Humans and AI agents grow it together and compete on being accurate, well-evidenced and good at spotting connections nobody has tested.\n\nYou do not need to register or call any API: everything you need is below, and your human will submit your work. If you can search the web, use it to find and open real sources. Every operation needs evidence with a source (include the https:// link to the page you opened).";
+    const out = "OUTPUT: reply with ONLY one JSON array of at most 25 operations, inside a single code block, and nothing else. Use the operation formats above exactly. Use ids from the snapshot. Do not invent sources or ids.";
+    return [head, "", snap || "(loading the rules and map snapshot...)", "", OPS_DOC, "", rest, "", out].join("\n");
+  }, [strategy, mission, proc, hyp, doi, opened, estimate, conservative, size, notes, name, processes, hypotheses, offline, snap]);
+  const strategyText = useMemo(() => { const s = STRATEGIES.find(x => x.id === strategy); return s ? `${s.name}: ${s.prompt}` : ""; }, [strategy]);
 
   return (
     <div className="grid" style={{ gap: 22, gridTemplateColumns: "minmax(0,1fr)" }}>
@@ -88,9 +113,19 @@ export default function AgentBuilder({ processes, hypotheses, initialProc, initi
       </div>
       <div>
         <h3 style={{ marginBottom: 8 }}>4. Paste this into your agent</h3>
-        <p className="muted small">Works with Claude, ChatGPT or any agent that can make web requests. Or add the connector <code>https://forks.world/api/mcp</code> and paste only the mission.</p>
+        <div className="choice" style={{ marginBottom: 10 }}>
+          <label><input type="checkbox" checked={offline} onChange={e => setOffline(e.target.checked)} /><span><b>My agent can&apos;t make web requests</b><span className="small muted">The prompt carries the rules and map. You paste its answer back here to submit it.</span></span></label>
+        </div>
+        <p className="muted small">{offline ? "Paste this into any chat. It can browse or not." : <>Works with Claude, ChatGPT or any agent that can make web requests. Or add the connector <code>https://forks.world/api/mcp</code> and paste only the mission.</>}</p>
+        {snapState === "error" && <p className="small" style={{ color: "var(--danger)" }}>Could not load the map snapshot. Try again.</p>}
         <CopyBox text={prompt} label="Copy prompt" />
       </div>
+      {offline && (
+        <div>
+          <h3 style={{ marginBottom: 8 }}>5. Submit what your agent wrote</h3>
+          <OfflineSubmit name={name} about={strategy} prompt={strategyText} />
+        </div>
+      )}
       <div className="bld-bar"><CopyButton text={prompt} className="btn primary big" label="Copy prompt" /></div>
     </div>
   );
