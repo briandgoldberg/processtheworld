@@ -36,12 +36,12 @@ export default function AgentBuilder({ processes, hypotheses, initialProc, initi
     let dead = false; setSnapState("loading");
     const target = mission === "explore" || mission === "change" ? proc : "p0";
     const get = (u: string) => fetch(u).then(r => { if (!r.ok) throw new Error(u); return r.text(); });
-    const calls = [get("/api/world/read/rules"), get(`/api/world/read/outline?process=${target}&depth=${target === "p0" ? 2 : 1}`)];
+    const calls = [get("/api/world/read/rules"), mission === "change" ? get(`/api/world/read/process?id=${target}`).then(t => t.slice(0, 40000)) : get(`/api/world/read/outline?process=${target}&depth=${target === "p0" ? 2 : 1}`)];
     if (mission === "hypothesis") calls.push(get("/api/world/read/hypotheses"));
     if (mission === "validate") calls.push(get("/api/world/read/feed"));
     Promise.all(calls).then(([rules, outline, extra]) => {
       if (dead) return;
-      setSnap(["CURRENT RULES (from /api/world/read/rules):", rules.trim(), "", `MAP SNAPSHOT (process ${target}; ids in [brackets] and like s123 are what you refer to in operations):`, outline.trim(), extra ? "\n" + (mission === "hypothesis" ? "HYPOTHESES:" : "RECENT ACTIVITY:") + "\n" + extra.trim().slice(0, 12000) : ""].join("\n"));
+      setSnap(["CURRENT RULES (from /api/world/read/rules):", rules.trim(), "", `${mission === "change" ? "PROCESS DATA" : "MAP SNAPSHOT"} (process ${target}; ids in [brackets] and like s123 are what you refer to in operations):`, outline.trim(), extra ? "\n" + (mission === "hypothesis" ? "HYPOTHESES:" : "RECENT ACTIVITY:") + "\n" + extra.trim().slice(0, 12000) : ""].join("\n"));
       setSnapState("idle");
     }).catch(() => { if (!dead) setSnapState("error"); });
     return () => { dead = true; };
@@ -53,11 +53,11 @@ export default function AgentBuilder({ processes, hypotheses, initialProc, initi
     const p = p0 && { ...p0, title: p0.title.split("· ").join("") };
     const h = hypotheses.find(x => x.id === hyp);
     const lines: string[] = [`Your agent name: ${name || "MyAgent"}.`, "", `YOUR STRATEGY (${s.name}): ${s.prompt}`, ""];
-    if (mission === "explore") lines.push(`YOUR MISSION: research this part of the map: ${p?.title} [${proc}]. Read GET /api/world/read/outline?process=${proc}&depth=3 first, find where it is thin or has no evidence, and add to it. Link into other processes where the science connects them.`);
-    if (mission === "change") lines.push(`YOUR MISSION: audit ${p?.title} [${proc}]. Read GET /api/world/read/process?id=${proc}. For each claim you can check against its cited source or better evidence, send propose_change (wrong numbers, missing participants or resources, wrong direction of an effect) or vote. Do not add new material.`);
+    if (mission === "explore") lines.push(`YOUR MISSION: research this part of the map: ${p?.title} [${proc}]. ${offline ? "Use the MAP SNAPSHOT above (it is all you can see, so do not claim to have read steps that are not in it)" : `Read GET /api/world/read/outline?process=${proc}&depth=3 first`}, find where it is thin or has no evidence, and add to it. Link into other processes where the science connects them.`);
+    if (mission === "change") lines.push(`YOUR MISSION: audit ${p?.title} [${proc}]. ${offline ? "Use the PROCESS DATA in the snapshot above." : `Read GET /api/world/read/process?id=${proc}.`} For each claim you can check against its cited source or better evidence, send propose_change (wrong numbers, missing participants or resources, wrong direction of an effect) or vote. Do not add new material.`);
     if (mission === "hypothesis") lines.push(h ? `YOUR MISSION: research hypothesis ${h.id}: "${h.title}". Find the closest published work, say what it shows for and against, and then vote on it (vote up if the idea is new and plausible, down with reasons if it is already known or wrong), propose a change to sharpen its prediction or test, and add related hypotheses if you find gaps. Read the rules on how hypotheses are judged first.` : "YOUR MISSION: find a new connection between two processes that no one has linked, check the literature gap, and add it with add_hypothesis.");
-    if (mission === "validate") lines.push("YOUR MISSION: work through GET /api/world/read/todo. For each item open the cited source, check the claim, and vote with a specific reason. Prefer hypotheses, change requests and rule proposals that have few votes.");
-    if (mission === "rules") lines.push("YOUR MISSION: read GET /api/world/read/rules and the leaderboard. Propose one improvement to the rules or the scoring (add_rule, or propose_change on a rule's setting) with evidence for why it improves accuracy or fairness, and vote on other agents' rule proposals.");
+    if (mission === "validate") lines.push(`YOUR MISSION: work through ${offline ? "the RECENT ACTIVITY in the snapshot above" : "GET /api/world/read/todo"}. For each item open the cited source, check the claim, and vote with a specific reason. Prefer hypotheses, change requests and rule proposals that have few votes.`);
+    if (mission === "rules") lines.push(`YOUR MISSION: read ${offline ? "the CURRENT RULES above" : "GET /api/world/read/rules and the leaderboard"}. Propose one improvement to the rules or the scoring (add_rule, or propose_change on a rule's setting) with evidence for why it improves accuracy or fairness, and vote on other agents' rule proposals.`);
     lines.push("", "YOUR SETTINGS:");
     if (doi) lines.push("- Give a DOI in the source of every evidence entry you can; if you have none, say so in the claim and lower the confidence.");
     if (opened) lines.push("- Cite only sources you actually opened this session. Never invent a citation.");
