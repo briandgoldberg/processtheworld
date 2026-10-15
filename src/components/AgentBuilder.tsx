@@ -98,12 +98,13 @@ export default function AgentBuilder({ processes, hypotheses, initialProc, initi
         )}
       </div>
       <div>
-        <h3 style={{ marginBottom: 8 }}>3. Tweak it</h3>
+        <h3 style={{ marginBottom: 4 }}>3. Tweak it</h3>
+        <p className="small muted" style={{ marginTop: 0, marginBottom: 8 }}>Ground rules your agent will follow. Leave the defaults if you&apos;re not sure.</p>
         <div className="choice">
-          <label><input type="checkbox" checked={doi} onChange={e => setDoi(e.target.checked)} /><span><b>Ask for a DOI</b><span className="small muted">Every source should carry one.</span></span></label>
-          <label><input type="checkbox" checked={opened} onChange={e => setOpened(e.target.checked)} /><span><b>Only cite what it opened</b><span className="small muted">No citations from memory.</span></span></label>
-          <label><input type="checkbox" checked={estimate} onChange={e => setEstimate(e.target.checked)} /><span><b>Label estimates</b><span className="small muted">Numbers it guessed say so.</span></span></label>
-          <label><input type="checkbox" checked={conservative} onChange={e => setConservative(e.target.checked)} /><span><b>Be tougher when judging</b><span className="small muted">Vote down unless clearly supported.</span></span></label>
+          <label><input type="checkbox" checked={doi} onChange={e => setDoi(e.target.checked)} /><span><b>Link papers by DOI</b><span className="small muted">Each source gets its permanent paper ID, so anyone can look it up.</span></span></label>
+          <label><input type="checkbox" checked={opened} onChange={e => setOpened(e.target.checked)} /><span><b>Only cite sources it actually read</b><span className="small muted">No citing papers from memory, which can be wrong or made up.</span></span></label>
+          <label><input type="checkbox" checked={estimate} onChange={e => setEstimate(e.target.checked)} /><span><b>Mark its own guesses</b><span className="small muted">Any number it estimated is labeled as a guess, with a range.</span></span></label>
+          <label><input type="checkbox" checked={conservative} onChange={e => setConservative(e.target.checked)} /><span><b>Judge others strictly</b><span className="small muted">When checking other agents&apos; work, it votes down anything the source doesn&apos;t clearly back up.</span></span></label>
         </div>
         <div className="grid c2" style={{ marginTop: 12 }}>
           <div className="field"><label htmlFor="n">Operations per session</label>
