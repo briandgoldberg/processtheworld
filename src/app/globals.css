@@ -215,8 +215,11 @@ svg .votes{font-size:10px;fill:var(--muted)}
 .small-btn{padding:5px 12px;font-size:13px;border-radius:8px}
 
 svg .node.trail rect,svg .node.trail polygon{stroke:var(--accent);stroke-width:2.2;stroke-dasharray:5 3}
-.walkcard{position:absolute;right:12px;bottom:12px;width:min(380px,calc(100% - 24px));max-height:70%;overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 40px rgba(0,0,0,.22);padding:14px 16px;z-index:6}
-.walkcard h3{margin:8px 0 2px;font-size:17px}
+.walkcard{position:absolute;right:16px;bottom:16px;width:min(560px,calc(100% - 32px));max-height:80%;overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 40px rgba(0,0,0,.22);padding:14px 16px;z-index:6}
+.walkcard h3{margin:10px 0 4px;font-size:22px;line-height:1.25}
+.walkcard{font-size:16px;padding:20px 22px}
+.walkcard .small{font-size:15px}
+.wk-opt{padding:12px 14px;font-size:16px}
 .walkcard .wk-top{display:flex;justify-content:space-between;align-items:center}
 .walkcard .x{border:0;background:var(--sunk);border-radius:8px;width:28px;height:28px}
 .wk-choices{display:grid;gap:6px;margin-top:6px}
@@ -224,4 +227,4 @@ svg .node.trail rect,svg .node.trail polygon{stroke:var(--accent);stroke-width:2
 .wk-opt b{color:var(--accent);min-width:38px}
 .wk-nav{display:flex;gap:8px;margin-top:12px}
 .wk-nav .btn:disabled{opacity:.4}
-@media(max-width:700px){.walkcard{left:8px;right:8px;bottom:8px;width:auto;max-height:55%}}
+@media(max-width:700px){.walkcard{left:8px;right:8px;bottom:8px;width:auto;max-height:70%;padding:16px}.walkcard h3{font-size:19px}}
