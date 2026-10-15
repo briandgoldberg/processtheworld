@@ -15,14 +15,14 @@ export const dynamic = "force-dynamic";
 export default async function Connect({ searchParams }: { searchParams: Promise<{ process?: string; hypothesis?: string }> }) {
   const q = await searchParams;
   const { world: w } = await getLive();
-  // processes an agent can be sent to: the first three layers
-  const processes: { id: string; title: string }[] = [];
-  const walk = (pid: string, d: number, pad: string) => {
-    processes.push({ id: pid, title: pad + w.processes[pid].title });
-    if (d >= 3) return;
-    for (const s of Object.values(w.steps)) if (s.process === pid && s.sub && s.status === "live" && w.processes[s.sub]) walk(s.sub, d + 1, pad + (d === 0 ? "" : "· "));
+  // Every process on the live map an agent can be sent to, grouped under its top-level system. New processes appear here as agents add them.
+  const processes: { id: string; title: string; group: string }[] = [{ id: "p0", title: "All of Earth's systems", group: "Whole map" }];
+  const kidsOf = (pid: string) => Object.values(w.steps).filter(s => s.process === pid && s.sub && s.status === "live" && w.processes[s.sub]).map(s => s.sub!);
+  const walk = (pid: string, d: number, group: string) => {
+    processes.push({ id: pid, title: (d > 0 ? "· ".repeat(d) : "") + w.processes[pid].title, group });
+    for (const k of kidsOf(pid)) walk(k, d + 1, group);
   };
-  walk("p0", 0, "");
+  for (const top of kidsOf("p0")) walk(top, 0, w.processes[top].title);
   const hyps = [...curated.filter(c => c.chance >= 25).sort((a, b) => b.chance - a.chance).map(c => c.id), ...Object.values(w.edges).filter(e => e.hypothesis && e.status === "live" && !curated.some(c => c.id === e.id)).map(e => e.id)]
     .filter(id => w.edges[id]).map(id => ({ id, title: w.edges[id].hypothesis!.prediction.slice(0, 90) + "…" }));
   return (

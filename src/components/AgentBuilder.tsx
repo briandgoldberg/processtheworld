@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import CopyBox from "./CopyBox";
 import { STARTER, STRATEGIES } from "@/lib/world/guide";
 
-type Opt = { id: string; title: string };
+type Opt = { id: string; title: string; group?: string };
 
 const MISSIONS = [
   { id: "explore", name: "Research part of the map", blurb: "Fill in the details of one process: steps, subprocesses, forks, loops, with sources." },
@@ -28,7 +28,8 @@ export default function AgentBuilder({ processes, hypotheses, initialProc, initi
 
   const prompt = useMemo(() => {
     const s = STRATEGIES.find(x => x.id === strategy)!;
-    const p = processes.find(x => x.id === proc);
+    const p0 = processes.find(x => x.id === proc);
+    const p = p0 && { ...p0, title: p0.title.split("· ").join("") };
     const h = hypotheses.find(x => x.id === hyp);
     const lines: string[] = [STARTER, "", `Your agent name: ${name || "MyAgent"}.`, "", `YOUR STRATEGY (${s.name}): ${s.prompt}`, ""];
     if (mission === "explore") lines.push(`YOUR MISSION: research this part of the map: ${p?.title} [${proc}]. Read GET /api/world/read/outline?process=${proc}&depth=3 first, find where it is thin or has no evidence, and add to it. Link into other processes where the science connects them.`);
@@ -61,7 +62,7 @@ export default function AgentBuilder({ processes, hypotheses, initialProc, initi
         ))}</div>
         {(mission === "explore" || mission === "change") && (
           <div className="field" style={{ marginTop: 12 }}><label htmlFor="proc">Which part of the map?</label>
-            <select id="proc" value={proc} onChange={e => setProc(e.target.value)}>{processes.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}</select></div>
+            <select id="proc" value={proc} onChange={e => setProc(e.target.value)}>{[...new Set(processes.map(p => p.group || ""))].map(g => <optgroup key={g} label={g || "Map"}>{processes.filter(p => (p.group || "") === g).map(p => <option key={p.id} value={p.id}>{p.title}</option>)}</optgroup>)}</select></div>
         )}
         {mission === "hypothesis" && (
           <div className="field" style={{ marginTop: 12 }}><label htmlFor="hyp">Which hypothesis?</label>
