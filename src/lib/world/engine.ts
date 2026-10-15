@@ -80,7 +80,27 @@ export const newCtx = (t: number, assigned?: Record<string, string>): Ctx => ({ 
 const mint = (ctx: Ctx, slot: string, kind: string) => { const id = ctx.assigned?.[slot] ?? rid(kind); ctx.ids[slot] = id; return id; };
 
 /** Validate one operation by one agent and apply it. Returns ok, or the reason it was refused. */
-export function applyOp(w: World, agent: string, o: Op, ctx: Ctx): OpResult {
+/** Be forgiving about common slips: evidence given as {url, title}, or an edge written with other names for from/to. */
+function tidy(o: Op): Op {
+  const x = { ...(o as Record<string, unknown>) };
+  if (Array.isArray(x.evidence)) x.evidence = (x.evidence as Record<string, unknown>[]).map(ev => {
+    if (!ev || typeof ev !== "object") return ev;
+    const y = { ...ev };
+    const link = y.url ?? y.link ?? y.doi_url;
+    if (typeof y.source !== "string" || y.source.trim().length < 5) y.source = [y.title ?? y.name ?? y.reference, link].filter(Boolean).join(" ") || y.source;
+    else if (typeof link === "string" && !String(y.source).includes(link)) y.source = y.source + " " + link;
+    if (typeof y.claim !== "string") y.claim = (y.summary ?? y.quote ?? y.note ?? y.finding) as string;
+    return y;
+  });
+  if (x.op === "add_edge" || x.op === "add_hypothesis") {
+    x.from = x.from ?? x.from_step ?? x.from_id ?? x.source_step ?? x.source ?? x.src;
+    x.to = x.to ?? x.to_step ?? x.to_id ?? x.target_step ?? x.target ?? x.dst;
+  }
+  return x as unknown as Op;
+}
+
+export function applyOp(w: World, agent: string, o0: Op, ctx: Ctx): OpResult {
+  const o = tidy(o0);
   const fail = (error: string): OpResult => ({ ok: false, error: `${o.op}: ${error}` });
   const ref = (x: unknown) => (typeof x === "string" && x[0] === "@" ? ctx.refs[x.slice(1)] : (x as string));
   const op = o.op;
@@ -111,10 +131,10 @@ export function applyOp(w: World, agent: string, o: Op, ctx: Ctx): OpResult {
   if (op === "add_edge" || op === "add_hypothesis") {
     const bad = checkEvidence(o.evidence); if (bad) return fail(bad);
     const a = w.steps[ref(o.from)], b = w.steps[ref(o.to)];
-    if (!a || !b) return fail(`unknown step ${o.from} -> ${o.to}`);
+    if (!a || !b) return fail(`unknown step: from=${JSON.stringify(o.from)} to=${JSON.stringify(o.to)}. Send "from" and "to" as step ids (like s123) that exist in the snapshot.`);
     if (a.status === "removed" || b.status === "removed") return fail("cannot link to a removed step");
     const im = o.impact as Edge["impact"] | undefined;
-    if (!im || !(im.size >= 1 && im.size <= 5) || !["+", "-", "0"].includes(im.direction) || !im.note) return fail("impact {size 1-5, direction +|-|0, note} is required on every line");
+    if (!im || !(im.size >= 1 && im.size <= 5) || !["+", "-", "0"].includes(im.direction) || !im.note) return fail('every line needs "impact": {"size": 1-5, "direction": "+" or "-" or "0", "note": "why"}, for example "impact": {"size": 3, "direction": "+", "note": "more light means more growth"}');
     const e: Edge = { id: mint(ctx, "edge", "e"), from: a.id, to: b.id, label: clip(o.label, 80), impact: { size: Number(im.size), direction: im.direction, note: clip(im.note, 300) }, evidence: cleanEv(o.evidence as Evidence[]), by: agent, status: "live", t: ctx.t };
     if (a.kind === "fork") {
       const prob = Number(o.prob);
