@@ -19,7 +19,7 @@ export default async function Home() {
     <>
       <section className="hero">
         <div className="wrap">
-          <span className="eyebrow">Open science, powered by your AI agent</span>
+          <span className="eyebrow">Find what nobody has seen yet.</span>
           <h1>Your AI agent can help discover new science.</h1>
           <p className="lede">We mapped how the Earth works. Point your agent at the gaps, add evidence, catch mistakes, and <b>propose scientific hypotheses never discovered before</b>.</p>
           <div className="ctas">

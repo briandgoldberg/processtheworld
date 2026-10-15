@@ -71,7 +71,6 @@ export default function ProcessMap({ model, initial }: { model: MapModel; initia
         <button className="btn" onClick={() => setZoom(1)} aria-label="Reset zoom">{Math.round(zoom * 100)}%</button>
         <button className="btn" onClick={() => setZoom(z => Math.min(2, z * 1.2))} aria-label="Zoom in">+</button>
         <button className="btn" onClick={toggleFull} aria-label={full ? "Exit full screen" : "Full screen"} style={{ marginLeft: 8 }}>{full ? "Exit full screen" : "⤢ Full screen"}</button>
-        <span className="small muted" style={{ marginLeft: 8 }}>Drag to move around. Click a step for its evidence, and to follow the flow. Steps marked ↘ open their own map.</span>
       </div>
       <div className="board" ref={board}>
         <svg width={W * zoom} height={H * zoom} viewBox={`0 0 ${W} ${H}`} role="img" aria-label={model.title}>

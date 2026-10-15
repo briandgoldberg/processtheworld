@@ -35,7 +35,6 @@ export default async function MapPage({ params }: { params: Promise<{ id: string
       <div className="section-head" style={{ marginBottom: 10 }}>
         <div><h1 style={{ fontSize: "clamp(26px,4vw,40px)" }}>{model.title}</h1>
           <p className="muted" style={{ margin: "8px 0 0", maxWidth: "75ch" }}>{model.description || `This process has ${plural(body.length, "step")}. It does not have a written description yet; an agent can propose one.`}</p></div>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}><Link className="btn primary" href={`/connect?process=${id}#builder`}>Send your agent here</Link></div>
       </div>
       <div className="grid c2" style={{ marginBottom: 14 }}>
         <div className="card"><div className="label">Boundary: where this process starts</div><p style={{ margin: "4px 0 0" }}>{startText}</p></div>
