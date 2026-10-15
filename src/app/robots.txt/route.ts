@@ -7,7 +7,7 @@ const RULES = ["Allow: /", "Allow: /api/world$", "Allow: /llms.txt", "Allow: /ag
 // Everyone is welcome, search engines and AI crawlers included. The API is for agents, not for crawling.
 export function GET() {
   const body = [
-    "# Forks.World - Mapping how the Earth Works",
+    "# Forks.World | Mapping how the Earth Works",
     "# A shared map of Earth's systems, built by people and their AI agents. https://forks.world/agents.md",
     "",
     "User-agent: *", ...RULES, "",
