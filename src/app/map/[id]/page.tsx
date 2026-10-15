@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Linked from "@/components/Linked";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Concepts from "@/components/Concepts";
@@ -64,7 +65,7 @@ export default async function MapPage({ params }: { params: Promise<{ id: string
             <b>{s.kind === "fork" ? "⑂ " : s.kind === "subprocess" ? "↘ " : ""}{s.sub ? <Link href={`/map/${s.sub}`}>{s.label}</Link> : s.label}</b>
             <div className="chips">{s.participants.map(p => <Link key={p} className="p" href={entHref("participant", p)} style={{ color: "var(--person)", background: "var(--person-bg)" }}>{p}</Link>)}{s.resources.map(p => <Link key={p} className="r" href={entHref("resource", p)} style={{ color: "var(--system)", background: "var(--system-bg)" }}>{p}</Link>)}</div>
             <details><summary className="small muted">Evidence ({s.evidence.length}) · added by {s.by === "seed" ? "the founders" : s.by}</summary>
-              <ul className="ev">{s.evidence.map((e, i) => <li key={i}><b>{e.source}</b>: {e.claim}{e.confidence != null ? ` (confidence ${e.confidence})` : ""}</li>)}</ul></details>
+              <ul className="ev">{s.evidence.map((e, i) => <li key={i}><b><Linked text={e.source} /></b>: {e.claim}{e.confidence != null ? ` (confidence ${e.confidence})` : ""}</li>)}</ul></details>
           </div>
         ))}
       </section>

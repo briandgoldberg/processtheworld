@@ -260,4 +260,4 @@ body.hide-fb .fb-btn,body.hide-fb .fb-panel{display:none}
 .grid>*,.choice>*,.field{min-width:0}
 .field select,.field input,.field textarea{max-width:100%;width:100%;box-sizing:border-box}
 .choice label>span{min-width:0}
-@media(min-width:900px){.choice.style-row{grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}.style-row label{flex-direction:column;gap:6px;padding:10px}.style-row .small{font-size:12px;line-height:1.3}}
+@media(min-width:900px){.choice.style-row{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:8px}.style-row label{flex-direction:column;gap:6px;padding:10px}.style-row .small{font-size:12px;line-height:1.3}}

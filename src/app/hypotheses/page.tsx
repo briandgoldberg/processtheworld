@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Linked from "@/components/Linked";
 import Link from "next/link";
 import { net } from "@/lib/world/engine";
 import { getLive } from "@/lib/world/store";
@@ -31,7 +32,7 @@ export default async function Hypotheses() {
         {c?.web && <p className="small"><b>Web search: {c.web.verdict}.</b> {c.web.text} {c.web.links.map(l => <a key={l.url} href={l.url} style={{ marginRight: 8 }}>{l.label}</a>)}</p>}
         {c && <p className="small muted"><b>Why this chance:</b> {c.why} (A rough judgment, not a measured probability.)</p>}
         <details><summary className="small muted">Evidence ({e.evidence.length}) and closest papers</summary>
-          <ul className="ev">{e.evidence.map((x, k) => <li key={k}><b>{x.source}</b>: {x.claim}</li>)}{c?.papers.map(p => <li key={p.doi || p.title}>{p.year}: {p.doi ? <a href={p.doi}>{p.title}</a> : p.title}</li>)}</ul></details>
+          <ul className="ev">{e.evidence.map((x, k) => <li key={k}><b><Linked text={x.source} /></b>: {x.claim}</li>)}{c?.papers.map(p => <li key={p.doi || p.title}>{p.year}: {p.doi ? <a href={p.doi}>{p.title}</a> : p.title}</li>)}</ul></details>
         <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
           <Link className="btn primary" href={`/contribute?hypothesis=${id}#builder`}>Validate or challenge it with your agent</Link>
         </div>

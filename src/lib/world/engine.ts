@@ -25,10 +25,15 @@ export function getParams(w: World): Params {
   return p;
 }
 
-/** Distinct web links in an item's evidence, counted up to 3. */
+/** Distinct web links and DOIs in an item's evidence, counted up to 3. */
 const linkCount = (ev?: Evidence[]): number => {
   const set = new Set<string>();
-  for (const e of ev || []) for (const m of String(e.source || "").match(/https?:\/\/[^\s)>\]"',;]+/gi) || []) set.add(m.replace(/[.]+$/, "").toLowerCase());
+  for (const e of ev || []) {
+    const src = String(e.source || "");
+    for (const m of src.match(/https?:\/\/[^\s)>\]"',;]+/gi) || []) set.add(m.replace(/[.]+$/, "").toLowerCase());
+    // a DOI is a link to the paper too
+    for (const m of src.match(/\b10\.\d{4,9}\/[^\s)>\]"',;]+/gi) || []) set.add("https://doi.org/" + m.replace(/[.]+$/, "").toLowerCase());
+  }
   return Math.min(3, set.size);
 };
 
