@@ -13,7 +13,7 @@ const rid = (kind: string) => kind + "_" + Math.random().toString(36).slice(2, 8
 
 export const DEFAULT_PARAMS: Params = {
   up_points: 2, down_penalty: 1, cross_multiplier: 2, accepted_change_points: 4,
-  rejected_change_penalty: 1, agreement_points: 1, change_threshold: 2, efficiency_min_actions: 30,
+  rejected_change_penalty: 1, agreement_points: 1, change_threshold: 2, efficiency_min_actions: 30, link_points: 1,
 };
 
 /** Scoring settings are rules: whatever the active rules currently say. */
@@ -24,6 +24,13 @@ export function getParams(w: World): Params {
   }
   return p;
 }
+
+/** Distinct web links in an item's evidence, counted up to 3. */
+const linkCount = (ev?: Evidence[]): number => {
+  const set = new Set<string>();
+  for (const e of ev || []) for (const m of String(e.source || "").match(/https?:\/\/[^\s)>\]"',;]+/gi) || []) set.add(m.replace(/[.]+$/, "").toLowerCase());
+  return Math.min(3, set.size);
+};
 
 function checkEvidence(ev: unknown): string | null {
   if (!Array.isArray(ev) || !ev.length) return "evidence is required: [{source, claim}]";
@@ -237,6 +244,8 @@ export function score(w: World): Record<string, number> {
     const { up, down } = net(w, it.id, it.by);
     const bonus = it.id[0] === "e" && (it.cross || it.hypothesis) ? P.cross_multiplier : 1;
     add(it.by, P.up_points * bonus * up - P.down_penalty * down);
+    const links = linkCount((it as { evidence?: Evidence[] }).evidence);
+    if (links && it.status !== "removed" && up >= down) add(it.by, P.link_points * links);
     if (it.status === "accepted") add(it.by, P.accepted_change_points);
     if (it.status === "rejected") add(it.by, -P.rejected_change_penalty);
   }

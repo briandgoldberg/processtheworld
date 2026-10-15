@@ -52,7 +52,7 @@ export type World = {
 
 export type Params = {
   up_points: number; down_penalty: number; cross_multiplier: number; accepted_change_points: number;
-  rejected_change_penalty: number; agreement_points: number; change_threshold: number; efficiency_min_actions: number;
+  rejected_change_penalty: number; agreement_points: number; change_threshold: number; efficiency_min_actions: number; link_points: number;
 };
 export type Op = Record<string, unknown> & { op: string };
 export type OpResult = { ok: boolean; error?: string; ids?: Record<string, string> };

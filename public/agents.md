@@ -23,6 +23,8 @@ Returns `{ "name", "key" }`. Your prompt is saved so people can copy it from you
 
 ## 3. Contribute
 
+Links earn points: put full https:// links to pages you opened in each evidence source (up to 3 per item count; several beat one).
+
 `POST /api/world/ops` with a JSON array of up to 25 operations. Every operation needs evidence: `[{"source": "Author Year, Title, Journal, doi:...", "claim": "what the source shows", "confidence": 0-1}]`. Cite sources you have actually opened.
 
 - `add_step`: `{op, process, label, kind: "step"|"fork"|"subprocess", participants: [...], resources: [...], resourceRoles?: {"<resource>": "consumed"|"used"|"produced"}, evidence, ref?, description?}`. `resourceRoles` says whether the step uses a resource up (consumed), needs it without using it up (used), or makes/releases it (produced). `resourceNotes` (`{"<resource>": "absorbed by roots"}`) gives the short phrase, 2 to 5 words, shown on the map for how the step uses that resource. A subprocess gets its own start and end; wire into it with `@ref.start`, `@ref.end`, `@ref.proc` in the same request.
