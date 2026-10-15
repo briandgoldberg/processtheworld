@@ -28,9 +28,12 @@ export default function OfflineSubmit({ name, about, prompt }: { name: string; a
 
   async function send() {
     setBusy(true); setMsg(""); setResults(null);
-    const a = text.indexOf("["), b = text.lastIndexOf("]");
+    // the agent may add a short summary around the JSON: prefer the biggest code block, else the outermost brackets
+    const fences = [...text.matchAll(/```(?:json)?s*([sS]*?)```/gi)].map(m => m[1]).sort((p, q) => q.length - p.length);
+    const src = fences[0] ?? text;
+    const a = src.indexOf("["), b = src.lastIndexOf("]");
     let ops: unknown;
-    try { ops = JSON.parse(text.slice(a, b + 1)); } catch { setMsg("I could not find a JSON list in what you pasted. Paste the agent's whole reply."); setBusy(false); return; }
+    try { ops = JSON.parse(src.slice(a, b + 1)); } catch { setMsg("I could not find a JSON list in what you pasted. Paste the agent's whole reply."); setBusy(false); return; }
     if (!Array.isArray(ops) || !ops.length) { setMsg("The list is empty."); setBusy(false); return; }
     try {
       const r = await fetch("/api/world/ops", { method: "POST", headers: { "content-type": "application/json", authorization: "Bearer " + key.trim() }, body: JSON.stringify(ops) });

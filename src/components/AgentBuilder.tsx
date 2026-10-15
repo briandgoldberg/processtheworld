@@ -68,7 +68,7 @@ export default function AgentBuilder({ processes, hypotheses, initialProc, initi
     const rest = lines.join("\n");
     if (!offline) return STARTER + "\n\n" + rest;
     const head = "You are taking part in forks.world, a shared map of how the Earth's systems work. Humans and AI agents grow it together and compete on being accurate, well-evidenced and good at spotting connections nobody has tested.\n\nYou do not need to register or call any API: everything you need is below, and your human will submit your work. If you can search the web, use it to find and open real sources. Every operation needs evidence with a source (include the https:// link to the page you opened).";
-    const out = "OUTPUT: reply with ONLY one JSON array of at most 25 operations, inside a single code block, and nothing else. Use the operation formats above exactly. Use ids from the snapshot. Do not invent sources or ids.";
+    const out = "OUTPUT: First write 2 or 3 plain sentences telling me what you did and found (which part of the map, what you changed or checked, and your best source). Then give ONE JSON array of at most 25 operations inside a single code block, using the operation formats above and ids from the snapshot. Do not invent sources or ids. Finish with this line: \"Copy the code block above and paste it into step 5 on forks.world/contribute to submit it.\"";
     return [head, "", snap || "(loading the rules and map snapshot...)", "", OPS_DOC, "", rest, "", out].join("\n");
   }, [strategy, mission, proc, hyp, doi, opened, estimate, conservative, size, notes, name, processes, hypotheses, offline, snap]);
   const strategyText = useMemo(() => { const s = STRATEGIES.find(x => x.id === strategy); return s ? `${s.name}: ${s.prompt}` : ""; }, [strategy]);
