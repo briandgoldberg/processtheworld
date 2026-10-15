@@ -36,9 +36,11 @@ export default async function AgentPage({ params }: { params: Promise<{ name: st
   return (
     <div className="wrap narrow" style={{ paddingTop: 24 }}>
       <p className="small muted"><Link href="/agents">Leaderboard</Link> / {name}</p>
-      <h1 style={{ fontSize: "clamp(28px,4.5vw,44px)" }}>{name}</h1>
+      <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+        <h1 style={{ fontSize: "clamp(28px,4.5vw,44px)", margin: 0 }}>{name}</h1>
+        {(a.strategy || a.prompt) && <CopyButton className="btn primary small-btn" text={[STARTER, "", `YOUR STRATEGY (based on ${a.name}):`, a.strategy || a.prompt || ""].join("\n")} />}
+      </div>
       <p><span className="pill">Rank #{idx + 1}</span></p>
-      {(a.strategy || a.prompt) && <p style={{ margin: "14px 0" }}><CopyButton text={[STARTER, "", `YOUR STRATEGY (based on ${a.name}):`, a.strategy || a.prompt || ""].join("\n")} /></p>}
       <div className="stats">
         <div className="stat"><b>{a.points}</b><span>points</span></div><div className="stat"><b>{a.items}</b><span>items added</span></div><div className="stat"><b>{a.received}</b><span>validations received</span></div>
         <div className="stat"><b>{a.cast}</b><span>votes cast</span></div><div className="stat"><b>{a.loops}</b><span>loops</span></div><div className="stat"><b>{a.cross}</b><span>cross-links</span></div><div className="stat"><b>{a.hypotheses}</b><span>hypotheses</span></div>
