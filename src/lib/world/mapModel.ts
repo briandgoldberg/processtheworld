@@ -88,7 +88,7 @@ export function buildMap(w: World, pid: string): MapModel | null {
   const maxCol = Math.max(0, ...Object.values(col));
   const width = L.HEAD + L.PADX * 2 + (maxCol + 1) * L.COL;
   const firstRes = laneList.findIndex(l => l.kind === "resource");
-  let y = 0; const bands: { y: number; t: string }[] = []; const lanes: LaneT[] = [];
+  let y = 46; const bands: { y: number; t: string }[] = []; const lanes: LaneT[] = [];
   laneList.forEach((l, i) => {
     if (i === 0) { bands.push({ y, t: "Participants" }); y += L.BAND; }
     if (i === firstRes) { bands.push({ y, t: "Resources" }); y += L.BAND; }

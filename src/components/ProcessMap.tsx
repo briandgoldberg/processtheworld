@@ -7,10 +7,11 @@ const ROLE_TEXT = { consumed: "Takes in and uses up", used: "Uses (not used up)"
 const IMPACT = ["", "Very small", "Small", "Moderate", "Large", "Very large"];
 const enc = (s: string) => encodeURIComponent(s.toLowerCase().trim().replace(/\s+/g, " "));
 
-export default function ProcessMap({ model, initial }: { model: MapModel; initial?: string }) {
+export default function ProcessMap({ model, initial, fit = false, extra }: { model: MapModel; initial?: string; fit?: boolean; extra?: React.ReactNode }) {
   const [sel, setSel] = useState<string | null>(null);
   const [selE, setSelE] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
+  const setZoomBy = (f: (z: number) => number) => setZoom(f);
   const board = useRef<HTMLDivElement>(null);
   const [full, setFull] = useState(false);
   // Full screen belongs to the whole page, not to one map, so it survives clicking from one process to the next.
@@ -68,6 +69,7 @@ export default function ProcessMap({ model, initial }: { model: MapModel; initia
     node.out.forEach(o => s.add(o.to)); node.inc.forEach(i => s.add(i.from));
     return s;
   }, [node]);
+  const labelsOn = zoom >= 0.75 || !!node || !!edge;
   const edgeOn = (e: { id: string }) => edge ? e.id === edge.id : !node || node.out.some(o => o.edge === e.id) || node.inc.some(i => i.edge === e.id);
 
   const W = model.width, H = model.height;
@@ -81,13 +83,14 @@ export default function ProcessMap({ model, initial }: { model: MapModel; initia
   return (
     <div className={"stage" + (full ? " fs" : "")}>
       <div className="toolbar">
-        <button className="btn" onClick={() => setZoom(z => Math.max(0.4, z / 1.2))} aria-label="Zoom out">−</button>
+        <button className="btn" onClick={() => setZoomBy(z => Math.max(0.12, z / 1.2))} aria-label="Zoom out">−</button>
         <button className="btn" onClick={() => setZoom(1)} aria-label="Reset zoom">{Math.round(zoom * 100)}%</button>
-        <button className="btn" onClick={() => setZoom(z => Math.min(2, z * 1.2))} aria-label="Zoom in">+</button>
+        <button className="btn" onClick={() => setZoomBy(z => Math.min(2, z * 1.2))} aria-label="Zoom in">+</button>
         <button className="btn" onClick={toggleFull} aria-label={full ? "Exit full screen" : "Full screen"} style={{ marginLeft: 8 }}>{full ? "Exit full screen" : "⤢ Full screen"}</button>
+        {extra}
         {full && <span className="small" style={{ marginLeft: 10, display: "flex", gap: 6, flexWrap: "wrap" }}>{model.crumbs.map((c2, i) => <span key={c2.id}>{i > 0 && <span className="muted"> / </span>}{i < model.crumbs.length - 1 ? <Link href={`/map/${c2.id}`}>{c2.title}</Link> : <b>{c2.title}</b>}</span>)}</span>}
       </div>
-      <div className="board" ref={board}>
+      <div className="board" ref={board} style={fit && !full ? { maxHeight: "none" } : undefined}>
         <svg width={W * zoom} height={H * zoom} viewBox={`0 0 ${W} ${H}`} role="img" aria-label={model.title}>
           <defs>
             {marker("a-plus", "var(--edge)")}{marker("a-minus", "var(--warn)")}{marker("a-zero", "var(--muted)")}{marker("a-hyp", "var(--hyp)")}{marker("a-res", "var(--system)")}
@@ -110,7 +113,7 @@ export default function ProcessMap({ model, initial }: { model: MapModel; initia
               <path d={e.d} style={{ pointerEvents: "none" }} className={"edge " + (e.hyp ? "hyp" : e.dir === "-" ? "minus" : e.dir === "0" ? "zero" : "plus") + (e.back ? " back" : "") + (edgeOn(e) ? "" : " dim")} strokeWidth={1.3 + e.size * 0.6} markerEnd={`url(#${e.hyp ? "a-hyp" : e.dir === "-" ? "a-minus" : e.dir === "0" ? "a-zero" : "a-plus"})`}>
                 <title>{`Impact ${e.dir}${e.size} of 5. Click for details and evidence.`}</title>
               </path>
-              {e.label && edgeOn(e) && (
+              {e.label && edgeOn(e) && labelsOn && (
                 <g style={{ cursor: "pointer" }} onClick={() => { setSelE(e.id); setSel(null); }}><rect x={e.lx - (e.label.length * 3.2 + 8)} y={e.ly - 10} width={e.label.length * 6.4 + 16} height={19} rx={9.5} className="elbg" /><text x={e.lx} y={e.ly + 3.5} textAnchor="middle" className="el">{e.label}</text></g>
               )}
             </g>
@@ -118,7 +121,7 @@ export default function ProcessMap({ model, initial }: { model: MapModel; initia
           {model.arrows.map((a, i) => (
             <g key={i} className={"arrow-g" + (node && node.id !== a.step ? " dim" : "") + (node && node.id === a.step ? " on" : "")}>
               <path d={a.d} className={"arrow " + a.role} markerEnd={`url(#m-${a.role})`}><title>{`${byId.get(a.step)?.label}: ${a.label} ${a.name}`}</title></path>
-              {(a.role !== "used" || node?.id === a.step) && <text x={a.lx + 5} y={a.ly + 3} className={"arrow-label " + a.role}>{a.label}</text>}
+              {labelsOn && (a.role !== "used" || node?.id === a.step) && <text x={a.lx + 5} y={a.ly + 3} className={"arrow-label " + a.role}>{a.label}</text>}
             </g>
           ))}
           {model.chips.map(c => (
