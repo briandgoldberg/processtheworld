@@ -5,9 +5,11 @@ import { PrismaClient } from "@prisma/client";
 import { withAccelerate } from "@prisma/extension-accelerate";
 import { writeFileSync } from "node:fs";
 
-const url = [process.env.PRISMA_ACCELERATE_URL, process.env.DATABASE_PRISMA_DATABASE_URL, process.env.DATABASE_URL, process.env.DATABASE_POSTGRES_URL].find(u => u && u.startsWith("prisma"))
-  || [process.env.DATABASE_URL, process.env.DATABASE_POSTGRES_URL].find(Boolean);
-const prisma = new PrismaClient({ datasourceUrl: url }).$extends(withAccelerate());
+const good = u => u && !u.includes("[SENSITIVE]");
+const url = [process.env.PRISMA_ACCELERATE_URL, process.env.DATABASE_PRISMA_DATABASE_URL, process.env.DATABASE_URL, process.env.DATABASE_POSTGRES_URL].filter(good).find(u => u.startsWith("prisma"))
+  || [process.env.DATABASE_URL, process.env.DATABASE_POSTGRES_URL].filter(good)[0];
+if (!url || url.includes("[SENSITIVE]")) { console.error("No usable database address. Set DATABASE_URL (see the instructions) and run again."); process.exit(1); }
+const prisma = url.startsWith("prisma") ? new PrismaClient({ datasourceUrl: url }).$extends(withAccelerate()) : new PrismaClient({ datasourceUrl: url });
 const yes = process.argv.includes("--yes");
 
 const procs = await prisma.process.count();
