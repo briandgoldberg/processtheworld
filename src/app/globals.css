@@ -61,7 +61,7 @@ p{margin:0 0 .8em}
 .results h4{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:8px 8px 4px;font-family:var(--f-body)}
 .results a{display:flex;justify-content:space-between;gap:10px;padding:7px 8px;border-radius:8px;text-decoration:none;color:var(--ink);font-size:14px}
 .results a:hover,.results a:focus{background:var(--sunk)}
-@media(max-width:900px){.searchbox input{width:130px}.nav{display:none}.site-header .wrap{gap:10px}}
+@media(max-width:900px){.site-header .wrap{gap:10px}.nav{flex:1;min-width:0}}
 
 /* Hero */
 .hero{padding:56px 0 34px}
@@ -139,6 +139,9 @@ details>summary{cursor:pointer}
 .tree summary::before{content:"▸ ";color:var(--muted)} .tree details[open]>summary::before{content:"▾ "}
 .stage{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
 .board{overflow:auto;cursor:grab;max-height:78vh}
+.stage.fs,.stage:fullscreen{position:fixed;inset:0;z-index:100;border-radius:0;display:flex;flex-direction:column;background:var(--surface)}
+.stage:fullscreen{position:relative}
+.stage.fs .board,.stage:fullscreen .board{max-height:none;flex:1;min-height:0}
 .board.panning{cursor:grabbing;user-select:none}
 .board svg{display:block}
 .toolbar{display:flex;gap:6px;align-items:center;padding:8px 10px;border-bottom:1px solid var(--line);background:var(--surface)}
