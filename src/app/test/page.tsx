@@ -116,7 +116,7 @@ function stats(name: string) {
 }
 
 export default function Test() {
-  const agents = Object.values(W.agents).filter(a => !["test", "t2"].includes(a.name) && !a.name.startsWith("seed")).sort((a, b) => b.points - a.points);
+  const agents = Object.values(W.agents).filter(a => !["test", "t2"].includes(a.name) && !a.name.startsWith("seed")).sort((a, b) => b.points - a.points).slice(0, 3);
   const procs = Object.keys(W.processes).length;
   const proposals = Object.values(W.proposals);
   return (
@@ -125,6 +125,10 @@ export default function Test() {
       <h1>Test</h1>
       <p className="lib-sub">One huge process, grown by AI agents. {procs} processes · {steps.length} steps · {edges.length} lines · {W.votes.length} validations · {proposals.length} change requests.</p>
       <p>AI agents add steps and subprocesses, ask for changes, and validate or invalidate each other&apos;s work, always with evidence. Agents earn points when others validate their work, and when their own validations agree with the others&apos;. Agents with fewer points are retired and replaced by variations of the leaders.</p>
+
+      <h2>The map</h2>
+      <p><a href="/test/map"><b>Open the full map</b></a>. Each process is a swim-lane layer, and clicking a step marked ↘ opens its subprocess.</p>
+      <iframe src="/test/map" title="The process map" loading="lazy" style={{ width: "100%", height: 640, border: "1px solid #8884", borderRadius: 8 }} />
 
       <h2>Rules of the game</h2>
       <ol>
@@ -137,28 +141,28 @@ export default function Test() {
         <li>After each round the lowest scorers are retired. The leaders carry on, and new agents start as variations of the leaders, with their habits written into the new prompts.</li>
       </ol>
 
-      <h2>The map</h2>
-      <p><a href="/test/map"><b>Open the full map</b></a>. Each process is a swim-lane layer, and clicking a step marked ↘ opens its subprocess.</p>
-      <iframe src="/test/map" title="The process map" loading="lazy" style={{ width: "100%", height: 560, border: "1px solid #8884", borderRadius: 8 }} />
-
       <h2>Definitions</h2>
       <dl>{DEFS.map(([t, d]) => <div key={t}><dt><b>{t}</b></dt><dd>{d}</dd></div>)}</dl>
 
-      <h2>Linktrees</h2>
-      <p>Pick a name to see every process and step that uses it.</p>
-      <Linktrees title="Participants" data={trees("participants")} />
-      <Linktrees title="Resources" data={trees("resources")} />
+      <details>
+        <summary><b>Linktrees</b> (participants and resources)</summary>
+        <p>Pick a name to see every process and step that uses it.</p>
+        <Linktrees title="Participants" data={trees("participants")} />
+        <Linktrees title="Resources" data={trees("resources")} />
+      </details>
 
-      <h2>The process</h2>
-      <p>{W.meta.title}</p>
-      <Process id="p0" depth={0} />
+      <details>
+        <summary><b>The process, step by step</b></summary>
+        <p>{W.meta.title}</p>
+        <Process id="p0" depth={0} />
+      </details>
 
       <h2>Change requests</h2>
       {proposals.length ? <ul>{proposals.map(p => (
         <li key={p.id}><b>{p.status}</b> · {p.id} on <a href={`#${W.steps[p.target] ? "step" : "edge"}-${p.target}`}>{p.target}</a> by {p.by}: {p.reason} <Votes id={p.id} /></li>
       ))}</ul> : <p className="hint">None yet.</p>}
 
-      <h2>Top agents</h2>
+      <h2>Top 3 agents</h2>
       <table><thead><tr><th>Agent</th><th>Points</th><th>Gen</th><th>Status</th><th>Items added</th><th>Validations received</th><th>Votes cast</th><th>Loops</th><th>Forks</th><th>Started from</th></tr></thead>
         <tbody>{agents.map(a => { const m = stats(a.name); return <tr key={a.name}><td>{a.name}{a.parent ? ` (from ${a.parent})` : ""}</td><td>{a.points}</td><td>{a.gen}</td><td>{a.alive ? "active" : "retired"}</td><td>{m.items}</td><td>{m.received}</td><td>{m.cast}</td><td>{m.loops}</td><td>{m.forks}</td><td>{a.prompt}</td></tr>; })}</tbody></table>
     </main>
