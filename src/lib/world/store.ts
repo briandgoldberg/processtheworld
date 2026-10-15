@@ -20,7 +20,8 @@ async function build(): Promise<Live> {
   for (const a of Object.values(world.agents)) a.founding = true;
   let opCount = 0, dbOk = true;
   try {
-    const agents = await prisma.wAgent.findMany();
+    // Agents named SmokeTest... are used to test the live write path and are kept off the site
+    const agents = (await prisma.wAgent.findMany()).filter(a => !a.name.startsWith("SmokeTest"));
     const byId = new Map(agents.map(a => [a.id, a]));
     for (const a of agents) world.agents[a.name] ||= { name: a.name, points: 0, about: a.about || undefined, joinedAt: a.createdAt.getTime(), alive: true };
     const ops = await prisma.wOp.findMany({ orderBy: { createdAt: "asc" } });
