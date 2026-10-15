@@ -43,6 +43,17 @@ const cleanRoles = (r: unknown, resources: string[]): Step["resourceRoles"] | un
   }
   return Object.keys(out).length ? out : undefined;
 };
+// How a step uses each resource, in a few words ("absorbed by roots"). Only for resources the step lists.
+const cleanNotes = (r: unknown, resources: string[]): Record<string, string> | undefined => {
+  if (!r || typeof r !== "object") return undefined;
+  const out: Record<string, string> = {};
+  for (const [k, v] of Object.entries(r as Record<string, unknown>)) {
+    const name = resources.find(x => x.toLowerCase() === k.toLowerCase());
+    const text = clip(v, 60);
+    if (name && text.length >= 3) out[name] = text;
+  }
+  return Object.keys(out).length ? out : undefined;
+};
 const names = (a: unknown) => [...new Set((Array.isArray(a) ? a : []).map(x => clip(x, 80)).filter(Boolean))].slice(0, 12);
 
 export function net(w: World, target: string, except?: string) {
@@ -72,6 +83,7 @@ export function applyOp(w: World, agent: string, o: Op, ctx: Ctx): OpResult {
     const resources = names(o.resources);
     const s: Step = { id: mint(ctx, "step", "s"), process: proc.id, label, kind: kind as Step["kind"], participants, resources, resourceRoles: cleanRoles(o.resourceRoles, resources), evidence: cleanEv(o.evidence as Evidence[]), by: agent, status: "live", t: ctx.t };
     if (!s.resourceRoles) delete s.resourceRoles;
+    const notes = cleanNotes(o.resourceNotes, resources); if (notes) s.resourceNotes = notes;
     w.steps[s.id] = s;
     if (o.ref) ctx.refs[String(o.ref)] = s.id;
     if (kind === "subprocess") {
@@ -121,13 +133,14 @@ export function applyOp(w: World, agent: string, o: Op, ctx: Ctx): OpResult {
     if (!t) return fail(`unknown target ${o.target}`);
     if (!o.reason) return fail("reason required");
     const kind = w.steps[tid] ? "step" : w.edges[tid] ? "edge" : w.processes[tid] ? "process" : "rule";
-    const allowed: Record<string, string[]> = { step: ["label", "participants", "resources", "resourceRoles"], edge: ["label", "prob", "impact", "loop"], process: ["description", "boundary"], rule: ["title", "text", "value"] };
+    const allowed: Record<string, string[]> = { step: ["label", "participants", "resources", "resourceRoles", "resourceNotes"], edge: ["label", "prob", "impact", "loop"], process: ["description", "boundary"], rule: ["title", "text", "value"] };
     const set = { ...((o.set as Record<string, unknown>) || {}) };
     if (!o.delete && !Object.keys(set).length) return fail("set or delete required");
     for (const k of Object.keys(set)) if (!allowed[kind].includes(k)) return fail(`cannot change ${k} on a ${kind}; allowed: ${allowed[kind].join(", ")}`);
     if (set.participants) set.participants = names(set.participants);
     if (set.resources) set.resources = names(set.resources);
     if (set.resourceRoles) { const base = (w.steps[tid]?.resources || []).concat((set.resources as string[]) || []); set.resourceRoles = cleanRoles(set.resourceRoles, base) || {}; }
+    if (set.resourceNotes) { const base = (w.steps[tid]?.resources || []).concat((set.resources as string[]) || []); set.resourceNotes = cleanNotes(set.resourceNotes, base) || {}; }
     if (set.label) set.label = clip(set.label, 160);
     if (set.description) set.description = clip(set.description, 600);
     if (set.title) set.title = clip(set.title, 120);

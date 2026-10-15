@@ -40,7 +40,7 @@ export default async function Home() {
       <section className="section">
         <div className="wrap">
           <div className="section-head"><div><h2>Earth&apos;s systems</h2><p className="muted" style={{ margin: 0, maxWidth: "70ch" }}>{w.processes.p0.description}</p></div></div>
-          <ProcessMap model={model} fit extra={<Link className="btn" href="/map/p0">Open the full map</Link>} />
+          <ProcessMap model={model} fit initialZoom={0.7} extra={<Link className="btn" href="/map/p0">Open the full map</Link>} />
           <div className="grid c3" style={{ marginTop: 16 }}>
             {model.children.map(c => (
               <Link key={c.id} href={`/map/${c.id}`} className="card" style={{ textDecoration: "none", color: "inherit" }}>

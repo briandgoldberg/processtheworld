@@ -7,10 +7,10 @@ const ROLE_TEXT = { consumed: "Takes in and uses up", used: "Uses (not used up)"
 const IMPACT = ["", "Very small", "Small", "Moderate", "Large", "Very large"];
 const enc = (s: string) => encodeURIComponent(s.toLowerCase().trim().replace(/\s+/g, " "));
 
-export default function ProcessMap({ model, initial, fit = false, extra }: { model: MapModel; initial?: string; fit?: boolean; extra?: React.ReactNode }) {
+export default function ProcessMap({ model, initial, fit = false, extra, initialZoom = 1 }: { model: MapModel; initial?: string; fit?: boolean; extra?: React.ReactNode; initialZoom?: number }) {
   const [sel, setSel] = useState<string | null>(null);
   const [selE, setSelE] = useState<string | null>(null);
-  const [zoom, setZoom] = useState(1);
+  const [zoom, setZoom] = useState(initialZoom);
   const setZoomBy = (f: (z: number) => number) => setZoom(f);
   const board = useRef<HTMLDivElement>(null);
   const [full, setFull] = useState(false);
@@ -84,7 +84,7 @@ export default function ProcessMap({ model, initial, fit = false, extra }: { mod
     <div className={"stage" + (full ? " fs" : "")}>
       <div className="toolbar">
         <button className="btn" onClick={() => setZoomBy(z => Math.max(0.12, z / 1.2))} aria-label="Zoom out">−</button>
-        <button className="btn" onClick={() => setZoom(1)} aria-label="Reset zoom">{Math.round(zoom * 100)}%</button>
+        <button className="btn" onClick={() => setZoom(initialZoom)} aria-label="Reset zoom">{Math.round(zoom * 100)}%</button>
         <button className="btn" onClick={() => setZoomBy(z => Math.min(2, z * 1.2))} aria-label="Zoom in">+</button>
         <button className="btn" onClick={toggleFull} aria-label={full ? "Exit full screen" : "Full screen"} style={{ marginLeft: 8 }}>{full ? "Exit full screen" : "⤢ Full screen"}</button>
         {extra}
@@ -126,10 +126,10 @@ export default function ProcessMap({ model, initial, fit = false, extra }: { mod
           ))}
           {model.chips.map(c => (
             <a key={c.id} href={`/e/resource/${enc(c.name)}`}>
-              <g className={"chip" + (node && !node.uses.includes(c.lane) ? " dim" : "")}>
-                <rect x={c.x} y={c.y} width={c.w} height={c.h} rx={15} />
-                <text x={c.x + c.w / 2} y={c.y + 19} textAnchor="middle">{c.name.length > 19 ? c.name.slice(0, 18) + "…" : c.name}</text>
-                <title>{c.name}</title>
+              <g className={"chip " + c.role + (node && node.id !== c.step ? " dim" : "")}>
+                <rect x={c.x} y={c.y} width={c.w} height={c.h} rx={14} />
+                {c.lines.map((t, i) => <text key={i} x={c.x + c.w / 2} y={c.y + (c.lines.length === 1 ? 22 : 15 + i * 12)} textAnchor="middle">{t}</text>)}
+                <title>{c.name + ": " + c.text}</title>
               </g>
             </a>
           ))}
@@ -174,7 +174,7 @@ export default function ProcessMap({ model, initial, fit = false, extra }: { mod
             <div className="chips">{node.participants.map(p => <a key={p} className="p" href={`/e/participant/${enc(p)}`}>{p}</a>)}</div></div>
           {node.resourceUse.length > 0 && <div className="sec"><div className="label">Resources</div>
             {(["consumed", "used", "produced"] as const).map(role => { const items = node.resourceUse.filter(r => r.role === role); return items.length > 0 && (
-              <p key={role} className="small" style={{ margin: "6px 0 0" }}><b>{ROLE_TEXT[role]}:</b>{" "}{items.map((r, k) => <span key={r.name}>{k > 0 && ", "}<a href={`/e/resource/${enc(r.name)}`}>{r.name}</a>{r.inferred ? "*" : ""}</span>)}</p>
+              <p key={role} className="small" style={{ margin: "6px 0 0" }}><b>{ROLE_TEXT[role]}:</b>{" "}{items.map((r, k) => <span key={r.name}>{k > 0 && "; "}<a href={`/e/resource/${enc(r.name)}`}>{r.name}</a>{r.note ? ` (${r.note})` : ""}{r.inferred && !r.note ? "*" : ""}</span>)}</p>
             ); })}
             {node.resourceUse.some(r => r.inferred) && <p className="small muted" style={{ margin: "6px 0 0" }}>* Read from the step&apos;s wording. An agent can correct it with a change request.</p>}</div>}
           {node.inc.length > 0 && <div className="sec"><div className="label">Comes from</div>

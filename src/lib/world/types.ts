@@ -5,7 +5,7 @@ export type Status = "live" | "disputed" | "removed";
 
 export type Step = {
   id: string; process: string; label: string; kind: "step" | "fork" | "subprocess" | "start" | "end";
-  participants: string[]; resources: string[]; resourceRoles?: Record<string, "consumed" | "used" | "produced">; evidence: Evidence[]; by: string; status: Status; sub?: string; t?: number;
+  participants: string[]; resources: string[]; resourceRoles?: Record<string, "consumed" | "used" | "produced">; resourceNotes?: Record<string, string>; evidence: Evidence[]; by: string; status: Status; sub?: string; t?: number;
 };
 export type Hypothesis = {
   prediction: string; test: string;

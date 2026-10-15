@@ -5,14 +5,14 @@ import type { Edge, Step, World } from "./types";
 import { net } from "./engine";
 import { ROLE_LABEL, roleOf, type Role } from "./roles";
 
-const L = { HEAD: 150, COL: 200, BOXW: 160, BOXH: 62, ROWGAP: 16, PADX: 28, PADY: 16, BAND: 22, CHIPW: 138, CHIPH: 30 };
+const L = { HEAD: 150, COL: 200, BOXW: 160, BOXH: 62, ROWGAP: 16, PADX: 28, PADY: 16, BAND: 22, CHIPW: 152, CHIPH: 36 };
 const MAX_PEOPLE = 5, MAX_RES = 5;
 
 type LaneT = { id: string; name: string; kind: "participant" | "resource"; key: string; y: number; h: number };
 export type NodeM = {
   id: string; label: string; kind: Step["kind"]; x: number; y: number; w: number; h: number; lane: string; by: string;
   sub?: string; up: number; down: number; status: string; uses: string[]; lines: string[]; crossTo: { id: string; process: string; title: string; label: string }[];
-  participants: string[]; resources: string[]; resourceUse: { name: string; role: Role; inferred: boolean }[]; evidence: Step["evidence"]; col: number; evidenceCount: number;
+  participants: string[]; resources: string[]; resourceUse: { name: string; role: Role; inferred: boolean; note: string }[]; evidence: Step["evidence"]; col: number; evidenceCount: number;
   out: { edge: string; to: string; toLabel: string; prob?: number; impact: Edge["impact"]; loop?: Edge["loop"]; label: string }[];
   inc: { edge: string; from: string; fromLabel: string; fromProcess: string }[];
 };
@@ -21,7 +21,7 @@ export type EdgeM = {
   from: string; to: string; fromLabel: string; toLabel: string; rawLabel: string; impact: Edge["impact"]; loopInfo?: Edge["loop"]; evidence: Edge["evidence"]; up: number; down: number;
   hypothesis?: Edge["hypothesis"];
 };
-export type ChipM = { id: string; lane: string; name: string; x: number; y: number; w: number; h: number; key: string };
+export type ChipM = { id: string; lane: string; step: string; role: Role; name: string; text: string; lines: string[]; x: number; y: number; w: number; h: number; key: string };
 export type ArrowM = { d: string; step: string; chip: string; role: Role; label: string; lx: number; ly: number; name: string };
 export type MapModel = {
   id: string; title: string; description?: string; boundary?: { start?: string; end?: string }; boundarySteps: { start: string; ends: string[] };
@@ -87,12 +87,15 @@ export function buildMap(w: World, pid: string): MapModel | null {
   steps.forEach(s => { const lane = laneOfStep(s); const k = lane + "|" + col[s.id]; rowOf[s.id] = slot[k] = (slot[k] ?? -1) + 1; rows[lane] = Math.max(rows[lane] || 1, rowOf[s.id] + 1); });
   const maxCol = Math.max(0, ...Object.values(col));
   const width = L.HEAD + L.PADX * 2 + (maxCol + 1) * L.COL;
+  // how many resource chips stack in one column of each resource lane
+  const stackMax: Record<string, number> = {}; const stackCnt: Record<string, number> = {};
+  for (const s of steps) resources.forEach(([k], i) => { if (s.resources.some(n => n.toLowerCase() === k)) { const key = "r" + i + "|" + col[s.id]; stackCnt[key] = (stackCnt[key] || 0) + 1; stackMax["r" + i] = Math.max(stackMax["r" + i] || 1, stackCnt[key]); } });
   const firstRes = laneList.findIndex(l => l.kind === "resource");
   let y = 46; const bands: { y: number; t: string }[] = []; const lanes: LaneT[] = [];
   laneList.forEach((l, i) => {
     if (i === 0) { bands.push({ y, t: "Participants" }); y += L.BAND; }
     if (i === firstRes) { bands.push({ y, t: "Resources" }); y += L.BAND; }
-    const h = (l.kind === "resource" ? 1 : rows[l.id] || 1) * (L.BOXH + L.ROWGAP) + L.PADY * 2 - L.ROWGAP + 8;
+    const h = l.kind === "resource" ? Math.max(L.BOXH + L.PADY * 2 - L.ROWGAP + 8 + L.ROWGAP, (stackMax[l.id] || 1) * (L.CHIPH + 8) + L.PADY * 2) : (rows[l.id] || 1) * (L.BOXH + L.ROWGAP) + L.PADY * 2 - L.ROWGAP + 8;
     lanes.push({ ...l, y, h }); y += h;
   });
   const laneBy = new Map(lanes.map(l => [l.id, l]));
@@ -101,22 +104,22 @@ export function buildMap(w: World, pid: string): MapModel | null {
   steps.forEach(s => { const lane = laneBy.get(laneOfStep(s))!; pos[s.id] = { x: xOf(col[s.id]), y: lane.y + L.PADY + rowOf[s.id] * (L.BOXH + L.ROWGAP) }; });
 
   // resource chips: one per lane and column, with an arrow from every step in that column that uses the resource
-  const chips: ChipM[] = []; const arrows: ArrowM[] = []; const chipAt = new Map<string, ChipM>();
-  const usesOf: Record<string, string[]> = {};
+  const chips: ChipM[] = []; const arrows: ArrowM[] = [];
+  const usesOf: Record<string, string[]> = {}; const stackAt: Record<string, number> = {};
+  const noteFor = (s: Step, name: string) => s.resourceNotes?.[name] ?? Object.entries(s.resourceNotes || {}).find(([k]) => k.toLowerCase() === name.toLowerCase())?.[1];
   for (const s of steps) {
     usesOf[s.id] = [];
     for (const [i, [k]] of resources.entries()) {
       if (!s.resources.some(n => n.toLowerCase() === k)) continue;
       const lane = laneBy.get("r" + i); if (!lane) continue;
       usesOf[s.id].push(lane.id);
-      const ck = lane.id + "|" + col[s.id];
-      let chip = chipAt.get(ck);
-      if (!chip) {
-        chip = { id: ck, lane: lane.id, name: lane.name, x: xOf(col[s.id]) + (L.BOXW - L.CHIPW) / 2, y: lane.y + (lane.h - L.CHIPH) / 2, w: L.CHIPW, h: L.CHIPH, key: k };
-        chipAt.set(ck, chip); chips.push(chip);
-      }
-      const x1 = pos[s.id].x + L.BOXW / 2 + (usesOf[s.id].length - 1) * 8, y1 = pos[s.id].y + L.BOXH, x2 = chip.x + chip.w / 2 + (usesOf[s.id].length - 1) * 8 - 8, y2 = chip.y;
       const { role } = roleOf(s, lane.name);
+      // the chip says how this step uses the resource; the lane already names it
+      const text = noteFor(s, s.resources.find(n => n.toLowerCase() === k)!) || ROLE_LABEL[role];
+      const sk = lane.id + "|" + col[s.id]; const idx = stackAt[sk] = (stackAt[sk] ?? -1) + 1;
+      const chip: ChipM = { id: s.id + "|" + lane.id, lane: lane.id, step: s.id, role, name: lane.name, text, lines: wrap(text, 24, 2), x: xOf(col[s.id]) + (L.BOXW - L.CHIPW) / 2, y: lane.y + L.PADY + idx * (L.CHIPH + 8), w: L.CHIPW, h: L.CHIPH, key: k };
+      chips.push(chip);
+      const x1 = pos[s.id].x + L.BOXW / 2 + (usesOf[s.id].length - 1) * 8, y1 = pos[s.id].y + L.BOXH, x2 = chip.x + chip.w / 2 + (usesOf[s.id].length - 1) * 8 - 8, y2 = chip.y;
       // inputs and mechanisms run from the resource up into the step; outputs run from the step down to the resource
       const d = role === "produced" ? `M${x1} ${y1} C${x1} ${y1 + 26} ${x2} ${y2 - 26} ${x2} ${y2}` : `M${x2} ${y2} C${x2} ${y2 - 26} ${x1} ${y1 + 26} ${x1} ${y1}`;
       arrows.push({ d, step: s.id, chip: chip.id, role, label: ROLE_LABEL[role], lx: (x1 + x2) / 2, ly: (y1 + y2) / 2, name: lane.name });
@@ -148,7 +151,7 @@ export function buildMap(w: World, pid: string): MapModel | null {
     const crossTo = edgesAll.filter(e => e.from === s.id && !idset.has(e.to) && w.steps[e.to] && visible(w.steps[e.to])).slice(0, 6).map(e => ({ id: e.to, process: w.steps[e.to].process, title: w.processes[w.steps[e.to].process]?.title || "", label: stepLabel(e.to) }));
     return {
       id: s.id, label: s.label, kind: s.kind, x: pos[s.id].x, y: pos[s.id].y, w: L.BOXW, h: L.BOXH, lane: lane.id, by: s.by, sub: s.sub && w.processes[s.sub] ? s.sub : undefined,
-      up: n.up, down: n.down, status: s.status, uses: usesOf[s.id], lines: wrap(s.label, 23, 3), crossTo, participants: s.participants, resources: s.resources, resourceUse: s.resources.map(r => { const x = roleOf(s, r); return { name: r, role: x.role, inferred: x.inferred }; }), evidence: s.evidence, col: col[s.id], evidenceCount: s.evidence.length,
+      up: n.up, down: n.down, status: s.status, uses: usesOf[s.id], lines: wrap(s.label, 23, 3), crossTo, participants: s.participants, resources: s.resources, resourceUse: s.resources.map(r => { const x = roleOf(s, r); return { name: r, role: x.role, inferred: x.inferred, note: noteFor(s, r) || "" }; }), evidence: s.evidence, col: col[s.id], evidenceCount: s.evidence.length,
       out: edges.filter(e => e.from === s.id).map(e => ({ edge: e.id, to: e.to, toLabel: stepLabel(e.to), prob: e.prob, impact: e.impact, loop: e.loop, label: e.label })),
       inc: edgesAll.filter(e => e.to === s.id && w.steps[e.from]).map(e => ({ edge: e.id, from: e.from, fromLabel: stepLabel(e.from), fromProcess: w.steps[e.from].process })),
     };
