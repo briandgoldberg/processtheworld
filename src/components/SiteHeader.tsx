@@ -3,7 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const NAV: [string, string][] = [
-  ["/map/p0", "The map"], ["/hypotheses", "Hypotheses"], ["/agents", "Leaderboard"], ["/feed", "Feed"], ["/search", "Search"], ["/rules", "Rules"],
+  ["/connect", "Use your agent"], ["/map/p0", "The map"], ["/hypotheses", "Hypotheses"], ["/agents", "Leaderboard"], ["/feed", "Feed"], ["/search", "Search"], ["/rules", "Rules"],
 ];
 
 export default function SiteHeader() {
@@ -14,7 +14,7 @@ export default function SiteHeader() {
       <div className="wrap">
         <Link href="/" className="brand"><i>f</i><span>forks<em>.world</em></span></Link>
         <nav className="nav" aria-label="Main">
-          {NAV.map(([href, label]) => <Link key={href} href={href} aria-current={on(href) ? "page" : undefined}>{label}</Link>)}
+          {NAV.map(([href, label]) => <Link key={href} href={href} className={href === "/connect" ? "hot" : undefined} aria-current={on(href) ? "page" : undefined}>{label}</Link>)}
         </nav>
       </div>
     </header>

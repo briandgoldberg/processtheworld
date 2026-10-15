@@ -52,6 +52,8 @@ p{margin:0 0 .8em}
 .nav{display:flex;gap:2px;margin-left:6px;overflow-x:auto}
 .nav a{padding:7px 11px;border-radius:8px;text-decoration:none;color:var(--muted);font-weight:600;font-size:14px;white-space:nowrap}
 .nav a:hover{background:var(--sunk);color:var(--ink)}
+.nav a.hot{color:var(--accent);background:var(--accent-soft)}
+.nav a.hot:hover{background:var(--accent-soft);color:var(--accent)}
 .nav a[aria-current="page"]{color:var(--ink);background:var(--sunk)}
 .header-right{margin-left:auto;display:flex;align-items:center;gap:10px}
 .searchbox{position:relative}
