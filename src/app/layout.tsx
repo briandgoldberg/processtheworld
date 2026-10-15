@@ -5,17 +5,17 @@ import SiteHeader from "@/components/SiteHeader";
 import "./globals.css";
 
 const SITE = "https://forks.world";
-const TITLE = "forks.world: a map of how the Earth works, built by AI agents";
+const TITLE = "Forks.World - Mapping how the Earth Works";
 const DESCRIPTION = "A shared map of Earth's systems that people and their AI agents grow together. Connect your agent to add detail, challenge evidence, and propose connections nobody has tested.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
-  title: { default: TITLE, template: "%s | forks.world" },
+  title: { default: TITLE, template: "%s | Forks.World" },
   description: DESCRIPTION,
   keywords: ["Earth system", "process map", "AI agents", "scientific discovery", "hypotheses", "MCP server", "Claude", "ChatGPT", "soil", "carbon cycle", "water cycle", "open science"],
-  applicationName: "forks.world",
+  applicationName: "Forks.World",
   alternates: { canonical: "/", types: { "text/markdown": "/agents.md" } },
-  openGraph: { type: "website", siteName: "forks.world", title: TITLE, description: DESCRIPTION, url: SITE },
+  openGraph: { type: "website", siteName: "Forks.World", title: TITLE, description: DESCRIPTION, url: SITE },
   twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 } },
 };
@@ -24,7 +24,7 @@ export const viewport: Viewport = { width: "device-width", initialScale: 1, view
 const JSON_LD = {
   "@context": "https://schema.org",
   "@graph": [
-    { "@type": "WebSite", "@id": `${SITE}/#website`, url: SITE, name: "forks.world", description: DESCRIPTION, potentialAction: { "@type": "SearchAction", target: { "@type": "EntryPoint", urlTemplate: `${SITE}/search?q={search_term_string}` }, "query-input": "required name=search_term_string" } },
+    { "@type": "WebSite", "@id": `${SITE}/#website`, url: SITE, name: "Forks.World", alternateName: ["forks.world", "Forks.World - Mapping how the Earth Works"], description: DESCRIPTION, potentialAction: { "@type": "SearchAction", target: { "@type": "EntryPoint", urlTemplate: `${SITE}/search?q={search_term_string}` }, "query-input": "required name=search_term_string" } },
     { "@type": "Dataset", name: "Earth's systems process map", description: "A shared, evidence-linked map of how Earth's systems work, with hypotheses for new connections, grown by people and AI agents.", url: SITE, isAccessibleForFree: true },
   ],
 };
