@@ -3,13 +3,45 @@
   "id": "e2303",
   "status": "nothing found",
   "untested": "Whether coastal sea-salt deposition raises soil sodium and weakens aggregates. No paper matched this wording.",
-  "papers": []
+  "papers": [],
+  "web": {
+   "verdict": "Supports half",
+   "text": "Coastal soils do show more exchangeable sodium close to the coast, with soils nearest the shore past saline-sodic limits and 1.5-2 km inland not. One Egyptian transect showed no steady trend. No source measured aggregate stability, so the aggregate-weakening step is untested.",
+   "links": [
+    {
+     "label": "French study",
+     "url": "https://hal.inrae.fr/hal-02741455v1/document"
+    },
+    {
+     "label": "Korean transect",
+     "url": "https://koreascience.kr/article/JAKO201106737198085.do"
+    },
+    {
+     "label": "Surabaya transect",
+     "url": "https://repository.upnjatim.ac.id/48306/"
+    }
+   ]
+  }
  },
  {
   "id": "e2308",
   "status": "nothing found",
   "untested": "Whether soil Streptomyces aerosols seed cloud droplets or ice. Four papers matched but all are unrelated (enzyme expression, indoor spore release).",
-  "papers": []
+  "papers": [],
+  "web": {
+   "verdict": "No direct evidence",
+   "text": "Raindrops are known to throw soil bacteria into the air, and fungal spores can act as ice nuclei. Nothing found on Streptomyces or geosmin particles acting as cloud nuclei.",
+   "links": [
+    {
+     "label": "Fungal spore ice nuclei model",
+     "url": "https://acp.copernicus.org/articles/14/9051/2014/"
+    },
+    {
+     "label": "Raindrops launch bacteria",
+     "url": "https://www.kunc.org/npr-news/2017-03-07/watch-raindrops-catapult-bacteria-into-the-air-and-its-beautiful"
+    }
+   ]
+  }
  },
  {
   "id": "e2307",
@@ -21,7 +53,17 @@
     "year": "2026",
     "doi": "https://doi.org/10.64898/2026.07.13.738189"
    }
-  ]
+  ],
+  "web": {
+   "verdict": "Mixed, no soil data",
+   "text": "No soil study shows phage lysis lowering methane uptake. A bioreactor report says phage blooms can set back methane oxidizers, supporting the direction. A lake study found phages that carry a methane-oxidation gene, which hints at the opposite effect. Sediment work found viruses infect methanotrophs but their genes do not directly drive methane metabolism.",
+   "links": [
+    {
+     "label": "Viruses, methanogens and methanotrophic archaea",
+     "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9723712/"
+    }
+   ]
+  }
  },
  {
   "id": "e2300",
@@ -33,7 +75,21 @@
     "year": "2017",
     "doi": "https://doi.org/10.5194/acp-17-14785-2017"
    }
-  ]
+  ],
+  "web": {
+   "verdict": "No direct evidence",
+   "text": "Smoke haze with moderate aerosol raised canopy photosynthesis, which supports the first step. Nobody has measured the root or soil respiration response. A 2025 preprint calls the root-respiration link largely theoretical. Near volcanoes, geological CO2 can be mistaken for soil respiration.",
+   "links": [
+    {
+     "label": "Smoke and diffuse radiation, 2019",
+     "url": "https://acp.copernicus.org/articles/19/835/2019/"
+    },
+    {
+     "label": "Root vs soil respiration, 2025 preprint",
+     "url": "https://egusphere.copernicus.org/preprints/2025/egusphere-2025-2849/egusphere-2025-2849.pdf"
+    }
+   ]
+  }
  },
  {
   "id": "e2311",
@@ -50,7 +106,12 @@
     "year": "1981",
     "doi": null
    }
-  ]
+  ],
+  "web": {
+   "verdict": "Supports half",
+   "text": "After the 2011 Puyehue-Cordon Caulle ash fall in Patagonia, nematode numbers and soil enzyme activity dropped. That study did not report life-history (c-p) groups, so the claim about which nematodes go first is untested.",
+   "links": []
+  }
  },
  {
   "id": "e2790",
@@ -67,7 +128,21 @@
     "year": "1991",
     "doi": "https://doi.org/10.1016/s0932-4739(11)80061-1"
    }
-  ]
+  ],
+  "web": {
+   "verdict": "Mixed, direction unclear",
+   "text": "Silica-shelled soil amoebae make a silicon pool about half the size of tree uptake in a beech forest, and stream silica exports were too high for rock weathering alone. That suggests biological pools feed silica exports, possibly the opposite of this prediction. Nothing found on earthworms.",
+   "links": [
+    {
+     "label": "Beech forest silicon budget",
+     "url": "https://bg.copernicus.org/articles/10/4991/2013/"
+    },
+    {
+     "label": "Amoeba silicon dataset",
+     "url": "https://doi.org/10.1016/j.dib.2018.10.164"
+    }
+   ]
+  }
  },
  {
   "id": "e2591",
@@ -79,7 +154,21 @@
     "year": "2004",
     "doi": "https://doi.org/10.1128/aem.70.10.6342-6346.2004"
    }
-  ]
+  ],
+  "web": {
+   "verdict": "Supports in the lab",
+   "text": "Lab-scale lightning moved genes into bacteria in soil, and lightning-competent soil bacteria were isolated. One estimate puts the affected soil at 2 to 950 cubic metres per strike. Natural field transfer has not been shown, and no study looked at microbes in fulgurites or strike zones.",
+   "links": [
+    {
+     "label": "Lab lightning gene transfer in soil",
+     "url": "https://prodinra.inra.fr/record/249883"
+    },
+    {
+     "label": "Lightning electroporation and gene transfer",
+     "url": "https://arxiv.org/pdf/1212.5436"
+    }
+   ]
+  }
  },
  {
   "id": "e2594",
@@ -91,7 +180,8 @@
     "year": "2015",
     "doi": "https://doi.org/10.1016/j.chemosphere.2015.03.094"
    }
-  ]
+  ],
+  "web": null
  },
  {
   "id": "e2310",
@@ -108,7 +198,8 @@
     "year": "2007",
     "doi": "https://doi.org/10.1111/j.1462-2920.2007.01414.x"
    }
-  ]
+  ],
+  "web": null
  },
  {
   "id": "e2312",
@@ -125,7 +216,8 @@
     "year": "2016",
     "doi": "https://doi.org/10.1016/j.soilbio.2016.08.019"
    }
-  ]
+  ],
+  "web": null
  },
  {
   "id": "e2590",
@@ -137,7 +229,8 @@
     "year": "2025",
     "doi": "https://doi.org/10.13287/j.1001-9332.202504.020"
    }
-  ]
+  ],
+  "web": null
  },
  {
   "id": "e2318",
@@ -149,7 +242,8 @@
     "year": "2023",
     "doi": "https://doi.org/10.1016/j.scitotenv.2023.165889"
    }
-  ]
+  ],
+  "web": null
  },
  {
   "id": "e2302",
@@ -166,7 +260,8 @@
     "year": "2019",
     "doi": "https://doi.org/10.1371/journal.pone.0220991"
    }
-  ]
+  ],
+  "web": null
  },
  {
   "id": "e2314",
@@ -183,7 +278,8 @@
     "year": "2019",
     "doi": "https://doi.org/10.1371/journal.pone.0220991"
    }
-  ]
+  ],
+  "web": null
  },
  {
   "id": "e2315",
@@ -200,6 +296,7 @@
     "year": "2008",
     "doi": "https://doi.org/10.1016/j.foreco.2008.03.051"
    }
-  ]
+  ],
+  "web": null
  }
 ]
