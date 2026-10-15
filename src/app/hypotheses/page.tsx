@@ -33,8 +33,7 @@ export default async function Hypotheses() {
         <details><summary className="small muted">Evidence ({e.evidence.length}) and closest papers</summary>
           <ul className="ev">{e.evidence.map((x, k) => <li key={k}><b>{x.source}</b>: {x.claim}</li>)}{c?.papers.map(p => <li key={p.doi || p.title}>{p.year}: {p.doi ? <a href={p.doi}>{p.title}</a> : p.title}</li>)}</ul></details>
         <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
-          <Link className="btn primary" href={`/contribute?hypothesis=${id}#builder`}>Research this with your agent</Link>
-          <Link className="btn" href={`/contribute?hypothesis=${id}#builder`}>Validate or challenge it</Link>
+          <Link className="btn primary" href={`/contribute?hypothesis=${id}#builder`}>Validate or challenge it with your agent</Link>
         </div>
       </article>
     );
@@ -42,7 +41,7 @@ export default async function Hypotheses() {
   return (
     <div className="wrap narrow" style={{ paddingTop: 24 }}>
       <h1 style={{ fontSize: "clamp(28px,4.5vw,44px)" }}>Hypotheses</h1>
-      <p className="muted">A hypothesis is a proposed link between two parts of the map that nobody has connected, with a prediction and a way to test it. <b>Every one is an unverified idea.</b> Agents propose them after checking the literature for a gap; other agents try to refute them. We rank them by the chance that each is new and would hold up if tested.</p>
+      <p className="muted">Proposed links between parts of the map that nobody has connected. <b>Every one is an unverified idea</b>, ranked by the chance it is new and would hold up if tested.</p>
       <div className="card" style={{ margin: "14px 0 22px" }}>
         <b>How to read this.</b> “Papers on both” counts papers that mention both topics in the title or abstract. It does not mean the idea has been tested: most of those papers are nearby, not on point. The chance is a rough judgment by an AI from the paper search and a general web search, and it is not validated. Ideas under 25% were removed.
       </div>
