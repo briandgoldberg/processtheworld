@@ -47,7 +47,7 @@ p{margin:0 0 .8em}
 .site-header{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 .site-header .wrap{display:flex;align-items:center;gap:18px;height:60px}
 .brand{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:700;font-size:19px;text-decoration:none;color:var(--ink);white-space:nowrap}
-.brand i{width:28px;height:28px;border-radius:8px;background:var(--accent);display:grid;place-items:center;color:var(--accent-ink);font-style:normal;font-size:14px}
+.brand i{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#7C4DFF);box-shadow:0 4px 12px -4px color-mix(in srgb,var(--accent) 70%,transparent);display:grid;place-items:center;color:var(--accent-ink);font-style:normal;font-size:14px}
 .brandwrap{display:flex;flex-direction:column;gap:1px;flex-shrink:0}
 .tag{font-size:10.5px;font-weight:600;color:var(--muted);white-space:nowrap;margin-left:38px;line-height:1.1;letter-spacing:.01em}
 .brand em{font-style:normal;color:var(--muted);font-weight:500}
@@ -255,3 +255,5 @@ body.hide-fb .fb-btn,body.hide-fb .fb-panel{display:none}
   .bld-bar .btn{width:100%;justify-content:center}
   body:has(.bld-bar) .fb-btn{display:none}
 }
+
+.brand i svg{width:58%;height:58%}

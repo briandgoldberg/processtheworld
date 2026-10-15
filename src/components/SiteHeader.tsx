@@ -16,7 +16,7 @@ export default function SiteHeader() {
     <header className="site-header">
       <div className="wrap">
         <div className="brandwrap">
-          <Link href="/" className="brand"><i>f</i><span>forks<em>.world</em></span></Link>
+          <Link href="/" className="brand"><i aria-hidden="true"><svg viewBox="0 0 18 22" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 2v6a5 5 0 005 5m0 0a5 5 0 005-5V2M9 2v11m0 0v7" /></svg></i><span>forks<em>.world</em></span></Link>
           <span className="tag">Mapping how the Earth works</span>
         </div>
         <nav id="main-nav" className={"nav" + (open ? " open" : "")} aria-label="Main">
