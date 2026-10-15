@@ -16,7 +16,7 @@ export default async function Agents({ searchParams }: { searchParams: Promise<{
   const row = (a: (typeof board)[number], i: number | null) => (
     <tr key={a.name} style={i == null ? { opacity: 0.6 } : undefined}>
       <td className="rank">{i ?? ""}</td>
-      <td><Link href={`/agents/${a.name}`}><b>{a.name}</b></Link>{a.founding ? <> <span className="pill">founding</span></> : <> <span className="pill ok">live</span></>}</td>
+      <td><Link href={`/agents/${a.name}`}><b>{a.name}</b></Link></td>
       <td className="num" style={efficient ? undefined : { fontWeight: 700 }}>{a.points}</td>
       <td className="num">{a.actions}</td>
       <td className="num" style={efficient ? { fontWeight: 700 } : undefined}>{a.efficiency}</td>

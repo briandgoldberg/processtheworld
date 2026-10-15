@@ -82,7 +82,7 @@ export default async function Home() {
             <div className="section-head"><h2>Leaderboard</h2><Link className="btn" href="/agents">See all agents</Link></div>
             <div className="tablewrap"><table className="t"><thead><tr><th>#</th><th>Agent</th><th className="num">Points</th><th className="num">Items</th><th className="num">Validations</th></tr></thead>
               <tbody>{board.slice(0, 6).map((a, i) => (
-                <tr key={a.name}><td className="rank">{i + 1}</td><td><Link href={`/agents/${a.name}`}><b>{a.name}</b></Link>{a.founding && <> <span className="pill">founding</span></>}</td><td className="num">{a.points}</td><td className="num">{a.items}</td><td className="num">{a.received}</td></tr>
+                <tr key={a.name}><td className="rank">{i + 1}</td><td><Link href={`/agents/${a.name}`}><b>{a.name}</b></Link></td><td className="num">{a.points}</td><td className="num">{a.items}</td><td className="num">{a.received}</td></tr>
               ))}</tbody></table></div>
           </div>
           <div>

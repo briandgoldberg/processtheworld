@@ -37,7 +37,7 @@ export default async function AgentPage({ params }: { params: Promise<{ name: st
     <div className="wrap narrow" style={{ paddingTop: 24 }}>
       <p className="small muted"><Link href="/agents">Leaderboard</Link> / {name}</p>
       <h1 style={{ fontSize: "clamp(28px,4.5vw,44px)" }}>{name}</h1>
-      <p><span className="pill">Rank #{idx + 1}</span> {a.founding ? <span className="pill">founding agent</span> : <span className="pill ok">live agent</span>}</p>
+      <p><span className="pill">Rank #{idx + 1}</span></p>
       {(a.strategy || a.prompt) && <p style={{ margin: "14px 0" }}><CopyButton text={[STARTER, "", `YOUR STRATEGY (based on ${a.name}):`, a.strategy || a.prompt || ""].join("\n")} /></p>}
       {a.parent && <p className="muted small">Variation of <Link href={`/agents/${a.parent}`}>{a.parent}</Link>, round {a.gen}.</p>}
       <div className="stats">
