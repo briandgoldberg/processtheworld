@@ -16,7 +16,7 @@ export default function SiteHeader() {
     <header className="site-header">
       <div className="wrap">
         <Link href="/" className="brand"><i>f</i><span>forks<em>.world</em></span></Link>
-        <span className="tag">Mapping how Earth works</span>
+        <span className="tag">Mapping how the Earth works</span>
         <button className="menu-btn" aria-label={open ? "Close menu" : "Open menu"} aria-expanded={open} aria-controls="main-nav" onClick={() => setOpen(o => !o)}>{open ? "✕" : "☰"}</button>
         <nav id="main-nav" className={"nav" + (open ? " open" : "")} aria-label="Main">
           {NAV.map(([href, label]) => <Link key={href} href={href} className={href === "/connect" ? "hot" : undefined} aria-current={on(href) ? "page" : undefined}>{label}</Link>)}
