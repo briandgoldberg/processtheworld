@@ -1,0 +1,205 @@
+[
+ {
+  "id": "e2303",
+  "status": "nothing found",
+  "untested": "Whether coastal sea-salt deposition raises soil sodium and weakens aggregates. No paper matched this wording.",
+  "papers": []
+ },
+ {
+  "id": "e2308",
+  "status": "nothing found",
+  "untested": "Whether soil Streptomyces aerosols seed cloud droplets or ice. Four papers matched but all are unrelated (enzyme expression, indoor spore release).",
+  "papers": []
+ },
+ {
+  "id": "e2307",
+  "status": "related only",
+  "untested": "Phage killing of methane-oxidizing bacteria and its effect on methane oxidation.",
+  "papers": [
+   {
+    "title": "T4-type phages diversity in wetland soils reveals their ubiquity and their likely host-dependent dynamics",
+    "year": "2026",
+    "doi": "https://doi.org/10.64898/2026.07.13.738189"
+   }
+  ]
+ },
+ {
+  "id": "e2300",
+  "status": "related only",
+  "untested": "Soil respiration response to aerosol-scattered light. The matched paper models carbon fluxes in smoke haze.",
+  "papers": [
+   {
+    "title": "Modeling the radiative effects of biomass burning aerosols on carbon fluxes in the Amazon region",
+    "year": "2017",
+    "doi": "https://doi.org/10.5194/acp-17-14785-2017"
+   }
+  ]
+ },
+ {
+  "id": "e2311",
+  "status": "related only",
+  "untested": "Shifts in nematode life-history groups by ash thickness.",
+  "papers": [
+   {
+    "title": "Litter microbial and soil faunal communities stimulated in the wake of a volcanic eruption in a semi‐arid woodland in Patagonia, Argentina",
+    "year": "2017",
+    "doi": "https://doi.org/10.1111/1365-2435.12683"
+   },
+   {
+    "title": "Influence of volcanic ash on infectivity and reproduction of two species of meloidogyne",
+    "year": "1981",
+    "doi": null
+   }
+  ]
+ },
+ {
+  "id": "e2790",
+  "status": "related only",
+  "untested": "Whether protist and earthworm silicon pools lower catchment silica export.",
+  "papers": [
+   {
+    "title": "Phytolith transport in soil: a laboratory study on intact soil cores",
+    "year": "2010",
+    "doi": "https://doi.org/10.1111/j.1365-2389.2010.01257.x"
+   },
+   {
+    "title": "The ultrastructure of Heleopera petricola an agglutinate soil amoeba; with comments on feeding and silica deposition",
+    "year": "1991",
+    "doi": "https://doi.org/10.1016/s0932-4739(11)80061-1"
+   }
+  ]
+ },
+ {
+  "id": "e2591",
+  "status": "partly tested",
+  "untested": "Whether real lightning strikes raise gene transfer in the field. The lab step is shown.",
+  "papers": [
+   {
+    "title": "Isolation of lightning-competent soil bacteria",
+    "year": "2004",
+    "doi": "https://doi.org/10.1128/aem.70.10.6342-6346.2004"
+   }
+  ]
+ },
+ {
+  "id": "e2594",
+  "status": "partly tested",
+  "untested": "Coastal field effects and the loss of bioturbation and litter breakdown. Survival and reproduction are tested in the lab.",
+  "papers": [
+   {
+    "title": "Effects of NaCl and seawater induced salinity on survival and reproduction of three soil invertebrate species",
+    "year": "2015",
+    "doi": "https://doi.org/10.1016/j.chemosphere.2015.03.094"
+   }
+  ]
+ },
+ {
+  "id": "e2310",
+  "status": "partly tested",
+  "untested": "Upland soils with high-affinity methane oxidizers. Grazing is shown in rice soil.",
+  "papers": [
+   {
+    "title": "Selective grazing of methanotrophs by protozoa in a rice field soil",
+    "year": "2008",
+    "doi": "https://doi.org/10.1111/j.1574-6941.2008.00511.x"
+   },
+   {
+    "title": "A methane-driven microbial food web in a wetland rice soil",
+    "year": "2007",
+    "doi": "https://doi.org/10.1111/j.1462-2920.2007.01414.x"
+   }
+  ]
+ },
+ {
+  "id": "e2312",
+  "status": "partly tested",
+  "untested": "Springtail gut N2O emission and the antibiotic test.",
+  "papers": [
+   {
+    "title": "Influence of Lumbricus terrestris and Folsomia candida on N2 O formation pathways in two different soils - with particular focus on N2 emiss",
+    "year": "2016",
+    "doi": "https://doi.org/10.1002/rcm.7716"
+   },
+   {
+    "title": "Exploring the relationships between soil fauna, different tillage regimes and CO2 and N2O emissions from black soil in China",
+    "year": "2016",
+    "doi": "https://doi.org/10.1016/j.soilbio.2016.08.019"
+   }
+  ]
+ },
+ {
+  "id": "e2590",
+  "status": "partly tested",
+  "untested": "Termites, and mineral dissolution per unit rock in the field.",
+  "papers": [
+   {
+    "title": "[Effects of adding basalt powder on organic carbon sequestration in red and yellow-brown soils under earthworm inoculation]",
+    "year": "2025",
+    "doi": "https://doi.org/10.13287/j.1001-9332.202504.020"
+   }
+  ]
+ },
+ {
+  "id": "e2318",
+  "status": "partly tested",
+  "untested": "Whether burial depth and acidification predict loss of diversity.",
+  "papers": [
+   {
+    "title": "Soil microbial community composition and co-occurrence network responses to mild and severe disturbances in volcanic areas",
+    "year": "2023",
+    "doi": "https://doi.org/10.1016/j.scitotenv.2023.165889"
+   }
+  ]
+ },
+ {
+  "id": "e2302",
+  "status": "partly tested",
+  "untested": "Earlier rain or snow over the dust source. Ice nucleation by soil dust is studied.",
+  "papers": [
+   {
+    "title": "The relevance of nanoscale biological fragments for ice nucleation in clouds",
+    "year": "2015",
+    "doi": "https://doi.org/10.1038/srep08082"
+   },
+   {
+    "title": "Ice nucleation ability of loess from the northwestern United States",
+    "year": "2019",
+    "doi": "https://doi.org/10.1371/journal.pone.0220991"
+   }
+  ]
+ },
+ {
+  "id": "e2314",
+  "status": "partly tested",
+  "untested": "Soil type and land management effects on cloud glaciation downwind.",
+  "papers": [
+   {
+    "title": "The relevance of nanoscale biological fragments for ice nucleation in clouds",
+    "year": "2015",
+    "doi": "https://doi.org/10.1038/srep08082"
+   },
+   {
+    "title": "Ice nucleation ability of loess from the northwestern United States",
+    "year": "2019",
+    "doi": "https://doi.org/10.1371/journal.pone.0220991"
+   }
+  ]
+ },
+ {
+  "id": "e2315",
+  "status": "partly tested",
+  "untested": "Years-long differences in the methane sink after fire.",
+  "papers": [
+   {
+    "title": "Methanotrophic bacteria in boreal forest soil after fire",
+    "year": "2004",
+    "doi": "https://doi.org/10.1016/j.femsec.2004.06.013"
+   },
+   {
+    "title": "Thinning reduces soil carbon dioxide but not methane flux from southwestern USA ponderosa pine forests",
+    "year": "2008",
+    "doi": "https://doi.org/10.1016/j.foreco.2008.03.051"
+   }
+  ]
+ }
+]

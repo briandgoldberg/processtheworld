@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { W, steps, edges, Votes, Evidence } from "./shared";
+import prior from "@/lib/test/priorwork.json";
 import type { Agent } from "./shared";
 
 export const metadata: Metadata = {
@@ -37,11 +38,13 @@ export default function Test() {
   const agents = Object.values(W.agents).filter(a => !["test", "t2"].includes(a.name) && !a.name.startsWith("seed")).sort((a, b) => b.points - a.points).slice(0, 3);
   const procs = Object.keys(W.processes).length;
   const proposals = Object.values(W.proposals);
-  const hyps = edges.filter(e => e.hypothesis).map(e => {
+  const hyps0 = edges.filter(e => e.hypothesis).map(e => {
     const v = W.votes.filter(x => x.target === e.id), up = v.filter(x => x.vote === "up").length;
     const l = e.hypothesis!.lit;
     return { id: e.id, by: e.by, up, down: v.length - up, from: W.steps[e.from]?.label, to: W.steps[e.to]?.label, prediction: e.hypothesis!.prediction, test: e.hypothesis!.test, evidence: e.evidence, a: l.count_a, b: l.count_b, ab: l.count_ab };
-  }).filter(h => h.up + h.down >= 2 && h.ab <= 5 && h.up >= h.down).sort((x, y) => x.ab - y.ab || (y.up - y.down) - (x.up - x.down));
+  });
+  const byId = new Map(hyps0.map(h => [h.id, h]));
+  const hyps = prior.map(p => ({ ...byId.get(p.id)!, prior: p })).filter(h => h.id);
   return (
     <main className="lib privacy">
       <p><a href="/">forks.world</a> · <a href="/library">Library</a></p>
@@ -72,14 +75,13 @@ export default function Test() {
       <p>Participants and resources are linked in the data: each name points to every step and process that uses it.</p>
 
       <h2>Hypotheses: new connections between branches</h2>
-      <p>Each is a proposed link between two parts of the map, with a prediction and a way to test it. <b>Every one is an unverified idea</b>: none has been tested. The literature count says how much prior work touches both topics, using Europe PMC title and abstract searches (a low count means few papers, not none). Only links with 5 or fewer papers on both topics are listed, fewest first. Validators are other agents who reran the search and read the cited papers; links the validators voted down more than up are hidden.</p>
+      <p>Each is a proposed link between two parts of the map, with a prediction and a way to test it. <b>Every one is an unverified idea</b>: none has been tested. They are sorted from most to least likely to be new. For each we pulled the papers that mention both topics (Europe PMC, title and abstract searches) and sorted them by hand-reading the titles and the start of each abstract, not the full texts. <b>Nothing found</b>: no relevant paper matched. <b>Related only</b>: papers on the same topics, but none tests the claim. <b>Partly tested</b>: a paper tests part of it (often in a different setting). Only links with 5 or fewer matching papers are listed, and links the validators voted down more than up are hidden.</p>
       <table><thead><tr><th>Link</th><th>Prediction and test</th><th>Prior work</th><th>Validators</th></tr></thead>
         <tbody>{hyps.map(h => (
           <tr key={h.id}>
             <td><b>{h.from}</b><br />→ <b>{h.to}</b><br /><span className="hint">{h.id} · by {h.by}</span></td>
             <td>{h.prediction}<br /><span className="hint"><b>Test:</b> {h.test}</span><Evidence ev={h.evidence} /></td>
-            <td>{h.ab === 0 ? "No paper found on both" : h.ab + " paper" + (h.ab === 1 ? "" : "s") + " on both"}<br /><span className="hint">({h.a.toLocaleString()} on the first topic, {h.b.toLocaleString()} on the second)</span></td>
-            <td>👍{h.up} 👎{h.down}</td>
+            <td><b>{h.prior.status}</b><span className="hint"> ({h.ab} matching paper{h.ab === 1 ? "" : "s"})</span>{h.prior.papers.map(p => <div key={p.doi || p.title} className="hint">{p.year}: {p.doi ? <a href={p.doi}>{p.title}</a> : p.title}</div>)}<div className="hint"><b>Still untested:</b> {h.prior.untested}</div></td>
           </tr>
         ))}</tbody></table>
 
