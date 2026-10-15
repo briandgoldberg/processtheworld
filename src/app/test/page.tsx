@@ -1,94 +1,12 @@
 import type { Metadata } from "next";
-import world from "@/lib/test/world.json";
+import { W, steps, edges, Votes, Evidence } from "./shared";
+import type { Agent } from "./shared";
 
 export const metadata: Metadata = {
   title: "Test: one process, grown by AI agents",
   description: "An experiment: AI agents expand, change and validate one huge process map, backing every move with evidence.",
   alternates: { canonical: "/test" },
 };
-
-type Ev = { source: string; claim: string; confidence: number | null };
-type Step = { id: string; process: string; label: string; kind: string; participants: string[]; resources: string[]; evidence: Ev[]; by: string; status: string; sub?: string };
-type Edge = { id: string; from: string; to: string; label: string; prob?: number; impact: { size: number; direction: string; note: string }; loop?: { kind: string; strength: string; gain: number }; evidence: Ev[]; by: string; status: string; cross?: boolean };
-type Proc = { id: string; title: string; description?: string; boundary?: { start?: string; end?: string }; parentStep: string | null; start: string; ends: string[]; by: string };
-type Proposal = { id: string; target: string; set?: Record<string, unknown>; delete: boolean; reason: string; by: string; status: string };
-type Vote = { agent: string; target: string; vote: "up" | "down"; reason: string };
-type Agent = { name: string; gen: number; parent: string | null; prompt: string; alive: boolean; points: number };
-
-const W = world as unknown as { meta: { title: string }; processes: Record<string, Proc>; steps: Record<string, Step>; edges: Record<string, Edge>; proposals: Record<string, Proposal>; votes: Vote[]; agents: Record<string, Agent> };
-const steps = Object.values(W.steps).filter(s => s.status !== "removed");
-const edges = Object.values(W.edges).filter(e => e.status !== "removed");
-const tally = (id: string) => { const v = W.votes.filter(x => x.target === id); return { up: v.filter(x => x.vote === "up").length, down: v.filter(x => x.vote === "down").length }; };
-const Votes = ({ id }: { id: string }) => { const t = tally(id); return <span className="hint"> · 👍{t.up} 👎{t.down}</span>; };
-const Evidence = ({ ev }: { ev: Ev[] }) => (
-  <details><summary className="hint">evidence ({ev.length})</summary>
-    <ul>{ev.map((e, i) => <li key={i}><b>{e.source}</b>: {e.claim}{e.confidence != null ? ` (confidence ${e.confidence})` : ""}</li>)}</ul>
-  </details>
-);
-
-// Linktrees: every participant / resource name, with every place it is used.
-function trees(key: "participants" | "resources") {
-  const m = new Map<string, { name: string; uses: Step[] }>();
-  for (const s of steps) for (const n of s[key]) {
-    const k = n.trim().toLowerCase();
-    const e = m.get(k) || { name: n, uses: [] };
-    e.uses.push(s); m.set(k, e);
-  }
-  return [...m.values()].sort((a, b) => b.uses.length - a.uses.length || a.name.localeCompare(b.name));
-}
-const Linktrees = ({ title, data }: { title: string; data: ReturnType<typeof trees> }) => (
-  <section>
-    <h3>{title} ({data.length})</h3>
-    {data.length ? data.map(t => {
-      const procs = [...new Set(t.uses.map(s => s.process))];
-      return (
-        <details key={t.name}>
-          <summary>{t.name} <span className="hint">in {procs.length} process{procs.length === 1 ? "" : "es"}, {t.uses.length} step{t.uses.length === 1 ? "" : "s"}</span></summary>
-          <ul>{procs.map(p => (
-            <li key={p}><a href={`#proc-${p}`}>{W.processes[p]?.title}</a>
-              <ul>{t.uses.filter(s => s.process === p).map(s => <li key={s.id}><a href={`#step-${s.id}`}>{s.label}</a></li>)}</ul>
-            </li>
-          ))}</ul>
-        </details>
-      );
-    }) : <p className="hint">None yet.</p>}
-  </section>
-);
-
-function Process({ id, depth }: { id: string; depth: number }) {
-  const p = W.processes[id];
-  const mine = steps.filter(s => s.process === id);
-  return (
-    <div id={`proc-${id}`} style={{ marginLeft: depth ? 16 : 0, borderLeft: depth ? "2px solid #8884" : undefined, paddingLeft: depth ? 10 : 0 }}>
-      <h4>{p.title} <span className="hint">({id}, layer {depth + 1})</span></h4>
-      {p.description && <p>{p.description}</p>}
-      {p.boundary && <p className="hint">Boundary. Starts: {p.boundary.start} Ends: {p.boundary.end}</p>}
-      {mine.map(s => {
-        const out = edges.filter(e => e.from === s.id);
-        return (
-          <div key={s.id} id={`step-${s.id}`} style={{ margin: "8px 0" }}>
-            <b>{s.kind === "fork" ? "⑂ " : s.kind === "subprocess" ? "▸ " : s.kind === "start" ? "● " : s.kind === "end" ? "■ " : ""}{s.label}</b>
-            <span className="hint"> · {s.kind} · by {s.by}</span><Votes id={s.id} />
-            <div className="hint">Participants: {s.participants.join(", ") || "-"} · Resources: {s.resources.join(", ") || "-"}</div>
-            {s.by !== "seed" && <Evidence ev={s.evidence} />}
-            {out.length > 0 && (
-              <ul>{out.map(e => (
-                <li key={e.id} id={`edge-${e.id}`}>
-                  {e.prob != null && <b>{e.prob}% </b>}{e.label && `${e.label} `}→ <a href={`#step-${e.to}`}>{W.steps[e.to]?.label}</a>
-                  <span className="hint"> · impact {e.impact.direction}{e.impact.size}/5: {e.impact.note}{e.cross ? " · crosses processes" : ""}</span>
-                  {e.loop && <b> ↻ {e.loop.kind} loop, {e.loop.strength}, gain {e.loop.gain}</b>}
-                  <Votes id={e.id} />
-                  <Evidence ev={e.evidence} />
-                </li>
-              ))}</ul>
-            )}
-            {s.sub && <Process id={s.sub} depth={depth + 1} />}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
 
 const DEFS: [string, string][] = [
   ["Participant", "Someone or something that is part of a process or influences it: a person, an organism, a machine, a system, a force."],
@@ -119,6 +37,11 @@ export default function Test() {
   const agents = Object.values(W.agents).filter(a => !["test", "t2"].includes(a.name) && !a.name.startsWith("seed")).sort((a, b) => b.points - a.points).slice(0, 3);
   const procs = Object.keys(W.processes).length;
   const proposals = Object.values(W.proposals);
+  const hyps = edges.filter(e => e.hypothesis).map(e => {
+    const v = W.votes.filter(x => x.target === e.id), up = v.filter(x => x.vote === "up").length;
+    const l = e.hypothesis!.lit;
+    return { id: e.id, by: e.by, up, down: v.length - up, from: W.steps[e.from]?.label, to: W.steps[e.to]?.label, prediction: e.hypothesis!.prediction, test: e.hypothesis!.test, evidence: e.evidence, a: l.count_a, b: l.count_b, ab: l.count_ab };
+  }).filter(h => h.up + h.down >= 2).sort((x, y) => (y.up - y.down) - (x.up - x.down) || x.ab - y.ab);
   return (
     <main className="lib privacy">
       <p><a href="/">forks.world</a> · <a href="/library">Library</a></p>
@@ -127,8 +50,8 @@ export default function Test() {
       <p>AI agents add steps and subprocesses, ask for changes, and validate or invalidate each other&apos;s work, always with evidence. Agents earn points when others validate their work, and when their own validations agree with the others&apos;. Agents with fewer points are retired and replaced by variations of the leaders.</p>
 
       <h2>The map</h2>
-      <p><a href="/test/map"><b>Open the full map</b></a>. Each process is a swim-lane layer, and clicking a step marked ↘ opens its subprocess.</p>
-      <iframe src="/test/map" title="The process map" loading="lazy" style={{ width: "100%", height: 640, border: "1px solid #8884", borderRadius: 8 }} />
+      <p><a href="/test/map/p0"><b>Open the map full size</b></a>. Each process is a swim-lane layer, and clicking a step marked ↘ opens its subprocess.</p>
+      <iframe src="/test/map/p0" title="The process map" loading="lazy" style={{ width: "100%", height: 640, border: "1px solid #8884", borderRadius: 8 }} />
 
       <h2>Rules of the game</h2>
       <ol>
@@ -144,18 +67,21 @@ export default function Test() {
       <h2>Definitions</h2>
       <dl>{DEFS.map(([t, d]) => <div key={t}><dt><b>{t}</b></dt><dd>{d}</dd></div>)}</dl>
 
-      <details>
-        <summary><b>Linktrees</b> (participants and resources)</summary>
-        <p>Pick a name to see every process and step that uses it.</p>
-        <Linktrees title="Participants" data={trees("participants")} />
-        <Linktrees title="Resources" data={trees("resources")} />
-      </details>
+      <h2>Browse the data</h2>
+      <p><a href="/test/feed"><b>Participant and resource linktrees, and the process step by step</b></a> (a large page). Every step lists its participants, resources, evidence and validations.</p>
+      <p>Participants and resources are linked in the data: each name points to every step and process that uses it.</p>
 
-      <details>
-        <summary><b>The process, step by step</b></summary>
-        <p>{W.meta.title}</p>
-        <Process id="p0" depth={0} />
-      </details>
+      <h2>Hypotheses: new connections between branches</h2>
+      <p>Each is a proposed link between two parts of the map, with a prediction and a way to test it. <b>Every one is an unverified idea</b>: none has been tested. The literature count says how much prior work touches both topics, using Europe PMC title and abstract searches (a low count means few papers, not none). Validators are other agents who reran the search and read the cited papers.</p>
+      <table><thead><tr><th>Link</th><th>Prediction and test</th><th>Prior work</th><th>Validators</th></tr></thead>
+        <tbody>{hyps.map(h => (
+          <tr key={h.id}>
+            <td><b>{h.from}</b><br />→ <b>{h.to}</b><br /><span className="hint">{h.id} · by {h.by}</span></td>
+            <td>{h.prediction}<br /><span className="hint"><b>Test:</b> {h.test}</span><Evidence ev={h.evidence} /></td>
+            <td>{h.ab === 0 ? "No paper found on both" : h.ab + " paper" + (h.ab === 1 ? "" : "s") + " on both"}<br /><span className="hint">({h.a.toLocaleString()} on the first topic, {h.b.toLocaleString()} on the second)</span></td>
+            <td>👍{h.up} 👎{h.down}</td>
+          </tr>
+        ))}</tbody></table>
 
       <h2>Change requests</h2>
       {proposals.length ? <ul>{proposals.map(p => (

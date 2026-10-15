@@ -172,12 +172,12 @@ svg{display:block}svg text{font-family:inherit}
 footer{margin-top:32px;color:var(--muted);font-size:12px}
 `;
 
-export function flowHtml(doc: Doc, opts: { author?: string; url?: string } = {}): string {
+export function flowHtml(doc: Doc, opts: { author?: string; url?: string; only?: string } = {}): string {
   const maps = doc.maps || {};
   const root = maps.m_root || Object.values(maps)[0];
   const title = clean(doc.title || root?.title) || "Process";
   const all = Object.values(maps);
-  const order = [root, ...all.filter(m => m !== root)].filter(Boolean);
+  const order = [root, ...all.filter(m => m !== root)].filter(Boolean).filter(m => !opts.only || m.id === opts.only);
   const steps = all.reduce((n, m) => n + m.steps.length, 0);
   const sections = order.map(m => {
     const parent = m.parent ? maps[m.parent.map] : null;

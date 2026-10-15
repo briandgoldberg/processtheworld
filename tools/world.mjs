@@ -12,7 +12,7 @@
 //
 // Operations (all of them need evidence: [{source, claim, confidence?}]):
 //   {op:"add_step", process, label, kind:"step"|"fork"|"subprocess", participants:[], resources:[], evidence:[], ref?, start_label?, end_label?, description?}
-//   {op:"add_edge", from, to, label?, prob?, impact:{size:1-5, direction:"+"|"-"|"0", note}, loop?:{kind:"reinforcing"|"balancing", strength:"weak"|"moderate"|"strong", gain:0-1}, evidence:[]}
+//   {op:"add_edge", from, to, label?, prob?, hypothesis?, impact:{size:1-5, direction:"+"|"-"|"0", note}, loop?:{kind:"reinforcing"|"balancing", strength:"weak"|"moderate"|"strong", gain:0-1}, evidence:[]}
 //   {op:"propose_change", target, set?:{...}, delete?:true, reason, evidence:[]}
 //   {op:"vote", target, vote:"up"|"down", reason, evidence:[]}
 // Use "@ref" to point at a step created earlier in the same batch.
@@ -105,6 +105,11 @@ function doOp(w, agent, o, refs, out) {
       if (!["reinforcing", "balancing"].includes(l.kind) || !["weak", "moderate", "strong"].includes(l.strength) || !(l.gain >= 0 && l.gain <= 1)) return fail("loop needs kind reinforcing|balancing, strength weak|moderate|strong, gain 0-1");
       e.loop = { kind: l.kind, strength: l.strength, gain: l.gain };
     }
+    if (o.hypothesis) {
+      const h = o.hypothesis, l = h.lit || {};
+      if (!h.prediction || !h.test || !(l.count_a >= 0) || !(l.count_b >= 0) || !(l.count_ab >= 0)) return fail("hypothesis needs prediction, test, and lit {query_a, query_b, count_a, count_b, count_ab} from tools/litgap.mjs");
+      e.hypothesis = { prediction: String(h.prediction), test: String(h.test), lit: { query_a: l.query_a, query_b: l.query_b, count_a: l.count_a, count_b: l.count_b, count_ab: l.count_ab } };
+    }
     if (a.process !== b.process) e.cross = true;
     w.edges[e.id] = e; out.created.push(e.id);
     return e;
@@ -168,7 +173,8 @@ function score(w) {
   for (const it of [...Object.values(w.steps), ...Object.values(w.edges), ...Object.values(w.proposals)]) {
     if (!it.by || it.by === "seed" || it.id[0] === "s" && (it.kind === "start" || it.kind === "end")) continue;
     const { up, down } = net(w, it.id, it.by);
-    add(it.by, 2 * up - down);
+    const bonus = it.id[0] === "e" && (it.cross || it.hypothesis) ? 2 : 1;
+    add(it.by, 2 * bonus * up - down);
     if (it.status === "accepted") add(it.by, 4);
     if (it.status === "rejected") add(it.by, -1);
   }
@@ -218,7 +224,7 @@ if (cmd === "outline") {
   const mine = new Set(w.votes.filter(v => v.agent === me).map(v => v.target));
   const items = [
     ...Object.values(w.steps).filter(s => s.kind !== "start" && s.kind !== "end").map(s => ({ id: s.id, type: "step", by: s.by, label: s.label, process: s.process, participants: s.participants, resources: s.resources, evidence: s.evidence })),
-    ...Object.values(w.edges).map(e => ({ id: e.id, type: "edge", by: e.by, from: e.from, to: e.to, label: e.label, prob: e.prob, impact: e.impact, loop: e.loop, evidence: e.evidence })),
+    ...Object.values(w.edges).map(e => ({ id: e.id, type: "edge", by: e.by, from: e.from, to: e.to, label: e.label, prob: e.prob, impact: e.impact, loop: e.loop, hypothesis: e.hypothesis, evidence: e.evidence })),
     ...Object.values(w.proposals).filter(p => p.status === "open").map(p => ({ id: p.id, type: "change", by: p.by, target: p.target, set: p.set, delete: p.delete, reason: p.reason, evidence: p.evidence })),
   ].filter(i => i.by !== me && i.by !== "seed" && !mine.has(i.id) && (w.steps[i.id] || w.edges[i.id] || w.proposals[i.id]).status !== "removed");
   for (let i = items.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [items[i], items[j]] = [items[j], items[i]]; }

@@ -6,3 +6,4 @@ node_modules
 next-env.d.ts
 .vercel
 .env*
+tools/verify-cache.json
