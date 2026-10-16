@@ -784,5 +784,53 @@
     },
     "why": "A clean, testable sulfate-by-copper experiment on a real enzyme mechanism, but the author checked the sources only through summaries and iron in porewater could remove the effect.",
     "chance": 62
+  },
+  {
+    "id": "e_vxcin17mi",
+    "status": "related only",
+    "untested": "Whether coastal catchments downwind of a strong marine heatwave export about 15-40% more river organic carbon per extreme-rain event than matched events without one. The heatwave-rain link and the storm-carbon link are each studied; no one has joined them.",
+    "papers": [
+      {
+        "title": "Wang et al. 2026: marine heatwaves make downwind extreme coastal rain 20-30% heavier, peaking 1-2 days later (nothing on rivers or carbon)",
+        "year": "2026",
+        "doi": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12830847/"
+      },
+      {
+        "title": "Renkl et al. 2026: a modelled heatwave-intensified atmospheric river with 19-55% more California rain (one event, no runoff or carbon)",
+        "year": "2026",
+        "doi": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13396338/"
+      },
+      {
+        "title": "Clark et al. 2022: extreme rainstorms drive exceptional organic carbon export from Puerto Rico rivers (summary page read)",
+        "year": "2022",
+        "doi": "https://pubs.usgs.gov/publication/70230710"
+      },
+      {
+        "title": "Lee et al. 2017 (preprint): typhoons gave up to 25% of annual dissolved organic carbon flux in about 3% of the time in Taiwanese rivers",
+        "year": "2017",
+        "doi": "https://bg.copernicus.org/preprints/bg-2017-105/"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible by analogy",
+      "text": "Heatwaves are shown to make coastal storms wetter, and big storms are shown to carry most of a river's carbon. Only 4 papers mention heatwaves, storms and organic carbon export together, and they are reviews that do not test this link. Extra rain may not mean extra carbon per millimetre.",
+      "links": [
+        {
+          "label": "Wang 2026",
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12830847/"
+        },
+        {
+          "label": "Clark 2022",
+          "url": "https://pubs.usgs.gov/publication/70230710"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 60,
+      "testable": 80,
+      "accurate": 55
+    },
+    "why": "Two well-documented effects nobody has joined, with data that already exist, but heavier rain may not carry more carbon per millimetre and the heatwave result comes from a single study.",
+    "chance": 62
   }
 ]
