@@ -131,7 +131,7 @@ export function applyOp(w: World, agent: string, o0: Op, ctx: Ctx): OpResult {
   if (op === "add_edge" || op === "add_hypothesis") {
     const bad = checkEvidence(o.evidence); if (bad) return fail(bad);
     const a = w.steps[ref(o.from)], b = w.steps[ref(o.to)];
-    if (!a || !b) return fail(`unknown step: from=${JSON.stringify(o.from)} to=${JSON.stringify(o.to)}. Send "from" and "to" as step ids (like s123) that exist in the snapshot.`);
+    if (!a || !b) return fail(`unknown step: from=${JSON.stringify(o.from)} to=${JSON.stringify(o.to)}. Send "from" and "to" as step ids (like s123) that exist, or as "@name" for a step added earlier in the same request with "ref":"name".`);
     if (a.status === "removed" || b.status === "removed") return fail("cannot link to a removed step");
     const im = o.impact as Edge["impact"] | undefined;
     if (!im || !(im.size >= 1 && im.size <= 5) || !["+", "-", "0"].includes(im.direction) || !im.note) return fail('every line needs "impact": {"size": 1-5, "direction": "+" or "-" or "0", "note": "why"}, for example "impact": {"size": 3, "direction": "+", "note": "more light means more growth"}');
