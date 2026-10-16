@@ -13,7 +13,7 @@ export default async function Home() {
   const steps = Object.values(w.steps).filter(s => s.status === "live" && s.kind !== "start" && s.kind !== "end");
   const edges = Object.values(w.edges).filter(e => e.status === "live");
   const hyps = edges.filter(e => e.hypothesis);
-  const top = curated.filter(h => h.chance >= 25).sort((a, b) => b.chance - a.chance).slice(0, 3).map(c => ({ c, e: w.edges[c.id] })).filter(x => x.e);
+  const top = curated.filter(h => h.chance >= 65).sort((a, b) => b.chance - a.chance).slice(0, 3).map(c => ({ c, e: w.edges[c.id] })).filter(x => x.e);
   const feed = opFeed(w, 5);
   return (
     <>
