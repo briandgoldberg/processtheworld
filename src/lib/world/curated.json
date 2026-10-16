@@ -1,424 +1,568 @@
 [
- {
-  "id": "e2303",
-  "status": "nothing found",
-  "untested": "Whether coastal sea-salt deposition raises soil sodium and weakens aggregates. No paper matched this wording.",
-  "papers": [],
-  "web": {
-   "verdict": "Supports half",
-   "text": "Coastal soils do show more exchangeable sodium close to the coast, with soils nearest the shore past saline-sodic limits and 1.5-2 km inland not. One Egyptian transect showed no steady trend. No source measured aggregate stability, so the aggregate-weakening step is untested.",
-   "links": [
-    {
-     "label": "French study",
-     "url": "https://hal.inrae.fr/hal-02741455v1/document"
+  {
+    "id": "e2303",
+    "status": "nothing found",
+    "untested": "Whether coastal sea-salt deposition raises soil sodium and weakens aggregates. No paper matched this wording.",
+    "papers": [],
+    "web": {
+      "verdict": "Supports half",
+      "text": "Coastal soils do show more exchangeable sodium close to the coast, with soils nearest the shore past saline-sodic limits and 1.5-2 km inland not. One Egyptian transect showed no steady trend. No source measured aggregate stability, so the aggregate-weakening step is untested.",
+      "links": [
+        {
+          "label": "French study",
+          "url": "https://hal.inrae.fr/hal-02741455v1/document"
+        },
+        {
+          "label": "Korean transect",
+          "url": "https://koreascience.kr/article/JAKO201106737198085.do"
+        },
+        {
+          "label": "Surabaya transect",
+          "url": "https://repository.upnjatim.ac.id/48306/"
+        }
+      ]
     },
-    {
-     "label": "Korean transect",
-     "url": "https://koreascience.kr/article/JAKO201106737198085.do"
+    "chance": 30,
+    "why": "The sodium rise near coasts is known; the aggregate-stability part is new but expected."
+  },
+  {
+    "id": "e2308",
+    "status": "nothing found",
+    "untested": "Whether soil Streptomyces aerosols seed cloud droplets or ice. Four papers matched but all are unrelated (enzyme expression, indoor spore release).",
+    "papers": [],
+    "web": {
+      "verdict": "No direct evidence",
+      "text": "Raindrops are known to throw soil bacteria into the air, and fungal spores can act as ice nuclei. Nothing found on Streptomyces or geosmin particles acting as cloud nuclei.",
+      "links": [
+        {
+          "label": "Fungal spore ice nuclei model",
+          "url": "https://acp.copernicus.org/articles/14/9051/2014/"
+        },
+        {
+          "label": "Raindrops launch bacteria",
+          "url": "https://www.kunc.org/npr-news/2017-03-07/watch-raindrops-catapult-bacteria-into-the-air-and-its-beautiful"
+        }
+      ]
     },
-    {
-     "label": "Surabaya transect",
-     "url": "https://repository.upnjatim.ac.id/48306/"
-    }
-   ]
+    "chance": 12,
+    "why": "Spores are rare cloud nuclei and no evidence points to Streptomyces or geosmin."
   },
-  "chance": 30,
-  "why": "The sodium rise near coasts is known; the aggregate-stability part is new but expected."
- },
- {
-  "id": "e2308",
-  "status": "nothing found",
-  "untested": "Whether soil Streptomyces aerosols seed cloud droplets or ice. Four papers matched but all are unrelated (enzyme expression, indoor spore release).",
-  "papers": [],
-  "web": {
-   "verdict": "No direct evidence",
-   "text": "Raindrops are known to throw soil bacteria into the air, and fungal spores can act as ice nuclei. Nothing found on Streptomyces or geosmin particles acting as cloud nuclei.",
-   "links": [
-    {
-     "label": "Fungal spore ice nuclei model",
-     "url": "https://acp.copernicus.org/articles/14/9051/2014/"
+  {
+    "id": "e2307",
+    "status": "related only",
+    "untested": "Phage killing of methane-oxidizing bacteria and its effect on methane oxidation.",
+    "papers": [
+      {
+        "title": "T4-type phages diversity in wetland soils reveals their ubiquity and their likely host-dependent dynamics",
+        "year": "2026",
+        "doi": "https://doi.org/10.64898/2026.07.13.738189"
+      }
+    ],
+    "web": {
+      "verdict": "Mixed, no soil data",
+      "text": "No soil study shows phage lysis lowering methane uptake. A bioreactor report says phage blooms can set back methane oxidizers, supporting the direction. A lake study found phages that carry a methane-oxidation gene, which hints at the opposite effect. Sediment work found viruses infect methanotrophs but their genes do not directly drive methane metabolism.",
+      "links": [
+        {
+          "label": "Viruses, methanogens and methanotrophic archaea",
+          "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9723712/"
+        }
+      ]
     },
-    {
-     "label": "Raindrops launch bacteria",
-     "url": "https://www.kunc.org/npr-news/2017-03-07/watch-raindrops-catapult-bacteria-into-the-air-and-its-beautiful"
-    }
-   ]
+    "chance": 35,
+    "why": "No soil data; evidence for and against the direction."
   },
-  "chance": 12,
-  "why": "Spores are rare cloud nuclei and no evidence points to Streptomyces or geosmin."
- },
- {
-  "id": "e2307",
-  "status": "related only",
-  "untested": "Phage killing of methane-oxidizing bacteria and its effect on methane oxidation.",
-  "papers": [
-   {
-    "title": "T4-type phages diversity in wetland soils reveals their ubiquity and their likely host-dependent dynamics",
-    "year": "2026",
-    "doi": "https://doi.org/10.64898/2026.07.13.738189"
-   }
-  ],
-  "web": {
-   "verdict": "Mixed, no soil data",
-   "text": "No soil study shows phage lysis lowering methane uptake. A bioreactor report says phage blooms can set back methane oxidizers, supporting the direction. A lake study found phages that carry a methane-oxidation gene, which hints at the opposite effect. Sediment work found viruses infect methanotrophs but their genes do not directly drive methane metabolism.",
-   "links": [
-    {
-     "label": "Viruses, methanogens and methanotrophic archaea",
-     "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9723712/"
-    }
-   ]
-  },
-  "chance": 35,
-  "why": "No soil data; evidence for and against the direction."
- },
- {
-  "id": "e2300",
-  "status": "related only",
-  "untested": "Soil respiration response to aerosol-scattered light. The matched paper models carbon fluxes in smoke haze.",
-  "papers": [
-   {
-    "title": "Modeling the radiative effects of biomass burning aerosols on carbon fluxes in the Amazon region",
-    "year": "2017",
-    "doi": "https://doi.org/10.5194/acp-17-14785-2017"
-   }
-  ],
-  "web": {
-   "verdict": "No direct evidence",
-   "text": "Smoke haze with moderate aerosol raised canopy photosynthesis, which supports the first step. Nobody has measured the root or soil respiration response. A 2025 preprint calls the root-respiration link largely theoretical. Near volcanoes, geological CO2 can be mistaken for soil respiration.",
-   "links": [
-    {
-     "label": "Smoke and diffuse radiation, 2019",
-     "url": "https://acp.copernicus.org/articles/19/835/2019/"
+  {
+    "id": "e2300",
+    "status": "related only",
+    "untested": "Soil respiration response to aerosol-scattered light. The matched paper models carbon fluxes in smoke haze.",
+    "papers": [
+      {
+        "title": "Modeling the radiative effects of biomass burning aerosols on carbon fluxes in the Amazon region",
+        "year": "2017",
+        "doi": "https://doi.org/10.5194/acp-17-14785-2017"
+      }
+    ],
+    "web": {
+      "verdict": "No direct evidence",
+      "text": "Smoke haze with moderate aerosol raised canopy photosynthesis, which supports the first step. Nobody has measured the root or soil respiration response. A 2025 preprint calls the root-respiration link largely theoretical. Near volcanoes, geological CO2 can be mistaken for soil respiration.",
+      "links": [
+        {
+          "label": "Smoke and diffuse radiation, 2019",
+          "url": "https://acp.copernicus.org/articles/19/835/2019/"
+        },
+        {
+          "label": "Root vs soil respiration, 2025 preprint",
+          "url": "https://egusphere.copernicus.org/preprints/2025/egusphere-2025-2849/egusphere-2025-2849.pdf"
+        }
+      ]
     },
-    {
-     "label": "Root vs soil respiration, 2025 preprint",
-     "url": "https://egusphere.copernicus.org/preprints/2025/egusphere-2025-2849/egusphere-2025-2849.pdf"
-    }
-   ]
+    "chance": 30,
+    "why": "Diffuse light does raise photosynthesis; a root-respiration response is plausible but hard to separate from temperature."
   },
-  "chance": 30,
-  "why": "Diffuse light does raise photosynthesis; a root-respiration response is plausible but hard to separate from temperature."
- },
- {
-  "id": "e2311",
-  "status": "related only",
-  "untested": "Shifts in nematode life-history groups by ash thickness.",
-  "papers": [
-   {
-    "title": "Litter microbial and soil faunal communities stimulated in the wake of a volcanic eruption in a semi‐arid woodland in Patagonia, Argentina",
-    "year": "2017",
-    "doi": "https://doi.org/10.1111/1365-2435.12683"
-   },
-   {
-    "title": "Influence of volcanic ash on infectivity and reproduction of two species of meloidogyne",
-    "year": "1981",
-    "doi": null
-   }
-  ],
-  "web": {
-   "verdict": "Supports half",
-   "text": "After the 2011 Puyehue-Cordon Caulle ash fall in Patagonia, nematode numbers and soil enzyme activity dropped. That study did not report life-history (c-p) groups, so the claim about which nematodes go first is untested.",
-   "links": []
-  },
-  "chance": 40,
-  "why": "Fits known nematode ecology, so likely true, but part of it is expected from existing theory."
- },
- {
-  "id": "e2790",
-  "status": "related only",
-  "untested": "Whether protist and earthworm silicon pools lower catchment silica export.",
-  "papers": [
-   {
-    "title": "Phytolith transport in soil: a laboratory study on intact soil cores",
-    "year": "2010",
-    "doi": "https://doi.org/10.1111/j.1365-2389.2010.01257.x"
-   },
-   {
-    "title": "The ultrastructure of Heleopera petricola an agglutinate soil amoeba; with comments on feeding and silica deposition",
-    "year": "1991",
-    "doi": "https://doi.org/10.1016/s0932-4739(11)80061-1"
-   }
-  ],
-  "web": {
-   "verdict": "Mixed, direction unclear",
-   "text": "Silica-shelled soil amoebae make a silicon pool about half the size of tree uptake in a beech forest, and stream silica exports were too high for rock weathering alone. That suggests biological pools feed silica exports, possibly the opposite of this prediction. Nothing found on earthworms.",
-   "links": [
-    {
-     "label": "Beech forest silicon budget",
-     "url": "https://bg.copernicus.org/articles/10/4991/2013/"
+  {
+    "id": "e2311",
+    "status": "related only",
+    "untested": "Shifts in nematode life-history groups by ash thickness.",
+    "papers": [
+      {
+        "title": "Litter microbial and soil faunal communities stimulated in the wake of a volcanic eruption in a semi‐arid woodland in Patagonia, Argentina",
+        "year": "2017",
+        "doi": "https://doi.org/10.1111/1365-2435.12683"
+      },
+      {
+        "title": "Influence of volcanic ash on infectivity and reproduction of two species of meloidogyne",
+        "year": "1981",
+        "doi": null
+      }
+    ],
+    "web": {
+      "verdict": "Supports half",
+      "text": "After the 2011 Puyehue-Cordon Caulle ash fall in Patagonia, nematode numbers and soil enzyme activity dropped. That study did not report life-history (c-p) groups, so the claim about which nematodes go first is untested.",
+      "links": []
     },
-    {
-     "label": "Amoeba silicon dataset",
-     "url": "https://doi.org/10.1016/j.dib.2018.10.164"
-    }
-   ]
+    "chance": 40,
+    "why": "Fits known nematode ecology, so likely true, but part of it is expected from existing theory."
   },
-  "chance": 20,
-  "why": "Evidence may point the opposite way, and the earthworm part is untested."
- },
- {
-  "id": "e2591",
-  "status": "partly tested",
-  "untested": "Whether real lightning strikes raise gene transfer in the field. The lab step is shown.",
-  "papers": [
-   {
-    "title": "Isolation of lightning-competent soil bacteria",
-    "year": "2004",
-    "doi": "https://doi.org/10.1128/aem.70.10.6342-6346.2004"
-   }
-  ],
-  "web": {
-   "verdict": "Supports in the lab",
-   "text": "Lab-scale lightning moved genes into bacteria in soil, and lightning-competent soil bacteria were isolated. One estimate puts the affected soil at 2 to 950 cubic metres per strike. Natural field transfer has not been shown, and no study looked at microbes in fulgurites or strike zones.",
-   "links": [
-    {
-     "label": "Lab lightning gene transfer in soil",
-     "url": "https://prodinra.inra.fr/record/249883"
+  {
+    "id": "e2790",
+    "status": "related only",
+    "untested": "Whether protist and earthworm silicon pools lower catchment silica export.",
+    "papers": [
+      {
+        "title": "Phytolith transport in soil: a laboratory study on intact soil cores",
+        "year": "2010",
+        "doi": "https://doi.org/10.1111/j.1365-2389.2010.01257.x"
+      },
+      {
+        "title": "The ultrastructure of Heleopera petricola an agglutinate soil amoeba; with comments on feeding and silica deposition",
+        "year": "1991",
+        "doi": "https://doi.org/10.1016/s0932-4739(11)80061-1"
+      }
+    ],
+    "web": {
+      "verdict": "Mixed, direction unclear",
+      "text": "Silica-shelled soil amoebae make a silicon pool about half the size of tree uptake in a beech forest, and stream silica exports were too high for rock weathering alone. That suggests biological pools feed silica exports, possibly the opposite of this prediction. Nothing found on earthworms.",
+      "links": [
+        {
+          "label": "Beech forest silicon budget",
+          "url": "https://bg.copernicus.org/articles/10/4991/2013/"
+        },
+        {
+          "label": "Amoeba silicon dataset",
+          "url": "https://doi.org/10.1016/j.dib.2018.10.164"
+        }
+      ]
     },
-    {
-     "label": "Lightning electroporation and gene transfer",
-     "url": "https://arxiv.org/pdf/1212.5436"
-    }
-   ]
+    "chance": 20,
+    "why": "Evidence may point the opposite way, and the earthworm part is untested."
   },
-  "chance": 35,
-  "why": "Lab mechanism is shown; detecting it at real strike sites is hard."
- },
- {
-  "id": "e2594",
-  "status": "partly tested",
-  "untested": "Coastal field effects and the loss of bioturbation and litter breakdown. Survival and reproduction are tested in the lab.",
-  "papers": [
-   {
-    "title": "Effects of NaCl and seawater induced salinity on survival and reproduction of three soil invertebrate species",
-    "year": "2015",
-    "doi": "https://doi.org/10.1016/j.chemosphere.2015.03.094"
-   }
-  ],
-  "web": {
-   "verdict": "Supports most of it",
-   "text": "Mesocosm work shows enchytraeids drop at once under seawater intrusion, with delayed effects on earthworms and plants. Lab tests show salinity cuts survival and reproduction of standard soil invertebrates, including springtails. Bioturbation and litter breakdown in coastal soils were not measured.",
-   "links": [
-    {
-     "label": "Seawater and NaCl on soil invertebrates",
-     "url": "https://agris.fao.org/search/es/records/65dfd57a4c5aef494fe5d798"
+  {
+    "id": "e2591",
+    "status": "partly tested",
+    "untested": "Whether real lightning strikes raise gene transfer in the field. The lab step is shown.",
+    "papers": [
+      {
+        "title": "Isolation of lightning-competent soil bacteria",
+        "year": "2004",
+        "doi": "https://doi.org/10.1128/aem.70.10.6342-6346.2004"
+      }
+    ],
+    "web": {
+      "verdict": "Supports in the lab",
+      "text": "Lab-scale lightning moved genes into bacteria in soil, and lightning-competent soil bacteria were isolated. One estimate puts the affected soil at 2 to 950 cubic metres per strike. Natural field transfer has not been shown, and no study looked at microbes in fulgurites or strike zones.",
+      "links": [
+        {
+          "label": "Lab lightning gene transfer in soil",
+          "url": "https://prodinra.inra.fr/record/249883"
+        },
+        {
+          "label": "Lightning electroporation and gene transfer",
+          "url": "https://arxiv.org/pdf/1212.5436"
+        }
+      ]
     },
-    {
-     "label": "Salinization of coastal ecosystems",
-     "url": "https://www.medecc.org/salinization-effects-on-coastal-ecosystems-article/"
-    }
-   ]
+    "chance": 35,
+    "why": "Lab mechanism is shown; detecting it at real strike sites is hard."
   },
-  "chance": 28,
-  "why": "Most of the fauna effect is already shown; the bioturbation consequence is the new part."
- },
- {
-  "id": "e2310",
-  "status": "partly tested",
-  "untested": "Upland soils with high-affinity methane oxidizers. Grazing is shown in rice soil.",
-  "papers": [
-   {
-    "title": "Selective grazing of methanotrophs by protozoa in a rice field soil",
-    "year": "2008",
-    "doi": "https://doi.org/10.1111/j.1574-6941.2008.00511.x"
-   },
-   {
-    "title": "A methane-driven microbial food web in a wetland rice soil",
-    "year": "2007",
-    "doi": "https://doi.org/10.1111/j.1462-2920.2007.01414.x"
-   }
-  ],
-  "web": {
-   "verdict": "No direct evidence",
-   "text": "No study of protist grazing on upland methane oxidizers. Upland methane uptake is mostly explained by soil moisture and diffusion, and grazing does not appear in that work.",
-   "links": [
-    {
-     "label": "Upland forest methane uptake, 2026 abstract",
-     "url": "https://meetingorganizer.copernicus.org/EGU26/EGU26-16812.html"
-    }
-   ]
-  },
-  "chance": 45,
-  "why": "Grazing of methane oxidizers is shown in rice soil, upland is untested, and slow-growing upland oxidizers may be limited by other things."
- },
- {
-  "id": "e2312",
-  "status": "partly tested",
-  "untested": "Springtail gut N2O emission and the antibiotic test.",
-  "papers": [
-   {
-    "title": "Influence of Lumbricus terrestris and Folsomia candida on N2 O formation pathways in two different soils - with particular focus on N2 emiss",
-    "year": "2016",
-    "doi": "https://doi.org/10.1002/rcm.7716"
-   },
-   {
-    "title": "Exploring the relationships between soil fauna, different tillage regimes and CO2 and N2O emissions from black soil in China",
-    "year": "2016",
-    "doi": "https://doi.org/10.1016/j.soilbio.2016.08.019"
-   }
-  ],
-  "web": {
-   "verdict": "Plausible by analogy",
-   "text": "No direct measurement of springtail N2O. Earthworm guts emit N2O, and antibiotics cut earthworm emission by 80%, which points to gut bacteria. Aquatic invertebrates emit N2O from anoxic guts. The Folsomia gut is dense with bacteria.",
-   "links": [
-    {
-     "label": "Folsomia candida gut",
-     "url": "https://portal.fis.tum.de/en/publications/the-gut-of-the-soil-microarthropod-folsomia-candida-collembola-is/"
+  {
+    "id": "e2594",
+    "status": "partly tested",
+    "untested": "Coastal field effects and the loss of bioturbation and litter breakdown. Survival and reproduction are tested in the lab.",
+    "papers": [
+      {
+        "title": "Effects of NaCl and seawater induced salinity on survival and reproduction of three soil invertebrate species",
+        "year": "2015",
+        "doi": "https://doi.org/10.1016/j.chemosphere.2015.03.094"
+      }
+    ],
+    "web": {
+      "verdict": "Supports most of it",
+      "text": "Mesocosm work shows enchytraeids drop at once under seawater intrusion, with delayed effects on earthworms and plants. Lab tests show salinity cuts survival and reproduction of standard soil invertebrates, including springtails. Bioturbation and litter breakdown in coastal soils were not measured.",
+      "links": [
+        {
+          "label": "Seawater and NaCl on soil invertebrates",
+          "url": "https://agris.fao.org/search/es/records/65dfd57a4c5aef494fe5d798"
+        },
+        {
+          "label": "Salinization of coastal ecosystems",
+          "url": "https://www.medecc.org/salinization-effects-on-coastal-ecosystems-article/"
+        }
+      ]
     },
-    {
-     "label": "Aquatic invertebrate N2O project",
-     "url": "https://gepris.dfg.de/gepris/projekt/172557344"
-    }
-   ]
+    "chance": 28,
+    "why": "Most of the fauna effect is already shown; the bioturbation consequence is the new part."
   },
-  "chance": 42,
-  "why": "Springtail guts are anoxic and bacteria-rich like earthworm guts, but nobody has measured it."
- },
- {
-  "id": "e2590",
-  "status": "partly tested",
-  "untested": "Termites, and mineral dissolution per unit rock in the field.",
-  "papers": [
-   {
-    "title": "[Effects of adding basalt powder on organic carbon sequestration in red and yellow-brown soils under earthworm inoculation]",
-    "year": "2025",
-    "doi": "https://doi.org/10.13287/j.1001-9332.202504.020"
-   }
-  ],
-  "web": {
-   "verdict": "Mostly supported for earthworms",
-   "text": "Earthworms amplified basalt weathering signals (pH, alkalinity, calcium, magnesium, silicon) in mesocosms, and ants broke down silicate minerals 50 to 300 times faster in a burial study. Net CO2 drawdown is unclear because worms also speed organic matter decomposition. No termite study.",
-   "links": [
-    {
-     "label": "Earthworms and basalt, 2026 preprint",
-     "url": "https://egusphere.copernicus.org/preprints/2026/egusphere-2026-603/egusphere-2026-603.pdf"
+  {
+    "id": "e2310",
+    "status": "partly tested",
+    "untested": "Upland soils with high-affinity methane oxidizers. Grazing is shown in rice soil.",
+    "papers": [
+      {
+        "title": "Selective grazing of methanotrophs by protozoa in a rice field soil",
+        "year": "2008",
+        "doi": "https://doi.org/10.1111/j.1574-6941.2008.00511.x"
+      },
+      {
+        "title": "A methane-driven microbial food web in a wetland rice soil",
+        "year": "2007",
+        "doi": "https://doi.org/10.1111/j.1462-2920.2007.01414.x"
+      }
+    ],
+    "web": {
+      "verdict": "No direct evidence",
+      "text": "No study of protist grazing on upland methane oxidizers. Upland methane uptake is mostly explained by soil moisture and diffusion, and grazing does not appear in that work.",
+      "links": [
+        {
+          "label": "Upland forest methane uptake, 2026 abstract",
+          "url": "https://meetingorganizer.copernicus.org/EGU26/EGU26-16812.html"
+        }
+      ]
     },
-    {
-     "label": "Ants and silicate minerals",
-     "url": "https://www.americangeosciences.org/news/press-releases/earths-abundant-silicate-minerals-degraded-50-to-300-times-faster-by-ants/"
-    }
-   ]
+    "chance": 45,
+    "why": "Grazing of methane oxidizers is shown in rice soil, upland is untested, and slow-growing upland oxidizers may be limited by other things."
   },
-  "chance": 15,
-  "why": "Largely shown for earthworms and ants already."
- },
- {
-  "id": "e2318",
-  "status": "partly tested",
-  "untested": "Whether burial depth and acidification predict loss of diversity.",
-  "papers": [
-   {
-    "title": "Soil microbial community composition and co-occurrence network responses to mild and severe disturbances in volcanic areas",
-    "year": "2023",
-    "doi": "https://doi.org/10.1016/j.scitotenv.2023.165889"
-   }
-  ],
-  "web": {
-   "verdict": "Partly supported",
-   "text": "Chronosequences show soil communities shift with age after eruptions, and acidophilic iron oxidizers pioneer fresh deposits. No study compared diversity before and after burial, so the severity-diversity link is untested.",
-   "links": [
-    {
-     "label": "Soils of different ages after eruptions",
-     "url": "https://ueaeprints.uea.ac.uk/id/eprint/82323"
-    }
-   ]
-  },
-  "chance": 27,
-  "why": "Community shifts are known; the severity-diversity gradient is untested."
- },
- {
-  "id": "e2302",
-  "status": "partly tested",
-  "untested": "Earlier rain or snow over the dust source. Ice nucleation by soil dust is studied.",
-  "papers": [
-   {
-    "title": "The relevance of nanoscale biological fragments for ice nucleation in clouds",
-    "year": "2015",
-    "doi": "https://doi.org/10.1038/srep08082"
-   },
-   {
-    "title": "Ice nucleation ability of loess from the northwestern United States",
-    "year": "2019",
-    "doi": "https://doi.org/10.1371/journal.pone.0220991"
-   }
-  ],
-  "web": {
-   "verdict": "Supports the first half",
-   "text": "Organic-rich agricultural soil dust nucleates ice about as well as desert dust, and organic particles dominate above -36 C. Nothing found on earlier rain or snow over the dust source region.",
-   "links": [
-    {
-     "label": "Organic matter and ice nuclei of agricultural soil",
-     "url": "https://acp.copernicus.org/articles/14/8521/2014/"
-    }
-   ]
-  },
-  "chance": 16,
-  "why": "Ice nucleation is established; a measurable rain effect over the source is unlikely to be detectable."
- },
- {
-  "id": "e2314",
-  "status": "partly tested",
-  "untested": "Soil type and land management effects on cloud glaciation downwind.",
-  "papers": [
-   {
-    "title": "The relevance of nanoscale biological fragments for ice nucleation in clouds",
-    "year": "2015",
-    "doi": "https://doi.org/10.1038/srep08082"
-   },
-   {
-    "title": "Ice nucleation ability of loess from the northwestern United States",
-    "year": "2019",
-    "doi": "https://doi.org/10.1371/journal.pone.0220991"
-   }
-  ],
-  "web": {
-   "verdict": "Largely established",
-   "text": "Soil dust with organic matter nucleates ice at warmer temperatures than mineral dust, and arable emissions peak at harvest. Climate models do not separate soil dust from mineral dust, and no study quantified how land management changes cloud glaciation.",
-   "links": [
-    {
-     "label": "Organic matter and ice nuclei of agricultural soil",
-     "url": "https://acp.copernicus.org/articles/14/8521/2014/"
+  {
+    "id": "e2312",
+    "status": "partly tested",
+    "untested": "Springtail gut N2O emission and the antibiotic test.",
+    "papers": [
+      {
+        "title": "Influence of Lumbricus terrestris and Folsomia candida on N2 O formation pathways in two different soils - with particular focus on N2 emiss",
+        "year": "2016",
+        "doi": "https://doi.org/10.1002/rcm.7716"
+      },
+      {
+        "title": "Exploring the relationships between soil fauna, different tillage regimes and CO2 and N2O emissions from black soil in China",
+        "year": "2016",
+        "doi": "https://doi.org/10.1016/j.soilbio.2016.08.019"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible by analogy",
+      "text": "No direct measurement of springtail N2O. Earthworm guts emit N2O, and antibiotics cut earthworm emission by 80%, which points to gut bacteria. Aquatic invertebrates emit N2O from anoxic guts. The Folsomia gut is dense with bacteria.",
+      "links": [
+        {
+          "label": "Folsomia candida gut",
+          "url": "https://portal.fis.tum.de/en/publications/the-gut-of-the-soil-microarthropod-folsomia-candida-collembola-is/"
+        },
+        {
+          "label": "Aquatic invertebrate N2O project",
+          "url": "https://gepris.dfg.de/gepris/projekt/172557344"
+        }
+      ]
     },
-    {
-     "label": "Ice nucleating particles from soils",
-     "url": "https://hal.inrae.fr/hal-02644235/document"
-    }
-   ]
+    "chance": 42,
+    "why": "Springtail guts are anoxic and bacteria-rich like earthworm guts, but nobody has measured it."
   },
-  "chance": 22,
-  "why": "The ice-nucleation part is established; the downstream effect is hard to test."
- },
- {
-  "id": "e2315",
-  "status": "partly tested",
-  "untested": "Years-long differences in the methane sink after fire.",
-  "papers": [
-   {
-    "title": "Methanotrophic bacteria in boreal forest soil after fire",
-    "year": "2004",
-    "doi": "https://doi.org/10.1016/j.femsec.2004.06.013"
-   },
-   {
-    "title": "Thinning reduces soil carbon dioxide but not methane flux from southwestern USA ponderosa pine forests",
-    "year": "2008",
-    "doi": "https://doi.org/10.1016/j.foreco.2008.03.051"
-   }
-  ],
-  "web": {
-   "verdict": "Already studied, results mixed",
-   "text": "A burned ponderosa pine soil took up 49% more methane than unburned soil 10 years after fire, mostly because the organic layer was lost. A Swedish chronosequence ties uptake to humus depth. Fire can raise, lower or leave the sink unchanged depending on the ecosystem.",
-   "links": [
-    {
-     "label": "Wildfire and methane uptake, Arizona",
-     "url": "https://pure.psu.edu/en/publications/wildfire-reduces-carbon-dioxide-efflux-and-increases-methane-upta/"
+  {
+    "id": "e2590",
+    "status": "partly tested",
+    "untested": "Termites, and mineral dissolution per unit rock in the field.",
+    "papers": [
+      {
+        "title": "[Effects of adding basalt powder on organic carbon sequestration in red and yellow-brown soils under earthworm inoculation]",
+        "year": "2025",
+        "doi": "https://doi.org/10.13287/j.1001-9332.202504.020"
+      }
+    ],
+    "web": {
+      "verdict": "Mostly supported for earthworms",
+      "text": "Earthworms amplified basalt weathering signals (pH, alkalinity, calcium, magnesium, silicon) in mesocosms, and ants broke down silicate minerals 50 to 300 times faster in a burial study. Net CO2 drawdown is unclear because worms also speed organic matter decomposition. No termite study.",
+      "links": [
+        {
+          "label": "Earthworms and basalt, 2026 preprint",
+          "url": "https://egusphere.copernicus.org/preprints/2026/egusphere-2026-603/egusphere-2026-603.pdf"
+        },
+        {
+          "label": "Ants and silicate minerals",
+          "url": "https://www.americangeosciences.org/news/press-releases/earths-abundant-silicate-minerals-degraded-50-to-300-times-faster-by-ants/"
+        }
+      ]
     },
-    {
-     "label": "Methane sink along a fire chronosequence",
-     "url": "https://ueaeprints.uea.ac.uk/57486/"
-    }
-   ]
+    "chance": 15,
+    "why": "Largely shown for earthworms and ants already."
   },
-  "chance": 10,
-  "why": "Already studied, with mixed results."
- }
+  {
+    "id": "e2318",
+    "status": "partly tested",
+    "untested": "Whether burial depth and acidification predict loss of diversity.",
+    "papers": [
+      {
+        "title": "Soil microbial community composition and co-occurrence network responses to mild and severe disturbances in volcanic areas",
+        "year": "2023",
+        "doi": "https://doi.org/10.1016/j.scitotenv.2023.165889"
+      }
+    ],
+    "web": {
+      "verdict": "Partly supported",
+      "text": "Chronosequences show soil communities shift with age after eruptions, and acidophilic iron oxidizers pioneer fresh deposits. No study compared diversity before and after burial, so the severity-diversity link is untested.",
+      "links": [
+        {
+          "label": "Soils of different ages after eruptions",
+          "url": "https://ueaeprints.uea.ac.uk/id/eprint/82323"
+        }
+      ]
+    },
+    "chance": 27,
+    "why": "Community shifts are known; the severity-diversity gradient is untested."
+  },
+  {
+    "id": "e2302",
+    "status": "partly tested",
+    "untested": "Earlier rain or snow over the dust source. Ice nucleation by soil dust is studied.",
+    "papers": [
+      {
+        "title": "The relevance of nanoscale biological fragments for ice nucleation in clouds",
+        "year": "2015",
+        "doi": "https://doi.org/10.1038/srep08082"
+      },
+      {
+        "title": "Ice nucleation ability of loess from the northwestern United States",
+        "year": "2019",
+        "doi": "https://doi.org/10.1371/journal.pone.0220991"
+      }
+    ],
+    "web": {
+      "verdict": "Supports the first half",
+      "text": "Organic-rich agricultural soil dust nucleates ice about as well as desert dust, and organic particles dominate above -36 C. Nothing found on earlier rain or snow over the dust source region.",
+      "links": [
+        {
+          "label": "Organic matter and ice nuclei of agricultural soil",
+          "url": "https://acp.copernicus.org/articles/14/8521/2014/"
+        }
+      ]
+    },
+    "chance": 16,
+    "why": "Ice nucleation is established; a measurable rain effect over the source is unlikely to be detectable."
+  },
+  {
+    "id": "e2314",
+    "status": "partly tested",
+    "untested": "Soil type and land management effects on cloud glaciation downwind.",
+    "papers": [
+      {
+        "title": "The relevance of nanoscale biological fragments for ice nucleation in clouds",
+        "year": "2015",
+        "doi": "https://doi.org/10.1038/srep08082"
+      },
+      {
+        "title": "Ice nucleation ability of loess from the northwestern United States",
+        "year": "2019",
+        "doi": "https://doi.org/10.1371/journal.pone.0220991"
+      }
+    ],
+    "web": {
+      "verdict": "Largely established",
+      "text": "Soil dust with organic matter nucleates ice at warmer temperatures than mineral dust, and arable emissions peak at harvest. Climate models do not separate soil dust from mineral dust, and no study quantified how land management changes cloud glaciation.",
+      "links": [
+        {
+          "label": "Organic matter and ice nuclei of agricultural soil",
+          "url": "https://acp.copernicus.org/articles/14/8521/2014/"
+        },
+        {
+          "label": "Ice nucleating particles from soils",
+          "url": "https://hal.inrae.fr/hal-02644235/document"
+        }
+      ]
+    },
+    "chance": 22,
+    "why": "The ice-nucleation part is established; the downstream effect is hard to test."
+  },
+  {
+    "id": "e2315",
+    "status": "partly tested",
+    "untested": "Years-long differences in the methane sink after fire.",
+    "papers": [
+      {
+        "title": "Methanotrophic bacteria in boreal forest soil after fire",
+        "year": "2004",
+        "doi": "https://doi.org/10.1016/j.femsec.2004.06.013"
+      },
+      {
+        "title": "Thinning reduces soil carbon dioxide but not methane flux from southwestern USA ponderosa pine forests",
+        "year": "2008",
+        "doi": "https://doi.org/10.1016/j.foreco.2008.03.051"
+      }
+    ],
+    "web": {
+      "verdict": "Already studied, results mixed",
+      "text": "A burned ponderosa pine soil took up 49% more methane than unburned soil 10 years after fire, mostly because the organic layer was lost. A Swedish chronosequence ties uptake to humus depth. Fire can raise, lower or leave the sink unchanged depending on the ecosystem.",
+      "links": [
+        {
+          "label": "Wildfire and methane uptake, Arizona",
+          "url": "https://pure.psu.edu/en/publications/wildfire-reduces-carbon-dioxide-efflux-and-increases-methane-upta/"
+        },
+        {
+          "label": "Methane sink along a fire chronosequence",
+          "url": "https://ueaeprints.uea.ac.uk/57486/"
+        }
+      ]
+    },
+    "chance": 10,
+    "why": "Already studied, with mixed results."
+  },
+  {
+    "id": "e_n1iwvpn6v",
+    "status": "partly tested",
+    "untested": "Whether beaver ponds lower downstream dissolved silica through diatom uptake and burial of biogenic silica. No study measured diatoms or burial in beaver ponds, or how the effect scales with how long the water stays in the pond.",
+    "papers": [
+      {
+        "title": "Correll et al. 2000: one pond, a 32% cut in dissolved silicate export (abstract only)",
+        "year": "2000",
+        "doi": "https://doi.org/10.1023/A:1006330501887"
+      },
+      {
+        "title": "Sethna et al. 2025: an Indiana reservoir kept 49-58% of dissolved silica, but only about 30% of that was buried biogenic silica",
+        "year": "2025",
+        "doi": "https://doi.org/10.3389/fenvs.2025.1656708"
+      },
+      {
+        "title": "Maavara et al. 2014: reservoirs and silica retention (abstract only)",
+        "year": "2014",
+        "doi": "https://doi.org/10.1002/2014GB004875"
+      }
+    ],
+    "web": {
+      "verdict": "Partly supported",
+      "text": "Ponds and reservoirs do hold back dissolved silica, but the beaver-pond case is thin: one pond study and reservoir studies. A 2026 paper may have found no difference between ponds and upstream reaches (seen only as a search snippet), and a German pond reportedly released silica in summer.",
+      "links": [
+        {
+          "label": "Correll 2000",
+          "url": "https://doi.org/10.1023/A:1006330501887"
+        },
+        {
+          "label": "Sethna 2025",
+          "url": "https://doi.org/10.3389/fenvs.2025.1656708"
+        }
+      ]
+    },
+    "chance": 54,
+    "scores": {
+      "novel": 30,
+      "testable": 90,
+      "accurate": 60
+    },
+    "why": "Easy to test and plausible, but a first beaver-pond result already exists, so it is less new than it looks and the effect could reverse in shallow ponds."
+  },
+  {
+    "id": "e_a39shin7m",
+    "status": "nothing found",
+    "untested": "Whether soil right next to tree trunks takes up less methane than soil 1-2 m away because of stemflow wetting. No paper compares near-stem and between-tree soil for methane. One older beech and spruce study may show the opposite sign (seen only as a search snippet).",
+    "papers": [
+      {
+        "title": "Van Stan and Gordon 2018: review of stemflow and near-stem soils, with no methane data",
+        "year": "2018",
+        "doi": "https://doi.org/10.3389/fpls.2018.00248"
+      },
+      {
+        "title": "Borken et al. 2006: excluding throughfall raised methane uptake, with a hump-shaped response to soil moisture",
+        "year": "2006",
+        "doi": "https://doi.org/10.1016/j.soilbio.2005.10.011"
+      },
+      {
+        "title": "Fest et al. 2017: soil methane uptake (truncated abstract only)",
+        "year": "2017",
+        "doi": "https://doi.org/10.1007/s10021-016-0030-y"
+      }
+    ],
+    "web": {
+      "verdict": "Mixed, direction unclear",
+      "text": "Methane uptake responds to soil moisture in a hump-shaped way, so wetting near trunks could lower or raise it. Nothing found compares near-stem soil with soil between trees.",
+      "links": [
+        {
+          "label": "Van Stan and Gordon 2018",
+          "url": "https://doi.org/10.3389/fpls.2018.00248"
+        },
+        {
+          "label": "Borken 2006",
+          "url": "https://doi.org/10.1016/j.soilbio.2005.10.011"
+        }
+      ]
+    },
+    "chance": 66,
+    "scores": {
+      "novel": 70,
+      "testable": 90,
+      "accurate": 50
+    },
+    "why": "Looks new and is simple to measure, but the direction is the main risk: wetting could cut methane uptake or help it."
+  },
+  {
+    "id": "e_taimuxn8j",
+    "status": "related only",
+    "untested": "Whether dust-derived phosphorus in surface soil is higher under tree crowns than in gaps. The canopy pathway is being studied, but not this field comparison.",
+    "papers": [
+      {
+        "title": "Gross et al. 2026 (preprint): foliar uptake and the canopy pathway in a Puerto Rican forest (abstract only)",
+        "year": "2026",
+        "doi": "https://doi.org/10.5194/egusphere-2026-4320"
+      }
+    ],
+    "web": {
+      "verdict": "Partly supported",
+      "text": "Canopy interception and foliar uptake of dust phosphorus are being studied, so the idea is not far from active work. The soil-under-crown versus gap comparison was not found.",
+      "links": [
+        {
+          "label": "Gross 2026 preprint",
+          "url": "https://doi.org/10.5194/egusphere-2026-4320"
+        }
+      ]
+    },
+    "chance": 46,
+    "scores": {
+      "novel": 25,
+      "testable": 80,
+      "accurate": 50
+    },
+    "why": "Testable, but the canopy route for dust phosphorus is already being studied, and foliar uptake could remove the effect in the soil."
+  },
+  {
+    "id": "e_iv61kmi3k",
+    "status": "related only",
+    "untested": "Whether sulfate reduction in waterlogged soils lowers bioavailable molybdate enough to make free-living nitrogen fixation molybdenum-limited, with a sulfate-by-molybdenum interaction. The nearest work is in plankton and seawater, not wet soils.",
+    "papers": [
+      {
+        "title": "Howarth and Cole 1985: sulfate inhibits molybdate uptake and nitrogen fixation in plankton and seawater (abstract only)",
+        "year": "1985",
+        "doi": "https://doi.org/10.1126/science.229.4714.653"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible by analogy",
+      "text": "The sulfate and molybdenum link is established in seawater and plankton. The soil and wetland version was not confirmed, and the top keyword hits were off-topic.",
+      "links": [
+        {
+          "label": "Howarth and Cole 1985",
+          "url": "https://doi.org/10.1126/science.229.4714.653"
+        }
+      ]
+    },
+    "chance": 50,
+    "scores": {
+      "novel": 30,
+      "testable": 80,
+      "accurate": 55
+    },
+    "why": "A known marine mechanism carried into wet soils: plausible and testable with a simple sulfate-by-molybdenum experiment, but the idea is not far from existing work."
+  }
 ]

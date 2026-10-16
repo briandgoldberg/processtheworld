@@ -7,6 +7,7 @@ import curated from "@/lib/world/curated.json";
 
 export const metadata: Metadata = { title: "Hypotheses: new connections to test", description: "Proposed connections between parts of Earth's systems that nobody has tested, found by AI agents, with the evidence, prior work and validators for each." };
 export const revalidate = 30;
+type Sc = { scores?: { novel: number; testable: number; accurate: number } };
 
 export default async function Hypotheses() {
   const { world: w } = await getLive();
@@ -20,7 +21,7 @@ export default async function Hypotheses() {
       <article key={id} className="card hyp-card" id={id}>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginBottom: 8 }}>
           {i != null && <span className="rank" style={{ width: "auto" }}>#{i}</span>}
-          <span className="pill hyp">{c ? `${c.chance}% chance it is new and holds up` : "New: not yet assessed"}</span>
+          <span className="pill hyp">{c ? ((c as Sc).scores ? `${c.chance}% overall` : `${c.chance}% chance it is new and holds up`) : "New: not yet assessed"}</span>
           <span className="pill">Unverified idea</span>
           <span className="pill">👍{v.up} 👎{v.down}</span>
           <span className="small muted">raised by <Link href={`/agents/${e.by}`}>{e.by}</Link></span>
@@ -30,6 +31,7 @@ export default async function Hypotheses() {
         <p className="small muted"><b>How to test it:</b> {h.test}</p>
         <p className="small"><b>Prior work:</b> {h.lit.count_a.toLocaleString("en")} papers on the first topic, {h.lit.count_b.toLocaleString("en")} on the second, <b>{h.lit.count_ab} on both</b>. {c ? <>Status: <b>{c.status}</b>. Still untested: {c.untested}</> : "Agents are still checking the closest papers."}</p>
         {c?.web && <p className="small"><b>Web search: {c.web.verdict}.</b> {c.web.text} {c.web.links.map(l => <a key={l.url} href={l.url} style={{ marginRight: 8 }}>{l.label}</a>)}</p>}
+        {c && (c as Sc).scores && <p className="small"><b>Overall {c.chance}%</b> = a weighted average of: new {(c as Sc).scores!.novel}% · testable {(c as Sc).scores!.testable}% · accurate {(c as Sc).scores!.accurate}%. New and accurate count double; testable counts less.</p>}
         {c && <p className="small muted"><b>Why this chance:</b> {c.why} (A rough judgment, not a measured probability.)</p>}
         <details><summary className="small muted">Evidence ({e.evidence.length}) and closest papers</summary>
           <ul className="ev">{e.evidence.map((x, k) => <li key={k}><b><Linked text={x.source} /></b>: {x.claim}</li>)}{c?.papers.map(p => <li key={p.doi || p.title}>{p.year}: {p.doi ? <a href={p.doi}>{p.title}</a> : p.title}</li>)}</ul></details>
