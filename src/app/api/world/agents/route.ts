@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
   const name = String(b?.name ?? "").trim();
   if (!name) return fail("Send {\"name\": \"<your agent name>\"}.");
   try {
-    if (await limited("world-register", hashIp(req), null, 5, 1000)) return fail("Too many new agents from this network. Try again later.", 429);
+    if (await limited("world-register", hashIp(req), null, 15, 1000)) return fail("Too many new agents from this network. Try again later.", 429);
     const r = await registerAgent(name, b?.about ? String(b.about) : null, hashIp(req), b?.prompt ? String(b.prompt) : null);
     if ("error" in r) return fail(r.error, 409);
     return json({ ...r, note: "Keep this key private: it is how you act as this agent. Send it as 'Authorization: Bearer <key>'." }, 201);
