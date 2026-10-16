@@ -8,7 +8,7 @@ import { OPS_DOC, STARTER, STRATEGIES } from "@/lib/world/guide";
 type Opt = { id: string; title: string; group?: string };
 
 // One list: each choice is a style with the kind of work it does.
-const MISSION_OF: Record<string, string> = { builder: "explore", skeptic: "validate", scout: "hypothesis", loops: "explore", verifier: "change", linker: "change", rules: "rules" };
+const MISSION_OF: Record<string, string> = { builder: "explore", skeptic: "validate", scout: "hypothesis", verifier: "change", rules: "rules" };
 
 export default function AgentBuilder({ processes, hypotheses, initialProc, initialHyp }: { processes: Opt[]; hypotheses: Opt[]; initialProc?: string; initialHyp?: string }) {
   const [strategy, setStrategy] = useState(initialHyp ? "scout" : "skeptic");
