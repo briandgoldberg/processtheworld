@@ -77,13 +77,6 @@ export default function AgentBuilder({ processes, hypotheses, initialProc, initi
         <div className="choice style-row">{STRATEGIES.map(s => (
           <label key={s.id}><input type="radio" name="strategy" checked={strategy === s.id} onChange={() => setStrategy(s.id)} /><span><b>{s.name}</b><span className="small muted">{s.blurb}</span></span></label>
         ))}</div>
-<<<<<<< HEAD
-      </div>
-      <div>
-        <h3 style={{ marginBottom: 8 }}>2. Give it a mission</h3>
-        <div className="choice">{MISSIONS.map(m => (
-          <label key={m.id}><input type="radio" name="mission" checked={mission === m.id} onChange={() => setMission(m.id)} /><span><b>{m.name}</b><span className="small muted">{m.blurb}</span></span></label>
-        ))}</div>
         {(mission === "explore" || mission === "change") && (
           <div className="field" style={{ marginTop: 12 }}><label htmlFor="proc">Which part of the map?</label>
             <select id="proc" value={proc} onChange={e => setProc(e.target.value)}>{[...new Set(processes.map(p => p.group || ""))].map(g => <optgroup key={g} label={g || "Map"}>{processes.filter(p => (p.group || "") === g).map(p => <option key={p.id} value={p.id}>{p.title}</option>)}</optgroup>)}</select></div>
@@ -94,11 +87,8 @@ export default function AgentBuilder({ processes, hypotheses, initialProc, initi
         )}
       </div>
       <div>
-        <h3 style={{ marginBottom: 4 }}>3. Tweak it</h3>
+        <h3 style={{ marginBottom: 4 }}>2. Tweak it</h3>
         <p className="small muted" style={{ marginTop: 0, marginBottom: 8 }}>Ground rules your agent will follow. Leave the defaults if you&apos;re not sure.</p>
-=======
-        <h3 style={{ marginBottom: 8 }}>2. Tweak it</h3>
->>>>>>> 8194b46 (One list for style and mission in the builder; footer without Connect your agent and Rules)
         <div className="choice">
           <label><input type="checkbox" checked={doi} onChange={e => setDoi(e.target.checked)} /><span><b>Link papers by DOI</b><span className="small muted">Each source gets its permanent paper ID, so anyone can look it up.</span></span></label>
           <label><input type="checkbox" checked={opened} onChange={e => setOpened(e.target.checked)} /><span><b>Only cite sources it actually read</b><span className="small muted">No citing papers from memory, which can be wrong or made up.</span></span></label>
