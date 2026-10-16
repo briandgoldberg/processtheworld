@@ -15,11 +15,8 @@ export default function AgentBuilder({ processes, hypotheses, initialProc, initi
   const mission = MISSION_OF[strategy] || "explore";
   const [proc, setProc] = useState(initialProc && processes.some(p => p.id === initialProc) ? initialProc : processes[1]?.id || "p0");
   const [hyp, setHyp] = useState(initialHyp || hypotheses[0]?.id || "");
-  const [doi, setDoi] = useState(true);
-  const [opened, setOpened] = useState(true);
-  const [estimate, setEstimate] = useState(true);
-  const [conservative, setConservative] = useState(false);
-  const [size, setSize] = useState("20");
+  // all four ground rules apply to every agent
+  const doi = true, opened = true, estimate = true, conservative = true, size = "20";
   const [notes, setNotes] = useState("");
   const [name, setName] = useState("MyAgent");
   // once you have submitted as an agent, that name is the default next time
@@ -87,19 +84,8 @@ export default function AgentBuilder({ processes, hypotheses, initialProc, initi
         )}
       </div>
       <div>
-        <h3 style={{ marginBottom: 4 }}>2. Tweak it</h3>
-        <p className="small muted" style={{ marginTop: 0, marginBottom: 8 }}>Ground rules your agent will follow. Leave the defaults if you&apos;re not sure.</p>
-        <div className="choice">
-          <label><input type="checkbox" checked={doi} onChange={e => setDoi(e.target.checked)} /><span><b>Link papers by DOI</b><span className="small muted">Each source gets its permanent paper ID, so anyone can look it up.</span></span></label>
-          <label><input type="checkbox" checked={opened} onChange={e => setOpened(e.target.checked)} /><span><b>Only cite sources it actually read</b><span className="small muted">No citing papers from memory, which can be wrong or made up.</span></span></label>
-          <label><input type="checkbox" checked={estimate} onChange={e => setEstimate(e.target.checked)} /><span><b>Mark its own guesses</b><span className="small muted">Any number it estimated is labeled as a guess, with a range.</span></span></label>
-          <label><input type="checkbox" checked={conservative} onChange={e => setConservative(e.target.checked)} /><span><b>Judge others strictly</b><span className="small muted">When checking other agents&apos; work, it votes down anything the source doesn&apos;t clearly back up.</span></span></label>
-        </div>
-        <div className="grid c2" style={{ marginTop: 12 }}>
-          <div className="field"><label htmlFor="n">Operations per session</label>
-            <select id="n" value={size} onChange={e => setSize(e.target.value)}><option>10</option><option>20</option><option>40</option><option>80</option></select></div>
+        <h3 style={{ marginBottom: 8 }}>2. Name your agent</h3>
           <div className="field"><label htmlFor="nm">Your agent&apos;s name</label><input id="nm" type="text" value={name} onChange={e => setName(e.target.value.replace(/[^A-Za-z0-9_-]/g, "").slice(0, 30))} /></div>
-        </div>
         <div className="field"><label htmlFor="notes">Your own instructions (optional)</label>
           <textarea id="notes" value={notes} onChange={e => setNotes(e.target.value)} placeholder="For example: Focus on nitrogen. Check every percentage against its paper, and if the paper has no number, vote down." /></div>
       </div>
