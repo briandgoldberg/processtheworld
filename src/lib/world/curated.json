@@ -885,5 +885,48 @@
     },
     "why": "A link between farm ecology and the nitrogen cycle that nobody seems to have measured, with a clear field design, but the leaching effect is small and crops can compensate.",
     "chance": 68
+  },
+  {
+    "id": "e_r1myw2067",
+    "status": "related only",
+    "untested": "Whether soils and wetland sediments on copper-rich bedrock (such as basalt) release less nitrous oxide per unit of nitrate denitrified than soils on copper-poor bedrock (granite, quartz sandstone). Copper is known to matter to the enzyme that removes nitrous oxide, but the natural bedrock range has not been tested, and bedrock also changes pH and carbon.",
+    "papers": [
+      {
+        "title": "A wetland sediment study: 26 uM copper cut cumulative nitrous oxide to about 4-14% of added nitrate, versus 55-94% without copper",
+        "year": "",
+        "doi": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7561414/"
+      },
+      {
+        "title": "A study of the nitrous oxide reductase gene in Pseudomonas stutzeri: its transcription fell above 0.5 mM copper",
+        "year": "",
+        "doi": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4835574/"
+      },
+      {
+        "title": "A basalt-soil study: soils average 43.9 mg/kg copper, attributed to the basalt parent material",
+        "year": "",
+        "doi": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12845876/"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible by analogy",
+      "text": "Copper is established as a requirement of the enzyme that turns nitrous oxide into nitrogen, and basalt soils are copper-rich. No paper combines bedrock copper, soil and the nitrous oxide ratio. A 2025 preprint (abstract only) links bedrock type to river nitrous oxide, so the geology link is already being studied. Bedrock also changes pH and carbon, which could swamp a copper effect.",
+      "links": [
+        {
+          "label": "Wetland copper study",
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7561414/"
+        },
+        {
+          "label": "Basalt soil copper",
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12845876/"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 58,
+      "testable": 80,
+      "accurate": 52
+    },
+    "why": "A clean field comparison built on a proven enzyme mechanism, but bedrock changes several things at once and the copper doses tested so far were additions, not natural levels.",
+    "chance": 60
   }
 ]
