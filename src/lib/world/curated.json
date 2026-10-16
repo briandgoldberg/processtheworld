@@ -456,7 +456,7 @@
         }
       ]
     },
-    "chance": 54,
+    "chance": 45,
     "scores": {
       "novel": 30,
       "testable": 90,
@@ -499,7 +499,7 @@
         }
       ]
     },
-    "chance": 66,
+    "chance": 60,
     "scores": {
       "novel": 70,
       "testable": 90,
@@ -528,7 +528,7 @@
         }
       ]
     },
-    "chance": 46,
+    "chance": 38,
     "scores": {
       "novel": 25,
       "testable": 80,
@@ -557,7 +557,7 @@
         }
       ]
     },
-    "chance": 50,
+    "chance": 43,
     "scores": {
       "novel": 30,
       "testable": 80,
@@ -592,7 +592,7 @@
       "accurate": 60
     },
     "why": "A real mechanism with a testable record, but the core idea has already been published, so it is mostly a refinement.",
-    "chance": 48
+    "chance": 43
   },
   {
     "id": "e_zo6alnkmv",
@@ -621,7 +621,7 @@
       "accurate": 55
     },
     "why": "Vent iron reaching the Southern Ocean is already studied; only the specific productivity comparison looks open.",
-    "chance": 45
+    "chance": 38
   },
   {
     "id": "e_fvefo6knf",
@@ -659,7 +659,7 @@
       "accurate": 60
     },
     "why": "Very testable and plausible, but groundwater as a coastal nutrient source is well known, so the new part is small.",
-    "chance": 46
+    "chance": 38
   },
   {
     "id": "e_28fe9ozmm",
@@ -697,7 +697,8 @@
       "accurate": 55
     },
     "why": "A strong mechanism in the lab that nobody seems to have tested in soil, and a clean experiment can settle it, but the one soil result points the other way.",
-    "chance": 67
+    "chance": 63,
+    "title": "Freezing speeds the chemical loss of nitrite and nitrous oxide in soil"
   },
   {
     "id": "e_hy8zj5pcx",
@@ -740,7 +741,8 @@
       "accurate": 55
     },
     "why": "Combines two well-measured effects nobody seems to have joined, but aerosol also raises liquid water and fog duration, so the net sign for water delivered is uncertain.",
-    "chance": 64
+    "chance": 63,
+    "title": "Polluted fog delivers less water to forests"
   },
   {
     "id": "e_hrk8qecia",
@@ -783,7 +785,8 @@
       "accurate": 60
     },
     "why": "A clean, testable sulfate-by-copper experiment on a real enzyme mechanism, but the author checked the sources only through summaries and iron in porewater could remove the effect.",
-    "chance": 62
+    "chance": 56,
+    "title": "Sulfate and copper shortage raise nitrous oxide release in wetlands"
   },
   {
     "id": "e_vxcin17mi",
@@ -831,7 +834,8 @@
       "accurate": 55
     },
     "why": "Two well-documented effects nobody has joined, with data that already exist, but heavier rain may not carry more carbon per millimetre and the heatwave result comes from a single study.",
-    "chance": 62
+    "chance": 58,
+    "title": "Marine heatwaves raise river carbon export during storms"
   },
   {
     "id": "e_bxly3rmsv",
@@ -884,7 +888,8 @@
       "accurate": 58
     },
     "why": "A link between farm ecology and the nitrogen cycle that nobody seems to have measured, with a clear field design, but the leaching effect is small and crops can compensate.",
-    "chance": 68
+    "chance": 65,
+    "title": "Poor pollination leaves more nitrogen in the field and raises leaching"
   },
   {
     "id": "e_r1myw2067",
@@ -927,7 +932,8 @@
       "accurate": 52
     },
     "why": "A clean field comparison built on a proven enzyme mechanism, but bedrock changes several things at once and the copper doses tested so far were additions, not natural levels.",
-    "chance": 60
+    "chance": 55,
+    "title": "Copper-rich bedrock lowers nitrous oxide release from soil"
   },
   {
     "id": "e_sd07y52ib",
@@ -970,7 +976,8 @@
       "accurate": 55
     },
     "why": "A clean 2x2 sulfate by nickel and cobalt incubation, but the general idea of trace-metal limits on methanogens is already stated and metal effects have been small in the one soil tested.",
-    "chance": 61
+    "chance": 55,
+    "title": "Sulfide starves methane-makers of nickel and cobalt in peat"
   },
   {
     "id": "e2301",
@@ -1008,7 +1015,7 @@
       "accurate": 30
     },
     "why": "Strength: a direct FACE precedent exists and the experiment is clear; risk: the same experiment found the effect was temporary, and the NOx scaling is an untested add-on.",
-    "chance": 34
+    "chance": 21
   },
   {
     "id": "e2306",
@@ -1046,7 +1053,7 @@
       "accurate": 45
     },
     "why": "Strength: zone-dependent sign already shows up in synthesis data; risk: in wet forests El Nino warmth and drought usually dominate, so the waterlogging-relief sign may not hold.",
-    "chance": 47
+    "chance": 40
   },
   {
     "id": "e2309",
@@ -1093,7 +1100,7 @@
       "accurate": 75
     },
     "why": "Strength: direct plot-scale measurements already support mechanism and sign; risk: upscaling to about 20% of land is uncertain because crust maps and mixed-pixel effects are weak.",
-    "chance": 54
+    "chance": 45
   },
   {
     "id": "e2313",
@@ -1131,7 +1138,7 @@
       "accurate": 40
     },
     "why": "Strength: a simple culture experiment would settle it; risk: AOB live in protective aggregates and grow slowly, so predation may be too small to affect nitrification, and the high-ammonium claim is speculative.",
-    "chance": 65
+    "chance": 60
   },
   {
     "id": "e2316",
@@ -1169,7 +1176,7 @@
       "accurate": 30
     },
     "why": "Strength: highly testable and already attempted; risk: published microcosms show virus addition can raise CUE and necromass, so direction depends on fertility.",
-    "chance": 35
+    "chance": 23
   },
   {
     "id": "e2317",
@@ -1207,7 +1214,7 @@
       "accurate": 65
     },
     "why": "Strength: mechanism and sign are supported by field and modelling work and the lab test is easy; risk: bare-soil albedo is rarely the exposed surface in real land use, so real-world offset is soil- and cover-dependent.",
-    "chance": 51
+    "chance": 43
   },
   {
     "id": "e2319",
@@ -1245,7 +1252,7 @@
       "accurate": 55
     },
     "why": "Strength: sign-by-regime logic matches existing regional data and is testable with existing databases; risk: soil respiration is hard to isolate from photosynthesis and fire in the CO2 growth rate.",
-    "chance": 48
+    "chance": 40
   },
   {
     "id": "e2321",
@@ -1283,7 +1290,7 @@
       "accurate": 35
     },
     "why": "Strength: moisture dependence of nitrification is solid and an experiment is simple; risk: plant ammonium uptake, root exudates and biological nitrification inhibition can swamp any water effect.",
-    "chance": 54
+    "chance": 48
   },
   {
     "id": "e2592",
@@ -1326,7 +1333,7 @@
       "accurate": 55
     },
     "why": "Strength: lab priming and field abundance results both point the predicted way; risk: springtails are surface dwellers and may not reach deep thawed carbon, and fauna effects may be small relative to microbial thaw responses.",
-    "chance": 55
+    "chance": 50
   },
   {
     "id": "e2593",
@@ -1364,7 +1371,7 @@
       "accurate": 60
     },
     "why": "Strength: a direct early-snowmelt experiment already shows the predicted mismatch; risk: forest and Arctic snow studies show mixed fungal responses and nutrient delivery has not been traced.",
-    "chance": 47
+    "chance": 38
   },
   {
     "id": "e2595",
@@ -1402,7 +1409,7 @@
       "accurate": 50
     },
     "why": "Strength: an observational precedent and an existing manipulation platform make it testable; risk: experimental work shows microbial resilience, so lasting copiotroph shifts and rate changes are uncertain.",
-    "chance": 46
+    "chance": 36
   },
   {
     "id": "e_z1py7ch3o",
@@ -1445,7 +1452,7 @@
       "accurate": 60
     },
     "why": "Strength: a sagebrush field study already shows more surface N cycling with lift; risk: trenching and root exclusion confound lift with root death and competition, and lift in trees may be too small to matter.",
-    "chance": 48
+    "chance": 43
   },
   {
     "id": "e_38bn3eh4a",
@@ -1483,7 +1490,7 @@
       "accurate": 30
     },
     "why": "Strength: well-defined regression and strong mechanistic basis; risk: observation-based attribution already finds a near-zero effect, with leaf-area greening and climate offsets cancelling stomatal closure.",
-    "chance": 32
+    "chance": 20
   },
   {
     "id": "e_imkarwktu",
@@ -1526,7 +1533,7 @@
       "accurate": 85
     },
     "why": "Strength: a meta-analysis across biomes already shows the predicted direction; risk: little novelty, and long-term N saturation can erase the effect.",
-    "chance": 55
+    "chance": 45
   },
   {
     "id": "e_lf2cwhn1t",
@@ -1569,7 +1576,7 @@
       "accurate": 80
     },
     "why": "Strength: the stated 10-15% AABW and heat-transport estimates match a published model result; risk: results depend on the mixing parameterization, and little new remains beyond observational validation.",
-    "chance": 52
+    "chance": 42
   },
   {
     "id": "e_dklwidn26",
@@ -1607,7 +1614,7 @@
       "accurate": 60
     },
     "why": "Strength: dust-darkening of glaciers is documented, including from local moraines; risk: dust amount depends on wind, source exposure and snow cover more than on weathering rate, so the proposed causal link may be weak or confounded.",
-    "chance": 51
+    "chance": 45
   },
   {
     "id": "e_xmtpx0n2g",
@@ -1650,7 +1657,7 @@
       "accurate": 50
     },
     "why": "Strength: a clean field-to-lab gradient test with XRD and freezing assays; risk: soil dust also carries organic and biological ice nucleators, and clays or surface coatings could shift activity independently of feldspar content.",
-    "chance": 66
+    "chance": 61
   },
   {
     "id": "e_16eivzn2q",
@@ -1688,7 +1695,7 @@
       "accurate": 85
     },
     "why": "Strength: the erosion-rate dependence and microbial mediation are published and the proposed test is established practice; risk: the heat-release claim is trivial and unmeasurable in practice, and the CO2 flux has chemical (abiotic) oxidation as a competing pathway.",
-    "chance": 53
+    "chance": 46
   },
   {
     "id": "e_eypdqatgf",
@@ -1731,7 +1738,7 @@
       "accurate": 70
     },
     "why": "Strength: bedrock water use by trees is well documented and the proposed measurements are established; risk: confounding by rooting depth, species and climate makes a clean matched-site contrast hard, and thick weathered rock can also lower runoff rather than raise transpiration.",
-    "chance": 56
+    "chance": 50
   },
   {
     "id": "e_n96crf8ya",
@@ -1779,7 +1786,8 @@
       "accurate": 62
     },
     "why": "A proven marine effect applied to lakes with standard measurements, but it is mostly an extension of known work and bloom chemistry can confound the flux.",
-    "chance": 65
+    "chance": 60,
+    "title": "Algal bloom films slow gas exchange in lakes"
   },
   {
     "id": "e_vbsql5j5r",
@@ -1827,6 +1835,7 @@
       "accurate": 55
     },
     "why": "A drilling and moisture comparison on two rock types would settle it, but the author did not read the few papers that overlap and the cause could run the other way.",
-    "chance": 62
+    "chance": 58,
+    "title": "How deep iron minerals have oxidized sets how deep trees draw rock water"
   }
 ]
