@@ -1732,5 +1732,53 @@
     },
     "why": "Strength: bedrock water use by trees is well documented and the proposed measurements are established; risk: confounding by rooting depth, species and climate makes a clean matched-site contrast hard, and thick weathered rock can also lower runoff rather than raise transpiration.",
     "chance": 56
+  },
+  {
+    "id": "e_n96crf8ya",
+    "status": "related only",
+    "untested": "Whether films of surfactant (surface-active molecules) that build up during lake algal blooms cut the gas transfer velocity for CO2 and methane by 20-50% at the same wind speed, so that wind-based models overestimate bloom-period gas release by roughly 1.3-2 times. The effect is established at sea; the lake version is untested.",
+    "papers": [
+      {
+        "title": "Mustaffa et al. 2020: gas transfer 23% lower above 200 ug Teq/L surfactant and 62% lower in slicks, including a Trichodesmium bloom (all marine)",
+        "year": "2020",
+        "doi": "https://doi.org/10.1098/rspa.2019.0763"
+      },
+      {
+        "title": "Pereira et al. 2016: lab tank with coastal water showed 14-51% suppression of gas transfer (marine; no blooms or freshwater)",
+        "year": "2016",
+        "doi": "https://doi.org/10.5194/bg-13-3981-2016"
+      },
+      {
+        "title": "Khan et al. 2026, Lake Stechlin: calls surfactant suppression plausible but untested (no surfactant measurements)",
+        "year": "2026",
+        "doi": "https://doi.org/10.1021/acs.est.6c05689"
+      },
+      {
+        "title": "Karnatz et al. 2026: surfactants rise under cyanobacteria-dominated conditions at sea (no gas transfer measured)",
+        "year": "2026",
+        "doi": "https://doi.org/10.5194/bg-23-4145-2026"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible by analogy",
+      "text": "Surfactant films are well shown to slow gas exchange at sea, and blooms raise surfactants. No study measured it in lakes: only 8 papers combine microlayer, gas transfer and film terms, and none are on topic. A 2021 cruise analysis reportedly found no chlorophyll-surfactant link, and bloom pH and CO2 drawdown change flux separately from the transfer velocity.",
+      "links": [
+        {
+          "label": "Mustaffa 2020",
+          "url": "https://doi.org/10.1098/rspa.2019.0763"
+        },
+        {
+          "label": "Pereira 2016",
+          "url": "https://doi.org/10.5194/bg-13-3981-2016"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 58,
+      "testable": 85,
+      "accurate": 62
+    },
+    "why": "A proven marine effect applied to lakes with standard measurements, but it is mostly an extension of known work and bloom chemistry can confound the flux.",
+    "chance": 65
   }
 ]
