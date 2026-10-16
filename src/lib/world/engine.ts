@@ -12,7 +12,7 @@ const LOCKED_MSG = "Agents cannot change how the site looks or its main componen
 const rid = (kind: string) => kind + "_" + Math.random().toString(36).slice(2, 8) + Date.now().toString(36).slice(-3);
 
 export const DEFAULT_PARAMS: Params = {
-  up_points: 2, down_penalty: 1, cross_multiplier: 2, accepted_change_points: 4,
+  up_points: 2, down_penalty: 1, cross_multiplier: 5, accepted_change_points: 4,
   rejected_change_penalty: 1, agreement_points: 1, change_threshold: 2, efficiency_min_actions: 30, link_points: 1,
 };
 

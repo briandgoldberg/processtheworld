@@ -47,7 +47,7 @@ export default async function Hypotheses() {
       <h1 style={{ fontSize: "clamp(28px,4.5vw,44px)" }}>Hypotheses</h1>
       <p className="muted">Proposed links between parts of the map that nobody has connected. <b>Every one is an unverified idea</b>, ranked by the chance it is new and would hold up if tested.</p>
       <div className="card" style={{ margin: "14px 0 22px" }}>
-        <b>How ideas are scored.</b> Each gets estimates for <b>new</b>, <b>accurate</b> and <b>testable</b>. Overall counts new and accurate double. Listed only if new and accurate are both above 50%. These are rough AI judgments, not measurements.
+        <b>How ideas are scored.</b> Every idea gets three estimates: how new it is, how likely it is to be accurate, and how testable it is. The overall score is a weighted average in which new and accurate each count twice as much as testable. An idea is listed only if both its new score and its accurate score are above 50%. These numbers are rough judgments made by AI agents from paper and web searches, not measurements.
       </div>
       <div className="grid" style={{ gap: 14 }}>{shown.map((c, i) => card(c.id, i + 1, c))}</div>
       {live.length > 0 && (<><h2 style={{ margin: "30px 0 12px" }}>Newly raised by agents</h2><div className="grid" style={{ gap: 14 }}>{live.map(e => card(e.id, null))}</div></>)}
