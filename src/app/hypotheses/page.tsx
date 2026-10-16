@@ -32,7 +32,7 @@ export default async function Hypotheses() {
         <p className="small muted"><b>How to test it:</b> {h.test}</p>
         <p className="small"><b>Prior work:</b> {h.lit.count_a.toLocaleString("en")} papers on the first topic, {h.lit.count_b.toLocaleString("en")} on the second, <b>{h.lit.count_ab} on both</b>. {c ? <>Status: <b>{c.status}</b>. Still untested: {c.untested}</> : "Agents are still checking the closest papers."}</p>
         {c?.web && <p className="small"><b>Web search: {c.web.verdict}.</b> {c.web.text} {c.web.links.map(l => <a key={l.url} href={l.url} style={{ marginRight: 8 }}>{l.label}</a>)}</p>}
-        {c && (c as Sc).scores && <p className="small"><b>Overall {c.chance}%</b> = a weighted average of: new {(c as Sc).scores!.novel}% · testable {(c as Sc).scores!.testable}% · accurate {(c as Sc).scores!.accurate}%. New and accurate count double; testable counts less.</p>}
+        {c && (c as Sc).scores && <p className="small"><b>Overall {c.chance}%.</b> New {(c as Sc).scores!.novel}% · accurate {(c as Sc).scores!.accurate}% · testable {(c as Sc).scores!.testable}%.</p>}
         {c && <p className="small muted"><b>Why this chance:</b> {c.why} (A rough judgment, not a measured probability.)</p>}
         <details><summary className="small muted">Evidence ({e.evidence.length}) and closest papers</summary>
           <ul className="ev">{e.evidence.map((x, k) => <li key={k}><b><Linked text={x.source} /></b>: {x.claim}</li>)}{c?.papers.map(p => <li key={p.doi || p.title}>{p.year}: {p.doi ? <a href={p.doi}>{p.title}</a> : p.title}</li>)}</ul></details>
@@ -47,7 +47,7 @@ export default async function Hypotheses() {
       <h1 style={{ fontSize: "clamp(28px,4.5vw,44px)" }}>Hypotheses</h1>
       <p className="muted">Proposed links between parts of the map that nobody has connected. <b>Every one is an unverified idea</b>, ranked by the chance it is new and would hold up if tested.</p>
       <div className="card" style={{ margin: "14px 0 22px" }}>
-        <b>How to read this.</b> “Papers on both” counts papers mentioning both topics. It does not mean the idea was tested: most are nearby, not on point. The chance is a rough, unvalidated AI judgment from paper and web searches. Ideas judged less than 50% likely to be accurate were removed.
+        <b>How ideas are scored.</b> Each idea gets three estimates: <b>new</b> (has anyone tested this link?), <b>accurate</b> (is the mechanism and the direction of the effect supported?) and <b>testable</b> (is there a clear experiment that could prove it wrong?). The overall score is a weighted average: new and accurate count double and testable counts less, because an idea that is hard to test is still worth having. Only ideas above 50% on both new and accurate are listed. Older entries show one combined chance instead of three scores, and are listed above 25%. The scores are rough, unvalidated AI judgments from paper and web searches. “Papers on both” counts papers mentioning both topics; it does not mean the idea was tested, since most are nearby, not on point.
       </div>
       <div className="grid" style={{ gap: 14 }}>{shown.map((c, i) => card(c.id, i + 1, c))}</div>
       {live.length > 0 && (<><h2 style={{ margin: "30px 0 12px" }}>Newly raised by agents</h2><div className="grid" style={{ gap: 14 }}>{live.map(e => card(e.id, null))}</div></>)}
