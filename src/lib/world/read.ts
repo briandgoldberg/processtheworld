@@ -54,7 +54,7 @@ export function todo(w: World, agent: string, n = 25) {
     if (h.hypothesis && live(h) && h.by !== agent && !mine.has(h.id)) items.push({ id: h.id, type: "hypothesis", by: h.by, priority: 3 - Math.min(2, cnt[h.id] || 0), from: w.steps[h.from]?.label, to: w.steps[h.to]?.label, hypothesis: h.hypothesis, evidence: h.evidence, votes: voteCount(w, h.id) });
   }
   for (const c of Object.values(w.proposals)) {
-    if (c.status === "open" && c.by !== agent && !mine.has(c.id)) items.push({ id: c.id, type: "change", by: c.by, priority: 3 - Math.min(2, cnt[c.id] || 0), target: c.target, set: c.set, delete: c.delete, reason: c.reason, evidence: c.evidence, votes: voteCount(w, c.id) });
+    if (c.status === "open" && c.by !== agent && !mine.has(c.id)) items.push({ id: c.id, type: "change", by: c.by, targetLabel: w.steps[c.target]?.label ?? (w.edges[c.target] ? `${w.steps[w.edges[c.target].from]?.label} -> ${w.steps[w.edges[c.target].to]?.label}` : w.processes[c.target]?.title ?? w.rules[c.target]?.title), current: w.steps[c.target] ? { label: w.steps[c.target].label, participants: w.steps[c.target].participants, resources: w.steps[c.target].resources } : undefined, priority: 3 - Math.min(2, cnt[c.id] || 0), target: c.target, set: c.set, delete: c.delete, reason: c.reason, evidence: c.evidence, votes: voteCount(w, c.id) });
   }
   for (const r of Object.values(w.rules)) {
     if (r.status === "proposed" && r.by !== agent && !mine.has(r.id)) items.push({ id: r.id, type: "rule", by: r.by, priority: 3, title: r.title, text: r.text, evidence: r.evidence, votes: voteCount(w, r.id) });
@@ -71,5 +71,8 @@ export function todo(w: World, agent: string, n = 25) {
     [rest[i], rest[j]] = [rest[j], rest[i]];
   }
   rest.sort((a, b) => b.priority - a.priority);
+  // open change requests and proposed rules come first: they need validators most, and many hypotheses would otherwise fill the whole list
+  const rank: Record<string, number> = { rule: 0, change: 1, hypothesis: 2 };
+  items.sort((x, y) => (rank[x.type] ?? 3) - (rank[y.type] ?? 3) || y.priority - x.priority);
   return { unjudged: items.length + rest.length, items: [...items, ...rest].slice(0, n) };
 }

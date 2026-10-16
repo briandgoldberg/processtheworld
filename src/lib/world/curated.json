@@ -564,5 +564,101 @@
       "accurate": 55
     },
     "why": "A known marine mechanism carried into wet soils: plausible and testable with a simple sulfate-by-molybdenum experiment, but the idea is not far from existing work."
+  },
+  {
+    "id": "e_qiny0ekm2",
+    "status": "partly tested",
+    "untested": "Whether regional ice loss raises eruption rate and volcanic CO2 by about 2-6 times within 1-3 thousand years, and whether rapid modern melt gives a smaller lagged rise. Deglaciation and volcanism is already a studied link.",
+    "papers": [
+      {
+        "title": "Huybers and Langmuir 2009: feedback between deglaciation, volcanism and atmospheric CO2 (abstract only)",
+        "year": "2009",
+        "doi": "https://doi.org/10.1016/j.epsl.2009.07.014"
+      }
+    ],
+    "web": {
+      "verdict": "Partly supported",
+      "text": "The link between ice loss and more volcanism is already proposed and studied for the last deglaciation. The size of the response and the modern lagged rise are the untested parts.",
+      "links": [
+        {
+          "label": "Huybers and Langmuir 2009",
+          "url": "https://doi.org/10.1016/j.epsl.2009.07.014"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 25,
+      "testable": 70,
+      "accurate": 60
+    },
+    "why": "A real mechanism with a testable record, but the core idea has already been published, so it is mostly a refinement.",
+    "chance": 48
+  },
+  {
+    "id": "e_zo6alnkmv",
+    "status": "partly tested",
+    "untested": "Whether Southern Ocean productivity downstream of fast-spreading ridge plumes is higher than in matched waters with the same dust input.",
+    "papers": [
+      {
+        "title": "Tagliabue et al. 2010: hydrothermal iron and the Southern Ocean (abstract via a repository record)",
+        "year": "2010",
+        "doi": "https://doi.org/10.1038/ngeo818"
+      }
+    ],
+    "web": {
+      "verdict": "Partly supported",
+      "text": "Hydrothermal vents are known to supply iron to the Southern Ocean, and 476 papers mention both topics. The matched dust-versus-plume productivity comparison was not found.",
+      "links": [
+        {
+          "label": "Tagliabue 2010",
+          "url": "https://doi.org/10.1038/ngeo818"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 20,
+      "testable": 75,
+      "accurate": 55
+    },
+    "why": "Vent iron reaching the Southern Ocean is already studied; only the specific productivity comparison looks open.",
+    "chance": 45
+  },
+  {
+    "id": "e_fvefo6knf",
+    "status": "related only",
+    "untested": "Whether coasts with high submarine groundwater discharge have more phytoplankton, scaling with the radium-derived discharge rate.",
+    "papers": [
+      {
+        "title": "Moore 2008: submarine groundwater discharge as a nutrient and chemical source to the coast (record via a repository)",
+        "year": "2008",
+        "doi": "https://doi.org/10.1038/ngeo183"
+      },
+      {
+        "title": "Cho et al. 2018: groundwater discharge and coastal productivity",
+        "year": "2018",
+        "doi": "https://doi.org/10.1038/s41598-018-20806-2"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible by analogy",
+      "text": "Groundwater is a known coastal nutrient source, and radium is the standard tracer. A broad comparison of phytoplankton against discharge rate across coasts was not found.",
+      "links": [
+        {
+          "label": "Moore 2008",
+          "url": "https://doi.org/10.1038/ngeo183"
+        },
+        {
+          "label": "Cho 2018",
+          "url": "https://doi.org/10.1038/s41598-018-20806-2"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 15,
+      "testable": 80,
+      "accurate": 60
+    },
+    "why": "Very testable and plausible, but groundwater as a coastal nutrient source is well known, so the new part is small.",
+    "chance": 46
   }
 ]
