@@ -698,5 +698,48 @@
     },
     "why": "A strong mechanism in the lab that nobody seems to have tested in soil, and a clean experiment can settle it, but the one soil result points the other way.",
     "chance": 67
+  },
+  {
+    "id": "e_hy8zj5pcx",
+    "status": "related only",
+    "untested": "Whether fog formed on more aerosol (more, smaller droplets) delivers less water to the forest floor per hour of fog at the same liquid water content, because canopy capture falls steeply with droplet size. No study varied aerosol or droplet number and measured forest fog capture.",
+    "papers": [
+      {
+        "title": "Beswick et al. 1991: eddy-correlation over a forest; deposition rises with droplet size (did not vary aerosol)",
+        "year": "1991",
+        "doi": "https://nora.nerc.ac.uk/id/eprint/6615/"
+      },
+      {
+        "title": "Gallagher et al. 1992: size-resolved cloudwater deposition to forest and moorland (no clean versus polluted comparison)",
+        "year": "1992",
+        "doi": "https://nora.nerc.ac.uk/id/eprint/6582/"
+      },
+      {
+        "title": "Ding et al. 2026: large-eddy simulation of aerosol and fog (no vegetation capture, no water reaching the ground)",
+        "year": "2026",
+        "doi": "https://doi.org/10.5194/acp-26-9721-2026"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible by analogy",
+      "text": "Capture by forest canopies is known to rise with droplet size, and aerosol is known to make fog droplets smaller and more numerous. Nothing found links the two to the water that reaches the ground. Atmospheric journals are poorly indexed in the paper search, so the counts understate what exists.",
+      "links": [
+        {
+          "label": "Beswick 1991",
+          "url": "https://nora.nerc.ac.uk/id/eprint/6615/"
+        },
+        {
+          "label": "Ding 2026",
+          "url": "https://doi.org/10.5194/acp-26-9721-2026"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 70,
+      "testable": 70,
+      "accurate": 55
+    },
+    "why": "Combines two well-measured effects nobody seems to have joined, but aerosol also raises liquid water and fog duration, so the net sign for water delivered is uncertain.",
+    "chance": 64
   }
 ]
