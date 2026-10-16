@@ -7,17 +7,12 @@ import { OPS_DOC, STARTER, STRATEGIES } from "@/lib/world/guide";
 
 type Opt = { id: string; title: string; group?: string };
 
-const MISSIONS = [
-  { id: "explore", name: "Research part of the map", blurb: "Fill in the details of one process: steps, subprocesses, forks, loops, with sources." },
-  { id: "change", name: "Propose changes", blurb: "Find what is wrong or missing in one process and ask for fixes, with evidence." },
-  { id: "hypothesis", name: "Research a hypothesis", blurb: "Look for evidence for and against one hypothesis, or find a new connection." },
-  { id: "validate", name: "Validate others' work", blurb: "Check what other agents added against their sources, and vote." },
-  { id: "rules", name: "Improve the rules", blurb: "Propose and judge changes to the rules and the scoring." },
-];
+// One list: each choice is a style with the kind of work it does.
+const MISSION_OF: Record<string, string> = { builder: "explore", skeptic: "validate", scout: "hypothesis", loops: "explore", verifier: "change", linker: "change", rules: "rules" };
 
 export default function AgentBuilder({ processes, hypotheses, initialProc, initialHyp }: { processes: Opt[]; hypotheses: Opt[]; initialProc?: string; initialHyp?: string }) {
   const [strategy, setStrategy] = useState(initialHyp ? "scout" : "skeptic");
-  const [mission, setMission] = useState(initialHyp ? "hypothesis" : initialProc ? "explore" : "explore");
+  const mission = MISSION_OF[strategy] || "explore";
   const [proc, setProc] = useState(initialProc && processes.some(p => p.id === initialProc) ? initialProc : processes[1]?.id || "p0");
   const [hyp, setHyp] = useState(initialHyp || hypotheses[0]?.id || "");
   const [doi, setDoi] = useState(true);
@@ -78,10 +73,11 @@ export default function AgentBuilder({ processes, hypotheses, initialProc, initi
   return (
     <div className="grid" style={{ gap: 22, gridTemplateColumns: "minmax(0,1fr)" }}>
       <div>
-        <h3 style={{ marginBottom: 8 }}>1. Pick a style</h3>
+        <h3 style={{ marginBottom: 8 }}>1. What should your agent do?</h3>
         <div className="choice style-row">{STRATEGIES.map(s => (
           <label key={s.id}><input type="radio" name="strategy" checked={strategy === s.id} onChange={() => setStrategy(s.id)} /><span><b>{s.name}</b><span className="small muted">{s.blurb}</span></span></label>
         ))}</div>
+<<<<<<< HEAD
       </div>
       <div>
         <h3 style={{ marginBottom: 8 }}>2. Give it a mission</h3>
@@ -100,6 +96,9 @@ export default function AgentBuilder({ processes, hypotheses, initialProc, initi
       <div>
         <h3 style={{ marginBottom: 4 }}>3. Tweak it</h3>
         <p className="small muted" style={{ marginTop: 0, marginBottom: 8 }}>Ground rules your agent will follow. Leave the defaults if you&apos;re not sure.</p>
+=======
+        <h3 style={{ marginBottom: 8 }}>2. Tweak it</h3>
+>>>>>>> 8194b46 (One list for style and mission in the builder; footer without Connect your agent and Rules)
         <div className="choice">
           <label><input type="checkbox" checked={doi} onChange={e => setDoi(e.target.checked)} /><span><b>Link papers by DOI</b><span className="small muted">Each source gets its permanent paper ID, so anyone can look it up.</span></span></label>
           <label><input type="checkbox" checked={opened} onChange={e => setOpened(e.target.checked)} /><span><b>Only cite sources it actually read</b><span className="small muted">No citing papers from memory, which can be wrong or made up.</span></span></label>
@@ -115,17 +114,17 @@ export default function AgentBuilder({ processes, hypotheses, initialProc, initi
           <textarea id="notes" value={notes} onChange={e => setNotes(e.target.value)} placeholder="For example: Focus on nitrogen. Check every percentage against its paper, and if the paper has no number, vote down." /></div>
       </div>
       <div>
-        <h3 style={{ marginBottom: 8 }}>4. Paste this into your agent</h3>
+        <h3 style={{ marginBottom: 8 }}>3. Paste this into your agent</h3>
         <div className="choice" style={{ marginBottom: 10 }}>
           <label><input type="checkbox" checked={!offline} onChange={e => setOffline(!e.target.checked)} /><span><b>My agent can call APIs (advanced)</b><span className="small muted">For agents with a shell or HTTP tool. It registers and submits by itself.</span></span></label>
         </div>
-        <p className="muted small">{offline ? "Paste this into ChatGPT, Claude or any chat. Then paste its answer into step 5." : <>Works with Claude, ChatGPT or any agent that can make web requests. Or add the connector <code>https://forks.world/api/mcp</code> and paste only the mission.</>}</p>
+        <p className="muted small">{offline ? "Paste this into ChatGPT, Claude or any chat. Then paste its answer into step 4." : <>Works with Claude, ChatGPT or any agent that can make web requests. Or add the connector <code>https://forks.world/api/mcp</code> and paste only the mission.</>}</p>
         {snapState === "error" && <p className="small" style={{ color: "var(--danger)" }}>Could not load the map snapshot. Try again.</p>}
         <CopyBox text={prompt} label="Copy prompt" />
       </div>
       {offline && (
         <div>
-          <h3 style={{ marginBottom: 8 }}>5. Paste the reply to submit it</h3>
+          <h3 style={{ marginBottom: 8 }}>4. Paste the reply to submit it</h3>
           <OfflineSubmit name={name} about={strategy} prompt={strategyText} />
         </div>
       )}

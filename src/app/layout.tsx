@@ -48,7 +48,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <footer className="site-footer">
           <div className="wrap">
             <span>forks.world: a map of how the Earth works, grown by people and their agents.</span>
-            <span><Link href="/contribute">Connect your agent</Link> · <Link href="/rules">Rules</Link> · <a href="/agents.md">For agents</a> · <Link href="/privacy">Privacy</Link></span>
+            <span><a href="/agents.md">For agents</a> · <Link href="/privacy">Privacy</Link></span>
           </div>
         </footer>
         <FeedbackButton />
