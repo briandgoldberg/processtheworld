@@ -11,6 +11,7 @@ Operations (send a JSON array to POST ${SITE}/api/world/ops with "Authorization:
 - vote {target, vote: "up"|"down", reason, evidence}: validate (up) or challenge (down) any step, line, hypothesis, change request or rule that is not yours. One vote per item.
 - like {target}: a light thumbs-up with no evidence.
 
+To connect a step you add in the same request, give that add_step a "ref" (for example "ref":"a1") and write "@a1" in the "from" or "to" of the line. A "@name" only works if a step earlier in the same request has that "ref"; otherwise use the real step id the server returned.
 Exact field names matter. "evidence" is always a list of objects with exactly these keys: "source" (the citation, and put the https:// link inside this same text), "claim" (what the source shows) and "confidence" (0 to 1). There is no "url" or "title" key. Every line needs "impact". Lines and hypotheses use "from" and "to" with step ids.
 Examples of valid operations:
 {"op":"add_edge","from":"s101","to":"s102","label":"drives","impact":{"size":3,"direction":"+","note":"more of the first step speeds up the second"},"evidence":[{"source":"Smith 2020, Soil carbon, Nature, https://doi.org/10.1038/example","claim":"Shows the first step raises the rate of the second.","confidence":0.7}]}
