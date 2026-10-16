@@ -971,5 +971,766 @@
     },
     "why": "A clean 2x2 sulfate by nickel and cobalt incubation, but the general idea of trace-metal limits on methanogens is already stated and metal effects have been small in the one soil tested.",
     "chance": 61
+  },
+  {
+    "id": "e2301",
+    "status": "partly tested",
+    "untested": "The urban-to-rural NOx/ozone gradient scaling and the isotope-tracer partition under ozone alone (without elevated CO2) are untested; the core ozone effect was seen only transiently in the aspen FACE.",
+    "papers": [
+      {
+        "title": "Aspen FACE: with ambient O3 and CO2 both raised 50%, formation of total and acid-insoluble soil C fell ~50% relative to CO2 alone; did not test ozone alone, NOx gradients or long-term persistence",
+        "year": "2003",
+        "doi": "https://doi.org/10.1038/nature02047"
+      },
+      {
+        "title": "11-year follow-up at the same FACE: no significant main effect of O3 or CO2 on soil C; the early O3 reduction in new soil C proved temporary, mirroring fine-root biomass; no urban gradient",
+        "year": "2009",
+        "doi": "https://doi.org/10.1111/j.1461-0248.2009.01380.x"
+      }
+    ],
+    "web": {
+      "verdict": "Already studied, contested",
+      "text": "Loya et al. found roughly the predicted halving of new soil carbon, but only under elevated CO2 plus O3, and the later 11-year dataset from the same experiment showed the effect faded. The NOx-downwind scaling has not been tested.",
+      "links": [
+        {
+          "label": "Loya et al. 2003 (Nature)",
+          "url": "https://doi.org/10.1038/nature02047"
+        },
+        {
+          "label": "Talhelm et al. 2009 (Ecol Lett)",
+          "url": "https://doi.org/10.1111/j.1461-0248.2009.01380.x"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 12,
+      "testable": 85,
+      "accurate": 30
+    },
+    "why": "Strength: a direct FACE precedent exists and the experiment is clear; risk: the same experiment found the effect was temporary, and the NOx scaling is an untested add-on.",
+    "chance": 34
+  },
+  {
+    "id": "e2306",
+    "status": "partly tested",
+    "untested": "Site-level multi-year chamber records along a rainfall gradient regressed on lagged ENSO with soil water as mediator have not been done; the wet-forest sign (less waterlogging raises respiration) is untested and competes with a warming/drought-suppression effect in the wet tropics.",
+    "papers": [
+      {
+        "title": "Synthesis of East Asian forest soil respiration vs ENSO: positive correlation in tropical-subtropical zones, negative in warm temperate, mediated by monsoon precipitation anomalies; lags of months; database synthesis, not automated chambers or mediation by soil water",
+        "year": "2025",
+        "doi": "https://europepmc.org/article/AGR/IND609284115"
+      },
+      {
+        "title": "Tropical water availability versus CO2 growth-rate coupling became more negative 1989-2018, linked to ENSO teleconnection shifts; used atmospheric CO2 and water storage, did not measure soil respiration or a wet versus dry sign split",
+        "year": "2023",
+        "doi": "https://doi.org/10.1038/s41586-023-06056-x"
+      }
+    ],
+    "web": {
+      "verdict": "Partly supported",
+      "text": "Regional syntheses show ENSO-linked soil respiration responses whose sign depends on climate zone and precipitation anomalies, matching the idea of a wetness-dependent sign. The specific waterlogging mechanism in wet forests is mostly inferred, and tropical El Nino heat and drought usually suppress carbon uptake rather than waterlogging.",
+      "links": [
+        {
+          "label": "ENSO and forest soil respiration, East Asia 2025",
+          "url": "https://europepmc.org/article/AGR/IND609284115"
+        },
+        {
+          "label": "Tropical water-CGR coupling, Nature 2023",
+          "url": "https://doi.org/10.1038/s41586-023-06056-x"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 35,
+      "testable": 75,
+      "accurate": 45
+    },
+    "why": "Strength: zone-dependent sign already shows up in synthesis data; risk: in wet forests El Nino warmth and drought usually dominate, so the waterlogging-relief sign may not hold.",
+    "chance": 47
+  },
+  {
+    "id": "e2309",
+    "status": "partly tested",
+    "untested": "Upscaling to land-surface energy balance and evaporation using crust-cover maps and a land-surface model, and a scraped-versus-intact paired transect across a full successional gradient, are not yet done.",
+    "papers": [
+      {
+        "title": "Mature scytonemin-rich cyanobacterial biocrust raised surface soil temperature by up to 10 C and lowered albedo; plot scale, did not upscale to energy balance or evaporation",
+        "year": "2016",
+        "doi": "https://doi.org/10.1038/ncomms10373"
+      },
+      {
+        "title": "20-year warming experiment: crust shift to lightly pigmented cyanobacteria raised brightness 14% and changed surface temperature ~0.3 C per 10% cover; remote sensing at plot scale, argued the feedback is missing from process models",
+        "year": "2026",
+        "doi": "https://doi.org/10.1038/s43247-026-03874-5"
+      },
+      {
+        "title": "Warming and altered watering raised dryland biocrust albedo by more than 30% via crust community shifts; field experiment, no energy-balance modelling",
+        "year": "2017",
+        "doi": "https://doi.org/10.1038/srep44188"
+      }
+    ],
+    "web": {
+      "verdict": "Largely supported",
+      "text": "The plot-scale effect (scytonemin crust darkens soil and warms it by several degrees, up to 10 C) is published, and follow-up work shows crust community shifts change albedo and temperature. The global-scale energy-balance and evaporation consequence is flagged as missing from models and remains the open part.",
+      "links": [
+        {
+          "label": "Couradeau et al. 2016",
+          "url": "https://doi.org/10.1038/ncomms10373"
+        },
+        {
+          "label": "Rutherford et al. 2017",
+          "url": "https://doi.org/10.1038/srep44188"
+        },
+        {
+          "label": "Biocrust degradation feedback 2026",
+          "url": "https://doi.org/10.1038/s43247-026-03874-5"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 15,
+      "testable": 88,
+      "accurate": 75
+    },
+    "why": "Strength: direct plot-scale measurements already support mechanism and sign; risk: upscaling to about 20% of land is uncertain because crust maps and mixed-pixel effects are weak.",
+    "chance": 54
+  },
+  {
+    "id": "e2313",
+    "status": "related only",
+    "untested": "No study found adding Bdellovibrio or Myxococcus to AOB cultures or ammonium-amended soil and tracking amoA and nitrite; whether AOB flocs protect them from predators, and any ammonium dependence, is untested.",
+    "papers": [
+      {
+        "title": "Protozoan predation on AOB and anammox in nitritation-anammox biofilms by FISH-CLSM; showed predation of AOB occurs, but by amoebae, not predatory bacteria, and no nitrification rates",
+        "year": "2015",
+        "doi": "https://doi.org/10.1093/femsec/fiv124"
+      },
+      {
+        "title": "Review of Bdellovibrio-and-like organisms as biocontrol agents: prey range is broad Gram-negative bacteria; no data on nitrifier prey or nitrification effects",
+        "year": "2020",
+        "doi": "https://doi.org/10.3389/fmicb.2020.00662"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible by analogy",
+      "text": "Predation on AOB is documented for protozoa and phages, and BALOs have broad Gram-negative prey ranges, so the mechanism is plausible. I found no direct test on nitrifiers, and aggregated, slow-growing nitrifier flocs may be poorly accessible to predators.",
+      "links": [
+        {
+          "label": "Predation of nitritation-anammox biofilms",
+          "url": "https://doi.org/10.1093/femsec/fiv124"
+        },
+        {
+          "label": "BALO biotechnology review",
+          "url": "https://doi.org/10.3389/fmicb.2020.00662"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 80,
+      "testable": 85,
+      "accurate": 40
+    },
+    "why": "Strength: a simple culture experiment would settle it; risk: AOB live in protective aggregates and grow slowly, so predation may be too small to affect nitrification, and the high-ammonium claim is speculative.",
+    "chance": 65
+  },
+  {
+    "id": "e2316",
+    "status": "partly tested",
+    "untested": "A controlled phage-enriched versus virus-reduced microcosm design with 18O-water CUE and amino-sugar markers is not found; existing results show the sign of the viral effect on CUE depends on soil fertility, opposite to the stated prediction in rich soils.",
+    "papers": [
+      {
+        "title": "Virus particle addition to agricultural soils raised microbial CUE and necromass by 14% in organically fertilized soil, but raised CO2 by 41% in unfertilized soil; contradicts the prediction in rich soils, supports it in poor soils",
+        "year": "2026",
+        "doi": "https://doi.org/10.1111/gcb.70994"
+      },
+      {
+        "title": "Long-term microplastic field experiment: viral lysis and virus-host coadaptation altered CUE and SOC accrual; correlative, not a manipulated virus-reduced design",
+        "year": "2024",
+        "doi": "https://doi.org/10.1073/pnas.2413245121"
+      }
+    ],
+    "web": {
+      "verdict": "Mixed, direction unclear",
+      "text": "Recent work directly manipulates soil viruses and finds both effects: virus addition boosted CUE and necromass in nutrient-rich soils but raised respiration in poor soils. The prediction of uniformly lower CUE with lysis is therefore too simple.",
+      "links": [
+        {
+          "label": "Viruses in agricultural soils, GCB 2026",
+          "url": "https://doi.org/10.1111/gcb.70994"
+        },
+        {
+          "label": "Viral-host interactions and carbon, PNAS 2024",
+          "url": "https://doi.org/10.1073/pnas.2413245121"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 15,
+      "testable": 85,
+      "accurate": 30
+    },
+    "why": "Strength: highly testable and already attempted; risk: published microcosms show virus addition can raise CUE and necromass, so direction depends on fertility.",
+    "chance": 35
+  },
+  {
+    "id": "e2317",
+    "status": "partly tested",
+    "untested": "A controlled spectral measurement of paired soils along an organic carbon gradient at fixed moisture, with albedo forcing compared directly to CO2 forcing from the carbon change across soil types and climates, is not found; existing work is cropland modelling or two-site field trials.",
+    "papers": [
+      {
+        "title": "European cover-crop modelling with a soil darkening feedback scenario: higher SOC darkens soil and could erase ~20% of the climate benefit; model-based, not measured spectral albedo along a SOC gradient",
+        "year": "2023",
+        "doi": "https://doi.org/10.3390/rs15133231"
+      },
+      {
+        "title": "Zimbabwe maize trials (EGU abstract): albedo forcing and SOC forcing were similar in size and opposite in sign on light sandy soil with mulch, but cooling on dark clay; two sites, two seasons, conference abstract",
+        "year": "2024",
+        "doi": "https://meetingorganizer.copernicus.org/EGU24/EGU24-6466.html"
+      }
+    ],
+    "web": {
+      "verdict": "Partly supported",
+      "text": "Soil darkening with organic matter is long known and recent studies quantify albedo forcing against SOC forcing, finding offsets from about 20% in Europe-wide modelling up to near-total offset on light sandy soil. The result depends strongly on soil type, snow and cover, so a general offset is not established.",
+      "links": [
+        {
+          "label": "Pique et al. 2023 cover-crop albedo",
+          "url": "https://doi.org/10.3390/rs15133231"
+        },
+        {
+          "label": "Diop et al. EGU 2024 abstract",
+          "url": "https://meetingorganizer.copernicus.org/EGU24/EGU24-6466.html"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 20,
+      "testable": 85,
+      "accurate": 65
+    },
+    "why": "Strength: mechanism and sign are supported by field and modelling work and the lab test is easy; risk: bare-soil albedo is rarely the exposed surface in real land use, so real-world offset is soil- and cover-dependent.",
+    "chance": 51
+  },
+  {
+    "id": "e2319",
+    "status": "partly tested",
+    "untested": "Global or multi-biome test of sign by soil moisture regime using SRDB or flux towers with ENSO lags, and its contribution to CO2 growth-rate variability, is not done; most evidence is regional or atmospheric.",
+    "papers": [
+      {
+        "title": "Synthesis of East Asian forest soil respiration vs ENSO: sign differs between tropical-subtropical (positive) and warm temperate (negative) zones, heterotrophic more sensitive, driven by monsoon precipitation; regional only",
+        "year": "2025",
+        "doi": "https://europepmc.org/article/AGR/IND609284115"
+      },
+      {
+        "title": "Tropical water availability coupling to atmospheric CO2 growth rate, ENSO teleconnections; showed water control of the growth rate but did not separate soil respiration from photosynthesis",
+        "year": "2023",
+        "doi": "https://doi.org/10.1038/s41586-023-06056-x"
+      }
+    ],
+    "web": {
+      "verdict": "Partly supported",
+      "text": "ENSO is known to drive interannual CO2 growth variability and a regional soil respiration synthesis finds opposite-sign responses by zone. Attribution of the growth-rate signal to soil respiration versus gross primary production and fire is unresolved.",
+      "links": [
+        {
+          "label": "ENSO and forest soil respiration, East Asia 2025",
+          "url": "https://europepmc.org/article/AGR/IND609284115"
+        },
+        {
+          "label": "Tropical water-CGR coupling, Nature 2023",
+          "url": "https://doi.org/10.1038/s41586-023-06056-x"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 25,
+      "testable": 80,
+      "accurate": 55
+    },
+    "why": "Strength: sign-by-regime logic matches existing regional data and is testable with existing databases; risk: soil respiration is hard to isolate from photosynthesis and fire in the CO2 growth rate.",
+    "chance": 48
+  },
+  {
+    "id": "e2321",
+    "status": "related only",
+    "untested": "No study found that separates transpiration-driven drying from other plant effects on gross nitrification (planted versus unplanted or shaded pots at controlled evaporative demand with 15N pool dilution and amoA); plant ammonium uptake and nitrification-inhibitor exudates are confounding mechanisms.",
+    "papers": [
+      {
+        "title": "Planted versus unplanted forest soil under constant moisture or drying-rewetting: plant ammonium uptake halved by drying while microbial uptake rose; short 24 h assay, nitrification not measured",
+        "year": "2014",
+        "doi": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3997322/"
+      },
+      {
+        "title": "Shrubland soil incubation with 15N pool dilution across moisture and temperature: gross nitrification rose with water content and ceased below ~60% WHC; unplanted soil, no plant or transpiration effect",
+        "year": "2023",
+        "doi": "https://doi.org/10.3390/life13030643"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible by analogy",
+      "text": "Nitrification is well known to depend on soil moisture with a mid-range optimum, and plants compete with nitrifiers for ammonium. Whether transpiration demand sets a moisture-driven nitrification peak, distinct from direct ammonium competition, has not been tested.",
+      "links": [
+        {
+          "label": "Plant-microbe ammonium competition and moisture, 2014",
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3997322/"
+        },
+        {
+          "label": "Gross N transformations vs moisture, 2023",
+          "url": "https://doi.org/10.3390/life13030643"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 60,
+      "testable": 80,
+      "accurate": 35
+    },
+    "why": "Strength: moisture dependence of nitrification is solid and an experiment is simple; risk: plant ammonium uptake, root exudates and biological nitrification inhibition can swamp any water effect.",
+    "chance": 54
+  },
+  {
+    "id": "e2592",
+    "status": "partly tested",
+    "untested": "No field thaw-depth warming experiment with faunal exclusion (mesh bags or heat extraction) measuring CO2, CH4 and litter mass loss was found; the depth-range expansion of fauna into thawed layers and the effect beyond temperature alone are untested.",
+    "papers": [
+      {
+        "title": "Lab incubation of Yedoma permafrost with the springtail Folsomia candida for 25 days: CO2 rose ~26%, about half from springtail respiration and ~13% attributed to priming; single species, bacteria only, no field or depth test",
+        "year": "2022",
+        "doi": "https://bg.copernicus.org/articles/19/4089/2022/"
+      },
+      {
+        "title": "Five years of open-top-chamber warming in permafrost wetlands (Great Hing'an Mountains): Collembola richness and abundance rose, about eightfold in April; no decomposition or carbon flux measured",
+        "year": "2022",
+        "doi": "https://doi.org/10.3390/insects14010033"
+      },
+      {
+        "title": "Mini-review of arthropod responses to Arctic cryosphere decline including permafrost depth; highlights data gaps on functional roles",
+        "year": "2026",
+        "doi": "https://doi.org/10.1111/gcb.71062"
+      }
+    ],
+    "web": {
+      "verdict": "Partly supported",
+      "text": "Warming increases springtail abundance in permafrost wetlands, and adding springtails to permafrost raised CO2 beyond their own respiration in the lab. What is missing is a field test with faunal exclusion that shows the effect on thawed-carbon loss and depth colonization.",
+      "links": [
+        {
+          "label": "Monteux et al. 2022, Biogeosciences",
+          "url": "https://bg.copernicus.org/articles/19/4089/2022/"
+        },
+        {
+          "label": "Collembola warming in permafrost wetlands",
+          "url": "https://doi.org/10.3390/insects14010033"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 45,
+      "testable": 75,
+      "accurate": 55
+    },
+    "why": "Strength: lab priming and field abundance results both point the predicted way; risk: springtails are surface dwellers and may not reach deep thawed carbon, and fauna effects may be small relative to microbial thaw responses.",
+    "chance": 55
+  },
+  {
+    "id": "e2593",
+    "status": "partly tested",
+    "untested": "Isotope tracing (33P or 15N) of nutrient delivery through hyphae to plants across snow-manipulation plots, and the generality beyond one subalpine meadow and AMF, are not shown; the preprint infers nutrient effects from soil pools. It also is not peer reviewed.",
+    "papers": [
+      {
+        "title": "Preprint: experimentally advanced snowmelt in a subalpine meadow caused plant greening to start early and cut extraradical AM hyphal production, with smaller available N and P pools; one site, not yet peer reviewed, nutrient transfer not traced",
+        "year": "2025",
+        "doi": "https://doi.org/10.64898/2025.12.11.693722"
+      },
+      {
+        "title": "Hubbard Brook 29-month root-exclusion and ingrowth cores along a snow-depth gradient: grouped AM and EM abundance unaffected by snow depth, ericoid fungi rose with snow, some orders responded; single sampling, no hyphal timing or nutrient transfer",
+        "year": "2019",
+        "doi": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6503048/"
+      }
+    ],
+    "web": {
+      "verdict": "Partly supported",
+      "text": "A recent early-snowmelt experiment reports plant-fungal asynchrony with reduced hyphal production and smaller nutrient pools, which closely matches the prediction. A forest snowpack-decline study found little change in grouped mycorrhizal abundance, so the effect may vary by system and fungal group.",
+      "links": [
+        {
+          "label": "Warming winter disrupts mycorrhizal phenology (preprint)",
+          "url": "https://doi.org/10.64898/2025.12.11.693722"
+        },
+        {
+          "label": "Sorensen et al. 2019, Hubbard Brook",
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6503048/"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 15,
+      "testable": 85,
+      "accurate": 60
+    },
+    "why": "Strength: a direct early-snowmelt experiment already shows the predicted mismatch; risk: forest and Arctic snow studies show mixed fungal responses and nutrient delivery has not been traced.",
+    "chance": 47
+  },
+  {
+    "id": "e2595",
+    "status": "partly tested",
+    "untested": "Multi-year (3-5 year) persistence of the abundance-up, richness-down shift and its link to measured C and N turnover (CUE, N mineralisation) has not been shown; follow-ups were 7 months or less, and the copiotroph shift was inferred from taxa rather than traits or rates.",
+    "papers": [
+      {
+        "title": "Hurricane Otto, Costa Rica: soil sampled 3 months before and 7 months after; microbial biomass up, genus richness down, shift to dominant functional-group genera; single storm, short horizon, no turnover rates",
+        "year": "2020",
+        "doi": "https://doi.org/10.1371/journal.pone.0231187"
+      },
+      {
+        "title": "Luquillo Canopy Trimming Experiment: green debris deposition and canopy opening decoupled; soil microbial community changed pre vs post but did not separate by treatment, effects possibly missed or masked; bacterial richness showed a positive response to some treatment",
+        "year": "2014",
+        "doi": "https://doi.org/10.1016/j.foreco.2014.07.010"
+      }
+    ],
+    "web": {
+      "verdict": "Partly supported",
+      "text": "A Costa Rica study found the predicted abundance increase and richness decrease after a hurricane, but the best controlled experiment (Luquillo canopy trimming) found treatment effects were masked by strong background variation and resilience. Multi-year persistence and process-rate consequences remain unmeasured.",
+      "links": [
+        {
+          "label": "Hurricane Otto soil microbes, 2020",
+          "url": "https://doi.org/10.1371/journal.pone.0231187"
+        },
+        {
+          "label": "Luquillo simulated hurricane microbes, 2014",
+          "url": "https://doi.org/10.1016/j.foreco.2014.07.010"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 22,
+      "testable": 85,
+      "accurate": 50
+    },
+    "why": "Strength: an observational precedent and an existing manipulation platform make it testable; risk: experimental work shows microbial resilience, so lasting copiotroph shifts and rate changes are uncertain.",
+    "chance": 46
+  },
+  {
+    "id": "e_z1py7ch3o",
+    "status": "partly tested",
+    "untested": "No test with trees in seasonally dry forest or shrubland that measures protease activity and gross N mineralization with lift blocked by trenching or shading and deuterium-labelled deep water; existing work is sagebrush with augmented deep water and grass in pots, with no protease assays.",
+    "papers": [
+      {
+        "title": "Sagebrush field experiment: adding deep water raised lift, soil respiration and 15N cycling in surface soil and N uptake into inflorescences; shrub not tree, no protease assay or blocked-lift control",
+        "year": "2013",
+        "doi": "https://doi.org/10.1073/pnas.1311314110"
+      },
+      {
+        "title": "Grass in two-layer pots with lift blocked by 24 h light: decomposition and uptake higher with lift, mixed NH4/NO3 signs; greenhouse, grass, no protease or gross mineralization by pool dilution",
+        "year": "2012",
+        "doi": "https://doi.org/10.1007/s00442-011-2065-2"
+      },
+      {
+        "title": "Hydraulic redistribution may stimulate decomposition: diel drying-rewetting of root litter in a desert system; decomposition only, not enzymes or N rates",
+        "year": "2009",
+        "doi": "https://doi.org/10.1007/s10533-009-9339-3"
+      }
+    ],
+    "web": {
+      "verdict": "Partly supported",
+      "text": "Field and pot experiments show hydraulic lift raises topsoil decomposition and N cycling in sagebrush and grass. The specific claim for trees, protease activity and gross mineralization with a blocked-lift contrast, and the 20-100% size, are untested.",
+      "links": [
+        {
+          "label": "Cardon et al. 2013, PNAS",
+          "url": "https://doi.org/10.1073/pnas.1311314110"
+        },
+        {
+          "label": "Hydraulic lift and N cycling in grass, 2012",
+          "url": "https://doi.org/10.1007/s00442-011-2065-2"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 25,
+      "testable": 70,
+      "accurate": 60
+    },
+    "why": "Strength: a sagebrush field study already shows more surface N cycling with lift; risk: trenching and root exclusion confound lift with root death and competition, and lift in trees may be too small to matter.",
+    "chance": 48
+  },
+  {
+    "id": "e_38bn3eh4a",
+    "status": "partly tested",
+    "untested": "A clean forested-versus-sparse basin contrast of runoff ratio against CO2 with precipitation, temperature, land use and leaf area as covariates, backed by FACE sap-flow checks, is not settled; the global catchment attribution found near-zero median CO2 effect, so the predicted runoff-ratio rise is not detected.",
+    "papers": [
+      {
+        "title": "Global climate model with a vegetation component: physiological forcing from doubled CO2 raised simulated global runoff by about 6%; a model projection, not an observed basin trend",
+        "year": "2007",
+        "doi": "https://doi.org/10.1038/nature06045"
+      },
+      {
+        "title": "Catchment-scale attribution across 1116 unimpacted catchments, 1981-2020, constrained by observed streamflow: median direct CO2 contribution approached zero; the opposite of a detectable decades-long runoff-ratio rise",
+        "year": "2024",
+        "doi": "https://doi.org/10.1038/s41467-024-53879-x"
+      }
+    ],
+    "web": {
+      "verdict": "Mixed, direction unclear",
+      "text": "Models predict higher runoff from CO2-driven stomatal closure, but observation-constrained catchment analyses find the net effect is close to zero because greater leaf area and growth offset the lower conductance. Other work argues the effect depends on aridity, so the sign can differ by climate.",
+      "links": [
+        {
+          "label": "Betts et al. 2007, Nature",
+          "url": "https://doi.org/10.1038/nature06045"
+        },
+        {
+          "label": "Direct CO2 effect on streamflow, Nat Commun 2024",
+          "url": "https://doi.org/10.1038/s41467-024-53879-x"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 10,
+      "testable": 80,
+      "accurate": 30
+    },
+    "why": "Strength: well-defined regression and strong mechanistic basis; risk: observation-based attribution already finds a near-zero effect, with leaf-area greening and climate offsets cancelling stomatal closure.",
+    "chance": 32
+  },
+  {
+    "id": "e_imkarwktu",
+    "status": "partly tested",
+    "untested": "The size and persistence of the effect for atmospheric deposition specifically (as opposed to fertilizer additions) at chronic low doses, and in which soils the response saturates or declines, are less clear; the core N-raises-phosphatase link is already established.",
+    "papers": [
+      {
+        "title": "Meta-analysis of 34 studies: N fertilization enhanced phosphatase activity from tropics to extra-tropics, in roots and bulk soil, while P fertilization suppressed it; mostly fertilizer, not deposition gradients",
+        "year": "2012",
+        "doi": "https://doi.org/10.1111/j.1469-8137.2011.03967.x"
+      },
+      {
+        "title": "Letter on long-term N addition: N stimulation of soil phosphatase appears to decline progressively with years of N addition, citing a long-term chaparral-type record; indicates the effect can fade",
+        "year": "2021",
+        "doi": "https://europepmc.org/article/AGR/IND607499803"
+      },
+      {
+        "title": "7-year simulated N deposition in calcareous grassland raised root-surface phosphomonoesterase activity in three plant functional types; plant roots not bulk soil",
+        "year": "2004",
+        "doi": "https://doi.org/10.1046/j.1469-8137.2003.00910.x"
+      }
+    ],
+    "web": {
+      "verdict": "Already studied, supported",
+      "text": "A multi-biome meta-analysis finds N addition raises phosphatase activity, and deposition-simulation experiments show the same in plant roots. Evidence that the stimulation can fade with decades of N addition means the direction holds but the long-term size is uncertain.",
+      "links": [
+        {
+          "label": "Marklein and Houlton 2012 meta-analysis",
+          "url": "https://doi.org/10.1111/j.1469-8137.2011.03967.x"
+        },
+        {
+          "label": "Deposition and root phosphatase, calcareous grassland",
+          "url": "https://doi.org/10.1046/j.1469-8137.2003.00910.x"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 4,
+      "testable": 95,
+      "accurate": 85
+    },
+    "why": "Strength: a meta-analysis across biomes already shows the predicted direction; risk: little novelty, and long-term N saturation can erase the effect.",
+    "chance": 55
+  },
+  {
+    "id": "e_lf2cwhn1t",
+    "status": "partly tested",
+    "untested": "Validation against deep hydrographic sections and abyssal temperature trends with modern flux maps and eddy-resolving or multi-model comparisons is incomplete; existing numbers come from one global model configuration and the Arctic deep-warming signal exceeds what geothermal heating explains.",
+    "papers": [
+      {
+        "title": "Ocean model with no, uniform and spatially varying geothermal heat flux: with strong mixing the AABW cell strengthened about 15% (2.5 Sv), deep North Pacific warmed up to 0.3 C and Southern Ocean poleward heat transport rose about 10%; single model, climatological data",
+        "year": "2009",
+        "doi": "https://os.copernicus.org/articles/5/203/2009/"
+      },
+      {
+        "title": "Deep Arctic Ocean warming observed at 0.020 C/decade exceeds what geothermal heating explains; attributes the excess to heat transferred from the deep Atlantic; does not test global overturning with and without geothermal flux",
+        "year": "2025",
+        "doi": "https://doi.org/10.1126/sciadv.adx9452"
+      },
+      {
+        "title": "Coupled climate model preprint: geothermal heating weakens deep stratification and strengthens AABW and deepens the AMOC in the Last Glacial Maximum, with a different sea-ice response today; preprint",
+        "year": "2024",
+        "doi": "https://doi.org/10.21203/rs.3.rs-5502115/v1"
+      }
+    ],
+    "web": {
+      "verdict": "Already studied",
+      "text": "Emile-Geay and Madec ran ocean model pairs with and without spatially varying geothermal heat flux and reported about a 15% stronger AABW cell and about 10% more Southern Ocean poleward heat transport, almost exactly the stated estimate. What remains is observational validation and robustness across models.",
+      "links": [
+        {
+          "label": "Emile-Geay and Madec 2009",
+          "url": "https://os.copernicus.org/articles/5/203/2009/"
+        },
+        {
+          "label": "Deep Arctic warming, Science Advances 2025",
+          "url": "https://doi.org/10.1126/sciadv.adx9452"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 4,
+      "testable": 92,
+      "accurate": 80
+    },
+    "why": "Strength: the stated 10-15% AABW and heat-transport estimates match a published model result; risk: results depend on the mixing parameterization, and little new remains beyond observational validation.",
+    "chance": 52
+  },
+  {
+    "id": "e_dklwidn26",
+    "status": "partly tested",
+    "untested": "No study found pairing debris-rich and debris-poor glacier catchments and linking dust grain size and mineralogy to the weathering or erosion rate of surrounding rock; existing work shows dust and local moraine sources matter at single glaciers but does not test the weathering-rate dependence or the 1-9 W/m2 range.",
+    "papers": [
+      {
+        "title": "Vadret da Morteratsch: summer albedo fell 0.32 to 0.15 after 2003 from mineral and biogenic dust, ~3.5 m extra ice loss over 2003-06 (equal to +1.7 K air temperature); moraine dust named as an important feedback; one glacier, no weathering-rate link",
+        "year": "2009",
+        "doi": "https://utrecht-main-test.atmire.com/items/2843467c-ea76-48c0-95f8-829fc8592168"
+      },
+      {
+        "title": "Argentiere Glacier model: Saharan dust cut annual mass balance by 0.31-0.45 m w.e. and accounted for about 8-16% of summer melt; long-range dust, modelled, no catchment debris or weathering analysis",
+        "year": "2025",
+        "doi": "https://tc.copernicus.org/articles/19/5201/2025/tc-19-5201-2025.html"
+      }
+    ],
+    "web": {
+      "verdict": "Partly supported",
+      "text": "Dust on glaciers, including dust from exposed moraines and bedrock, lowers albedo and speeds melt, with effects ranging from small to large by site and a tropical Andes study finding under 1% reflectivity loss. The specific dependence on weathering intensity of the surrounding catchment is not tested.",
+      "links": [
+        {
+          "label": "Oerlemans et al. 2009 (Morteratsch)",
+          "url": "https://utrecht-main-test.atmire.com/items/2843467c-ea76-48c0-95f8-829fc8592168"
+        },
+        {
+          "label": "Roussel et al. 2025 (Argentiere)",
+          "url": "https://tc.copernicus.org/articles/19/5201/2025/tc-19-5201-2025.html"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 30,
+      "testable": 75,
+      "accurate": 60
+    },
+    "why": "Strength: dust-darkening of glaciers is documented, including from local moraines; risk: dust amount depends on wind, source exposure and snow cover more than on weathering rate, so the proposed causal link may be weak or confounded.",
+    "chance": 51
+  },
+  {
+    "id": "e_xmtpx0n2g",
+    "status": "related only",
+    "untested": "No study found regressing dust immersion-freezing temperature against a weathering index (such as CIA) with measured feldspar content; existing work characterises pure feldspars and shows feldspar dominates dust ice nucleation, not how source-soil weathering changes it. Biological and organic ice nucleators in soil dust can mask feldspar at warmer temperatures.",
+    "papers": [
+      {
+        "title": "Droplet-freezing assays: feldspar, especially K-feldspar, dominates ice nucleation by mineral dust at mixed-phase conditions despite being a minor component, clays unimportant; did not vary source weathering intensity",
+        "year": "2013",
+        "doi": "https://doi.org/10.1038/nature12278"
+      },
+      {
+        "title": "Survey of 15 feldspars: K-rich alkali feldspars usually nucleate ice better than Ca-bearing plagioclase, large within-group variability, some activity loss when aged in water (about 2 C for hyper-active K-feldspar over 16 months); pure minerals, not weathered soil dusts",
+        "year": "2016",
+        "doi": "https://acp.copernicus.org/articles/16/10927/2016/"
+      },
+      {
+        "title": "Perthite feldspar powders: onset -2 to -4 C and site populations tied to exsolution and microcline structure; industrial powders, no weathering gradient",
+        "year": "2025",
+        "doi": "https://egusphere.copernicus.org/preprints/2025/egusphere-2025-5014/"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible by analogy",
+      "text": "Feldspar content and structure control mineral-dust ice nucleation, and ageing in water lowers activity somewhat, so weathering that removes K-feldspar should reduce activity. I found no measurement along a weathering-intensity gradient, and the size of a few degrees C shift is untested.",
+      "links": [
+        {
+          "label": "Atkinson et al. 2013, Nature",
+          "url": "https://doi.org/10.1038/nature12278"
+        },
+        {
+          "label": "Harrison et al. 2016, ACP",
+          "url": "https://acp.copernicus.org/articles/16/10927/2016/"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 72,
+      "testable": 85,
+      "accurate": 50
+    },
+    "why": "Strength: a clean field-to-lab gradient test with XRD and freezing assays; risk: soil dust also carries organic and biological ice nucleators, and clays or surface coatings could shift activity independently of feldspar content.",
+    "chance": 66
+  },
+  {
+    "id": "e_16eivzn2q",
+    "status": "partly tested",
+    "untested": "Direct 14C-dead CO2 measurements in soil gas and river water along an erosion-rate gradient on shale, with microbial-inhibitor incubations, are only partly done; the heat released by rock organic carbon respiration is not measured or shown to matter.",
+    "papers": [
+      {
+        "title": "Taiwan Central Range soils: on average 67% of bedrock OCpetro oxidised in soils, CO2 emission 6.1-18.6 t C/km2/yr rising with erosion rate; microbial mediation shown by lipid biomarkers and isotopes; did not use inhibitors or measure heat",
+        "year": "2018",
+        "doi": "https://doi.org/10.1126/science.aao6463"
+      },
+      {
+        "title": "Rhenium-based global catchment extrapolation: rock organic carbon oxidation releases CO2 rivalling or exceeding silicate weathering drawdown, hotspots in uplifted fine-grained sedimentary mountains; flux estimate from rhenium, not direct respiration",
+        "year": "2023",
+        "doi": "https://doi.org/10.1038/s41586-023-06581-9"
+      }
+    ],
+    "web": {
+      "verdict": "Already studied, supported",
+      "text": "Rhenium and biomarker work shows rock organic carbon is oxidised in soils and rivers with fluxes that rise with erosion rate, and that oxidation is microbially mediated. The global flux estimate and Taiwan share match the stated figures in kind, while respiration heat and inhibitor-controlled incubations are not reported.",
+      "links": [
+        {
+          "label": "Hemingway et al. 2018, Science",
+          "url": "https://doi.org/10.1126/science.aao6463"
+        },
+        {
+          "label": "Zondervan et al. 2023, Nature",
+          "url": "https://doi.org/10.1038/s41586-023-06581-9"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 6,
+      "testable": 85,
+      "accurate": 85
+    },
+    "why": "Strength: the erosion-rate dependence and microbial mediation are published and the proposed test is established practice; risk: the heat-release claim is trivial and unmeasurable in practice, and the CO2 flux has chemical (abiotic) oxidation as a competing pathway.",
+    "chance": 53
+  },
+  {
+    "id": "e_eypdqatgf",
+    "status": "partly tested",
+    "untested": "A matched-hillslope comparison with different weathering depth and fracture density at equal rainfall, scaling dry-season transpiration share (the 10-30% of annual rainfall estimate) with fracture density and weathering depth, is not found; existing work shows bedrock water use is widespread but not how it scales across sites.",
+    "papers": [
+      {
+        "title": "Continental-US estimate of bedrock-water contribution to transpiration: woody plants routinely access rock moisture, not only in drought; lower-bound estimate from datasets, no matched-hillslope or fracture-density scaling",
+        "year": "2021",
+        "doi": "https://doi.org/10.1038/s41586-021-03761-3"
+      },
+      {
+        "title": "Direct observation of rock moisture in a weathered-bedrock hillslope: weathered zone tens of metres thick stores water that plants draw down; one site, no cross-site comparison with unfractured rock",
+        "year": "2018",
+        "doi": "https://doi.org/10.1073/pnas.1800141115"
+      },
+      {
+        "title": "Review of bedrock as a tree water reservoir under drought: notes uncertainty on pathways and efficiency of rock-root exchange; synthesis not a matched test",
+        "year": "2024",
+        "doi": "https://doi.org/10.1007/s00468-023-02482-6"
+      }
+    ],
+    "web": {
+      "verdict": "Partly supported",
+      "text": "Several studies show trees draw on water stored in weathered or fractured bedrock, especially in dry seasons, and that this is widespread. The dose-response with fracture density and the specific transpiration share are not established.",
+      "links": [
+        {
+          "label": "McCormick et al. 2021, Nature",
+          "url": "https://doi.org/10.1038/s41586-021-03761-3"
+        },
+        {
+          "label": "Rempe and Dietrich 2018, PNAS",
+          "url": "https://doi.org/10.1073/pnas.1800141115"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 30,
+      "testable": 80,
+      "accurate": 70
+    },
+    "why": "Strength: bedrock water use by trees is well documented and the proposed measurements are established; risk: confounding by rooting depth, species and climate makes a clean matched-site contrast hard, and thick weathered rock can also lower runoff rather than raise transpiration.",
+    "chance": 56
   }
 ]
