@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { shownHypothesis } from "@/lib/world/shown";
 import Link from "next/link";
 import AgentBuilder from "@/components/AgentBuilder";
 import CopyBox from "@/components/CopyBox";
@@ -23,7 +24,7 @@ export default async function Connect({ searchParams }: { searchParams: Promise<
     for (const k of kidsOf(pid)) walk(k, d + 1, group);
   };
   for (const top of kidsOf("p0")) walk(top, 0, w.processes[top].title);
-  const hyps = [...curated.filter(c => c.chance >= 65).sort((a, b) => b.chance - a.chance).map(c => c.id), ...Object.values(w.edges).filter(e => e.hypothesis && e.status === "live" && !curated.some(c => c.id === e.id)).map(e => e.id)]
+  const hyps = [...curated.filter(shownHypothesis).sort((a, b) => b.chance - a.chance).map(c => c.id), ...Object.values(w.edges).filter(e => e.hypothesis && e.status === "live" && !curated.some(c => c.id === e.id)).map(e => e.id)]
     .filter(id => w.edges[id]).map(id => ({ id, title: w.edges[id].hypothesis!.prediction.slice(0, 90) + "…" }));
   return (
     <div className="wrap" style={{ paddingTop: 28 }}>

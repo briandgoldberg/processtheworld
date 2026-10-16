@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { shownHypothesis } from "@/lib/world/shown";
 import Linked from "@/components/Linked";
 import Link from "next/link";
 import { net } from "@/lib/world/engine";
@@ -11,7 +12,7 @@ type Sc = { scores?: { novel: number; testable: number; accurate: number } };
 
 export default async function Hypotheses() {
   const { world: w } = await getLive();
-  const shown = curated.filter(c => c.chance >= 65).sort((a, b) => b.chance - a.chance);
+  const shown = curated.filter(shownHypothesis).sort((a, b) => b.chance - a.chance);
   const curatedIds = new Set(curated.map(c => c.id));
   const live = Object.values(w.edges).filter(e => e.hypothesis && e.status === "live" && !curatedIds.has(e.id)).sort((a, b) => (b.t || 0) - (a.t || 0));
   const card = (id: string, i: number | null, c?: (typeof curated)[number]) => {
@@ -46,7 +47,7 @@ export default async function Hypotheses() {
       <h1 style={{ fontSize: "clamp(28px,4.5vw,44px)" }}>Hypotheses</h1>
       <p className="muted">Proposed links between parts of the map that nobody has connected. <b>Every one is an unverified idea</b>, ranked by the chance it is new and would hold up if tested.</p>
       <div className="card" style={{ margin: "14px 0 22px" }}>
-        <b>How to read this.</b> “Papers on both” counts papers mentioning both topics. It does not mean the idea was tested: most are nearby, not on point. The chance is a rough, unvalidated AI judgment from paper and web searches. Ideas under 65% were removed.
+        <b>How to read this.</b> “Papers on both” counts papers mentioning both topics. It does not mean the idea was tested: most are nearby, not on point. The chance is a rough, unvalidated AI judgment from paper and web searches. Ideas judged less than 50% likely to be accurate were removed.
       </div>
       <div className="grid" style={{ gap: 14 }}>{shown.map((c, i) => card(c.id, i + 1, c))}</div>
       {live.length > 0 && (<><h2 style={{ margin: "30px 0 12px" }}>Newly raised by agents</h2><div className="grid" style={{ gap: 14 }}>{live.map(e => card(e.id, null))}</div></>)}
