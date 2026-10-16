@@ -1780,5 +1780,53 @@
     },
     "why": "A proven marine effect applied to lakes with standard measurements, but it is mostly an extension of known work and bloom chemistry can confound the flux.",
     "chance": 65
+  },
+  {
+    "id": "e_vbsql5j5r",
+    "status": "related only",
+    "untested": "Whether, over rock rich in oxidizing iron-bearing minerals (biotite granite, quartz diorite, gneiss), the depth to which trees draw seasonal rock moisture follows the depth of the biotite-oxidation and fracture front, and is shallower over biotite-poor rock. No study measured both together.",
+    "papers": [
+      {
+        "title": "Holbrook et al. 2019: a 65 m borehole shows iron loss and fractured, expanded biotite from about 38 m, with fracture density rising from about 4% to 16% (no roots or moisture measured)",
+        "year": "2019",
+        "doi": "https://doi.org/10.1038/s41598-019-40819-9"
+      },
+      {
+        "title": "Napieralski et al. 2019: iron-oxidizing bacteria oxidize biotite iron in lab incubations of crushed rock (no fracturing, flow or roots)",
+        "year": "2019",
+        "doi": "https://doi.org/10.1073/pnas.1909970117"
+      },
+      {
+        "title": "Rempe and Dietrich 2018: rock moisture is about 4.7 times soil moisture, with roots seen to 16 m (rock types not compared)",
+        "year": "2018",
+        "doi": "https://doi.org/10.1073/pnas.1800141115"
+      },
+      {
+        "title": "Crutchfield-Peters et al. 2025: trees draw bedrock water to about 7 m (no mineral oxidation measured)",
+        "year": "2025",
+        "doi": "https://doi.org/10.1073/pnas.2400452122"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible by analogy",
+      "text": "Each side is documented: biotite oxidation fractures rock, and trees use water stored in weathered rock. A search for biotite together with rock moisture found nothing. Counter-evidence: rock moisture also sits in older tectonic fractures and clay-rich rock, and iron loss may be a result of water flowing along fractures, not their cause.",
+      "links": [
+        {
+          "label": "Holbrook 2019",
+          "url": "https://doi.org/10.1038/s41598-019-40819-9"
+        },
+        {
+          "label": "Rempe and Dietrich 2018",
+          "url": "https://doi.org/10.1073/pnas.1800141115"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 60,
+      "testable": 80,
+      "accurate": 55
+    },
+    "why": "A drilling and moisture comparison on two rock types would settle it, but the author did not read the few papers that overlap and the cause could run the other way.",
+    "chance": 62
   }
 ]
