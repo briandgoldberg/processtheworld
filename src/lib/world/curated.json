@@ -741,5 +741,48 @@
     },
     "why": "Combines two well-measured effects nobody seems to have joined, but aerosol also raises liquid water and fog duration, so the net sign for water delivered is uncertain.",
     "chance": 64
+  },
+  {
+    "id": "e_hrk8qecia",
+    "status": "related only",
+    "untested": "Whether raising sulfate in iron-poor wetland or paddy soils raises the share of nitrous oxide among denitrification products, and whether adding copper reverses it. The copper rescue has only been shown in pure cultures and bioreactors.",
+    "papers": [
+      {
+        "title": "A paper on nitrous oxide reduction in sulfidic waters: found no copper sulfide precipitate and did not add copper (read through a summary, not in full)",
+        "year": "2026",
+        "doi": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13355235/"
+      },
+      {
+        "title": "A paper on the copper chaperone for nitrous oxide reductase: below 0.5 uM copper a mutant strain accumulated up to about 4 mM nitrous oxide (read through a summary, not in full)",
+        "year": "2019",
+        "doi": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6530538/"
+      },
+      {
+        "title": "A paper describing the copper-sulfur cluster at the nitrous oxide reductase active site (read through a summary, not in full)",
+        "year": "2021",
+        "doi": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8179356/"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible by analogy",
+      "text": "The enzyme that removes nitrous oxide needs copper, and sulfide can tie up copper in the lab. Only 1 paper mentions copper, sulfide and nitrous oxide together in wetlands or soils. Iron in porewater may keep sulfide too low to matter, and sulfide may poison the enzyme directly.",
+      "links": [
+        {
+          "label": "Nitrous oxide in sulfidic waters",
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13355235/"
+        },
+        {
+          "label": "Copper chaperone",
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6530538/"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 52,
+      "testable": 85,
+      "accurate": 60
+    },
+    "why": "A clean, testable sulfate-by-copper experiment on a real enzyme mechanism, but the author checked the sources only through summaries and iron in porewater could remove the effect.",
+    "chance": 62
   }
 ]
