@@ -660,5 +660,43 @@
     },
     "why": "Very testable and plausible, but groundwater as a coastal nutrient source is well known, so the new part is small.",
     "chance": 46
+  },
+  {
+    "id": "e_28fe9ozmm",
+    "status": "nothing found",
+    "untested": "Whether freezing soil speeds the chemical loss of nitrite and the production of nitric and nitrous oxide. Freeze-concentration raises nitrite reaction rates by a large factor in freezing solutions, but no one has measured it in soil, and one study found nitrite piling up in live soil at -2 C.",
+    "papers": [
+      {
+        "title": "Buessecker et al. 2019: chemical nitrous oxide production from nitrite in tropical peat (no freezing, one soil, no nitric oxide)",
+        "year": "2019",
+        "doi": "https://doi.org/10.5194/bg-16-4601-2019"
+      },
+      {
+        "title": "Green et al. 2022: nitrous oxide sources in soil (did not separate chemical from biological production or test subzero temperatures)",
+        "year": "2022",
+        "doi": "https://doi.org/10.3389/fenvs.2022.1020099"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible by analogy",
+      "text": "Takenaka et al. (1992, 1996) found nitrite reactions run about 100,000 times faster in freezing solutions at pH 4.5. No soil measurement was found, and Wertz et al. 2018 saw nitrite accumulate at -2 C in live soil, which argues against fast net loss. Soil buffering and the eutectic cut-off make the direction uncertain.",
+      "links": [
+        {
+          "label": "Buessecker 2019",
+          "url": "https://doi.org/10.5194/bg-16-4601-2019"
+        },
+        {
+          "label": "Green 2022",
+          "url": "https://doi.org/10.3389/fenvs.2022.1020099"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 70,
+      "testable": 85,
+      "accurate": 55
+    },
+    "why": "A strong mechanism in the lab that nobody seems to have tested in soil, and a clean experiment can settle it, but the one soil result points the other way.",
+    "chance": 67
   }
 ]
