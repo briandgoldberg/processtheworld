@@ -832,5 +832,58 @@
     },
     "why": "Two well-documented effects nobody has joined, with data that already exist, but heavier rain may not carry more carbon per millimetre and the heatwave result comes from a single study.",
     "chance": 62
+  },
+  {
+    "id": "e_bxly3rmsv",
+    "status": "nothing found",
+    "untested": "Whether poor pollination in pollinator-dependent crops (oilseed rape, sunflower, orchard fruit) leaves more nitrogen in the field and raises winter nitrate leaching. No paper measured seed nitrogen, soil nitrogen or leaching while varying pollination.",
+    "papers": [
+      {
+        "title": "Tamburini et al. 2017: sunflower, pollination and nitrogen (read in full; measured yield only, no seed nitrogen, soil nitrogen or leaching)",
+        "year": "2017",
+        "doi": "https://doi.org/10.1098/rspb.2017.0729"
+      },
+      {
+        "title": "Bommarco et al. 2012: oilseed rape and pollination, +18% seed weight per plant (repository page; yield and quality only)",
+        "year": "2012",
+        "doi": "https://doi.org/10.1007/s00442-012-2271-6"
+      },
+      {
+        "title": "Marini et al. 2015: pollination and nitrogen interaction (abstract only)",
+        "year": "2015",
+        "doi": "https://doi.org/10.1016/j.agee.2015.03.027"
+      },
+      {
+        "title": "Sieling and Kage 2006: only 13-25% of nitrogen surplus leaches (abstract only)",
+        "year": "2006",
+        "doi": "https://doi.org/10.1016/j.agee.2006.01.011"
+      },
+      {
+        "title": "Bingham and Garzon 2023: in barley, late nitrogen uptake is limited by root supply, not grain demand (abstract only; counter-evidence)",
+        "year": "2023",
+        "doi": "https://doi.org/10.1016/j.fcr.2023.108829"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible by analogy",
+      "text": "Less seed means less nitrogen leaving in the harvest, which is close to certain by mass balance. Only 13-25% of extra surplus leaches, and crops may take up more nitrogen in leaves and stems, so the leaching signal could be 2-5 kg N per hectare and hard to detect. Only 5 papers mention pollination with nitrogen leaching, and none are on point by title.",
+      "links": [
+        {
+          "label": "Tamburini 2017",
+          "url": "https://doi.org/10.1098/rspb.2017.0729"
+        },
+        {
+          "label": "Sieling and Kage 2006",
+          "url": "https://doi.org/10.1016/j.agee.2006.01.011"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 72,
+      "testable": 78,
+      "accurate": 58
+    },
+    "why": "A link between farm ecology and the nitrogen cycle that nobody seems to have measured, with a clear field design, but the leaching effect is small and crops can compensate.",
+    "chance": 68
   }
 ]
