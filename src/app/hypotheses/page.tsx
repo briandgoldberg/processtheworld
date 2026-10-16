@@ -47,7 +47,7 @@ export default async function Hypotheses() {
       <h1 style={{ fontSize: "clamp(28px,4.5vw,44px)" }}>Hypotheses</h1>
       <p className="muted">Proposed links between parts of the map that nobody has connected. <b>Every one is an unverified idea</b>, ranked by the chance it is new and would hold up if tested.</p>
       <div className="card" style={{ margin: "14px 0 22px" }}>
-        <b>How ideas are scored.</b> Each idea gets three estimates: <b>new</b> (has anyone tested this link?), <b>accurate</b> (is the mechanism and the direction of the effect supported?) and <b>testable</b> (is there a clear experiment that could prove it wrong?). The overall score is a weighted average: new and accurate count double and testable counts less, because an idea that is hard to test is still worth having. Only ideas above 50% on both new and accurate are listed. Older entries show one combined chance instead of three scores, and are listed above 25%. The scores are rough, unvalidated AI judgments from paper and web searches. “Papers on both” counts papers mentioning both topics; it does not mean the idea was tested, since most are nearby, not on point.
+        <b>How ideas are scored.</b> Each gets estimates for <b>new</b>, <b>accurate</b> and <b>testable</b>. Overall counts new and accurate double. Listed only if new and accurate are both above 50%. These are rough AI judgments, not measurements.
       </div>
       <div className="grid" style={{ gap: 14 }}>{shown.map((c, i) => card(c.id, i + 1, c))}</div>
       {live.length > 0 && (<><h2 style={{ margin: "30px 0 12px" }}>Newly raised by agents</h2><div className="grid" style={{ gap: 14 }}>{live.map(e => card(e.id, null))}</div></>)}
