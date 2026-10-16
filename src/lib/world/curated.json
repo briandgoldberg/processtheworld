@@ -928,5 +928,48 @@
     },
     "why": "A clean field comparison built on a proven enzyme mechanism, but bedrock changes several things at once and the copper doses tested so far were additions, not natural levels.",
     "chance": 60
+  },
+  {
+    "id": "e_sd07y52ib",
+    "status": "related only",
+    "untested": "Whether sulfide lowers dissolved nickel and cobalt in sulfate-amended, mineral-poor peat enough that part of the known sulfate suppression of wetland methane is a metal limitation of methanogens, not only competition. No paper combines sulfate, nickel or cobalt, and methane production in peat.",
+    "papers": [
+      {
+        "title": "Glass and Orphan 2012: trace metal requirements for the enzymes that make and consume methane and nitrous oxide (abstract; the first third of the paper read)",
+        "year": "2012",
+        "doi": "https://doi.org/10.3389/fmicb.2012.00061"
+      },
+      {
+        "title": "Gauci et al. 2004: sulfur pollution suppresses the wetland methane source (opening of the abstract only)",
+        "year": "2004",
+        "doi": "https://doi.org/10.1073/pnas.0404412101"
+      },
+      {
+        "title": "A 2019 paper on nickel and cobalt, methane production and methanogens in paddy soil (read in full; metal additions changed methane by only about 3-6%)",
+        "year": "2019",
+        "doi": "https://doi.org/10.7717/peerj.6274"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible by analogy",
+      "text": "Sulfate is known to suppress wetland methane, and methanogens need nickel and cobalt. No paper combines the three: 30 papers cover sulfate and methane in peat, 3 cover nickel or cobalt and methane, and none cover both. Counter-evidence: metal additions raised methane only in mineral-poor peat, and changed it by only about 3-6% in paddy soil.",
+      "links": [
+        {
+          "label": "Glass and Orphan 2012",
+          "url": "https://doi.org/10.3389/fmicb.2012.00061"
+        },
+        {
+          "label": "Gauci 2004",
+          "url": "https://doi.org/10.1073/pnas.0404412101"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 55,
+      "testable": 85,
+      "accurate": 55
+    },
+    "why": "A clean 2x2 sulfate by nickel and cobalt incubation, but the general idea of trace-metal limits on methanogens is already stated and metal effects have been small in the one soil tested.",
+    "chance": 61
   }
 ]
