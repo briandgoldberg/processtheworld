@@ -29,7 +29,7 @@ export default function Scene3D({ trail, scenes, rolling }: { trail: Visit[]; sc
     const el = host.current; if (!el) return;
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
     renderer.setPixelRatio(Math.min(2, window.devicePixelRatio)); renderer.setSize(el.clientWidth, el.clientHeight);
-    renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.25;
     el.appendChild(renderer.domElement);
     const scene = new THREE.Scene(); scene.background = new THREE.Color(SKY.sea[0]); scene.fog = new THREE.Fog(SKY.sea[1], 6, 26);
     const camera = new THREE.PerspectiveCamera(42, el.clientWidth / el.clientHeight, 0.1, 100);
@@ -37,8 +37,11 @@ export default function Scene3D({ trail, scenes, rolling }: { trail: Visit[]; sc
     scene.add(new THREE.HemisphereLight(0xdfe9ff, 0x0a1a2a, 0.7));
     const key = new THREE.DirectionalLight(0xffffff, 1.6); key.position.set(3, 6, 4); scene.add(key);
     const rim = new THREE.PointLight(0x9fd0ff, 30, 12); rim.position.set(-2, 1.5, 2); scene.add(rim);
+    const glint = new THREE.PointLight(0xffffff, 40, 14); scene.add(glint);
+    const core = new THREE.Mesh(new THREE.SphereGeometry(0.3, 32, 32), new THREE.MeshBasicMaterial({ color: 0x9fd4ff, transparent: true, opacity: 0.35, blending: THREE.AdditiveBlending, depthWrite: false }));
+    scene.add(core);
     // the drop
-    const drop = new THREE.Mesh(new THREE.SphereGeometry(0.42, 64, 64), new THREE.MeshPhysicalMaterial({ color: 0xdff1ff, transmission: 1, thickness: 0.9, roughness: 0.04, ior: 1.33, clearcoat: 1, clearcoatRoughness: 0.05, attenuationColor: new THREE.Color(0x8cc6ff), attenuationDistance: 1.2 }));
+    const drop = new THREE.Mesh(new THREE.SphereGeometry(0.42, 64, 64), new THREE.MeshPhysicalMaterial({ color: 0xffffff, transmission: 1, thickness: 0.5, roughness: 0.02, ior: 1.33, clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 2.2, specularIntensity: 1, attenuationColor: new THREE.Color(0xcfe8ff), attenuationDistance: 3 }));
     scene.add(drop);
     const halo = new THREE.Mesh(new THREE.SphereGeometry(0.62, 32, 32), new THREE.MeshBasicMaterial({ color: 0x8ec8ff, transparent: true, opacity: 0.12, blending: THREE.AdditiveBlending, depthWrite: false }));
     scene.add(halo);
@@ -67,7 +70,8 @@ export default function Scene3D({ trail, scenes, rolling }: { trail: Visit[]; sc
       const { trail: tr, rolling: rl } = state.current;
       const pts = layout(tr); const last = pts[pts.length - 1];
       w.target.copy(last);
-      drop.position.lerp(w.target, 0.06); halo.position.copy(drop.position);
+      drop.position.lerp(w.target, 0.06); halo.position.copy(drop.position); core.position.copy(drop.position);
+      glint.position.set(camera.position.x + 1.5, camera.position.y + 2.5, camera.position.z);
       drop.position.y += Math.sin(w.t * 2.2) * 0.004; drop.rotation.y += 0.004;
       const stage = tr[tr.length - 1].stage;
       w.sky.lerp(new THREE.Color(SKY[stage][0]), 0.03); w.fog.lerp(new THREE.Color(SKY[stage][1]), 0.03);

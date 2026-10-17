@@ -39,10 +39,12 @@ export default function Journey({ data }: { data: JourneyData }) {
   const dice = trail.filter(v => v.share != null);
   const odds = dice.reduce((a, v) => a * (v.share || 1), 1);
   const rarity = odds > 0 ? Math.max(1, Math.round(1 / odds)) : 1;
+  // likely routes read better as "67 in 100"; rare ones as "1 in 400"
+  const oddsText = odds >= 0.1 ? `${Math.round(odds * 100)} in 100` : `1 in ${rarity}`;
   const passed = trail.map(v => byId.get(v.scene)?.question).filter((q, i, a): q is { id: string; title: string } => !!q && a.findIndex(x => x?.id === q.id) === i);
   const stepsTaken = trail.length - 1;
   const share = async () => {
-    const text = `I followed a raindrop through ${stepsTaken} real steps of the water cycle on forks.world and ended: ${cur.end?.title}. About 1 in ${rarity} raindrops take this exact route.`;
+    const text = `I followed a raindrop through ${stepsTaken} real steps of the water cycle on forks.world and ended: ${cur.end?.title}. About ${oddsText} raindrops take this exact route.`;
     try { if (navigator.share) await navigator.share({ title: data.title, text, url: location.href }); else { await navigator.clipboard.writeText(text + " " + location.href); alert("Copied to your clipboard."); } } catch { /* cancelled */ }
   };
   return (
@@ -51,7 +53,7 @@ export default function Journey({ data }: { data: JourneyData }) {
       <div className="jy-panel">
         <div className="jy-head">
           <span className="jy-kicker">{data.title}</span>
-          <span className="jy-count">{stepsTaken === 0 ? data.intro : `${stepsTaken} step${stepsTaken === 1 ? "" : "s"}${dice.length ? ` · odds so far 1 in ${rarity}` : ""}`}</span>
+          <span className="jy-count">{stepsTaken === 0 ? data.intro : `${stepsTaken} step${stepsTaken === 1 ? "" : "s"}${dice.length ? ` · odds so far ${oddsText}` : ""}`}</span>
         </div>
         {!cur.end ? (
           <div className="jy-card" key={cur.id}>
@@ -85,7 +87,7 @@ export default function Journey({ data }: { data: JourneyData }) {
             <div className="jy-stats">
               <div><b>{stepsTaken}</b><span>real steps</span></div>
               <div><b>{dice.length}</b><span>rolls of the dice</span></div>
-              <div><b>1 in {rarity}</b><span>raindrops take this exact route</span></div>
+              <div><b>{oddsText}</b><span>raindrops take this exact route</span></div>
             </div>
             <ol className="jy-path">{trail.map((v, i) => { const s = byId.get(v.scene)!; return <li key={i}>{s.title}{v.share != null && <span className="muted"> · {Math.round(v.share * 100)}%</span>}</li>; })}</ol>
             {passed.length > 0 && <p className="jy-q">Open questions you passed on the way: {passed.map((q, i) => <span key={q.id}>{i > 0 && " · "}<Link href={`/hypotheses#${q.id}`}>{q.title}</Link></span>)}</p>}
