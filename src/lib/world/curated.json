@@ -1837,5 +1837,914 @@
     "why": "A drilling and moisture comparison on two rock types would settle it, but the author did not read the few papers that overlap and the cause could run the other way.",
     "chance": 58,
     "title": "How deep iron minerals have oxidized sets how deep trees draw rock water"
+  },
+  {
+    "id": "e_lx2cxtcrp",
+    "title": "Forest spore ice nuclei glaciate clouds warmer than ocean air",
+    "status": "related only",
+    "untested": "No study links wet-night spore INP enhancement over forest to warmer cloud-top glaciation temperature or a larger ice-rain share versus dust-free ocean air; the 10x and 2-5 C magnitudes are untested and confounded by aerosol, dynamics and cloud-top height.",
+    "papers": [
+      {
+        "title": "Bioaerosols (fluorescent biological particles) were the main INP source at -12 to -20 C in coastal California; tested INP speciation and model skill, not cloud-phase response or rain ice fraction",
+        "year": "2023",
+        "doi": "https://doi.org/10.1126/sciadv.adg3715"
+      },
+      {
+        "title": "Convective-storm study in Colorado: rain raised fungal spore counts and measured INPs alongside; did not link to cloud-top phase or compare forest vs ocean",
+        "year": "2026",
+        "doi": "https://doi.org/10.1039/d5ea00129c"
+      },
+      {
+        "title": "Satellite T* (mixed-phase transition temperature) shifts with snow/sea-ice cover, showing surface INP sources influence cloud phase at high latitudes; did not look at forest or biological INPs",
+        "year": "2022",
+        "doi": "https://doi.org/10.1029/2022gl098041"
+      },
+      {
+        "title": "Eastern Mediterranean orographic clouds: INPs show diurnal cycle driven by fluorescent bioaerosol; no forest-versus-ocean glaciation contrast",
+        "year": "2025",
+        "doi": "https://doi.org/10.1038/s41612-024-00817-9"
+      }
+    ],
+    "web": {
+      "verdict": "Partly supported",
+      "text": "Biological INPs dominate the -12 to -20 C range in several continental and coastal settings, rain and humid nights raise fungal spore and INP loads, and satellite work shows surface INP sources can shift cloud-phase transition temperature. The specific chain from spore INPs to warmer cloud-top glaciation over forest and a higher ice-rain share has not been measured, and cloud-top phase is strongly affected by updraft strength and other aerosol.",
+      "links": [
+        {
+          "label": "Bioaerosol INPs, Sci Adv 2023",
+          "url": "https://doi.org/10.1126/sciadv.adg3715"
+        },
+        {
+          "label": "INPs and high-latitude cloud phase",
+          "url": "https://doi.org/10.1029/2022gl098041"
+        },
+        {
+          "label": "Convective storms and bioaerosols",
+          "url": "https://doi.org/10.1039/d5ea00129c"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 62,
+      "testable": 55,
+      "accurate": 38
+    },
+    "why": "Strength: each link (spore INPs, rain enhancement, INP control of phase) has support; risk: the combined 10x and 2-5 C claims are large and confounded by dynamics, so a clean forest-versus-ocean test is hard.",
+    "chance": 50
+  },
+  {
+    "id": "e_c9bx1qcs9",
+    "title": "Deforestation raises river silica and favours coastal diatoms",
+    "status": "partly tested",
+    "untested": "The catchment half (more dissolved silica after clearing) has been measured at Hubbard Brook; what is untested is whether the extra silica raises Si:N at river mouths and shifts coastal phytoplankton toward diatoms, and whether this holds for cropland conversion, where fertiliser N and dams may reverse it.",
+    "papers": [
+      {
+        "title": "Hubbard Brook clear-cut raised stream dissolved silicate loss (Conley et al.); did not follow silica downstream to coastal phytoplankton (abstract not opened in full, record page redirected to Wiley)",
+        "year": "2008",
+        "doi": "https://doi.org/10.1111/j.1365-2486.2008.01667.x"
+      },
+      {
+        "title": "Six decades at Hubbard Brook: deforested catchment W5 showed sustained rises in streamwater pH, Ca and SiO2 export for nearly four decades; no coastal or diatom test",
+        "year": "2025",
+        "doi": "https://doi.org/10.1073/pnas.2419123122"
+      },
+      {
+        "title": "GlASS database: 421 rivers with DSi, N, P and watershed traits, built to test land cover effects on Si and stoichiometry; a data source, not a test of the diatom prediction",
+        "year": "2025",
+        "doi": "https://doi.org/10.1038/s41597-025-05937-2"
+      },
+      {
+        "title": "Rhine and Yangtze model: Yangtze Si export fell as damming and cropland conversion occurred, the opposite sign to the cropland branch of the prediction",
+        "year": "2020",
+        "doi": "https://doi.org/10.1021/acs.est.0c01465"
+      }
+    ],
+    "web": {
+      "verdict": "Partly supported",
+      "text": "Experimental deforestation at Hubbard Brook increases dissolved silica export for decades, which supports the catchment half. Basin-scale studies show that damming and cropland conversion can instead lower Si delivery, and N and P enrichment usually lowers Si:N, so the coastal diatom shift is not established and may be swamped by nutrients and reservoirs.",
+      "links": [
+        {
+          "label": "Hubbard Brook six-decade study, PNAS 2025",
+          "url": "https://doi.org/10.1073/pnas.2419123122"
+        },
+        {
+          "label": "GlASS river silica database",
+          "url": "https://doi.org/10.1038/s41597-025-05937-2"
+        },
+        {
+          "label": "Rhine and Yangtze silicon model",
+          "url": "https://doi.org/10.1021/acs.est.0c01465"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 45,
+      "testable": 68,
+      "accurate": 45
+    },
+    "why": "Strength: the silica rise after clear-cutting is documented and GlASS data exist; risk: the downstream diatom signal is tiny against N, P and dam effects and cropland conversion may reduce Si export.",
+    "chance": 45
+  },
+  {
+    "id": "e_hewtx1h9x",
+    "title": "Virus-collapsed blooms emit sea spray with more ice nuclei",
+    "status": "related only",
+    "untested": "No study has infected a host culture with its virus, aerosolised it and compared INP per unit sea salt with the growth phase, and no field work links INP or supercooled-liquid loss to bloom age or free-virus counts.",
+    "papers": [
+      {
+        "title": "Two-bloom mesocosm: ice-nucleating sea spray rose only during the first (growth-phase) bloom, not in the second; tracked bloom stage but not viral lysis, and points the opposite way for the collapse phase",
+        "year": "2015",
+        "doi": "https://doi.org/10.1021/acscentsci.5b00148"
+      },
+      {
+        "title": "Planktonic exudates (proteins and polysaccharides) act as sea-spray ice-nucleating agents, fitted with a freezing model; did not compare healthy vs virus-infected cells",
+        "year": "2022",
+        "doi": "https://doi.org/10.1126/sciadv.abq6842"
+      },
+      {
+        "title": "Polysaccharides from aquatic eukaryotes explain about 44 percent of marine INPs at -15 to -20 C in a model; no viral infection treatment",
+        "year": "2025",
+        "doi": "https://doi.org/10.1021/acs.est.4c08014"
+      },
+      {
+        "title": "Virus-infected phytoplankton cultures produce aerosolised organic matter of different molar mass and hygroscopicity; measured CCN activity, not ice nucleation",
+        "year": "2023",
+        "doi": "https://doi.org/10.1038/s41598-023-33818-4"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible by analogy",
+      "text": "Marine INPs come largely from microbial exudates and polysaccharides, and viral lysis releases such organic matter, so a link is plausible. The one bloom mesocosm that tracked INPs saw the increase during growth, not decline, and Southern Ocean INP levels are generally low, so a 3x enhancement in the collapse phase and a cloud-phase signal are speculative.",
+      "links": [
+        {
+          "label": "Tale of two blooms mesocosm",
+          "url": "https://doi.org/10.1021/acscentsci.5b00148"
+        },
+        {
+          "label": "Sea-spray INA freezing model",
+          "url": "https://doi.org/10.1126/sciadv.abq6842"
+        },
+        {
+          "label": "Virus infection and aerosol CCN activity",
+          "url": "https://doi.org/10.1038/s41598-023-33818-4"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 68,
+      "testable": 72,
+      "accurate": 32
+    },
+    "why": "Strength: a clean mesocosm test with infected vs control cultures is feasible; risk: existing bloom data show INPs peaking in growth, and the satellite cloud-phase tail of the claim is very hard to isolate.",
+    "chance": 50
+  },
+  {
+    "id": "e_mz81adha8",
+    "title": "Bloom slicks cut evaporation below bulk heat-flux formulas",
+    "status": "partly tested",
+    "untested": "Latent heat flux has not been measured directly (eddy covariance or gradient) inside versus outside natural slicks; the 5-15 percent overestimate, its wind-speed range and its scaling with surfactant concentration and slick cover remain unquantified.",
+    "papers": [
+      {
+        "title": "Skin-layer observations: Trichodesmium blooms gave a skin about 0.95 C warmer and fresher and inhibited evaporation (inferred from salinity); no direct latent heat flux or surfactant dose-response",
+        "year": "2018",
+        "doi": "https://doi.org/10.1029/2018gl077946"
+      },
+      {
+        "title": "Sea Surface Scanner catamaran data: natural surfactants above 200 ug Teq per litre cut CO2 transfer velocity by 23 percent, slicks by a further 62 percent; tested gas exchange, not evaporation or heat",
+        "year": "2020",
+        "doi": "https://doi.org/10.1098/rspa.2019.0763"
+      }
+    ],
+    "web": {
+      "verdict": "Partly supported",
+      "text": "Surface films are known to retard evaporation in reservoirs and lab tanks, and ocean observations show warmer, fresher skin layers and reduced gas exchange under blooms and slicks. A quantified evaporative heat-flux deficit at sea, scaled to surfactant concentration, appears not to have been published, and wind-driven mixing above about 5 m/s likely destroys much of the film effect.",
+      "links": [
+        {
+          "label": "Cyanobacteria warm the skin layer",
+          "url": "https://doi.org/10.1029/2018gl077946"
+        },
+        {
+          "label": "Surfactants reduce CO2 transfer",
+          "url": "https://doi.org/10.1098/rspa.2019.0763"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 55,
+      "testable": 72,
+      "accurate": 52
+    },
+    "why": "Strength: the 200 ug Teq threshold and gas-exchange precedent give a concrete, measurable design; risk: the effect on evaporation may be smaller than 5 percent or vanish at moderate wind, and flux measurements inside slicks are hard.",
+    "chance": 54
+  },
+  {
+    "id": "e_yusjlqhah",
+    "title": "Atmospheric river landfalls drive coastal chlorophyll, more with northerly wind",
+    "status": "partly tested",
+    "untested": "The orientation contrast has been shown for central-southern Chile in a few events, but no multi-decade regression across Chile, California and Iberia tests whether AR count and orientation explain at least 20 percent of interannual variance in 4-week nearshore chlorophyll.",
+    "papers": [
+      {
+        "title": "Central-southern Chile (33-40 S): tilted (northerly-wind) ARs gave coastally trapped plumes and raised surface nitrate, silicic acid and chlorophyll-a more than zonal ARs; a few events and in situ sampling, no interannual variance explained, no other regions",
+        "year": "2025",
+        "doi": "https://doi.org/10.1038/s41598-025-17997-w"
+      },
+      {
+        "title": "Storm Desmond atmospheric river at an Irish coastal observatory: record discharge, doubled stratification and plume export; physical and water-quality cascade for one event, no multi-year chlorophyll statistics",
+        "year": "2020",
+        "doi": "https://doi.org/10.1371/journal.pone.0235963"
+      },
+      {
+        "title": "Storm rainfall triggers seasonal stratification on the NW European shelf in 88 percent of years; supports rain-driven buoyancy effects but not chlorophyll or ARs specifically",
+        "year": "2023",
+        "doi": "https://doi.org/10.1038/s41467-023-38599-y"
+      }
+    ],
+    "web": {
+      "verdict": "Partly supported",
+      "text": "A 2025 Chile study already reports that northerly-wind (tilted) ARs raise nitrate, silicic acid and chlorophyll more than zonal ARs, and an Irish case study shows large AR-driven plume and stratification changes. A web search found no multi-year regression of nearshore chlorophyll on AR count for California or Iberia, and winter cloud cover limits ocean-colour data.",
+      "links": [
+        {
+          "label": "ARs off central-southern Chile",
+          "url": "https://doi.org/10.1038/s41598-025-17997-w"
+        },
+        {
+          "label": "Storm Desmond catchment-to-coast study",
+          "url": "https://doi.org/10.1371/journal.pone.0235963"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 38,
+      "testable": 80,
+      "accurate": 50
+    },
+    "why": "Strength: AR catalogues and ocean colour archives make the regression easy and a Chile precedent supports the direction; risk: the 20 percent variance threshold may fail because winter cloud limits chlorophyll data and plumes add turbidity that confounds retrieval.",
+    "chance": 44
+  },
+  {
+    "id": "e_m5ou5vl4l",
+    "title": "Microbial heat speeds thaw of carbon-rich permafrost soils",
+    "status": "partly tested",
+    "untested": "The core idea has been tested in Greenland organic soils and middens, but not with the proposed live-versus-sterilised twin cores in insulated incubators, nor with field matching of organic and mineral plots for air temperature and snow to isolate a 5-20 percent deeper thaw.",
+    "papers": [
+      {
+        "title": "Hollesen et al.: heat production measured in contrasting organic permafrost soils in Greenland; microbial heat can amplify thaw and decomposition (abstract via Copenhagen repository summary; full text paywalled and not read)",
+        "year": "2015",
+        "doi": "https://doi.org/10.1038/nclimate2590"
+      },
+      {
+        "title": "Greenland organic archaeological deposits: O2, CO2 and heat production tracked together; microbial heat production correlated with carbon content; no sterile controls or thaw-depth field comparison",
+        "year": "2016",
+        "doi": "https://doi.org/10.1038/srep28690"
+      },
+      {
+        "title": "ORCHIDEE-MICT land model: microbial heat lowers soil carbon, warms deeper layers, and brings earlier permafrost loss; modelling only, no measurements",
+        "year": "2024",
+        "doi": "https://doi.org/10.1111/gcb.17391"
+      }
+    ],
+    "web": {
+      "verdict": "Already studied",
+      "text": "Hollesen and colleagues measured microbial heat in Greenland organic soils and concluded it can amplify thaw, and a recent land-surface model finds microbial heat warms deep soil and advances permafrost loss. Heat from respiration is small relative to atmospheric forcing and is lost by conduction in the field, so the size of any effect on active-layer depth in peat versus mineral plots at equal air temperature is still uncertain.",
+      "links": [
+        {
+          "label": "Hollesen et al. 2015 (publisher page, paywalled)",
+          "url": "https://link.springer.com/article/10.1038/nclimate2590"
+        },
+        {
+          "label": "Heat from SOC decomposition model study",
+          "url": "https://doi.org/10.1111/gcb.17391"
+        },
+        {
+          "label": "Arctic organic deposits and microbial heat",
+          "url": "https://doi.org/10.1038/srep28690"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 25,
+      "testable": 75,
+      "accurate": 50
+    },
+    "why": "Strength: calorimetry on live versus sterile cores is a clean falsifiable test with prior supporting data; risk: the effect is already reported, and field heat dissipation plus insulating peat confound any thaw-depth difference.",
+    "chance": 38
+  },
+  {
+    "id": "e_rv7syql4w",
+    "title": "Virus-killed blooms raise sea spray organics and shift cloud droplets",
+    "status": "partly tested",
+    "untested": "Field data have not compared virus-terminated with nutrient- or grazer-terminated blooms at matched chlorophyll for aerosol organic fraction or cloud droplet number; the 20 percent and 10 percent magnitudes and the sign of the droplet change are untested.",
+    "papers": [
+      {
+        "title": "Virus-infected cultures of diatom, coccolithophore and chlorophyte hosts gave aerosolised organics with larger activation diameter, higher molar mass and lower hygroscopicity in 3 of 5 pairs; lab nebulised DOM only, no bubble bursting, no clouds",
+        "year": "2023",
+        "doi": "https://doi.org/10.1038/s41598-023-33818-4"
+      },
+      {
+        "title": "Organic mass fraction of submicron sea spray correlates with senescent-cell index (chlorophyllide) in the subarctic Pacific; did not separate viral from other causes of senescence",
+        "year": "2020",
+        "doi": "https://doi.org/10.1038/s41598-020-73718-5"
+      },
+      {
+        "title": "Organic enrichment of sea spray rises with bloom demise; suggests viral infection as a driver but did not measure viruses",
+        "year": "2015",
+        "doi": "https://doi.org/10.1038/srep14883"
+      },
+      {
+        "title": "Cloud droplet number at Mace Head about doubles in the productive season, showing marine biology affects cloud microphysics; no viral or bloom-phase attribution",
+        "year": "2022",
+        "doi": "https://doi.org/10.1029/2021jd036355"
+      }
+    ],
+    "web": {
+      "verdict": "Partly supported",
+      "text": "Lab work shows virus-infected phytoplankton change the properties of aerosolised organic matter and reduce hygroscopicity, and field correlations tie sea-spray organic fraction to bloom senescence. Whether viral termination specifically changes cloud droplet number against grazer- or nutrient-terminated blooms is not tested, and lower hygroscopicity could push droplet number either way.",
+      "links": [
+        {
+          "label": "Virus infection and aerosol hygroscopicity",
+          "url": "https://doi.org/10.1038/s41598-023-33818-4"
+        },
+        {
+          "label": "Senescence index and sea-spray organics",
+          "url": "https://doi.org/10.1038/s41598-020-73718-5"
+        },
+        {
+          "label": "Marine biology and cloud droplets at Mace Head",
+          "url": "https://doi.org/10.1029/2021jd036355"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 45,
+      "testable": 58,
+      "accurate": 55
+    },
+    "why": "Strength: organic enrichment after infection has lab and field support; risk: matching bloom termination modes in the field is hard and the droplet-number sign and size are uncertain.",
+    "chance": 50
+  },
+  {
+    "id": "e_mfjfr9l56",
+    "title": "Dark cyanobacterial crust boosts midday dryland sensible heat flux",
+    "status": "related only",
+    "untested": "Sensible heat flux itself has not been compared between intact dark cyanobacterial crust and disturbed or light crust; the 20-40 W/m2 difference and the cooling after crust loss are unmeasured, and moisture, roughness and ground-heat storage could cancel the albedo effect.",
+    "papers": [
+      {
+        "title": "Two-year moss-biocrust study: biocrust albedo 43 percent lower than bare soil, raising net radiation and altering energy balance; moss not cyanobacteria, and results reported as radiation terms rather than a clean dry-season sensible heat contrast",
+        "year": "2020",
+        "doi": "https://doi.org/10.1016/j.scitotenv.2020.140425"
+      },
+      {
+        "title": "Two-decade warming experiment on the Colorado Plateau: shift to lightly pigmented early-successional cyanobacteria raised surface brightness and surface temperature about 0.3 C per 10 percent cover, via lower moisture; remote sensing, no flux measurements, and the sign of brightness effect is opposite to the dark-crust case",
+        "year": "2026",
+        "doi": "https://doi.org/10.1038/s43247-026-03874-5"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible by analogy",
+      "text": "Biocrusts, especially dark moss and cyanobacterial ones, lower albedo and increase net radiation, and warming experiments show crust community shifts alter surface temperature. Direct sensible heat flux comparisons between intact dark crust and disturbed crust were not found, and most of the extra absorbed energy may go into soil heat storage and longwave loss or into latent heat after rain.",
+      "links": [
+        {
+          "label": "Moss-biocrust albedo and energy balance",
+          "url": "https://doi.org/10.1016/j.scitotenv.2020.140425"
+        },
+        {
+          "label": "Biocrust degradation and surface temperature feedback",
+          "url": "https://doi.org/10.1038/s43247-026-03874-5"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 58,
+      "testable": 72,
+      "accurate": 48
+    },
+    "why": "Strength: albedo contrast and flux instruments make a direct paired test easy; risk: patch-scale H differences are small versus measurement error and the partition of extra net radiation among H, soil heat and moisture is uncertain.",
+    "chance": 53
+  },
+  {
+    "id": "e_7g3bypnhn",
+    "title": "Thaw-slump sulfuric acid weathering offsets permafrost CO2 drawdown",
+    "status": "partly tested",
+    "untested": "Regional trends and headwater acidification are documented, but the paired slump-versus-intact design with SO4:HCO3 ratios, d34S and d13C-DIC to partition sulfuric versus carbonic acid, and the 2-5x ratio and 10-30 percent CO2 offset, have not been reported for matched catchments.",
+    "papers": [
+      {
+        "title": "Mackenzie basin 60-year sulfate record: sulfate flux up 45 percent with 2.3 C warming, largest in catchments with thermokarst and rapid exposure; basin-scale, no paired slump streams or isotope partitioning",
+        "year": "2024",
+        "doi": "https://doi.org/10.1126/sciadv.adq4893"
+      },
+      {
+        "title": "Yukon and Mackenzie headwaters: abrupt sulfide oxidation, pH about 3 seeps, and acid-driven carbonate dissolution speeding CO2 emissions; abstract only (paywalled), a different mechanism scale from slump streams",
+        "year": "2026",
+        "doi": "https://doi.org/10.1126/science.aea2898"
+      },
+      {
+        "title": "Qinghai-Tibet rivers: weathering CO2 drawdown about 35 percent of river CO2 emission and rising with thaw; used carbonic-acid framing and isotope modelling on a plateau, not slump versus intact pairs",
+        "year": "2026",
+        "doi": "https://doi.org/10.1038/s41586-026-10664-8"
+      },
+      {
+        "title": "Mackenzie DIC radiocarbon and d13C: old carbon from organic oxidation with some carbonate weathering input; did not partition sulfuric versus carbonic acid",
+        "year": "2024",
+        "doi": "https://doi.org/10.1093/pnasnexus/pgae134"
+      }
+    ],
+    "web": {
+      "verdict": "Partly supported",
+      "text": "Sulfide oxidation and sulfuric-acid carbonate dissolution are documented in thawing Canadian permafrost catchments, with sulfate rising strongly where thermokarst exposes rock. A direct, matched slump versus intact quantification of the carbonic versus sulfuric share and the net CO2 offset is not evident in the literature found.",
+      "links": [
+        {
+          "label": "Mineral permafrost feedback, Sci Adv 2024",
+          "url": "https://doi.org/10.1126/sciadv.adq4893"
+        },
+        {
+          "label": "Abrupt stream acidification, Science 2026",
+          "url": "https://doi.org/10.1126/science.aea2898"
+        },
+        {
+          "label": "Rock weathering and river CO2, Nature 2026",
+          "url": "https://doi.org/10.1038/s41586-026-10664-8"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 35,
+      "testable": 82,
+      "accurate": 68
+    },
+    "why": "Strength: the chemistry is well grounded and the isotope design is standard; risk: much of the headline finding is already published at regional scale, and the exact 2-5x and 10-30 percent figures depend heavily on lithology.",
+    "chance": 52
+  },
+  {
+    "id": "e_g6ohhmni7",
+    "title": "Proglacial dust feeds Greenland ice algae and darker ice",
+    "status": "partly tested",
+    "untested": "The mechanism links (local proglacial dust, mineral P, algal biomass) are supported, but no study regresses year-to-year algal bloom or albedo on proglacial plain area and spring wind with melt days controlled; the 20-50 percent and 0.02-0.05 magnitudes and the feedback loop are untested.",
+    "papers": [
+      {
+        "title": "Local proglacial dust (REE and airmass evidence) delivered about 1.2 mg P per m2 per year to the southwest ice sheet, enough to fuel observed algal cell densities; two years of data, no interannual regression with bloom or albedo",
+        "year": "2026",
+        "doi": "https://doi.org/10.1021/acs.est.5c13873"
+      },
+      {
+        "title": "Mineral phosphorus in surface ice correlates with glacier algal biomass across the southwest ablation zone; spatial link, not year-to-year or tied to proglacial source area",
+        "year": "2021",
+        "doi": "https://doi.org/10.1038/s41467-020-20627-w"
+      },
+      {
+        "title": "NW Greenland nano-molar nutrient data suggest dissolved N and P released by ablation exceed algal uptake, so macronutrients may not limit algae; counter-evidence to the dust-P limitation step",
+        "year": "2026",
+        "doi": "https://doi.org/10.1038/s41467-026-68625-8"
+      },
+      {
+        "title": "Dark Zone albedo budget: cryoconite and ice densification dominate darkening, then algae; mineral dust particles do not directly darken; indicates dust acts, if at all, via algae",
+        "year": "2026",
+        "doi": "https://doi.org/10.1126/sciadv.ady9482"
+      }
+    ],
+    "web": {
+      "verdict": "Partly supported",
+      "text": "Local dust from proglacial plains delivers phosphorus and mineral P correlates with algal biomass, but a 2026 study argues that dissolved nutrients released by ablation are unlikely to limit algae, and a Dark Zone albedo budget gives algae a smaller role than cryoconite and ice densification. A Greenland-wide model shows bloom magnitude following ablation-zone area and melt, which is the main confounder for any dust signal.",
+      "links": [
+        {
+          "label": "Local dust delivers P to the ice sheet",
+          "url": "https://doi.org/10.1021/acs.est.5c13873"
+        },
+        {
+          "label": "Mineral phosphorus drives glacier algal blooms",
+          "url": "https://doi.org/10.1038/s41467-020-20627-w"
+        },
+        {
+          "label": "Ablation supplies N and P to ice algae",
+          "url": "https://doi.org/10.1038/s41467-026-68625-8"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 42,
+      "testable": 75,
+      "accurate": 40
+    },
+    "why": "Strength: remote-sensing and wind data make an interannual regression feasible and each causal link has partial support; risk: bloom size is dominated by melt and ablation area, and recent work argues P is not limiting.",
+    "chance": 41
+  },
+  {
+    "id": "e_d198y3nj8",
+    "title": "Peak meltwater flow lets more Greenland methane escape unoxidised",
+    "status": "related only",
+    "untested": "No study has measured the oxidised versus degassed fraction of subglacial methane along a Greenland outlet river at low versus peak discharge; the over-half versus under-20 percent split and the claim that emissions outgrow the methanotroph sink with ice loss are untested.",
+    "papers": [
+      {
+        "title": "Methane oxidation in land-terminating glacial runoff (lake and river): river oxidation may cut emissions by up to 53 percent; measured net activity at sites but not as a function of discharge or residence time",
+        "year": "2024",
+        "doi": "https://doi.org/10.1038/s41598-024-73041-3"
+      },
+      {
+        "title": "Greenland subglacial catchment: methane-supersaturated water exported continuously through the melt season with pulses at flushing events; quantified export at the portal, not downstream oxidation versus degassing (abstract only, paywalled)",
+        "year": "2019",
+        "doi": "https://doi.org/10.1038/s41586-018-0800-0"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible by analogy",
+      "text": "Subglacial methane exits Greenland in meltwater, discharge pulses flush it out, and downstream oxidation can remove a large share in some rivers. How the oxidised fraction changes with discharge and transit time has not been quantified, and fast turbulent degassing near the portal could dominate at all flows, which would make the discharge dependence weaker than predicted.",
+      "links": [
+        {
+          "label": "Oxidation in land-terminating glacial runoff",
+          "url": "https://doi.org/10.1038/s41598-024-73041-3"
+        },
+        {
+          "label": "Greenland melt drives methane export",
+          "url": "https://doi.org/10.1038/s41586-018-0800-0"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 62,
+      "testable": 80,
+      "accurate": 52
+    },
+    "why": "Strength: a clear station-by-station design with isotope fractionation can falsify it; risk: the over-half degassing figure depends on a residence-time model and river reaeration, and the 2024 river data suggest oxidation can be substantial.",
+    "chance": 57
+  },
+  {
+    "id": "e_6bm2ienju",
+    "title": "Ponded thaw slumps raise methylmercury via sulfate and iron reducers",
+    "status": "partly tested",
+    "untested": "Higher methylmercury in thawed ponded ground is already documented; what remains untested is the specific sulfate-reducer and Fe-reducer dependence (molybdate and sulfate amendments), the 5-20 year chronosequence on slumps, and the 3-10x ratio on one mercury-rich landscape.",
+    "papers": [
+      {
+        "title": "Twelve NW Canada peatlands: soil %MeHg was 0.1 percent on permafrost plateaus, 0.7 percent in thawed bogs, 2.0 percent in fens; methylators included methanogens, not mainly sulfate reducers; no sulfate manipulation (abstract read)",
+        "year": "2025",
+        "doi": "https://doi.org/10.1021/acs.est.5c04510"
+      },
+      {
+        "title": "Nunavik lithalsa chronosequence of 175 soils across thermokarst development and pond revegetation, with THg, MeHg and S; asked how feature evolution shapes net MeHg production, no hgcAB or inhibitor test",
+        "year": "2025",
+        "doi": "https://doi.org/10.1016/j.scitotenv.2025.179276"
+      },
+      {
+        "title": "Two Canadian sub-Arctic thermokarst lakes: hgcAB and merAB metagenomes and qPCR followed seasonal MMHg changes; lakes not slumps, no sulfate or molybdate manipulation",
+        "year": "2025",
+        "doi": "https://doi.org/10.1038/s41598-025-89438-7"
+      },
+      {
+        "title": "Tibetan thermokarst lakes: elevated MeHg with anaerobic incubations plus inhibitors; sulfate reducers dominated in one lake but syntrophs and methanogens contributed about 57 percent in another, so sulfate-reducer dependence varies",
+        "year": "2026",
+        "doi": "https://doi.org/10.1016/j.jhazmat.2026.141183"
+      }
+    ],
+    "web": {
+      "verdict": "Partly supported",
+      "text": "Thaw ponds, thermokarst lakes and thawed peatlands show higher methylmercury fractions than frozen ground, and hgcA-carrying communities respond to thaw. Inhibitor work shows methylators differ by site, with methanogens and syntrophs important alongside sulfate reducers, so a strict sulfate dependence is uncertain.",
+      "links": [
+        {
+          "label": "Methylmercury after peatland thaw",
+          "url": "https://doi.org/10.1021/acs.est.5c04510"
+        },
+        {
+          "label": "Lithalsa thermokarst chronosequence",
+          "url": "https://doi.org/10.1016/j.scitotenv.2025.179276"
+        },
+        {
+          "label": "Tibetan thermokarst lakes MeHg",
+          "url": "https://doi.org/10.1016/j.jhazmat.2026.141183"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 28,
+      "testable": 82,
+      "accurate": 52
+    },
+    "why": "Strength: methodology is standard and the headline elevation is well supported; risk: the elevation is already shown and the claim that sulfate and iron reducers are the main drivers conflicts with evidence for methanogen and syntroph methylators.",
+    "chance": 40
+  },
+  {
+    "id": "e_jctjk2oog",
+    "title": "Thaw-slump acid weathering weakens permafrost CO2 sink",
+    "status": "partly tested",
+    "untested": "Regional trends and headwater acidification are documented, but the paired slump-versus-intact design with SO4:HCO3 ratios, d34S and d13C-DIC to partition sulfuric versus carbonic acid, and the 2-5x ratio and 10-30 percent CO2 offset, have not been reported for matched catchments.",
+    "papers": [
+      {
+        "title": "Mackenzie basin 60-year sulfate record: sulfate flux up 45 percent with 2.3 C warming, largest in catchments with thermokarst and rapid exposure; basin-scale, no paired slump streams or isotope partitioning",
+        "year": "2024",
+        "doi": "https://doi.org/10.1126/sciadv.adq4893"
+      },
+      {
+        "title": "Yukon and Mackenzie headwaters: abrupt sulfide oxidation, pH about 3 seeps, and acid-driven carbonate dissolution speeding CO2 emissions; abstract only (paywalled), a different mechanism scale from slump streams",
+        "year": "2026",
+        "doi": "https://doi.org/10.1126/science.aea2898"
+      },
+      {
+        "title": "Qinghai-Tibet rivers: weathering CO2 drawdown about 35 percent of river CO2 emission and rising with thaw; used carbonic-acid framing and isotope modelling on a plateau, not slump versus intact pairs",
+        "year": "2026",
+        "doi": "https://doi.org/10.1038/s41586-026-10664-8"
+      },
+      {
+        "title": "Mackenzie DIC radiocarbon and d13C: old carbon from organic oxidation with some carbonate weathering input; did not partition sulfuric versus carbonic acid",
+        "year": "2024",
+        "doi": "https://doi.org/10.1093/pnasnexus/pgae134"
+      }
+    ],
+    "web": {
+      "verdict": "Partly supported",
+      "text": "Sulfide oxidation and sulfuric-acid carbonate dissolution are documented in thawing Canadian permafrost catchments, with sulfate rising strongly where thermokarst exposes rock. A direct, matched slump versus intact quantification of the carbonic versus sulfuric share and the net CO2 offset is not evident in the literature found.",
+      "links": [
+        {
+          "label": "Mineral permafrost feedback, Sci Adv 2024",
+          "url": "https://doi.org/10.1126/sciadv.adq4893"
+        },
+        {
+          "label": "Abrupt stream acidification, Science 2026",
+          "url": "https://doi.org/10.1126/science.aea2898"
+        },
+        {
+          "label": "Rock weathering and river CO2, Nature 2026",
+          "url": "https://doi.org/10.1038/s41586-026-10664-8"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 35,
+      "testable": 82,
+      "accurate": 68
+    },
+    "why": "Strength: the chemistry is well grounded and the isotope design is standard; risk: much of the headline finding is already published at regional scale, and the exact 2-5x and 10-30 percent figures depend heavily on lithology.",
+    "chance": 52
+  },
+  {
+    "id": "e_5676oaooq",
+    "title": "Proglacial dust phosphorus fuels Greenland ice algae darkening",
+    "status": "partly tested",
+    "untested": "The mechanism links (local proglacial dust, mineral P, algal biomass) are supported, but no study regresses year-to-year algal bloom or albedo on proglacial plain area and spring wind with melt days controlled; the 20-50 percent and 0.02-0.05 magnitudes and the feedback loop are untested.",
+    "papers": [
+      {
+        "title": "Local proglacial dust (REE and airmass evidence) delivered about 1.2 mg P per m2 per year to the southwest ice sheet, enough to fuel observed algal cell densities; two years of data, no interannual regression with bloom or albedo",
+        "year": "2026",
+        "doi": "https://doi.org/10.1021/acs.est.5c13873"
+      },
+      {
+        "title": "Mineral phosphorus in surface ice correlates with glacier algal biomass across the southwest ablation zone; spatial link, not year-to-year or tied to proglacial source area",
+        "year": "2021",
+        "doi": "https://doi.org/10.1038/s41467-020-20627-w"
+      },
+      {
+        "title": "NW Greenland nano-molar nutrient data suggest dissolved N and P released by ablation exceed algal uptake, so macronutrients may not limit algae; counter-evidence to the dust-P limitation step",
+        "year": "2026",
+        "doi": "https://doi.org/10.1038/s41467-026-68625-8"
+      },
+      {
+        "title": "Dark Zone albedo budget: cryoconite and ice densification dominate darkening, then algae; mineral dust particles do not directly darken; indicates dust acts, if at all, via algae",
+        "year": "2026",
+        "doi": "https://doi.org/10.1126/sciadv.ady9482"
+      }
+    ],
+    "web": {
+      "verdict": "Partly supported",
+      "text": "Local dust from proglacial plains delivers phosphorus and mineral P correlates with algal biomass, but a 2026 study argues that dissolved nutrients released by ablation are unlikely to limit algae, and a Dark Zone albedo budget gives algae a smaller role than cryoconite and ice densification. A Greenland-wide model shows bloom magnitude following ablation-zone area and melt, which is the main confounder for any dust signal.",
+      "links": [
+        {
+          "label": "Local dust delivers P to the ice sheet",
+          "url": "https://doi.org/10.1021/acs.est.5c13873"
+        },
+        {
+          "label": "Mineral phosphorus drives glacier algal blooms",
+          "url": "https://doi.org/10.1038/s41467-020-20627-w"
+        },
+        {
+          "label": "Ablation supplies N and P to ice algae",
+          "url": "https://doi.org/10.1038/s41467-026-68625-8"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 42,
+      "testable": 75,
+      "accurate": 40
+    },
+    "why": "Strength: remote-sensing and wind data make an interannual regression feasible and each causal link has partial support; risk: bloom size is dominated by melt and ablation area, and recent work argues P is not limiting.",
+    "chance": 41
+  },
+  {
+    "id": "e_ut251aop0",
+    "title": "Fast meltwater flow limits methane oxidation at Greenland outlets",
+    "status": "related only",
+    "untested": "No study has measured the oxidised versus degassed fraction of subglacial methane along a Greenland outlet river at low versus peak discharge; the over-half versus under-20 percent split and the claim that emissions outgrow the methanotroph sink with ice loss are untested.",
+    "papers": [
+      {
+        "title": "Methane oxidation in land-terminating glacial runoff (lake and river): river oxidation may cut emissions by up to 53 percent; measured net activity at sites but not as a function of discharge or residence time",
+        "year": "2024",
+        "doi": "https://doi.org/10.1038/s41598-024-73041-3"
+      },
+      {
+        "title": "Greenland subglacial catchment: methane-supersaturated water exported continuously through the melt season with pulses at flushing events; quantified export at the portal, not downstream oxidation versus degassing (abstract only, paywalled)",
+        "year": "2019",
+        "doi": "https://doi.org/10.1038/s41586-018-0800-0"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible by analogy",
+      "text": "Subglacial methane exits Greenland in meltwater, discharge pulses flush it out, and downstream oxidation can remove a large share in some rivers. How the oxidised fraction changes with discharge and transit time has not been quantified, and fast turbulent degassing near the portal could dominate at all flows, which would make the discharge dependence weaker than predicted.",
+      "links": [
+        {
+          "label": "Oxidation in land-terminating glacial runoff",
+          "url": "https://doi.org/10.1038/s41598-024-73041-3"
+        },
+        {
+          "label": "Greenland melt drives methane export",
+          "url": "https://doi.org/10.1038/s41586-018-0800-0"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 62,
+      "testable": 80,
+      "accurate": 52
+    },
+    "why": "Strength: a clear station-by-station design with isotope fractionation can falsify it; risk: the over-half degassing figure depends on a residence-time model and river reaeration, and the 2024 river data suggest oxidation can be substantial.",
+    "chance": 57
+  },
+  {
+    "id": "e_2yqdebopa",
+    "title": "Thermokarst ponding boosts methylmercury via sulfate reduction",
+    "status": "partly tested",
+    "untested": "Higher methylmercury in thawed ponded ground is already documented; what remains untested is the specific sulfate-reducer and Fe-reducer dependence (molybdate and sulfate amendments), the 5-20 year chronosequence on slumps, and the 3-10x ratio on one mercury-rich landscape.",
+    "papers": [
+      {
+        "title": "Twelve NW Canada peatlands: soil %MeHg was 0.1 percent on permafrost plateaus, 0.7 percent in thawed bogs, 2.0 percent in fens; methylators included methanogens, not mainly sulfate reducers; no sulfate manipulation (abstract read)",
+        "year": "2025",
+        "doi": "https://doi.org/10.1021/acs.est.5c04510"
+      },
+      {
+        "title": "Nunavik lithalsa chronosequence of 175 soils across thermokarst development and pond revegetation, with THg, MeHg and S; asked how feature evolution shapes net MeHg production, no hgcAB or inhibitor test",
+        "year": "2025",
+        "doi": "https://doi.org/10.1016/j.scitotenv.2025.179276"
+      },
+      {
+        "title": "Two Canadian sub-Arctic thermokarst lakes: hgcAB and merAB metagenomes and qPCR followed seasonal MMHg changes; lakes not slumps, no sulfate or molybdate manipulation",
+        "year": "2025",
+        "doi": "https://doi.org/10.1038/s41598-025-89438-7"
+      },
+      {
+        "title": "Tibetan thermokarst lakes: elevated MeHg with anaerobic incubations plus inhibitors; sulfate reducers dominated in one lake but syntrophs and methanogens contributed about 57 percent in another, so sulfate-reducer dependence varies",
+        "year": "2026",
+        "doi": "https://doi.org/10.1016/j.jhazmat.2026.141183"
+      }
+    ],
+    "web": {
+      "verdict": "Partly supported",
+      "text": "Thaw ponds, thermokarst lakes and thawed peatlands show higher methylmercury fractions than frozen ground, and hgcA-carrying communities respond to thaw. Inhibitor work shows methylators differ by site, with methanogens and syntrophs important alongside sulfate reducers, so a strict sulfate dependence is uncertain.",
+      "links": [
+        {
+          "label": "Methylmercury after peatland thaw",
+          "url": "https://doi.org/10.1021/acs.est.5c04510"
+        },
+        {
+          "label": "Lithalsa thermokarst chronosequence",
+          "url": "https://doi.org/10.1016/j.scitotenv.2025.179276"
+        },
+        {
+          "label": "Tibetan thermokarst lakes MeHg",
+          "url": "https://doi.org/10.1016/j.jhazmat.2026.141183"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 28,
+      "testable": 82,
+      "accurate": 52
+    },
+    "why": "Strength: methodology is standard and the headline elevation is well supported; risk: the elevation is already shown and the claim that sulfate and iron reducers are the main drivers conflicts with evidence for methanogen and syntroph methylators.",
+    "chance": 40
+  },
+  {
+    "id": "e_bb0jvbez1",
+    "title": "Farm ammonia lofted by monsoon adds upper-troposphere cloud seeds",
+    "status": "partly tested",
+    "untested": "Models and chamber work already give this mechanism, but a matched observational comparison of measured CCN at 0.2 percent supersaturation in monsoon outflow versus low-NH3 convective outflow, binned by NH3 and SO2, is missing, as is a cloud radiative effect attributed to NH3 beyond sulfate.",
+    "papers": [
+      {
+        "title": "EMAC global model: convective NH3 raised upper-tropospheric particle formation by 1-3 orders of magnitude, doubling aerosol number and giving a 2.5-fold CCN increase over high-emission regions; model only, no observed CCN comparison",
+        "year": "2025",
+        "doi": "https://doi.org/10.1073/pnas.2506658122"
+      },
+      {
+        "title": "CLOUD chamber: HNO3-H2SO4-NH3 nucleate particles synergistically, grow to CCN size with trace sulfate, and act as efficient ice nuclei; laboratory plus simulations, no matched aircraft CCN test",
+        "year": "2022",
+        "doi": "https://doi.org/10.1038/s41586-022-04605-4"
+      },
+      {
+        "title": "In-situ monsoon outflow observations with trajectories and modelling show pollution-enhanced new particle formation and growth to cloud-relevant sizes; did not contrast NH3-rich versus NH3-poor outflow CCN at fixed SO2",
+        "year": "2026",
+        "doi": "https://doi.org/10.1038/s41467-026-75073-x"
+      },
+      {
+        "title": "Asian Tropopause Aerosol Layer simulation: NH3-driven particle formation raised CCN by up to 80 percent; modelling only",
+        "year": "2024",
+        "doi": "https://doi.org/10.1038/s41612-024-00758-3"
+      }
+    ],
+    "web": {
+      "verdict": "Partly supported",
+      "text": "CLOUD chamber and chemistry-climate model studies show that convectively lofted ammonia drives upper-tropospheric particle formation and can raise CCN by tens of percent to several-fold over monsoon regions, and in-situ outflow data support pollution-enhanced particle formation. A direct observed CCN contrast and a quantified cloud-brightening forcing term are still lacking, and upper-tropospheric CCN counts at fixed supersaturation are sparse.",
+      "links": [
+        {
+          "label": "Global NH3 impact on upper-troposphere aerosol",
+          "url": "https://doi.org/10.1073/pnas.2506658122"
+        },
+        {
+          "label": "CLOUD chamber HNO3-H2SO4-NH3 nucleation",
+          "url": "https://doi.org/10.1038/s41586-022-04605-4"
+        },
+        {
+          "label": "Monsoon-lofted pollution observations",
+          "url": "https://doi.org/10.1038/s41467-026-75073-x"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 28,
+      "testable": 70,
+      "accurate": 68
+    },
+    "why": "Strength: chamber, model and in-situ results already point the same way; risk: the observed-CCN contrast and any net forcing from NH3 are hard to isolate from sulfate and nitrate and upper-troposphere CCN data are scarce.",
+    "chance": 48
+  },
+  {
+    "id": "e_4u4t7sezk",
+    "title": "Falling acid-rain sulfate changed lake phosphorus release by sediment Fe:S",
+    "status": "related only",
+    "untested": "No paired-core or dated-core study of softwater lakes has tested whether post-1990 sulfate decline raised anoxic P release where porewater Fe:S is above 1 and lowered it where below 1; the 20 percent threshold and Fe:S breakpoint of 1 are untested.",
+    "papers": [
+      {
+        "title": "Mackinawite (FeS) binds phosphate with capacity comparable to moderately crystalline Fe oxides, reduced about 75 percent by sorbed organic carbon; lab sorption only, not tied to sulfate decline or lake release rates",
+        "year": "2026",
+        "doi": "https://doi.org/10.1038/s41598-026-52964-z"
+      },
+      {
+        "title": "Sulfate-amended mesocosms of eutrophic lake sediment: higher sulfate gave more P release via sulfide-mediated FeP loss; tested sulfate increase in eutrophic lakes, not decline in softwater lakes or an Fe:S split (abstract only, paywalled)",
+        "year": "2024",
+        "doi": "https://doi.org/10.1016/j.scitotenv.2024.176146"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible by analogy",
+      "text": "Sulfate-driven P mobilisation and FeS sequestration of phosphate are both documented, so the Fe:S-dependent sign is chemically reasonable. Evidence concerns rising sulfate or lab minerals, and the prediction that declining acid-rain sulfate increased P release in iron-rich softwater lakes seems untested; long records are patchy and stratification, DOC and eutrophication trends confound them.",
+      "links": [
+        {
+          "label": "Phosphate immobilization by mackinawite",
+          "url": "https://doi.org/10.1038/s41598-026-52964-z"
+        },
+        {
+          "label": "Sulfate-induced P mobilisation in eutrophic lakes",
+          "url": "https://doi.org/10.1016/j.scitotenv.2024.176146"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 68,
+      "testable": 68,
+      "accurate": 45
+    },
+    "why": "Strength: a well-defined Fe:S switch gives a sharp falsifiable split and no direct test exists; risk: few lakes have both long deposition and hypolimnetic P records, and warming, DOC and stratification changes swamp a 20 percent signal.",
+    "chance": 57
+  },
+  {
+    "id": "e_ocf123ezv",
+    "title": "Falling SO2 lowers aerosol iron solubility over iron-limited oceans",
+    "status": "related only",
+    "untested": "No study compares marine aerosol fractional Fe solubility before and after the SO2 declines (Europe, North America, China, 2020 shipping rules) at matched dust loading; the 10-30 percent decline and its attribution to sulfate rather than nitrate or aerosol pH are untested.",
+    "papers": [
+      {
+        "title": "Aerosol Fe dissolution in East Asia: nitrate now contributes about 1.5 times more than sulfate in urban aerosol and about 68 percent of the modelled solubility enhancement in dust relative to preindustrial; challenges the sulfur-driven paradigm and offers a competing mechanism that would offset SO2 cuts; urban data, not marine trend data",
+        "year": "2026",
+        "doi": "https://doi.org/10.1126/sciadv.aec0108"
+      },
+      {
+        "title": "GEOTRACES North Atlantic aerosol Fe isotopes show a small soluble anthropogenic combustion Fe component likely underestimated in deposition models; one-time section, no before-after solubility trend",
+        "year": "2019",
+        "doi": "https://doi.org/10.1038/s41467-019-10457-w"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible by analogy",
+      "text": "Acid processing by sulfate and nitrate raises Fe solubility, and combustion Fe is a significant soluble fraction in the North Atlantic. Recent work shows nitrate is replacing sulfate as the main acid agent in East Asia, so falling SO2 may not lower solubility, and no repeated-cruise or station trend in marine aerosol solubility around 2005 or 2020 was found.",
+      "links": [
+        {
+          "label": "Nitrate-driven aerosol Fe dissolution",
+          "url": "https://doi.org/10.1126/sciadv.aec0108"
+        },
+        {
+          "label": "Anthropogenic aerosol Fe in North Atlantic",
+          "url": "https://doi.org/10.1038/s41467-019-10457-w"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 62,
+      "testable": 68,
+      "accurate": 38
+    },
+    "why": "Strength: archived GEOTRACES and island-station samples could test a before-after change; risk: solubility depends on dust, source mix, nitrate and aerosol water, so a clean sulfate-attributed 10-30 percent decline is unlikely to show.",
+    "chance": 50
   }
 ]
