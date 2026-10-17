@@ -2746,5 +2746,738 @@
     },
     "why": "Strength: archived GEOTRACES and island-station samples could test a before-after change; risk: solubility depends on dust, source mix, nitrate and aerosol water, so a clean sulfate-attributed 10-30 percent decline is unlikely to show.",
     "chance": 50
+  },
+  {
+    "id": "e_q77sf7gy3",
+    "title": "Basalt spreading darkens bare cropland soil and offsets carbon removal",
+    "status": "related only",
+    "untested": "No study has measured albedo change after crushed rock is spread on cropland, or converted it to CO2-equivalent against the weathering carbon removal. Biochar darkening is the only analogue, and basalt is much less dark and mixes in differently.",
+    "papers": [
+      {
+        "title": "Albedo impact of biochar (30 t/ha cut mean annual albedo by 0.05 and trimmed climate benefit 13-22%); did not test any rock powder.",
+        "year": "2012",
+        "doi": "https://doi.org/10.1021/es302302g"
+      },
+      {
+        "title": "Four-year US Corn Belt basalt trial (50 t/ha/yr) measuring cation loss, yield and CDR; did not measure albedo or radiative forcing.",
+        "year": "2024",
+        "doi": "https://doi.org/10.1073/pnas.2319436121"
+      },
+      {
+        "title": "Process model of enhanced rock weathering with ecohydrology and soil moisture; no surface-albedo term.",
+        "year": "2025",
+        "doi": "https://doi.org/10.1111/gcb.70650"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible by analogy",
+      "text": "Biochar work shows that dark amendments at 30 t/ha cut soil albedo enough to erode a measurable share of climate benefit. Enhanced weathering trials and models report cation loss, yield and CDR but no albedo effect. Searches of Europe PMC for enhanced weathering together with soil or surface albedo give only a handful of unrelated hits.",
+      "links": [
+        {
+          "label": "Biochar albedo study (Europe PMC record)",
+          "url": "https://doi.org/10.1021/es302302g"
+        },
+        {
+          "label": "US Corn Belt basalt trial",
+          "url": "https://doi.org/10.1073/pnas.2319436121"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 80,
+      "testable": 85,
+      "accurate": 55
+    },
+    "why": "Strength: a cheap paired-albedometer trial would settle it and the biochar analogy is quantified; risk: basalt is mid-grey (albedo about 0.1-0.2) so the darkening on already-dark soils may be negligible and the effect decays fast, making the offset small.",
+    "chance": 68
+  },
+  {
+    "id": "e_x1fwfzgyf",
+    "title": "Basalt dust on snow melts fields out earlier",
+    "status": "related only",
+    "untested": "No trial has put crushed basalt on snowpack at agricultural rates, or measured melt-out timing, frozen-soil runoff losses and basalt recovery in runoff. Whether enhanced weathering operators spread on snow at all is unverified.",
+    "papers": [
+      {
+        "title": "Colorado River runoff under dust radiative forcing in snow: peak runoff about 3 weeks earlier with heavier dust; modelled, not a basalt or farm trial.",
+        "year": "2010",
+        "doi": "https://doi.org/10.1073/pnas.0913139107"
+      },
+      {
+        "title": "Four-year basalt field trial in the US Corn Belt (fall application); no snow, albedo or melt measurements.",
+        "year": "2024",
+        "doi": "https://doi.org/10.1073/pnas.2319436121"
+      }
+    ],
+    "web": {
+      "verdict": "Mechanism well supported",
+      "text": "Dust on snow lowers albedo and advances melt by weeks in mountain snowpacks, so the physics is established at much lower loads. No enhanced weathering paper addresses spreading on snow-covered or frozen ground; the combined Europe PMC query returns few hits and none on this.",
+      "links": [
+        {
+          "label": "Painter et al. 2010 dust-on-snow runoff",
+          "url": "https://doi.org/10.1073/pnas.0913139107"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 80,
+      "testable": 85,
+      "accurate": 50
+    },
+    "why": "Strength: dust-on-snow physics is solid and a plot trial is straightforward; risk: the premise that crushed rock is routinely spread on snow is unverified, and 5 kg/m2 may be buried or washed in rather than concentrated.",
+    "chance": 65
+  },
+  {
+    "id": "e_rvqoijgyq",
+    "title": "Air pollution haze slows UV breakdown of dryland litter",
+    "status": "related only",
+    "untested": "Nobody has tested whether aerosol attenuation of UV and sunlight changes litter photodegradation, with filters mimicking haze spectra or along natural haze gradients. Haze also adds diffuse light and dust that could offset the UV loss.",
+    "papers": [
+      {
+        "title": "UNEP assessment chapter on UV, climate and terrestrial ecosystems, covering UV-driven litter breakdown; treats aerosol only generally and tests no haze-litter link.",
+        "year": "2023",
+        "doi": "https://doi.org/10.1007/s43630-023-00376-7"
+      },
+      {
+        "title": "12-month litterbag test of UV-B on wheat and maize straw (UV-B raised mass loss 14-19% without soil contact); did not vary aerosols or haze.",
+        "year": "2015",
+        "doi": "https://doi.org/10.1038/srep14851"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible by analogy",
+      "text": "Many exclusion experiments show sunlight and UV raise litter mass loss, so a smaller dose should slow it. Reviews of UV effects note that clouds and ozone modulate exposure but I found no study linking aerosol load to litter photodegradation.",
+      "links": [
+        {
+          "label": "UNEP terrestrial UV review",
+          "url": "https://doi.org/10.1007/s43630-023-00376-7"
+        },
+        {
+          "label": "Straw UV-B litterbag study",
+          "url": "https://doi.org/10.1038/srep14851"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 80,
+      "testable": 80,
+      "accurate": 58
+    },
+    "why": "Strength: filter-based litterbag design is feasible and directionally grounded in UV-exclusion work; risk: the haze-driven dose reduction is modest relative to cloud and season, and microbial decay will dominate in many sites.",
+    "chance": 69
+  },
+  {
+    "id": "e_p0zdbbgz0",
+    "title": "Cracks in dry Vertisols boost atmospheric methane uptake",
+    "status": "nothing found",
+    "untested": "No study has measured CH4 flux over open versus closed shrinkage cracks in a Vertisol, or crack-wall methanotroph activity. The claim of a 2-5x uptake boost is untested.",
+    "papers": [
+      {
+        "title": "Conference abstract: nighttime thermal convection in soil fractures enhances gas flux, suggested for CO2 in clayey soils; did not measure methane.",
+        "year": "2008",
+        "doi": "https://scisoc.confex.com/crops/2008am/webprogram/Paper50492.html"
+      },
+      {
+        "title": "Review of soil-aquifer processes under Vertisols: cracks as preferential flow and evaporation paths; methane not addressed.",
+        "year": "2016",
+        "doi": "https://hess.copernicus.org/articles/20/1/2016/"
+      }
+    ],
+    "web": {
+      "verdict": "Mechanism plausible",
+      "text": "Cracks are known to speed gas transport and to ventilate soil by thermal convection, but only CO2 and oxygen studies exist. I found no methane uptake measurement tied to crack state in Vertisols; the topic overlap in Europe PMC is about 2 papers.",
+      "links": [
+        {
+          "label": "Cracked soils gas transport abstract",
+          "url": "https://scisoc.confex.com/crops/2008am/webprogram/Paper50492.html"
+        },
+        {
+          "label": "Vertisol review (HESS)",
+          "url": "https://hess.copernicus.org/articles/20/1/2016/"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 80,
+      "testable": 85,
+      "accurate": 50
+    },
+    "why": "Strength: chamber-over-crack design is clean and the gap is real; risk: dry-season Vertisol matrix already dries and takes up methane, and crack gas can also carry methane out or shift moisture, confounding a crack effect.",
+    "chance": 65
+  },
+  {
+    "id": "e_f51fx75ms",
+    "title": "Volcanic acid fallout starves nitrogen fixers of molybdenum",
+    "status": "related only",
+    "untested": "Mo availability and free-living nitrogen fixation have not been measured along a volcanic acid-deposition transect. The Masaya work covers pH, bases, sulfate, chloride and fluoride but not Mo.",
+    "papers": [
+      {
+        "title": "Mo and P co-limit free-living N fixation in Panamanian forests; shows Mo availability controls fixation but involves no volcanic acid or pH gradient.",
+        "year": "2012",
+        "doi": "https://doi.org/10.1371/journal.pone.0033710"
+      },
+      {
+        "title": "Masaya Andosols exposed to volcanic acid: pH and base cations fall, sulfate and fluoride retained, HCl main acidifier; no Mo or N fixation data.",
+        "year": "2003",
+        "doi": "https://eprints.whiterose.ac.uk/id/eprint/6054/"
+      }
+    ],
+    "web": {
+      "verdict": "Partly plausible",
+      "text": "Mo limits free-living fixation and molybdate sorption rises as pH falls, both well known. But the Masaya soils are mainly acidified by HCl, and retained sulfate competes with molybdate for sorption sites, which could raise rather than lower available Mo. No test of the link was found.",
+      "links": [
+        {
+          "label": "Mo-P fixation constraint, Panama",
+          "url": "https://doi.org/10.1371/journal.pone.0033710"
+        },
+        {
+          "label": "Masaya Andosol anion retention",
+          "url": "https://eprints.whiterose.ac.uk/id/eprint/6054/"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 85,
+      "testable": 75,
+      "accurate": 40
+    },
+    "why": "Strength: the Masaya transect and Mo-addition factorial are a sharp test; risk: sulfate competition, HCl rather than SO2 acidification, and volcanic Mo input could reverse the sign.",
+    "chance": 63
+  },
+  {
+    "id": "e_jpe27c5ng",
+    "title": "Clay-fixed ammonium weakens fertiliser inhibition of methane uptake",
+    "status": "related only",
+    "untested": "No study has compared ammonium inhibition of atmospheric-level methane oxidation across vermiculitic, illitic and kaolinitic soils, or tested K-blocked versus Ca-vermiculite. Ammonium fixation has not been linked to methanotroph inhibition.",
+    "papers": [
+      {
+        "title": "Ammonium and non-ammonium salts cut forest-soil methane uptake largely through ion exchange displacing ammonium; clay mineralogy and ammonium fixation not tested.",
+        "year": "1998",
+        "doi": "https://pmc.ncbi.nlm.nih.gov/articles/PMC124702"
+      },
+      {
+        "title": "Review of nitrogen as a regulator of methane oxidation (inhibition, but also N limitation); no treatment of clay-fixed ammonium.",
+        "year": "2004",
+        "doi": "https://doi.org/10.1016/s0168-6496(03)00304-0"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible by analogy",
+      "text": "Ammonium inhibition of upland methane uptake is well documented and exchange-site behaviour already shapes it. Ammonium fixation by 2:1 clays is a separate, well-known soil process. The two literatures barely meet: a combined Europe PMC search finds only a few papers, none testing clay type.",
+      "links": [
+        {
+          "label": "King and Schnell 1998",
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC124702"
+        },
+        {
+          "label": "Bodelier and Laanbroek 2004 review",
+          "url": "https://doi.org/10.1016/s0168-6496(03)00304-0"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 78,
+      "testable": 80,
+      "accurate": 50
+    },
+    "why": "Strength: a controlled sand-plus-clay microcosm cleanly isolates the clay effect; risk: nitrite from methanotroph ammonia oxidation, not ammonium itself, may drive inhibition, and fixed ammonium can be re-released.",
+    "chance": 64
+  },
+  {
+    "id": "e_u18jpq5nz",
+    "title": "Large soil aggregates have anoxic cores that release iron-bound phosphate",
+    "status": "related only",
+    "untested": "Nobody has mapped Fe(II) and labile P against aggregate size and anoxic volume in one aerobic upland soil, with crushing as a control. Aggregate-size P studies exist but do not link release to anoxic cores.",
+    "papers": [
+      {
+        "title": "Phosphorus fractions across aggregate sizes under rice, maize and soybean: Fe/Al-bound P concentrated in large aggregates and shifted under aerobic-anaerobic cycling; no oxygen mapping or Fe(II) test.",
+        "year": "2019",
+        "doi": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6351903"
+      },
+      {
+        "title": "Review of anoxic microsites and their role in Fe, N and C cycles; conceptual, no aggregate-size P experiment.",
+        "year": "2023",
+        "doi": "https://doi.org/10.1021/acsearthspacechem.3c00032"
+      }
+    ],
+    "web": {
+      "verdict": "Partly supported",
+      "text": "Anoxic microsites and Fe-driven P mobilisation under reducing conditions are both established, and large aggregates retain Fe-bound P. The specific claim that aggregate interiors under moist but drained conditions release P in proportion to anoxic volume is not directly shown. Overlap in Europe PMC is about 2 papers.",
+      "links": [
+        {
+          "label": "Aggregate P fractions, Sanjiang Plain",
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6351903"
+        },
+        {
+          "label": "Anoxic microsite review",
+          "url": "https://doi.org/10.1021/acsearthspacechem.3c00032"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 65,
+      "testable": 85,
+      "accurate": 58
+    },
+    "why": "Strength: optode and DGT imaging with a crushed control is a sharp test; risk: at 65% water-filled pores most aggregates may stay oxic, and released P may re-sorb or be masked by organic P.",
+    "chance": 62
+  },
+  {
+    "id": "e_ikrzcd5ok",
+    "title": "Nitrate-fed roots precipitate calcite in the rhizosphere of calcareous soils",
+    "status": "related only",
+    "untested": "Nobody has compared rhizosphere carbonate content and delta-13C between nitrate- and ammonium-fed roots in calcareous soil. Root respiration CO2 may push the opposite way and dissolve calcite.",
+    "papers": [
+      {
+        "title": "Nitrate raised rhizosphere pH by 0.19-0.78 units and ammonium lowered it by 0.16-0.38 in wheat and lupin; priming effect studied, carbonate not.",
+        "year": "2018",
+        "doi": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5786243"
+      },
+      {
+        "title": "Incubations show organic residue decomposition acidifies soil and dissolves calcite via respired CO2; no plants or N form comparison.",
+        "year": "2025",
+        "doi": "https://doi.org/10.1021/acs.est.5c07428"
+      }
+    ],
+    "web": {
+      "verdict": "Mechanism partly open",
+      "text": "Nitrate alkalinisation and ammonium acidification at roots are well documented. Whether this crosses calcite saturation, given high rhizosphere CO2 and bicarbonate buffering, is unshown; recent work stresses respiration-driven carbonate dissolution. I found no rhizolith or rhizosheath study tied to N form.",
+      "links": [
+        {
+          "label": "Rhizosphere pH and N form",
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5786243"
+        },
+        {
+          "label": "Calcite response to biogenic CO2",
+          "url": "https://doi.org/10.1021/acs.est.5c07428"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 72,
+      "testable": 82,
+      "accurate": 45
+    },
+    "why": "Strength: rhizobox design with 13C carbonate is feasible; risk: respired CO2 and bicarbonate buffering likely outweigh the pH rise, so net precipitation may not occur.",
+    "chance": 59
+  },
+  {
+    "id": "e_v073shb05",
+    "title": "Snow reflects UV onto standing litter and speeds its breakdown",
+    "status": "related only",
+    "untested": "No experiment has used real snow with UV-transparent versus UV-blocking films on standing litter. The only albedo test used artificial surfaces and found a small effect.",
+    "papers": [
+      {
+        "title": "Sorghum litter over aluminium, white and black surfaces mimicking snow: 1.4-2.5% more mass loss over the UV-reflective surface; snow itself never tested.",
+        "year": "2019",
+        "doi": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6904492/"
+      },
+      {
+        "title": "Five-month desert litter study with warming and added winter snow cover; looked at decomposition rate, not UV reflection.",
+        "year": "2025",
+        "doi": "https://doi.org/10.3390/plants14172741"
+      },
+      {
+        "title": "UNEP assessment chapter covering UV-driven litter breakdown; snow reflection only speculative.",
+        "year": "2023",
+        "doi": "https://doi.org/10.1007/s43630-023-00376-7"
+      }
+    ],
+    "web": {
+      "verdict": "Weak support",
+      "text": "Photodegradation of standing litter is well documented and snow reflectance has been proposed as an amplifier. The one albedo test showed only a few percent extra mass loss, much smaller than the 8-20% predicted. No snow trial exists.",
+      "links": [
+        {
+          "label": "Sorghum albedo study",
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6904492/"
+        },
+        {
+          "label": "Desert snow and litter decay",
+          "url": "https://doi.org/10.3390/plants14172741"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 68,
+      "testable": 80,
+      "accurate": 50
+    },
+    "why": "Strength: black-cloth control isolates snow reflection well; risk: winter UV is low and litter is cold and dry, so the real effect is likely much smaller than predicted.",
+    "chance": 59
+  },
+  {
+    "id": "e_hhvti2b0s",
+    "title": "Snowmelt-dominated soils carry carbonate deeper than rain-fed soils",
+    "status": "related only",
+    "untested": "No pedon-database regression has isolated snow fraction on depth to the carbonate horizon at fixed precipitation and temperature. Cold-water calcite solubility versus infiltration depth has not been separated in columns.",
+    "papers": [
+      {
+        "title": "Seasonal bias in pedogenic carbonate formation in central New Mexico soils (I could read only the title and record); concerns timing, not snow versus rain depth.",
+        "year": "2009",
+        "doi": "https://lternet.edu/biblio/seasonal-bias-in-the-formation-and-stable-isotope-composition-of-pedogenic-carbonate-in-modern-soils-from-central-new-mexico-usa"
+      },
+      {
+        "title": "Process model of soil inorganic carbon under climate change with daily water balance; no snow fraction test of carbonate depth.",
+        "year": "2026",
+        "doi": "https://doi.org/10.1093/nsr/nwag075"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible, untested",
+      "text": "Carbonate depth is known to relate to precipitation and seasonality, but depth-rainfall relations are weak and contested in the literature. Snowmelt infiltrating at low evapotranspiration should wet deeper. I found no direct test of the snow fraction effect; overlap in Europe PMC is about 4 papers.",
+      "links": [
+        {
+          "label": "Breecker et al. seasonal carbonate record",
+          "url": "https://lternet.edu/biblio/seasonal-bias-in-the-formation-and-stable-isotope-composition-of-pedogenic-carbonate-in-modern-soils-from-central-new-mexico-usa"
+        },
+        {
+          "label": "SIC process model",
+          "url": "https://doi.org/10.1093/nsr/nwag075"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 70,
+      "testable": 78,
+      "accurate": 55
+    },
+    "why": "Strength: the infiltration argument is physically sound and testable with public data; risk: carbonate depth also reflects dust input, parent material and paleoclimate inheritance, which can swamp a 10-30 cm effect.",
+    "chance": 63
+  },
+  {
+    "id": "e_wmmog2b13",
+    "title": "Clear nights deposit more dew on litter and speed night decay",
+    "status": "related only",
+    "untested": "No study has binned nights by longwave loss or used a longwave-opaque shelter to show cloud cover gates litter wetness and night-time CO2 efflux. Dew studies on litter exist but without this cloud link.",
+    "papers": [
+      {
+        "title": "Namib litter: fungi respond within minutes to fog and dew moisture and decompose surface litter; cloud or longwave control not examined.",
+        "year": "2015",
+        "doi": "https://doi.org/10.1371/journal.pone.0126977"
+      },
+      {
+        "title": "Standing grass litter fungi and decomposition under non-rainfall versus rain moisture regimes in the Namib; no radiative driver.",
+        "year": "2021",
+        "doi": "https://doi.org/10.3389/fmicb.2021.596517"
+      },
+      {
+        "title": "Global eddy covariance evidence for soil water vapour adsorption at high humidity; not litter, no cloud test.",
+        "year": "2025",
+        "doi": "https://doi.org/10.1111/gcb.70547"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible by analogy",
+      "text": "Non-rainfall moisture is known to activate litter decay in drylands, and radiative cooling under clear skies is the textbook dew mechanism. The link between nocturnal cloud, litter moisture and respiration has not been measured; counts show only about 2 overlapping papers.",
+      "links": [
+        {
+          "label": "Namib non-rainfall moisture and fungi",
+          "url": "https://doi.org/10.1371/journal.pone.0126977"
+        },
+        {
+          "label": "Standing litter fungi, moisture type",
+          "url": "https://doi.org/10.3389/fmicb.2021.596517"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 70,
+      "testable": 80,
+      "accurate": 60
+    },
+    "why": "Strength: well-grounded physics and a feasible instrumented test with a shelter treatment; risk: litter hygroscopic water uptake can occur without dew, so clear-versus-cloudy differences may be small at RH below 80%.",
+    "chance": 65
+  },
+  {
+    "id": "e_u458z87x2",
+    "title": "Atmospheric rivers raise winter ocean CO2 uptake despite warming",
+    "status": "nothing found",
+    "untested": "Nobody has composited air-sea CO2 flux at Station Papa on atmospheric-river days or measured the net of faster gas exchange against surface warming. Only storm studies from tropical cyclones and AR-marine heatwave studies exist.",
+    "papers": [
+      {
+        "title": "Tropical cyclone wind-pump effect on pCO2 and air-sea CO2 flux at two moorings; tropical storms, not atmospheric rivers or Papa.",
+        "year": "2020",
+        "doi": "https://doi.org/10.1371/journal.pone.0226189"
+      },
+      {
+        "title": "Atmospheric rivers cool through cloud and warm through reduced heat loss, shaping marine heatwaves; no carbon flux analysed.",
+        "year": "2026",
+        "doi": "https://doi.org/10.1038/s41467-026-74249-9"
+      },
+      {
+        "title": "Storm-resolving model: tropical cyclones boost CO2 flux 20-40 times and cool the surface; not atmospheric rivers.",
+        "year": "2025",
+        "doi": "https://doi.org/10.1073/pnas.2506103122"
+      }
+    ],
+    "web": {
+      "verdict": "Gap in literature",
+      "text": "Storm studies show wind-driven gas exchange dominates, and AR work confirms opposing cloud and heat-flux effects on SST. No paper combines them for CO2; strict searches for atmospheric rivers with air-sea CO2 flux return near zero relevant hits.",
+      "links": [
+        {
+          "label": "Tropical cyclone pCO2 study",
+          "url": "https://doi.org/10.1371/journal.pone.0226189"
+        },
+        {
+          "label": "Atmospheric rivers and marine heatwaves",
+          "url": "https://doi.org/10.1038/s41467-026-74249-9"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 80,
+      "testable": 85,
+      "accurate": 55
+    },
+    "why": "Strength: existing mooring data and an AR catalogue allow a quick test; risk: AR rainfall freshening and mixed-layer deepening could shift pCO2 more than the predicted warming, and AR days are few.",
+    "chance": 68
+  },
+  {
+    "id": "e_g0h0wq7xd",
+    "title": "Dam-cut river sediment slows carbon sinking on river-fed margins",
+    "status": "related only",
+    "untested": "No experiment or trap comparison has tied river sediment decline after damming to lithogenic ballast and carbon transfer on the adjacent slope. Most river sediment settles on the shelf, so the signal at 500-1000 m may be tiny.",
+    "papers": [
+      {
+        "title": "Mineral ballast in surface export from thorium data: ballast matters most in the North Atlantic, unballasted export often dominates; no rivers or dams.",
+        "year": "2014",
+        "doi": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4459180/"
+      },
+      {
+        "title": "Clay added to seawater raised TEP tenfold and formed sinking organoclay flocs; microcosm, no river loads or respiration per metre.",
+        "year": "2024",
+        "doi": "https://doi.org/10.1038/s41598-024-79912-z"
+      },
+      {
+        "title": "Review of large-river delta fronts, Changjiang and Mississippi, as recorders of human change; discusses carbon fluxes, not ballast or dams.",
+        "year": "2009",
+        "doi": "https://doi.org/10.1073/pnas.0812878106"
+      }
+    ],
+    "web": {
+      "verdict": "Mechanism plausible",
+      "text": "Ballast effects on sinking are well known but vary strongly by region, and sediment-load decline after damming is well documented. The two have not been joined in an experiment or trap comparison.",
+      "links": [
+        {
+          "label": "Where ballast matters (Le Moigne 2014)",
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4459180/"
+        },
+        {
+          "label": "Organoclay flocculation",
+          "url": "https://doi.org/10.1038/s41598-024-79912-z"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 75,
+      "testable": 72,
+      "accurate": 40
+    },
+    "why": "Strength: the roller-tank experiment is a clear lab test; risk: field attribution to dams is confounded by shelf trapping, resuspension and productivity changes, and lithogenic ballast can also stimulate flocculation, so the sign at depth is uncertain.",
+    "chance": 58
+  },
+  {
+    "id": "e_gxxeiu7xn",
+    "title": "Ocean acidification cuts sea-to-air methylamine emissions",
+    "status": "related only",
+    "untested": "Nobody has measured how seawater pH changes amine emission to air, or the dissolved-to-gas ratio across pH 7.7-8.1. Biological changes in amine supply could offset the chemistry.",
+    "papers": [
+      {
+        "title": "Review of ocean acidification effects on DMS, N2O, ammonia and halocarbons; amines not quantified.",
+        "year": "2020",
+        "doi": "https://doi.org/10.1098/rspa.2019.0769"
+      },
+      {
+        "title": "Flux-system study of ammonia and amines from model aqueous solutions with CIMS; shows Henry's-law uncertainty, no pH series or seawater.",
+        "year": "2026",
+        "doi": "https://doi.org/10.1021/acsearthspacechem.6c00080"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible by chemistry",
+      "text": "Amine protonation at seawater pH follows acid-base equilibrium, and the volatile fraction does fall as pH drops. Reviews cover OA effects on ammonia and DMS, but I found no pH-controlled seawater amine flux measurement. Henry's-law constants for amines are uncertain by orders of magnitude.",
+      "links": [
+        {
+          "label": "OA and marine trace gases review",
+          "url": "https://doi.org/10.1098/rspa.2019.0769"
+        },
+        {
+          "label": "Ammonia and amine water-to-air flux",
+          "url": "https://doi.org/10.1021/acsearthspacechem.6c00080"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 72,
+      "testable": 85,
+      "accurate": 58
+    },
+    "why": "Strength: simple acid-base prediction with a clean lab test; risk: total dissolved amine production by plankton, surface-film effects and warming may dominate real-ocean changes, and uncertain constants weaken the numbers.",
+    "chance": 65
+  },
+  {
+    "id": "e_3xqyy8y3m",
+    "title": "Fine volcanic ash suppresses soil methane uptake",
+    "status": "related only",
+    "untested": "No study has measured methane uptake under graded ash thickness and grain size on upland soil. Sulfate and fluoride toxicity versus diffusion blockage is unseparated.",
+    "papers": [
+      {
+        "title": "PhD thesis on volcanic sulfate and fluoride on soil gas fluxes: tephra-like sulfate and fluoride doses did not change peat CH4 flux; a wet ash layer slowed CO2 release; not upland methane uptake.",
+        "year": "2011",
+        "doi": "https://etheses.whiterose.ac.uk/2162"
+      },
+      {
+        "title": "Review of methane cycling in temperate forests; soils are sinks with varying controls, no volcanic ash effect.",
+        "year": "2024",
+        "doi": "https://doi.org/10.1186/s13021-024-00283-z"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible, untested",
+      "text": "Upland methane uptake is controlled by gas diffusion, and wet fine layers and compaction cut it. Ash effects have been studied for CO2 and peat chemistry but not for atmospheric methane uptake.",
+      "links": [
+        {
+          "label": "Myers thesis, volcanic S and F on soil gas",
+          "url": "https://etheses.whiterose.ac.uk/2162"
+        },
+        {
+          "label": "Methane cycling in temperate forests",
+          "url": "https://doi.org/10.1186/s13021-024-00283-z"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 75,
+      "testable": 78,
+      "accurate": 55
+    },
+    "why": "Strength: diffusion mechanism is well grounded and core-cap lab tests are easy; risk: net methane emission under ash is a strong claim, and the field test depends on a rare eruption.",
+    "chance": 65
+  },
+  {
+    "id": "e_a45v3py48",
+    "title": "Fresh labile carbon primes rock organic carbon oxidation",
+    "status": "related only",
+    "untested": "No incubation has partitioned CO2 from shale with and without labile carbon by 14C and 13C, nor tested priming of kerogen in sterile controls. Rock carbon oxidation studies have not added labile carbon.",
+    "papers": [
+      {
+        "title": "Model of shale regolith carbon: petrogenic and pyrite oxidation CO2 smaller than soil respiration fluxes; no priming experiment.",
+        "year": "2024",
+        "doi": "https://doi.org/10.1073/pnas.2400230121"
+      },
+      {
+        "title": "Rhenium tracing shows glaciated catchments oxidise rock-bound organic carbon 2-3 times faster; no labile carbon test.",
+        "year": "2017",
+        "doi": "https://doi.org/10.1126/sciadv.1701107"
+      },
+      {
+        "title": "Goldschmidt 2023 abstract on two-stage oxidation of petrogenic carbon (priming suggested; I could only read the title).",
+        "year": "2023",
+        "doi": "https://goldschmidtabstracts.info/2023/18928.pdf"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible by analogy",
+      "text": "Petrogenic carbon oxidation is microbially mediated and priming is common for young soil carbon. Work on kerogen mostly addresses temperature, erosion and water. I found no experiment adding labile carbon to shale.",
+      "links": [
+        {
+          "label": "Shale weathering carbon fluxes",
+          "url": "https://doi.org/10.1073/pnas.2400230121"
+        },
+        {
+          "label": "Glaciation and rock carbon oxidation",
+          "url": "https://doi.org/10.1126/sciadv.1701107"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 70,
+      "testable": 85,
+      "accurate": 52
+    },
+    "why": "Strength: three-source partitioning gives a decisive test; risk: aromatic kerogen is highly recalcitrant, so labile carbon may simply favour microbial growth on glucose with little extra rock-carbon CO2.",
+    "chance": 61
+  },
+  {
+    "id": "e_xka1wyy4i",
+    "title": "Sulfate from glacial pyrite oxidation suppresses lake methane emission",
+    "status": "related only",
+    "untested": "No survey of proglacial lakes has compared methane emission by bedrock sulfide content, or run molybdate slurry tests. Lithology is confounded with organic carbon, depth and glacier cover.",
+    "papers": [
+      {
+        "title": "Synthesis of proglacial lake methane fluxes in Alaska and Greenland; sulfate and lithology not examined.",
+        "year": "2024",
+        "doi": "https://par.nsf.gov/biblio/10564960-methane-emissions-from-proglacial-lakes-synthesis-study-directed-toward-lake-agassiz"
+      },
+      {
+        "title": "Tibetan proglacial lake sediments: methane oxidation and sulfide-oxidising methanotroph genomes; no emission or lithology comparison.",
+        "year": "2026",
+        "doi": "https://doi.org/10.1016/j.envres.2026.125274"
+      },
+      {
+        "title": "Peat mesocosm dosed with volcanic sulfate: no significant change in CH4 flux, against earlier reports of suppression.",
+        "year": "2011",
+        "doi": "https://etheses.whiterose.ac.uk/2162"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible, untested",
+      "text": "Sulfate reducers outcompeting methanogens is textbook, and glacial sulfide oxidation makes sulfate-rich water. Proglacial lake methane work exists, but none compares lithology or sulfate. A peat dosing test found no sulfate effect, so the suppression is not guaranteed.",
+      "links": [
+        {
+          "label": "Proglacial lake methane synthesis",
+          "url": "https://par.nsf.gov/biblio/10564960-methane-emissions-from-proglacial-lakes-synthesis-study-directed-toward-lake-agassiz"
+        },
+        {
+          "label": "Tibetan proglacial lake microbes",
+          "url": "https://doi.org/10.1016/j.envres.2026.125274"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 65,
+      "testable": 70,
+      "accurate": 60
+    },
+    "why": "Strength: sulfate competition is well founded and the molybdate test is decisive; risk: proglacial lakes emit little methane to begin with and matched lakes by lithology are hard to find, so the field comparison is noisy.",
+    "chance": 63
+  },
+  {
+    "id": "e_rmdcsay4u",
+    "title": "Forest canopy cuts thermal-stress cracking of surface rock",
+    "status": "related only",
+    "untested": "No paired shaded versus exposed boulder study has counted acoustic-emission cracking events or tested canopy removal. Temperature damping is documented, but cracking is not.",
+    "papers": [
+      {
+        "title": "Instrumented single granite boulder in full sun: nearly 12,000 acoustic emissions in four months, mostly as the rock cooled in the afternoon; no shaded control.",
+        "year": "2013",
+        "doi": "https://gi.copernicus.org/articles/2/275/2013/"
+      },
+      {
+        "title": "Ivy cover on limestone walls cut freezing events 26% and lab stone decay; frost not solar stress, and ivy not canopy.",
+        "year": "2018",
+        "doi": "https://doi.org/10.1038/s41598-018-28276-2"
+      }
+    ],
+    "web": {
+      "verdict": "Partly supported",
+      "text": "Acoustic emission tracks solar-driven rock cracking and vegetation is reported to damp rock temperature swings. Whether canopy cuts actual cracking is unproven, and moisture under cover could add other cracking.",
+      "links": [
+        {
+          "label": "Automated rock fracture monitoring",
+          "url": "https://gi.copernicus.org/articles/2/275/2013/"
+        },
+        {
+          "label": "Ivy thermal blanketing study",
+          "url": "https://doi.org/10.1038/s41598-018-28276-2"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 55,
+      "testable": 75,
+      "accurate": 55
+    },
+    "why": "Strength: clear paired design with a before-after canopy removal; risk: shaded boulders stay wetter, so moisture-driven subcritical cracking may offset the temperature damping, and the 70-95% reduction is likely overstated.",
+    "chance": 55
   }
 ]
