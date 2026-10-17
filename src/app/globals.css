@@ -298,7 +298,8 @@ body.hide-fb .fb-btn,body.hide-fb .fb-panel{display:none}
 .jy-loading{background:linear-gradient(180deg,#0a2f52,#072038)}
 .jy-panel{max-width:760px;width:100%;margin:-54px auto 0;padding:0 16px 40px;position:relative;z-index:2}
 .jy-head{display:flex;justify-content:space-between;gap:12px;align-items:baseline;color:#fff;padding:0 4px 10px;font-size:13px;text-shadow:0 1px 8px rgba(0,0,0,.5)}
-.jy-kicker{font-weight:800;letter-spacing:.06em;text-transform:uppercase;font-size:12px}
+.jy-kicker{font-weight:800;letter-spacing:.06em;text-transform:uppercase;font-size:12px;white-space:nowrap}
+.jy-intro{font-size:14px;color:var(--muted);margin:0 0 10px;padding:8px 12px;border-left:3px solid var(--accent);background:var(--sunk);border-radius:0 8px 8px 0}
 .jy-count{opacity:.9;text-align:right}
 .jy-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px 24px 24px;box-shadow:0 24px 60px -20px rgba(0,0,0,.45);animation:jy-in .35s ease-out}
 @keyframes jy-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}

@@ -53,12 +53,13 @@ export default function Journey({ data }: { data: JourneyData }) {
       <div className="jy-panel">
         <div className="jy-head">
           <span className="jy-kicker">{data.title}</span>
-          <span className="jy-count">{stepsTaken === 0 ? data.intro : `${stepsTaken} step${stepsTaken === 1 ? "" : "s"}${dice.length ? ` · odds so far ${oddsText}` : ""}`}</span>
+          <span className="jy-count">{stepsTaken === 0 ? "" : `${stepsTaken} step${stepsTaken === 1 ? "" : "s"}${dice.length ? ` · odds so far ${oddsText}` : ""}`}</span>
         </div>
         {!cur.end ? (
           <div className="jy-card" key={cur.id}>
             <div className="jy-stage-name">{cur.live?.processTitle || ""}</div>
             <h2>{cur.title}</h2>
+            {stepsTaken === 0 && <p className="jy-intro">{data.intro}</p>}
             <p className="jy-say">{cur.say}</p>
             {cur.live && <p className="jy-real">On the map: <Link href={`/map/${cur.live.process}#${cur.step}`}>{cur.live.label}</Link>{cur.live.evidence > 0 && <span className="muted"> · {cur.live.evidence} source{cur.live.evidence === 1 ? "" : "s"}</span>}</p>}
             {cur.question && <p className="jy-q">You just passed an open question nobody has tested: <Link href={`/hypotheses#${cur.question.id}`}>{cur.question.title}</Link></p>}

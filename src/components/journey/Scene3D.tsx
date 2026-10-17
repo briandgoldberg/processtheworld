@@ -38,10 +38,10 @@ export default function Scene3D({ trail, scenes, rolling }: { trail: Visit[]; sc
     const key = new THREE.DirectionalLight(0xffffff, 1.6); key.position.set(3, 6, 4); scene.add(key);
     const rim = new THREE.PointLight(0x9fd0ff, 30, 12); rim.position.set(-2, 1.5, 2); scene.add(rim);
     const glint = new THREE.PointLight(0xffffff, 40, 14); scene.add(glint);
-    const core = new THREE.Mesh(new THREE.SphereGeometry(0.3, 32, 32), new THREE.MeshBasicMaterial({ color: 0x9fd4ff, transparent: true, opacity: 0.35, blending: THREE.AdditiveBlending, depthWrite: false }));
+    const core = new THREE.Mesh(new THREE.SphereGeometry(0.3, 32, 32), new THREE.MeshBasicMaterial({ color: 0x9fd4ff, transparent: true, opacity: 0.22, blending: THREE.AdditiveBlending, depthWrite: false }));
     scene.add(core);
     // the drop
-    const drop = new THREE.Mesh(new THREE.SphereGeometry(0.42, 64, 64), new THREE.MeshPhysicalMaterial({ color: 0xffffff, transmission: 1, thickness: 0.5, roughness: 0.02, ior: 1.33, clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 2.2, specularIntensity: 1, attenuationColor: new THREE.Color(0xcfe8ff), attenuationDistance: 3 }));
+    const drop = new THREE.Mesh(new THREE.SphereGeometry(0.42, 64, 64), new THREE.MeshPhysicalMaterial({ color: 0xbfe3ff, roughness: 0.06, metalness: 0.05, clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 2.6, emissive: new THREE.Color(0x1d4f8f), emissiveIntensity: 0.45, specularIntensity: 1 }));
     scene.add(drop);
     const halo = new THREE.Mesh(new THREE.SphereGeometry(0.62, 32, 32), new THREE.MeshBasicMaterial({ color: 0x8ec8ff, transparent: true, opacity: 0.12, blending: THREE.AdditiveBlending, depthWrite: false }));
     scene.add(halo);
