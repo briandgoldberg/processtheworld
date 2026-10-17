@@ -27,8 +27,11 @@
     "scores": {
       "novel": 65,
       "accurate": 55,
-      "testable": 88
-    }
+      "testable": 88,
+      "impact": 28
+    },
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e2308",
@@ -54,8 +57,11 @@
     "scores": {
       "novel": 85,
       "accurate": 40,
-      "testable": 70
-    }
+      "testable": 70,
+      "impact": 28
+    },
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e2307",
@@ -83,8 +89,11 @@
     "scores": {
       "novel": 70,
       "accurate": 60,
-      "testable": 68
-    }
+      "testable": 68,
+      "impact": 38
+    },
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e2300",
@@ -116,8 +125,11 @@
     "scores": {
       "novel": 72,
       "accurate": 62,
-      "testable": 68
-    }
+      "testable": 68,
+      "impact": 45
+    },
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e2311",
@@ -145,8 +157,11 @@
     "scores": {
       "novel": 78,
       "accurate": 78,
-      "testable": 75
-    }
+      "testable": 75,
+      "impact": 15
+    },
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e2790",
@@ -183,8 +198,11 @@
     "scores": {
       "novel": 75,
       "accurate": 35,
-      "testable": 50
-    }
+      "testable": 50,
+      "impact": 30
+    },
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e2591",
@@ -216,8 +234,11 @@
     "scores": {
       "novel": 80,
       "accurate": 50,
-      "testable": 60
-    }
+      "testable": 60,
+      "impact": 30
+    },
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e2594",
@@ -249,8 +270,11 @@
     "scores": {
       "novel": 40,
       "accurate": 82,
-      "testable": 80
-    }
+      "testable": 80,
+      "impact": 22
+    },
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e2310",
@@ -283,8 +307,11 @@
     "scores": {
       "novel": 65,
       "accurate": 60,
-      "testable": 72
-    }
+      "testable": 72,
+      "impact": 40
+    },
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e2312",
@@ -321,8 +348,11 @@
     "scores": {
       "novel": 55,
       "accurate": 58,
-      "testable": 82
-    }
+      "testable": 82,
+      "impact": 38
+    },
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e2590",
@@ -354,8 +384,11 @@
     "scores": {
       "novel": 35,
       "accurate": 82,
-      "testable": 85
-    }
+      "testable": 85,
+      "impact": 48
+    },
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e2318",
@@ -383,8 +416,11 @@
     "scores": {
       "novel": 55,
       "accurate": 68,
-      "testable": 65
-    }
+      "testable": 65,
+      "impact": 15
+    },
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e2302",
@@ -417,8 +453,11 @@
     "scores": {
       "novel": 70,
       "accurate": 50,
-      "testable": 50
-    }
+      "testable": 50,
+      "impact": 48
+    },
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e2314",
@@ -455,8 +494,11 @@
     "scores": {
       "novel": 50,
       "accurate": 65,
-      "testable": 45
-    }
+      "testable": 45,
+      "impact": 40
+    },
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e2315",
@@ -493,8 +535,11 @@
     "scores": {
       "novel": 35,
       "accurate": 78,
-      "testable": 75
-    }
+      "testable": 75,
+      "impact": 35
+    },
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_n1iwvpn6v",
@@ -534,10 +579,13 @@
     "scores": {
       "novel": 45,
       "accurate": 70,
-      "testable": 78
+      "testable": 78,
+      "impact": 35
     },
     "why": "Strength: reservoirs retained 49-58% of dissolved silica and one beaver pond cut silicate export 32%, so a net annual drop is the supported direction. Risk: the web text names a German pond that released silica in summer and a 2026 snippet reporting no pond-upstream difference, and macrophyte uptake release, high pH or dissolving frustules in short-residence ponds could cancel the annual sign.",
-    "title": "Beaver ponds trap dissolved silica via diatoms"
+    "title": "Beaver ponds trap dissolved silica via diatoms",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_a39shin7m",
@@ -577,10 +625,13 @@
     "scores": {
       "novel": 80,
       "accurate": 58,
-      "testable": 85
+      "testable": 85,
+      "impact": 22
     },
     "why": "Strength: one season, collars at 10, 50 and 150 cm, and a stemflow-diversion treatment give a clear falsification, and throughfall exclusion raised methane uptake in Borken 2006, supporting a diffusion limit when wetter. Risk: uptake responds to moisture in a hump shape, so in dry or sandy soil extra wetting could raise uptake, and stem CH4 emission or litter and root differences near the trunk could offset or reverse the soil signal.",
-    "title": "Stemflow wetting lowers methane uptake beside tree trunks"
+    "title": "Stemflow wetting lowers methane uptake beside tree trunks",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_taimuxn8j",
@@ -606,10 +657,13 @@
     "scores": {
       "novel": 60,
       "accurate": 65,
-      "testable": 75
+      "testable": 75,
+      "impact": 35
     },
     "why": "Strength: crowns have large leaf area that raises dry dust capture, and the test sets a numeric falsifier (under 10% of open-area dust P in throughfall plus litter) with a Ti or Zr tracer over 2 years. Risk: foliar uptake of captured P is documented and could leave soil under crowns no richer than gaps, and erosion in gaps plus the difficulty of separating dust P from weathered bedrock P in volcanic Luquillo soils could reverse or mask the sign.",
-    "title": "Forest crowns trap more dust phosphorus in soil"
+    "title": "Forest crowns trap more dust phosphorus in soil",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_iv61kmi3k",
@@ -635,10 +689,13 @@
     "scores": {
       "novel": 52,
       "accurate": 52,
-      "testable": 80
+      "testable": 80,
+      "impact": 42
     },
     "why": "Strength: sulfate inhibiting molybdate uptake and N fixation is shown in plankton and seawater (Howarth and Cole 1985), and a sulfate-by-Mo factorial in cores is simple. Risk: two links are unmeasured in wet soils (sulfide lowering bioavailable Mo, then Mo actually limiting fixation, about 0.75 x 0.55), and iron, phosphorus or carbon limitation, or sulfide-bound Mo staying available, could erase the sulfate by Mo interaction and flip the sign.",
-    "title": "Sulfate reduction starves wetland nitrogen fixers of molybdenum"
+    "title": "Sulfate reduction starves wetland nitrogen fixers of molybdenum",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_qiny0ekm2",
@@ -664,10 +721,13 @@
     "scores": {
       "novel": 25,
       "accurate": 80,
-      "testable": 70
+      "testable": 70,
+      "impact": 58
     },
     "why": "Strength: Huybers and Langmuir 2009 and Icelandic records already show higher eruption rates after deglaciation, and the direction follows from unloading mechanics. Risk: the 2-6x size and 1-3 kyr lag are unmeasured and modern melt is fast and small, so the modern rise could be delayed or absent; direction is scored, not size.",
-    "title": "Ice loss raises volcanic eruption rate and volcanic CO2"
+    "title": "Ice loss raises volcanic eruption rate and volcanic CO2",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_zo6alnkmv",
@@ -693,10 +753,13 @@
     "scores": {
       "novel": 40,
       "accurate": 45,
-      "testable": 55
+      "testable": 55,
+      "impact": 62
     },
     "why": "Strength: GEOTRACES Fe and 3He sections and satellite chlorophyll are existing data, and vent Fe reaching the Southern Ocean is documented (Tagliabue 2010). Risk: plume Fe is injected at 2000+ m and may be scavenged or stay below the euphotic zone, and dust, upwelling and shelf Fe sources confound a matched comparison, and if deep Fe never reaches the surface the chlorophyll contrast could be zero or reversed.",
-    "title": "Ridge-vent iron boosts Southern Ocean productivity downstream"
+    "title": "Ridge-vent iron boosts Southern Ocean productivity downstream",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_fvefo6knf",
@@ -731,10 +794,13 @@
     "scores": {
       "novel": 50,
       "accurate": 70,
-      "testable": 68
+      "testable": 68,
+      "impact": 50
     },
     "why": "Strength: Groundwater is a known coastal nutrient source, radium is the standard tracer, and satellite chlorophyll plus bioassays make a cross-coast comparison feasible. Risk: local blooms have been tied to discharge but no multi-coast scaling with radium rate was found, and groundwater low in N relative to P, or upwelling and river plumes imperfectly controlled, could blur or reverse the contrast.",
-    "title": "Groundwater-fed coasts support more phytoplankton, especially diatoms"
+    "title": "Groundwater-fed coasts support more phytoplankton, especially diatoms",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_28fe9ozmm",
@@ -769,10 +835,13 @@
     "scores": {
       "novel": 78,
       "accurate": 52,
-      "testable": 82
+      "testable": 82,
+      "impact": 40
     },
     "why": "Strength: freeze-concentration speeds nitrite reactions by up to 100,000-fold in freezing solutions at pH 4.5 (Takenaka 1992, 1996), and the sterile versus live 15N-nitrite design at five temperatures can falsify it cleanly. Risk: nobody has shown this in soil, Wertz 2018 saw nitrite accumulate at -2 C, and soil buffering at pH 7 could keep nitrite loss lower than at +1 C because Arrhenius slowing outweighs concentration, and the test is falsified if either pH fails.",
-    "title": "Freezing speeds the chemical loss of nitrite and nitrous oxide in soil"
+    "title": "Freezing speeds the chemical loss of nitrite and nitrous oxide in soil",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_hy8zj5pcx",
@@ -812,10 +881,13 @@
     "scores": {
       "novel": 72,
       "accurate": 75,
-      "testable": 70
+      "testable": 70,
+      "impact": 35
     },
     "why": "Strength: canopy capture rising with droplet size (Beswick 1991, Gallagher 1992) and aerosol shrinking droplets are both well measured, and the test controls liquid water content and wind. Risk: matching liquid water content between clean and polluted fog is hard in the field, and since aerosol raises liquid water and prolongs fog the net water delivered per season could rise even if per-liquid-water capture falls.",
-    "title": "Polluted fog delivers less water to forests"
+    "title": "Polluted fog delivers less water to forests",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_hrk8qecia",
@@ -855,10 +927,13 @@
     "scores": {
       "novel": 55,
       "accurate": 52,
-      "testable": 85
+      "testable": 85,
+      "impact": 52
     },
     "why": "Strength: nitrous oxide reductase has a copper-sulfur active site, sulfide is known to inhibit N2O reduction, and the 0-5 mM sulfate gradient with a copper add-back and chelator control is a standard design with a clear falsification rule. Risk: the sulfide-raises-N2O step is likely but the copper rescue of more than half the increase is a separate uncertain link, and if sulfide poisons the enzyme directly or iron in porewater removes sulfide first, copper addition would not restore N2O reduction.",
-    "title": "Sulfate and copper shortage raise nitrous oxide release in wetlands"
+    "title": "Sulfate and copper shortage raise nitrous oxide release in wetlands",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_vxcin17mi",
@@ -903,10 +978,13 @@
     "scores": {
       "novel": 65,
       "accurate": 78,
-      "testable": 65
+      "testable": 65,
+      "impact": 45
     },
     "why": "Strength: marine heatwaves make downwind coastal rain 20-30% heavier (Wang 2026) and storms carry most river organic carbon (Clark 2022, Lee 2017), both measured, so more export per event follows from discharge scaling. Risk: few catchments have gauged DOC/POC near matched events, and dilution or supply exhaustion at high flow could make export per mm flat; the test matches on rain total which conflicts with the rain-driven mechanism.",
-    "title": "Marine heatwaves raise river carbon export during storms"
+    "title": "Marine heatwaves raise river carbon export during storms",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_bxly3rmsv",
@@ -956,10 +1034,13 @@
     "scores": {
       "novel": 82,
       "accurate": 72,
-      "testable": 72
+      "testable": 66,
+      "impact": 40
     },
-    "why": "Strength: less seed means less N exported at harvest (near mass balance), so surplus rises by about 15-20 kg N/ha for an 18% seed loss in oilseed rape. Risk: only 13-25% of extra surplus leaches (2-5 kg N/ha), which is near lysimeter measurement error over 2 years, and crops may take up more N into straw or roots, or immobilise it in soil, so measured nitrate leaching could show no rise.",
-    "title": "Poor pollination leaves more nitrogen in the field and raises leaching"
+    "why": "Strength: less seed means less N exported at harvest (mass balance), so surplus rises by about 15-20 kg N/ha for an 18% seed loss, and the Bingham result that late N uptake is root-supply limited argues the crop will not soak up the extra. Risk: only 13-25% of extra surplus leaches (2-5 kg N/ha), the stated falsifier (about 5 kg N/ha) sits at or above the predicted leaching signal, and bagged plots change microclimate, and extra N taken into straw or immobilised in soil could leave leaching unchanged.",
+    "title": "Poor pollination leaves more nitrogen in the field and raises leaching",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_r1myw2067",
@@ -999,10 +1080,13 @@
     "scores": {
       "novel": 70,
       "accurate": 60,
-      "testable": 78
+      "testable": 78,
+      "impact": 55
     },
     "why": "Strength: Copper is required by nitrous oxide reductase and 26 uM Cu cut N2O to 4-14% of added nitrate versus 55-94% without it in wetland sediment, and the Cu-amendment arm gives a direct causal check. Risk: natural basalt Cu (about 50 mg/kg total) may not be bioavailable and lithology also shifts pH, carbon and Fe, so a null or pH-driven difference could erase or reverse the contrast.",
-    "title": "Copper-rich bedrock lowers nitrous oxide release from soil"
+    "title": "Copper-rich bedrock lowers nitrous oxide release from soil",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_sd07y52ib",
@@ -1042,10 +1126,13 @@
     "scores": {
       "novel": 72,
       "accurate": 45,
-      "testable": 85
+      "testable": 85,
+      "impact": 52
     },
     "why": "Strength: sulfide precipitating Ni and Co is well-established chemistry, no paper combines sulfate, Ni/Co and methane in peat (0 joint hits), and the 2x2 design tests the interaction directly. Risk: the chain has two uncertain links (dissolved metal falls enough, and methanogens are metal-limited), and the one soil test found Ni and Co changed methane by only 3-6%, while added metal could also feed sulfate reducers and deepen suppression, flipping the sign.",
-    "title": "Sulfide starves methane-makers of nickel and cobalt in peat"
+    "title": "Sulfide starves methane-makers of nickel and cobalt in peat",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e2301",
@@ -1080,10 +1167,13 @@
     "scores": {
       "novel": 30,
       "accurate": 45,
-      "testable": 80
+      "testable": 80,
+      "impact": 58
     },
     "why": "Strength: the Aspen FACE experiment directly measured about a 50 percent cut in new soil carbon formation under ozone plus CO2 and the title already limits the claim to a brief effect, so that link is measured and not discounted. Risk: ozone alone and the NOx-downwind scaling are unmeasured (two uncertain links, about 0.75 x 0.55), and fine-root regrowth or ozone-tolerant genotype shifts could erase the effect, as the 11-year follow-up with no main effect on total soil C suggests, which would flip the result to no difference.",
-    "title": "Ozone halves new soil carbon, but only briefly"
+    "title": "Ozone halves new soil carbon, but only briefly",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e2306",
@@ -1118,10 +1208,14 @@
     "scores": {
       "novel": 50,
       "accurate": 40,
-      "testable": 75
+      "testable": 75,
+      "impact": 50
     },
     "why": "Strength: synthesis data already show ENSO-linked soil respiration with a sign that varies by climate zone and precipitation anomaly, and chamber networks along a rainfall gradient exist. Risk: the wet-forest rise from reduced waterlogging is inferred, not measured, and El Nino heat and drought usually suppress tropical forest carbon uptake and soil respiration, so warming-plus-drought suppression in wet forests could flip the predicted sign.",
-    "title": "El Nino flips soil respiration sign by site wetness"
+    "title": "El Nino flips soil respiration sign by site wetness",
+    "cluster": "el-nino-soil-respiration",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e2309",
@@ -1165,10 +1259,14 @@
     "scores": {
       "novel": 25,
       "accurate": 85,
-      "testable": 85
+      "testable": 85,
+      "impact": 62
     },
     "why": "Strength: scytonemin-rich crust is already measured to lower albedo and raise surface soil temperature by up to 10 C (Couradeau 2016), so the sign is directly measured at plot scale. Risk: only upscaling to the energy balance and evaporation is open, and crust moisture retention or shading could offset warming, but that affects magnitude more than the albedo and temperature direction.",
-    "title": "Dark biocrust warms dryland surface by several degrees"
+    "title": "Dark biocrust warms dryland surface by several degrees",
+    "cluster": "biocrust-dark-surface-heating",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e2313",
@@ -1203,10 +1301,13 @@
     "scores": {
       "novel": 75,
       "accurate": 50,
-      "testable": 82
+      "testable": 82,
+      "impact": 30
     },
     "why": "Strength: Bdellovibrio has broad Gram-negative prey ranges and AOB (Nitrosomonas, Nitrosospira) are Gram-negative, and a culture plus soil experiment with amoA and nitrite readouts is simple. Risk: AOB grow in dense flocs and biofilms that protect them from predators, and slow-growing prey may be too few to sustain predators, so soil nitrification could be unchanged, and the high-ammonium dependence adds a second uncertain link.",
-    "title": "Predatory bacteria may cut ammonia-oxidiser nitrification"
+    "title": "Predatory bacteria may cut ammonia-oxidiser nitrification",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e2316",
@@ -1241,10 +1342,13 @@
     "scores": {
       "novel": 35,
       "accurate": 30,
-      "testable": 78
+      "testable": 78,
+      "impact": 58
     },
     "why": "Strength: The microcosm design with 18O-water CUE and necromass markers is standard and can be run in weeks. Risk: a 2026 manipulation raised CUE and necromass by 14% with virus addition in fertilized soil, the opposite of the prediction, and lysis recycles carbon to survivors, so the viral shunt can raise CUE in rich soils.",
-    "title": "Soil viral lysis lowers microbial carbon use efficiency"
+    "title": "Soil viral lysis lowers microbial carbon use efficiency",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e2317",
@@ -1279,10 +1383,13 @@
     "scores": {
       "novel": 25,
       "accurate": 82,
-      "testable": 88
+      "testable": 88,
+      "impact": 52
     },
     "why": "Strength: soil darkening with organic matter is long known, a European model and Zimbabwe field data both show albedo forcing offsetting 20% to near-all of SOC forcing, and a fixed-moisture spectral gradient is a standard lab measurement. Risk: published work already quantifies much of this so little is new, and real-world cover, snow and moisture can hide bare-soil albedo, though a competing mechanism large enough to reverse the sign is not apparent.",
-    "title": "Carbon-rich dark soil offsets part of climate benefit"
+    "title": "Carbon-rich dark soil offsets part of climate benefit",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e2319",
@@ -1317,10 +1424,14 @@
     "scores": {
       "novel": 40,
       "accurate": 65,
-      "testable": 65
+      "testable": 65,
+      "impact": 50
     },
     "why": "Strength: a 2025 East Asia synthesis already shows positive responses in tropical and negative in warm temperate zones, matching the predicted sign split by moisture regime. Risk: SRDB records are sparse and mostly annual so ENSO lags are hard to resolve, and the claim that soil respiration adds to CO2 growth variability can flip sign because photosynthesis and fire dominate the tropical signal and may offset respiration changes.",
-    "title": "El Nino shifts soil respiration by region"
+    "title": "El Nino shifts soil respiration by region",
+    "cluster": "el-nino-soil-respiration",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e2321",
@@ -1355,10 +1466,13 @@
     "scores": {
       "novel": 65,
       "accurate": 35,
-      "testable": 70
+      "testable": 70,
+      "impact": 30
     },
     "why": "Strength: nitrification has a well-known mid-range moisture optimum, with gross rates rising with water content and ceasing below about 60% WHC, so a planted-versus-shaded pot design with 15N pool dilution is workable. Risk: separating transpiration drying from plant ammonium uptake needs tight control, and plant ammonium competition and root nitrification inhibitors could lower nitrification in planted pots regardless of moisture, reversing or masking the predicted direction.",
-    "title": "Plant transpiration drying shapes soil nitrification rates"
+    "title": "Plant transpiration drying shapes soil nitrification rates",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e2592",
@@ -1398,10 +1512,13 @@
     "scores": {
       "novel": 50,
       "accurate": 70,
-      "testable": 75
+      "testable": 75,
+      "impact": 70
     },
     "why": "Strength: a 25-day Yedoma incubation showed springtails raising CO2 about 26% with about 13% attributed to priming, and warming plots raised Collembola abundance about eightfold; faunal acceleration of decomposition is an established mechanism. Risk: springtails are surface dwellers that may not reach deep thawed carbon and grazing can cut fungal biomass, so net acceleration beyond temperature could be small or negative, and the lab study used one species and bacteria only.",
-    "title": "Springtails and mites speed thawed permafrost carbon loss"
+    "title": "Springtails and mites speed thawed permafrost carbon loss",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e2593",
@@ -1436,10 +1553,13 @@
     "scores": {
       "novel": 30,
       "accurate": 55,
-      "testable": 80
+      "testable": 80,
+      "impact": 40
     },
     "why": "Strength: an advanced-snowmelt preprint in a subalpine meadow shows early greening, reduced hyphal production and smaller N and P pools, matching the predicted sign. Risk: the Hubbard Brook snow-depth gradient found no effect on grouped AM and EM abundance in an analogous forest, one site is not peer reviewed and nutrient transfer was not traced, and soil freeze damage or earlier fungal activity under warmer soil could offset or reverse nutrient delivery.",
-    "title": "Thin snow causes fungus-plant mismatch and lower nutrient delivery"
+    "title": "Thin snow causes fungus-plant mismatch and lower nutrient delivery",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e2595",
@@ -1474,10 +1594,13 @@
     "scores": {
       "novel": 38,
       "accurate": 40,
-      "testable": 72
+      "testable": 72,
+      "impact": 35
     },
     "why": "Strength: Hurricane Otto soil showed microbial biomass up and richness down seven months on. Risk: the Luquillo canopy-trimming experiment, the closest controlled test of the same quantity in a hurricane-affected forest, found no treatment separation and even a positive richness response to some treatments, and persistence for years is an unmeasured link, so community recovery within a year or two would flip the long-term sign.",
-    "title": "Hurricane litter boosts microbes, cuts diversity for years"
+    "title": "Hurricane litter boosts microbes, cuts diversity for years",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_z1py7ch3o",
@@ -1517,10 +1640,13 @@
     "scores": {
       "novel": 55,
       "accurate": 70,
-      "testable": 70
+      "testable": 70,
+      "impact": 30
     },
     "why": "Strength: a sagebrush field experiment showed deep water raised surface 15N cycling and respiration, and grass pots with lift blocked showed lower decomposition, so the mechanism has direct analogues. Risk: trenching and root exclusion confound lift with root death and loss of root exudates, and in trees lift volumes may be too small to matter or moisture may favour microbial N immobilisation over mineralisation, which could cancel or flip the net mineralisation signal.",
-    "title": "Night root water lift speeds soil nitrogen release"
+    "title": "Night root water lift speeds soil nitrogen release",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_38bn3eh4a",
@@ -1555,10 +1681,13 @@
     "scores": {
       "novel": 25,
       "accurate": 40,
-      "testable": 45
+      "testable": 45,
+      "impact": 68
     },
     "why": "Strength: stomatal closure under high CO2 is measured at FACE sites and models give about 6% more runoff at doubled CO2. Risk: a 1116-catchment attribution found a near-zero median direct CO2 effect, and greening-driven leaf area growth offsets lower conductance, and because CO2, temperature and leaf area all trend together the regression cannot cleanly isolate CO2 so the sign is a net of opposed mechanisms.",
-    "title": "Rising CO2 raises river runoff ratio"
+    "title": "Rising CO2 raises river runoff ratio",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_imkarwktu",
@@ -1598,10 +1727,13 @@
     "scores": {
       "novel": 8,
       "accurate": 85,
-      "testable": 92
+      "testable": 92,
+      "impact": 40
     },
     "why": "Strength: a 34-study meta-analysis found N addition raised phosphatase activity from tropics to extra-tropics, and a 7-year simulated deposition experiment raised root phosphatase. Risk: the link is already established so there is almost nothing new, and long-term N addition can fade or erase the stimulation, so only the size and persistence, not the direction, are in doubt.",
-    "title": "Nitrogen deposition raises soil phosphatase activity"
+    "title": "Nitrogen deposition raises soil phosphatase activity",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_lf2cwhn1t",
@@ -1641,10 +1773,13 @@
     "scores": {
       "novel": 12,
       "accurate": 85,
-      "testable": 90
+      "testable": 90,
+      "impact": 50
     },
     "why": "Strength: Emile-Geay and Madec 2009 ran exactly these with and without spatially varying geothermal flux and found about 15% stronger AABW cell and 10% more Southern Ocean heat transport, matching the stated 10-15%. Risk: the result depends on the mixing parameterization and a single model, but the sign of added bottom heat weakening stratification is robust; little remains beyond observational validation.",
-    "title": "Geothermal heat flux strengthens deep ocean overturning in models"
+    "title": "Geothermal heat flux strengthens deep ocean overturning in models",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_dklwidn26",
@@ -1679,10 +1814,13 @@
     "scores": {
       "novel": 35,
       "accurate": 60,
-      "testable": 68
+      "testable": 68,
+      "impact": 50
     },
     "why": "Strength: dust darkening of glaciers is documented (Morteratsch albedo fell 0.32 to 0.15, with moraine dust named as a source). Risk: dust supply depends on wind, source exposure and snow cover more than weathering rate, and thick supraglacial debris insulates ice and slows melt, which could reverse the sign for the most debris-rich glaciers.",
-    "title": "Rockier glacier catchments give darker ice and faster melt"
+    "title": "Rockier glacier catchments give darker ice and faster melt",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_xmtpx0n2g",
@@ -1722,10 +1860,13 @@
     "scores": {
       "novel": 72,
       "accurate": 52,
-      "testable": 80
+      "testable": 80,
+      "impact": 48
     },
     "why": "Strength: K-feldspar dominates mineral-dust ice nucleation and feldspar loses about 2 C of activity when aged in water. Risk: that weathering along a CIA gradient actually removes K-feldspar from dust is an unmeasured link (about 0.9 x 0.55), and biological and organic nucleators active at warmer temperatures, or K-feldspar surviving as a resistant residue while plagioclase weathers first, could flatten or reverse the trend.",
-    "title": "Weathered source dust freezes at colder temperatures"
+    "title": "Weathered source dust freezes at colder temperatures",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_16eivzn2q",
@@ -1760,10 +1901,13 @@
     "scores": {
       "novel": 8,
       "accurate": 88,
-      "testable": 78
+      "testable": 78,
+      "impact": 66
     },
     "why": "Strength: Hemingway 2018 found 67% of bedrock rock organic carbon oxidised in Taiwan soils with CO2 rising with erosion rate (6.1-18.6 t C/km2/yr), and Zondervan 2023 extrapolated globally, so the direction is measured. Risk: the claim is largely published, the heat-release part is trivial and unmeasurable, and abiotic oxidation could account for part of the CO2 so inhibitor incubations may show less microbial share, though erosion-dependence would still hold.",
-    "title": "Eroding black shale releases rock carbon as CO2"
+    "title": "Eroding black shale releases rock carbon as CO2",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_eypdqatgf",
@@ -1803,10 +1947,13 @@
     "scores": {
       "novel": 55,
       "accurate": 75,
-      "testable": 72
+      "testable": 72,
+      "impact": 55
     },
     "why": "Strength: trees routinely draw on rock moisture (McCormick 2021) and weathered zones tens of metres thick store water that plants draw down (Rempe and Dietrich 2018). Risk: matching hillslopes for rainfall, species and rooting depth is difficult and the 10-30% of rainfall figure is a guess, and thick weathered rock can instead feed deep drainage or lower runoff, which would leave the transpired share unchanged.",
-    "title": "Fractured weathered bedrock raises dry-season tree transpiration"
+    "title": "Fractured weathered bedrock raises dry-season tree transpiration",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_n96crf8ya",
@@ -1851,10 +1998,13 @@
     "scores": {
       "novel": 62,
       "accurate": 70,
-      "testable": 80
+      "testable": 80,
+      "impact": 55
     },
     "why": "Strength: surfactants cut gas transfer 14-62% in marine tank and field work, and blooms raise surfactants, with a clear k600 slope falsification at about 10%. Risk: lake bloom surfactant has never been measured against gas transfer, and bloom wind-sheltering, changed turbulence and bloom pH drawdown could mask the film effect or even raise apparent k600, and one cruise analysis found no chlorophyll-surfactant link.",
-    "title": "Algal bloom films slow gas exchange in lakes"
+    "title": "Algal bloom films slow gas exchange in lakes",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_vbsql5j5r",
@@ -1899,10 +2049,13 @@
     "scores": {
       "novel": 65,
       "accurate": 45,
-      "testable": 60
+      "testable": 60,
+      "impact": 40
     },
     "why": "Strength: biotite oxidation is shown to fracture rock (Holbrook 2019, fracture density 4% to 16%) and trees do draw rock moisture to about 7-16 m, so each link is real. Risk: the chain needs oxidation to set porosity and roots to follow it, while iron loss may be a result of flow along tectonic fractures and clay-rich rock stores water too, and the test must separate oxidation from fracture density with only a few 15-30 m wells, so the sign could flip if drawdown tracks fracture density alone.",
-    "title": "How deep iron minerals have oxidized sets how deep trees draw rock water"
+    "title": "How deep iron minerals have oxidized sets how deep trees draw rock water",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_lx2cxtcrp",
@@ -1952,9 +2105,12 @@
     "scores": {
       "novel": 62,
       "accurate": 35,
-      "testable": 55
+      "testable": 55,
+      "impact": 55
     },
-    "why": "Strength: bioaerosols were the main INP source at -12 to -20 C in coastal California and rain raises spore INP loads. Risk: the chain has several uncertain links (10x INP rise, 2-5 C warmer glaciation, larger ice-rain share) and cloud-top phase depends on updraft strength and cloud-top height, and in clouds where INPs are already abundant or secondary ice production dominates, extra spore INPs may not shift glaciation temperature."
+    "why": "Strength: bioaerosols were the main INP source at -12 to -20 C in coastal California and rain raises spore INP loads. Risk: the chain has several uncertain links (10x INP rise, 2-5 C warmer glaciation, larger ice-rain share) and cloud-top phase depends on updraft strength and cloud-top height, and in clouds where INPs are already abundant or secondary ice production dominates, extra spore INPs may not shift glaciation temperature.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_c9bx1qcs9",
@@ -2004,9 +2160,12 @@
     "scores": {
       "novel": 50,
       "accurate": 40,
-      "testable": 65
+      "testable": 65,
+      "impact": 42
     },
-    "why": "Strength: Hubbard Brook clear-cut raised silica export for nearly four decades, and GlASS gives 421 rivers for the catchment half. Risk: the Yangtze lost silica export as dams and cropland spread, and N and P enrichment lowers Si:N at river mouths, so reservoirs and fertiliser can reverse the sign of the cropland and coastal diatom branches."
+    "why": "Strength: Hubbard Brook clear-cut raised silica export for nearly four decades, and GlASS gives 421 rivers for the catchment half. Risk: the Yangtze lost silica export as dams and cropland spread, and N and P enrichment lowers Si:N at river mouths, so reservoirs and fertiliser can reverse the sign of the cropland and coastal diatom branches.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_hewtx1h9x",
@@ -2056,9 +2215,13 @@
     "scores": {
       "novel": 72,
       "accurate": 28,
-      "testable": 70
+      "testable": 70,
+      "impact": 45
     },
-    "why": "Strength: a mesocosm with infected versus uninfected cultures and heat-treated controls is feasible, and lysis releases polysaccharides that act as marine ice nucleators. Risk: the one bloom mesocosm that tracked ice nuclei (2015) saw them rise in the growth phase and not in the second bloom, Southern Ocean INP levels are low so a 3x rise is a big claim, and lysis may release DOM that does not nucleate ice, flipping the sign; the satellite cloud-phase tail is also hard to isolate."
+    "why": "Strength: a mesocosm with infected versus uninfected cultures and heat-treated controls is feasible, and lysis releases polysaccharides that act as marine ice nucleators. Risk: the one bloom mesocosm that tracked ice nuclei (2015) saw them rise in the growth phase and not in the second bloom, Southern Ocean INP levels are low so a 3x rise is a big claim, and lysis may release DOM that does not nucleate ice, flipping the sign; the satellite cloud-phase tail is also hard to isolate.",
+    "cluster": "virus-bloom-sea-spray-clouds",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_mz81adha8",
@@ -2094,9 +2257,12 @@
     "scores": {
       "novel": 62,
       "accurate": 70,
-      "testable": 55
+      "testable": 55,
+      "impact": 48
     },
-    "why": "Strength: films retard evaporation in tanks and reservoirs, Trichodesmium blooms gave a skin 0.95 C warmer with inferred inhibited evaporation, and surfactants above 200 ug Teq per litre already cut CO2 transfer 23%. Risk: direct eddy-covariance flux inside patchy slicks from a ship is difficult, and wind mixing above about 5 m/s destroys films so the deficit may fall below 5% at the upper end of the 2-8 m/s range, shrinking the effect toward zero."
+    "why": "Strength: films retard evaporation in tanks and reservoirs, Trichodesmium blooms gave a skin 0.95 C warmer with inferred inhibited evaporation, and surfactants above 200 ug Teq per litre already cut CO2 transfer 23%. Risk: direct eddy-covariance flux inside patchy slicks from a ship is difficult, and wind mixing above about 5 m/s destroys films so the deficit may fall below 5% at the upper end of the 2-8 m/s range, shrinking the effect toward zero.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_yusjlqhah",
@@ -2137,9 +2303,12 @@
     "scores": {
       "novel": 45,
       "accurate": 68,
-      "testable": 75
+      "testable": 75,
+      "impact": 38
     },
-    "why": "Strength: a 2025 central-southern Chile study shows northerly-wind ARs raising nitrate, silicic acid and chlorophyll more than zonal ones, so the direction and the orientation contrast have a direct measurement in one region, and 20+ years of reanalysis and ocean colour are free. Risk: the 20% variance share is a magnitude question and the sign in California and Iberia is unmeasured, and storm turbidity, light limitation and northerly wind suppressing upwelling could lower chlorophyll after landfall there, flipping the sign."
+    "why": "Strength: a 2025 central-southern Chile study shows northerly-wind ARs raising nitrate, silicic acid and chlorophyll more than zonal ones, so the direction and the orientation contrast have a direct measurement in one region, and 20+ years of reanalysis and ocean colour are free. Risk: the 20% variance share is a magnitude question and the sign in California and Iberia is unmeasured, and storm turbidity, light limitation and northerly wind suppressing upwelling could lower chlorophyll after landfall there, flipping the sign.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_m5ou5vl4l",
@@ -2184,9 +2353,12 @@
     "scores": {
       "novel": 30,
       "accurate": 55,
-      "testable": 70
+      "testable": 70,
+      "impact": 60
     },
-    "why": "Strength: Hollesen 2015 and the Greenland midden data show microbial heat production correlates with carbon content, and live-versus-sterile insulated cores should warm by simple energy balance. Risk: the field half is likely to fail because insulating peat usually gives shallower thaw than mineral soil at the same air temperature, and respiration heat is small relative to atmospheric forcing and lost by conduction, so the 5-20% deeper thaw in organic plots could be reversed."
+    "why": "Strength: Hollesen 2015 and the Greenland midden data show microbial heat production correlates with carbon content, and live-versus-sterile insulated cores should warm by simple energy balance. Risk: the field half is likely to fail because insulating peat usually gives shallower thaw than mineral soil at the same air temperature, and respiration heat is small relative to atmospheric forcing and lost by conduction, so the 5-20% deeper thaw in organic plots could be reversed.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_rv7syql4w",
@@ -2236,9 +2408,13 @@
     "scores": {
       "novel": 55,
       "accurate": 55,
-      "testable": 50
+      "testable": 50,
+      "impact": 52
     },
-    "why": "Strength: virus-infected cultures give aerosolised organics with lower hygroscopicity in 3 of 5 pairs, and sea-spray organic fraction rises with bloom senescence. Risk: field data cannot easily separate viral from grazer- or nutrient-termination at matched chlorophyll and wind, and lower hygroscopicity of organics can push droplet number up or down, and other senescence-linked organics could produce the same organic rise without a viral effect."
+    "why": "Strength: virus-infected cultures give aerosolised organics with lower hygroscopicity in 3 of 5 pairs, and sea-spray organic fraction rises with bloom senescence. Risk: field data cannot easily separate viral from grazer- or nutrient-termination at matched chlorophyll and wind, and lower hygroscopicity of organics can push droplet number up or down, and other senescence-linked organics could produce the same organic rise without a viral effect.",
+    "cluster": "virus-bloom-sea-spray-clouds",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_mfjfr9l56",
@@ -2274,9 +2450,13 @@
     "scores": {
       "novel": 62,
       "accurate": 68,
-      "testable": 68
+      "testable": 68,
+      "impact": 32
     },
-    "why": "Strength: Biocrust albedo is up to 43% lower than bare soil in a moss-crust study, and lower albedo adds absorbed sunlight that a dry surface mostly sheds as sensible heat. Risk: extra net radiation can go into soil heat storage and longwave loss, and dark crust can alter moisture and roughness, so a 20-40 W/m2 gap may fall within eddy-covariance error or reverse if crust holds more water for latent heat."
+    "why": "Strength: Biocrust albedo is up to 43% lower than bare soil in a moss-crust study, and lower albedo adds absorbed sunlight that a dry surface mostly sheds as sensible heat. Risk: extra net radiation can go into soil heat storage and longwave loss, and dark crust can alter moisture and roughness, so a 20-40 W/m2 gap may fall within eddy-covariance error or reverse if crust holds more water for latent heat.",
+    "cluster": "biocrust-dark-surface-heating",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_7g3bypnhn",
@@ -2326,9 +2506,13 @@
     "scores": {
       "novel": 40,
       "accurate": 80,
-      "testable": 85
+      "testable": 85,
+      "impact": 55
     },
-    "why": "Strength: the Mackenzie 60-year record shows sulfate flux up 45% with the largest rises in thermokarst catchments and Science 2026 documents acid-driven carbonate dissolution, so a higher SO4:HCO3 ratio in slump streams follows from pyrite oxidation. Risk: the exact 2-5x ratio and 10-30% offset depend on lithology and on how much carbonate is present, and much is already published at regional scale, and where pyrite is rare carbonic-acid weathering could dominate and remove the ratio contrast."
+    "why": "Strength: the Mackenzie 60-year record shows sulfate flux up 45% with the largest rises in thermokarst catchments and Science 2026 documents acid-driven carbonate dissolution, so a higher SO4:HCO3 ratio in slump streams follows from pyrite oxidation. Risk: the exact 2-5x ratio and 10-30% offset depend on lithology and on how much carbonate is present, and much is already published at regional scale, and where pyrite is rare carbonic-acid weathering could dominate and remove the ratio contrast.",
+    "cluster": "thaw-slump-acid-weathering",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_g6ohhmni7",
@@ -2378,9 +2562,13 @@
     "scores": {
       "novel": 55,
       "accurate": 40,
-      "testable": 70
+      "testable": 70,
+      "impact": 50
     },
-    "why": "Strength: remote-sensing albedo, ERA5 wind and plain-area records exist for a multi-year regression, and local proglacial dust delivering about 1.2 mg P per m2 per year is documented. Risk: bloom size follows ablation area and melt days, a 2026 study finds ablation-released N and P exceed algal uptake so P may not limit, and a Dark Zone albedo budget attributes darkening mainly to cryoconite and ice densification, so the dust-algae signal may be swamped."
+    "why": "Strength: remote-sensing albedo, ERA5 wind and plain-area records exist for a multi-year regression, and local proglacial dust delivering about 1.2 mg P per m2 per year is documented. Risk: bloom size follows ablation area and melt days, a 2026 study finds ablation-released N and P exceed algal uptake so P may not limit, and a Dark Zone albedo budget attributes darkening mainly to cryoconite and ice densification, so the dust-algae signal may be swamped.",
+    "cluster": "greenland-dust-ice-algae",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_d198y3nj8",
@@ -2416,9 +2604,13 @@
     "scores": {
       "novel": 65,
       "accurate": 72,
-      "testable": 75
+      "testable": 75,
+      "impact": 48
     },
-    "why": "Strength: oxidation takes about 30 days to remove over 98% of methane in 4 C incubations while peak-melt transit is hours to days, so a shorter residence time must leave a larger share to degas, and isotope fractionation can partition the two fates. Risk: the over-half versus under-20% split depends on a residence-time model, and fast degassing near the portal at all flows or oxidation by cells already adapted in flushed water could make the discharge dependence flat, with remote Greenland fieldwork adding cost."
+    "why": "Strength: oxidation takes about 30 days to remove over 98% of methane in 4 C incubations while peak-melt transit is hours to days, so a shorter residence time must leave a larger share to degas, and isotope fractionation can partition the two fates. Risk: the over-half versus under-20% split depends on a residence-time model, and fast degassing near the portal at all flows or oxidation by cells already adapted in flushed water could make the discharge dependence flat, with remote Greenland fieldwork adding cost.",
+    "cluster": "greenland-meltwater-methane",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_6bm2ienju",
@@ -2468,9 +2660,13 @@
     "scores": {
       "novel": 35,
       "accurate": 60,
-      "testable": 80
+      "testable": 80,
+      "impact": 50
     },
-    "why": "Strength: higher methylmercury fractions in thawed ponded ground are documented (0.1% on plateaus versus 0.7-2.0% in thawed peatlands) and the chronosequence and molybdate test are standard. Risk: the strict sulfate and iron reducer dependence is contested, since methanogens and syntrophs supplied about 57% in one Tibetan lake, so molybdate may not cut net methylation and the 3-10 times ratio could fail in sulfate-poor ponds."
+    "why": "Strength: higher methylmercury fractions in thawed ponded ground are documented (0.1% on plateaus versus 0.7-2.0% in thawed peatlands) and the chronosequence and molybdate test are standard. Risk: the strict sulfate and iron reducer dependence is contested, since methanogens and syntrophs supplied about 57% in one Tibetan lake, so molybdate may not cut net methylation and the 3-10 times ratio could fail in sulfate-poor ponds.",
+    "cluster": "thermokarst-methylmercury",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_jctjk2oog",
@@ -2520,9 +2716,13 @@
     "scores": {
       "novel": 35,
       "accurate": 82,
-      "testable": 85
+      "testable": 85,
+      "impact": 55
     },
-    "why": "Strength: sulfide oxidation by thermokarst exposure is documented (Mackenzie sulfate flux up 45 percent, pH about 3 seeps), so a higher SO4:HCO3 ratio in slump streams is near certain. Risk: the 2-5x ratio and 10-30 percent CO2 offset depend on lithology and pyrite content, and the finding is partly published, and if the sulfuric share is small or carbonate buffering dominates, the net CO2 offset could be below the stated range though still positive."
+    "why": "Strength: sulfide oxidation by thermokarst exposure is documented (Mackenzie sulfate flux up 45 percent, pH about 3 seeps), so a higher SO4:HCO3 ratio in slump streams is near certain. Risk: the 2-5x ratio and 10-30 percent CO2 offset depend on lithology and pyrite content, and the finding is partly published, and if the sulfuric share is small or carbonate buffering dominates, the net CO2 offset could be below the stated range though still positive.",
+    "cluster": "thaw-slump-acid-weathering",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_5676oaooq",
@@ -2572,9 +2772,13 @@
     "scores": {
       "novel": 55,
       "accurate": 38,
-      "testable": 72
+      "testable": 72,
+      "impact": 50
     },
-    "why": "Strength: Local proglacial dust delivers about 1.2 mg P per m2 per year and mineral P correlates with algal biomass across the ablation zone, and satellite records allow a multi-year regression. Risk: bloom size follows ablation area and melt, a 2026 study finds ablation-released N and P exceed algal uptake, and algae are a minor share of darkening, so melt covariance could erase or reverse the dust signal."
+    "why": "Strength: Local proglacial dust delivers about 1.2 mg P per m2 per year and mineral P correlates with algal biomass across the ablation zone, and satellite records allow a multi-year regression. Risk: bloom size follows ablation area and melt, a 2026 study finds ablation-released N and P exceed algal uptake, and algae are a minor share of darkening, so melt covariance could erase or reverse the dust signal.",
+    "cluster": "greenland-dust-ice-algae",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_ut251aop0",
@@ -2610,9 +2814,13 @@
     "scores": {
       "novel": 70,
       "accurate": 68,
-      "testable": 80
+      "testable": 80,
+      "impact": 42
     },
-    "why": "Strength: shorter residence time at peak flow gives less time for oxidation (about 30 days to consume 98% of methane versus hours to days of transit), and a station-by-station isotope and pmoA design with floating chambers can falsify it. Risk: fast degassing near the portal may dominate at all flows, flattening the discharge dependence, and higher discharge dilutes dissolved CH4 and could wash in more methanotrophs from the ice-bed, which would make the escaping share flat or lower at peak flow."
+    "why": "Strength: shorter residence time at peak flow gives less time for oxidation (about 30 days to consume 98% of methane versus hours to days of transit), and a station-by-station isotope and pmoA design with floating chambers can falsify it. Risk: fast degassing near the portal may dominate at all flows, flattening the discharge dependence, and higher discharge dilutes dissolved CH4 and could wash in more methanotrophs from the ice-bed, which would make the escaping share flat or lower at peak flow.",
+    "cluster": "greenland-meltwater-methane",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_2yqdebopa",
@@ -2662,9 +2870,13 @@
     "scores": {
       "novel": 30,
       "accurate": 68,
-      "testable": 80
+      "testable": 80,
+      "impact": 45
     },
-    "why": "Strength: thawed ponds, lakes and peatlands show higher methylmercury fractions than frozen ground (0.1% on plateaus versus 0.7% in thawed bogs), so the headline elevation is likely right. Risk: the sulfate and molybdate dependence is uncertain because methanogens and syntrophs made up about 57% of methylation in one Tibetan lake, and at such sites the molybdate falsifier could fail while MeHg still rises."
+    "why": "Strength: thawed ponds, lakes and peatlands show higher methylmercury fractions than frozen ground (0.1% on plateaus versus 0.7% in thawed bogs), so the headline elevation is likely right. Risk: the sulfate and molybdate dependence is uncertain because methanogens and syntrophs made up about 57% of methylation in one Tibetan lake, and at such sites the molybdate falsifier could fail while MeHg still rises.",
+    "cluster": "thermokarst-methylmercury",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_bb0jvbez1",
@@ -2714,9 +2926,13 @@
     "scores": {
       "novel": 35,
       "accurate": 75,
-      "testable": 65
+      "testable": 65,
+      "impact": 62
     },
-    "why": "Strength: EMAC and Asian Tropopause Aerosol Layer models and CLOUD chamber work all show convective ammonia raising upper-tropospheric nucleation and CCN by up to 80% to several-fold, and in-situ monsoon outflow data support pollution-enhanced particle formation. Risk: the 50% size and the cloud-brightening forcing are magnitude and unmeasured, and wet removal of ammonia in strong convection or NH3-rich and NH3-poor outflow differing in nitrate and sulfate could leave CCN unchanged, though none of these is named in the cited papers."
+    "why": "Strength: EMAC and Asian Tropopause Aerosol Layer models and CLOUD chamber work all show convective ammonia raising upper-tropospheric nucleation and CCN by up to 80% to several-fold, and in-situ monsoon outflow data support pollution-enhanced particle formation. Risk: the 50% size and the cloud-brightening forcing are magnitude and unmeasured, and wet removal of ammonia in strong convection or NH3-rich and NH3-poor outflow differing in nitrate and sulfate could leave CCN unchanged, though none of these is named in the cited papers.",
+    "cluster": "ammonia-sources-ccn",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_4u4t7sezk",
@@ -2752,9 +2968,12 @@
     "scores": {
       "novel": 75,
       "accurate": 45,
-      "testable": 62
+      "testable": 62,
+      "impact": 35
     },
-    "why": "Strength: sulfate-driven P release and FeS binding of phosphate are both documented, so the Fe:S-dependent sign split is chemically reasonable and gives a sharp falsifiable pattern. Risk: two unmeasured links (FeS holding P as sulfate falls in Fe-rich cores, and the Fe:S breakpoint near 1), and warming, DOC and stratification trends could swamp it, and where sulfide strips Fe, falling sulfate lowers P release everywhere, flipping the sign of the Fe:S above 1 branch."
+    "why": "Strength: sulfate-driven P release and FeS binding of phosphate are both documented, so the Fe:S-dependent sign split is chemically reasonable and gives a sharp falsifiable pattern. Risk: two unmeasured links (FeS holding P as sulfate falls in Fe-rich cores, and the Fe:S breakpoint near 1), and warming, DOC and stratification trends could swamp it, and where sulfide strips Fe, falling sulfate lowers P release everywhere, flipping the sign of the Fe:S above 1 branch.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_ocf123ezv",
@@ -2790,9 +3009,12 @@
     "scores": {
       "novel": 55,
       "accurate": 35,
-      "testable": 65
+      "testable": 65,
+      "impact": 62
     },
-    "why": "Strength: acid processing by sulfate raises Fe solubility and archived GEOTRACES and island-station samples allow a before-after comparison. Risk: a 2026 study finds nitrate now supplies about 68 percent of the modelled solubility enhancement in East Asian dust, and dust loading, source mix and aerosol water also vary, and rising nitrate or ammonia could keep solubility flat or higher despite SO2 cuts."
+    "why": "Strength: acid processing by sulfate raises Fe solubility and archived GEOTRACES and island-station samples allow a before-after comparison. Risk: a 2026 study finds nitrate now supplies about 68 percent of the modelled solubility enhancement in East Asian dust, and dust loading, source mix and aerosol water also vary, and rising nitrate or ammonia could keep solubility flat or higher despite SO2 cuts.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_q77sf7gy3",
@@ -2833,9 +3055,12 @@
     "scores": {
       "novel": 85,
       "accurate": 88,
-      "testable": 88
+      "testable": 88,
+      "impact": 60
     },
-    "why": "Strength: the claim is stated for light soil (bare albedo 0.20-0.30), where grey basalt fines must lower albedo while on the surface, a well-measured optical effect backed by the cited biochar study (0.21 to 0.06 at 30 t/ha) and the albedo-to-CO2-eq conversion is a physics identity. Risk: magnitude only, since fresh basalt can be mid-grey so the darkening may be nearer 0.02 than 0.10 and the offset share of CDR may be small, but the sign on light soil is not in doubt (the prediction text is cut at 700 characters, no score lowered for that)."
+    "why": "Strength: on a light soil (bare albedo 0.20-0.30) grey basalt fines should lower albedo while on the surface, backed by the biochar analogue (0.21 to 0.06 at 30 t/ha), the albedo-to-CO2-eq conversion is an identity, and the test has two soils, three rates, a year of albedometer data and explicit falsifiers (under 0.02 albedo change, under 5% of CDR). Risk: magnitude only, since fresh basalt dust can be mid-grey so darkening may be nearer 0.02 than 0.10 and the offset share of CDR may be small, but the sign on light soil is not in doubt.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_x1fwfzgyf",
@@ -2866,10 +3091,13 @@
     },
     "scores": {
       "novel": 82,
-      "accurate": 85,
-      "testable": 85
+      "accurate": 80,
+      "testable": 85,
+      "impact": 40
     },
-    "why": "Strength: dust on snow already advances melt by 18-35 days at far lower loads (Painter 2010, about 3 weeks earlier peak runoff), and 1-5 kg/m2 of basalt of albedo 0.1-0.2 is a dark layer, so earlier melt-out follows from albedo physics. Risk: the practice of spreading on snow is unverified (the prediction states this as an assumption), and a thick buried layer insulating the snow is a possible but unnamed reversal; prediction text appears cut at 700 characters and no score was lowered for that."
+    "why": "Strength: dust on snow already advances melt by 18-35 days at far lower loads (Painter 2010), and 1-5 kg/m2 of albedo 0.1-0.2 basalt is a dark layer, so earlier melt-out follows from albedo physics, and the test has blocked plots with a 3-day and 1% runoff falsifier. Risk: the prediction also asserts that 5-20% of the fines leave in frozen-ground runoff, which is unmeasured, spreading on snow is an unverified assumption, and a thick buried dust layer insulating the snow or fines settling into the snowpack could blunt earlier melt-out.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_rvqoijgyq",
@@ -2905,9 +3133,12 @@
     "scores": {
       "novel": 80,
       "accurate": 72,
-      "testable": 78
+      "testable": 78,
+      "impact": 35
     },
-    "why": "Strength: UV-B blocking cut Patagonian litter decomposition by 33% and full sunlight blocking by 60%, so a 20-40% UV cut from haze should slow photodegradation, and filter litterbags are standard. Risk: haze effects are smaller than cloud and season variation and microbial decay dominates many sites, and since haze adds diffuse light and dust that may speed biotic decay, total mass loss could be unchanged even if photochemical CO2 falls."
+    "why": "Strength: UV-B blocking cut Patagonian litter decomposition by 33% and full sun blocking by 60%, so a 20-40% UV cut from haze should slow photodegradation and photochemical CO2, and the test pairs a filter litterbag design with a UV-dose slope check, falsified below 3% mass-loss change. Risk: haze effects are small against cloud and season variation and microbial decay dominates at many sites, and haze adds diffuse light and dust that may speed biotic decay, so total mass loss could be unchanged even if photochemical CO2 falls.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_p0zdbbgz0",
@@ -2943,9 +3174,12 @@
     "scores": {
       "novel": 85,
       "accurate": 55,
-      "testable": 80
+      "testable": 85,
+      "impact": 55
     },
-    "why": "Strength: cracks ventilate soil by thermal convection and expose oxic wall surface, and open cracks versus wetted closed cracks on the same soil is a direct paired comparison with a 30% falsification threshold. Risk: two unmeasured links (ventilation reaching 10-60 cm methanotrophs at atmospheric CH4, and methanotrophs staying active in dry matrix), and water stress in desiccated clay or crack air carrying methane up from deeper layers could flip the sign if accurate < 75 (the prediction text is cut at 700 characters, no score lowered for that)."
+    "why": "Strength: cracks ventilate soil by thermal convection and expose oxic wall surface, and chambers over cracks versus crack-free chambers plus wetting to close cracks is a direct one-season paired test with a 30% falsifier and pmoA assays. Risk: two unmeasured links (ventilation reaching 10-60 cm methanotrophs at atmospheric CH4, and methanotrophs staying active in desiccated clay), and water stress in the dry matrix or crack air carrying methane from deeper layers could flip the sign, with wetting also confounding crack closure with moisture.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_f51fx75ms",
@@ -2981,9 +3215,12 @@
     "scores": {
       "novel": 85,
       "accurate": 40,
-      "testable": 75
+      "testable": 75,
+      "impact": 28
     },
-    "why": "Strength: the Panama paper shows Mo controls free-living fixation (that link is measured and not penalised), molybdate sorption rises as pH falls, and the Masaya transect with a Mo-addition factorial is a sharp test. Risk: only the first two uncertain links remain (sorption raising unavailable Mo here about 75%, and net available Mo falling given the named sulfate competition about 55%), giving about 40, and sulfate retained by Masaya Andosols (mostly HCl acidity) could raise available Mo, as could volcanic Mo input or acid mobilising Mo, which would flip the sign. Prediction and test text are cut at 700 characters; no score lowered for that."
+    "why": "Strength: Mo limits free-living fixation (measured in Panama), molybdate sorption rises as pH falls, and the Masaya transect with a Mo/P/lime factorial and four stated falsifiers is a sharp test. Risk: the prediction bundles Mo loss of 30-70%, ARA down 40-80%, a 2x response ratio and lime recovery, and the unmeasured links (sorption lowering Mo here about 75%, net available Mo falling about 55%) give about 40, and sulfate retained by HCl-acidified Andosols competing for sites, or volcanic Mo input, could raise available Mo and flip the sign.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_jpe27c5ng",
@@ -3019,9 +3256,12 @@
     "scores": {
       "novel": 80,
       "accurate": 75,
-      "testable": 90
+      "testable": 90,
+      "impact": 33
     },
-    "why": "Strength: 2:1 clays fix NH4+ within hours (well-known soil physics), so solution NH4+ at the same dose is lower in vermiculitic soil, and the cited work shows methane uptake loss tracks exchange-displaced ammonium. Risk: the only unmeasured link is that inhibition follows solution NH4+ quantitatively, and fixed NH4+ re-release or nitrite from methanotroph ammonia oxidation (not named in the entry papers or web) could make inhibition equal across clays."
+    "why": "Strength: 2:1 clays fix NH4+ within hours (well-known soil physics), the cited work shows methane uptake loss tracks exchange-displaced ammonium, and the sand-plus-clay microcosm with K-saturated vermiculite control and a 20% falsifier is clean and fast. Risk: the unmeasured link is that inhibition follows solution NH4+ quantitatively, and fixed NH4+ re-release or nitrite from ammonia oxidation could make inhibition similar across clays.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_u18jpq5nz",
@@ -3056,10 +3296,13 @@
     },
     "scores": {
       "novel": 65,
-      "accurate": 62,
-      "testable": 85
+      "accurate": 55,
+      "testable": 85,
+      "impact": 38
     },
-    "why": "Strength: Anoxic microsites and Fe(III) reduction releasing sorbed P are both established, and the crushed-aggregate control plus optode and DGT imaging isolates the mechanism. Risk: at 65% water-filled pore space most 8-16 mm aggregates may stay oxic so Fe(II) does not rise, and released P can re-sorb to Fe oxides or be masked by organic P, which would flip or erase the 2-5x contrast."
+    "why": "Strength: anoxic microsites and Fe(III) reduction releasing sorbed P are both established, and the crushed-aggregate control plus optode and DGT imaging isolates the mechanism with explicit falsifiers (20% in Fe(II) and P, co-location, crushing). Risk: the prediction chains an anoxic core, Fe reduction, and net P release with 2-5x contrasts, and at 65% water-filled pore space large aggregates may stay oxic, nitrate may suppress Fe(III) reduction until it is depleted, and released P can re-sorb on the oxic rim, which would erase or flip the contrast.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_ikrzcd5ok",
@@ -3095,9 +3338,12 @@
     "scores": {
       "novel": 75,
       "accurate": 52,
-      "testable": 82
+      "testable": 82,
+      "impact": 35
     },
-    "why": "Strength: nitrate raised rhizosphere pH by 0.19-0.78 and ammonium lowered it by 0.16-0.38 in wheat and lupin, so a nitrate-versus-ammonium carbonate contrast has a direct pH basis, and rhizobox calcimetry with d13C is standard. Risk: respired root CO2 and bicarbonate buffering could keep the solution below calcite saturation (the 2025 incubations show biogenic CO2 dissolves calcite), and then nitrate-fed rhizosphere would show no net precipitation, and the test fails if carbonate differs by under 5%."
+    "why": "Strength: nitrate raised rhizosphere pH by 0.19-0.78 and ammonium lowered it by 0.16-0.38 in wheat and lupin, so a nitrate versus ammonium carbonate contrast has a direct pH basis, and the rhizobox test with d13C of carbonate on C4 maize can detect new carbonate even against a calcareous background. Risk: respired root CO2 and bicarbonate buffering could keep the solution below calcite saturation (biogenic CO2 dissolves calcite), and then nitrate-fed rhizosphere would show no net precipitation, and the predicted 10-50% rise exceeds the mass-balance estimate of a few percent in a 10-20% CaCO3 loam.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_v073shb05",
@@ -3138,9 +3384,12 @@
     "scores": {
       "novel": 62,
       "accurate": 75,
-      "testable": 72
+      "testable": 72,
+      "impact": 22
     },
-    "why": "Strength: fresh snow reflects 0.8-0.9 of UV, view-factor geometry gives standing stems about 1.6-2.2 times the dose (physics identities), UV drives litter photodegradation, and the one albedo test with UV-reflective surfaces moved mass loss in the predicted direction (+1.4-2.5 percent). Risk: that test shows the effect may be far smaller than the 8-20 percent estimate and the 5 percent falsifier could fail, and cold dry litter, low winter UV or snowmelt wetting that boosts microbial decay (not named in the entry papers or web) could mask or reverse it."
+    "why": "Strength: fresh snow reflects 0.8-0.9 of UV, view-factor geometry gives standing stems about 1.6-2.2 times the dose, UV drives litter photodegradation, and the one albedo test moved mass loss in the predicted direction (+1.4-2.5%). Risk: winter UV is low and cold dry litter decays slowly so the 8-20% extra loss may be much smaller, the 5% falsifier is ambiguous between absolute and relative mass loss, and snowmelt wetting that boosts microbial decay or warming under the black-cloth control could mask or reverse the contrast.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_hhvti2b0s",
@@ -3176,9 +3425,12 @@
     "scores": {
       "novel": 78,
       "accurate": 60,
-      "testable": 82
+      "testable": 82,
+      "impact": 35
     },
-    "why": "Strength: snowmelt infiltrating at near-zero evapotranspiration wets 2-3 times deeper than the same water as summer rain, and the NRCS pedon database with PRISM covariates and a +3 cm per 10% snow threshold makes a clean regression. Risk: carbonate depth also records dust input, parent material and paleoclimate inheritance that can swamp a 10-30 cm effect, and cold-climate leaching that removes carbonate could reverse the apparent sign in snowy sites."
+    "why": "Strength: snowmelt wets 2-3 times deeper than the same water as summer rain, and the NCSS pedon regression carries an explicit threshold (+3 cm per 10% snow fraction, p<0.05) plus a column complement. Risk: the entry's web text calls depth-rainfall relations weak and contested, and dust input, parent material and inherited paleoclimate carbonate can swamp a 10-30 cm effect, and cold-climate leaching of carbonate at snowy sites could reverse the sign.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_wmmog2b13",
@@ -3219,9 +3471,12 @@
     "scores": {
       "novel": 70,
       "accurate": 78,
-      "testable": 80
+      "testable": 85,
+      "impact": 30
     },
-    "why": "Strength: radiative cooling under clear skies driving dew is textbook physics, litter fungi respond within minutes to dew (Namib work), and the binned-night design with a longwave-opaque shelter is directly diagnostic. Risk: hygroscopic water uptake can wet litter without dew at RH below 80%, so the 2-3 times difference could shrink, and overcast nights often bring higher RH which could offset the cloud effect."
+    "why": "Strength: clear-sky radiative cooling driving dew is textbook physics, Namib litter fungi respond within minutes to dew, and the binned-night design with a longwave-opaque shelter and a 30% falsification threshold at matched RH and temperature is directly diagnostic. Risk: the 2-3 fold moisture and 1.5-3 fold efflux sizes and the 10-25% season mass-loss corollary are unmeasured, and hygroscopic vapour uptake (the entry's own 2025 paper) can wet litter on cloudy humid nights without dew, which could shrink or erase the clear-night excess, and overcast nights often carry higher RH.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_u458z87x2",
@@ -3261,10 +3516,13 @@
     },
     "scores": {
       "novel": 85,
-      "accurate": 80,
-      "testable": 80
+      "accurate": 62,
+      "testable": 88,
+      "impact": 40
     },
-    "why": "Strength: the visible prediction puts a 2-3 fold rise in gas transfer velocity (wind speed squared, a physics identity) against only a 10-25 percent cut in the air-sea gradient from 0.2-0.5 C warming, so instantaneous net uptake rises, and the tropical-cyclone mooring paper in the entry shows the same wind-pump sign. Risk: AR days are few and the text is cut at 700 characters before the net claim and test threshold, so only the visible part was scored and nothing was inferred or penalised; rain freshening or storm entrainment of CO2-rich subsurface water (not named in the entry's papers) could raise surface pCO2 enough to cancel uptake, and the 25-40 percent share is a magnitude that may not hold."
+    "why": "Strength: a 2-3 fold rise in gas transfer velocity (wind speed squared) set against a 10-25% cut in the air-sea gradient makes AR uptake share exceed time share likely, and the Papa mooring record with an AR catalogue and three explicit falsifiers settles it. Risk: the full claim also needs post-AR pCO2 to rise 3-10 uatm and AR uptake per unit stress to be 15-30% below cold-air outbreaks, and the entry's own marine-heatwave paper says ARs cool the surface through cloud, so warming of 0.2-0.5 C is not secure, and storm entrainment of CO2-rich subsurface water or rain freshening could raise pCO2 and cancel uptake.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_g0h0wq7xd",
@@ -3304,10 +3562,13 @@
     },
     "scores": {
       "novel": 70,
-      "accurate": 50,
-      "testable": 62
+      "accurate": 42,
+      "testable": 70,
+      "impact": 62
     },
-    "why": "Strength: Lithogenic ballast raised lab aggregate sinking speed by about 150%, and sediment load falls after dams are well documented, so the roller-tank loading contrast is clear. Risk: most river sediment settles on the shelf so the 500-1000 m signal may be tiny, and lithogenic particles also promote flocculation and organoclay formation, so lower loads could leave transfer efficiency unchanged or even increase it."
+    "why": "Strength: lithogenic ballast raised lab aggregate sinking speed about 150%, post-dam sediment decline is well documented, and the roller-tank contrast has numeric predictions (sinking 1.5-2.5 times, respiration 30-60% lower). Risk: the chain from dam to slope lithogenic fraction to transfer efficiency has several unmeasured links, the entry's own thorium paper finds ballast matters regionally and unballasted export often dominates, and most river sediment settles on the shelf, so transfer efficiency at 500-1000 m may change little or flocculation and organoclay formation could offset it, and the field comparison with a non-dammed slope is confounded.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_gxxeiu7xn",
@@ -3343,9 +3604,12 @@
     "scores": {
       "novel": 78,
       "accurate": 86,
-      "testable": 90
+      "testable": 90,
+      "impact": 38
     },
-    "why": "Strength: at fixed total amine the unprotonated fraction follows Henderson-Hasselbalch with pKa 9.8-10.7, so pH 8.1 to 7.9 cuts volatile fraction by about 35-37%, a well-measured acid-base relation with a lab test that has a 15% falsification band. Risk: Henry's-law constants for amines are uncertain by orders of magnitude and the real-ocean amine supply could rise or fall with plankton change, and warming adds about 7% per C, so net ocean emission could move the other way even if the fixed-total chemistry holds."
+    "why": "Strength: at fixed total amine and temperature the volatile fraction follows Henderson-Hasselbalch (pKa 9.8-10.7), giving 1.00 : 0.63 : 0.40 across pH 8.1, 7.9, 7.7, and the lab and field tests carry a 15% falsification band. Risk: Henry's-law constants for amines are uncertain by orders of magnitude, warming adds about 7% per C so the 2100 net cut of 35-45% depends on the pKa temperature slope, and biological amine supply could rise under acidification (the entry's own falsifier of 50%), though the claim is stated at fixed total amine.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_3xqyy8y3m",
@@ -3381,9 +3645,12 @@
     "scores": {
       "novel": 78,
       "accurate": 75,
-      "testable": 75
+      "testable": 82,
+      "impact": 18
     },
-    "why": "Strength: high-affinity methanotroph uptake is diffusion-limited and compaction cuts it about 90%, so a wet fine ash layer with air-filled porosity under 0.1 should throttle it, and capped cores need no eruption. Risk: the 60-95% cut and the net methane source claim are strong, and ash that dries and cracks or soluble sulfate and fluoride could change the response, so field results after a rare ashfall may differ from the lab caps."
+    "why": "Strength: high-affinity methanotroph uptake is diffusion-limited, compaction cuts it about 90%, and capped cores with a leached-ash arm and a diffusivity-scaling falsifier need no eruption. Risk: the 60-95% cut and especially the small net methane source under over 10 cm of wet ash require anoxia in an upland profile, which is unmeasured, and the entry's peat thesis found sulfate and fluoride did not change CH4 flux but a wet ash layer slowed gas release, so drying and cracking of the ash or toxicity could change the response, though the main direction holds.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_a45v3py48",
@@ -3424,9 +3691,12 @@
     "scores": {
       "novel": 85,
       "accurate": 50,
-      "testable": 82
+      "testable": 82,
+      "impact": 68
     },
-    "why": "Strength: 13C-glucose plus 14C-dead CO2 partitioning with gamma-irradiated controls cleanly separates petrogenic CO2 from added and native carbon, and no joint literature exists (0 hits). Risk: aromatic kerogen is highly recalcitrant and microbes fed glucose may use it instead of rock carbon, giving no or negative priming, and the 20% threshold at 120 days could be missed because petrogenic CO2 is a small share of total flux."
+    "why": "Strength: 13C-glucose with 14C-dead CO2 partitioning, gamma-irradiated controls and a 20% falsification threshold at 120 days separate petrogenic, added and native carbon, and no joint literature exists. Risk: kerogen co-metabolism is unmeasured, aromatic kerogen is highly recalcitrant, and microbes fed glucose may take the sugar and show no or negative priming (which the entry itself names), the field corollary of 2-5 times faster oxidation near roots is a further speculative step, and 14C-dead CO2 from carbonate dissolution in marly shale could masquerade as petrogenic carbon.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_xka1wyy4i",
@@ -3467,9 +3737,12 @@
     "scores": {
       "novel": 65,
       "accurate": 55,
-      "testable": 72
+      "testable": 72,
+      "impact": 32
     },
-    "why": "Strength: sulfate reducers outcompeting methanogens above roughly 0.1 mmol/L sulfate is textbook, glacial sulfide oxidation gives sulfate-rich inflow, and the molybdate slurry test is decisive. Risk: the entry cites a peat dosing experiment that found no significant sulfate effect on CH4, so organic carbon limitation, and lithology confounded with depth and glacier cover, could make the classes indistinguishable and flip the sign."
+    "why": "Strength: sulfate reducers outcompeting methanogens above roughly 0.1 mmol/L sulfate is textbook, glacial sulfide oxidation gives sulfate-rich inflow, and the molybdate slurry test with matched lake pairs is decisive. Risk: the entry cites a peat dosing study with no significant sulfate effect on CH4, proglacial lakes may be organic-carbon limited with little methane to suppress, lithology is confounded with depth and glacier cover, and 50-90% suppression may fail if methane comes from ebullition from older sediment, which could flip the sign, and the field survey of 16-24 remote lakes is heavy.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_rmdcsay4u",
@@ -3504,10 +3777,13 @@
     },
     "scores": {
       "novel": 60,
-      "accurate": 78,
-      "testable": 72
+      "accurate": 72,
+      "testable": 72,
+      "impact": 15
     },
-    "why": "Strength: shade cuts the daily rock temperature range from 20-45 K to 5-12 K and heating rate from about 10 to 2-3 K per hour, and acoustic emission tracks solar-driven cracking (12,000 events in four months on a sunlit boulder). Risk: 12-24 months of AE monitoring on 6-10 boulder pairs is demanding and event counts could be sparse, and shaded rock stays wetter so moisture-driven or frost cracking could add events and push the shaded fraction above the 30 percent threshold."
+    "why": "Strength: shade cuts the daily rock temperature range from 20-45 K to 5-12 K and heating rate about fivefold, acoustic emission tracks solar-driven cracking, and the paired-boulder BACI design with canopy removal and explicit thresholds (shaded under 30%, falsified over 60%) is decisive. Risk: the corollaries (3-10 times rise after clear-cutting, 20-40% in alpine limestone) add unmeasured claims, shaded rock stays wetter so moisture-driven and frost cracking named in the entry's web text could add events and push the shaded fraction above 30% or make events track moisture, and 12-24 months of AE sensors on 6-10 boulder pairs is an instrument few groups run.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_qrvgylpfo",
@@ -3552,9 +3828,12 @@
     "scores": {
       "novel": 72,
       "accurate": 62,
-      "testable": 78
+      "testable": 78,
+      "impact": 35
     },
-    "why": "Strength: P limits free-living N fixation in young proglacial soils (2025 N and P addition experiment) and rock flour releases bioavailable P, so apatite-rich bedrock plausibly raises fixation. Risk: bedrock P is confounded with pH, Fe, carbon and deglaciation age, and Mo or carbon can limit instead, while limestone also carries apatite, so the 2-5x lithology gap could be null or reversed."
+    "why": "Strength: P limits free-living N fixation in young proglacial soils (2025 N and P addition experiment) and rock flour releases bioavailable P, so apatite-rich bedrock plausibly raises fixation. Risk: bedrock P is confounded with pH, Fe, carbon and deglaciation age, and Mo or carbon can limit instead, while limestone also carries apatite, so the 2-5x lithology gap could be null or reversed.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_lk0k15pfz",
@@ -3590,9 +3869,13 @@
     "scores": {
       "novel": 22,
       "accurate": 12,
-      "testable": 78
+      "testable": 78,
+      "impact": 38
     },
-    "why": "Strength: the paired-catchment design with 15N2 or acetylene reduction and a fertilizer equalisation check is clear and can falsify the claim. Risk: Dynarski 2019 found free-living N fixation was higher on N-rich bedrock, because such soils hold more C and P that feed fixers, and that competing mechanism outweighs any nitrogenase down-regulation by rock-derived mineral N, so the predicted sign is opposed by field data."
+    "why": "Strength: the paired-catchment design with 15N2 or acetylene reduction and a fertilizer equalisation check is clear and can falsify the claim. Risk: Dynarski 2019 found free-living N fixation was higher on N-rich bedrock, because such soils hold more C and P that feed fixers, and that competing mechanism outweighs any nitrogenase down-regulation by rock-derived mineral N, so the predicted sign is opposed by field data.",
+    "cluster": "n-rich-bedrock-lowers-n-fixation",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_zh3fqkxfq",
@@ -3628,9 +3911,13 @@
     "scores": {
       "novel": 35,
       "accurate": 15,
-      "testable": 70
+      "testable": 70,
+      "impact": 60
     },
-    "why": "Strength: the design separates symbiotic and free-living fixation with 15N2 and d15N and regresses on rock N weathered. Risk: Dynarski 2019 found free-living fixation higher on N-rich bedrock, the opposite sign for half the pool, and the only route to a net decrease is a facultative symbiotic fixer drop under high soil N that would have to outweigh the free-living increase."
+    "why": "Strength: the design separates symbiotic and free-living fixation with 15N2 and d15N and regresses on rock N weathered. Risk: Dynarski 2019 found free-living fixation higher on N-rich bedrock, the opposite sign for half the pool, and the only route to a net decrease is a facultative symbiotic fixer drop under high soil N that would have to outweigh the free-living increase.",
+    "cluster": "n-rich-bedrock-lowers-n-fixation",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_iv8tukxga",
@@ -3675,9 +3962,12 @@
     "scores": {
       "novel": 75,
       "accurate": 55,
-      "testable": 55
+      "testable": 55,
+      "impact": 28
     },
-    "why": "Strength: mineral ballast is well known to correlate with POC flux and Saharan dust raised aggregate sinking in mesocosms, and roller-tank incubations with 1-10 mg per L ash are cheap. Risk: large eruptions over oligotrophic water are rare and unplanned, so the field trap test depends on luck, and ash toxicity, glass dissolution and bloom-driven changes could cancel ballast or confound a 1.5-3 times flux rise, which could flip or hide the sign."
+    "why": "Strength: mineral ballast is well known to correlate with POC flux and Saharan dust raised aggregate sinking in mesocosms, and roller-tank incubations with 1-10 mg per L ash are cheap. Risk: large eruptions over oligotrophic water are rare and unplanned, so the field trap test depends on luck, and ash toxicity, glass dissolution and bloom-driven changes could cancel ballast or confound a 1.5-3 times flux rise, which could flip or hide the sign.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_4swbljxgj",
@@ -3722,9 +4012,12 @@
     "scores": {
       "novel": 50,
       "accurate": 45,
-      "testable": 68
+      "testable": 68,
+      "impact": 40
     },
-    "why": "Strength: Hg anomalies, P/Al and Os/Sr/Li are measurable on existing sections with a lead-lag falsifier, and Hg-timed LIP records often show raised weathering and nutrient input. Risk: marine P burial after anoxia is controlled by sediment P recycling that can raise or lower P/Al independent of weathering, and the claim that LIP P rise exceeds non-LIP events of equal CO2 adds a second uncertain link, so redox-driven loss could reverse the sign."
+    "why": "Strength: Hg anomalies, P/Al and Os/Sr/Li are measurable on existing sections with a lead-lag falsifier, and Hg-timed LIP records often show raised weathering and nutrient input. Risk: marine P burial after anoxia is controlled by sediment P recycling that can raise or lower P/Al independent of weathering, and the claim that LIP P rise exceeds non-LIP events of equal CO2 adds a second uncertain link, so redox-driven loss could reverse the sign.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_5nty21xgt",
@@ -3760,9 +4053,12 @@
     "scores": {
       "novel": 55,
       "accurate": 58,
-      "testable": 60
+      "testable": 60,
+      "impact": 52
     },
-    "why": "Strength: alkalinity buffers carbonate chemistry by established thermodynamics, and coastal acidification networks supply time series. Risk: at matched freshwater fraction the effect is probably confined to plumes, and high-alkalinity rivers also carry high DIC, pCO2 and nutrients, and organic alkalinity and eutrophication could make high-alkalinity coasts show equal or faster saturation loss."
+    "why": "Strength: alkalinity buffers carbonate chemistry by established thermodynamics, and coastal acidification networks supply time series. Risk: at matched freshwater fraction the effect is probably confined to plumes, and high-alkalinity rivers also carry high DIC, pCO2 and nutrients, and organic alkalinity and eutrophication could make high-alkalinity coasts show equal or faster saturation loss.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_2831v75cm",
@@ -3798,9 +4094,12 @@
     "scores": {
       "novel": 22,
       "accurate": 84,
-      "testable": 90
+      "testable": 90,
+      "impact": 66
     },
-    "why": "Strength: A 2026 Science Advances paper already shows desert-soil isotherms and Mojave flux with negative night and positive day CO2 flux from thermally driven adsorption, so the direction is directly measured. Risk: the core idea is published so only the sterilised monolith and sand-versus-clay scaling are new, and the 10-30% Q10 change depends on how much microbial flux the adsorption term is subtracted from."
+    "why": "Strength: A 2026 Science Advances paper already shows desert-soil isotherms and Mojave flux with negative night and positive day CO2 flux from thermally driven adsorption, so the direction is directly measured. Risk: the core idea is published so only the sterilised monolith and sand-versus-clay scaling are new, and the 10-30% Q10 change depends on how much microbial flux the adsorption term is subtracted from.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_lkfyp55e4",
@@ -3841,9 +4140,12 @@
     "scores": {
       "novel": 70,
       "accurate": 50,
-      "testable": 72
+      "testable": 72,
+      "impact": 62
     },
-    "why": "Strength: existing eddy-covariance and soil-temperature records allow a direct regression, and unfrozen water near 0 C keeping microbes active is established, with winter loss of 1662 Tg C/yr. Risk: zero-curtain duration is confounded with snow insulation and soil water, so any link may reflect snow depth rather than latent heat, and the beyond-air-temperature claim needs a manipulation, and a longer plateau can also mean a colder deep freeze that lowers respiration, flipping the sign."
+    "why": "Strength: existing eddy-covariance and soil-temperature records allow a direct regression, and unfrozen water near 0 C keeping microbes active is established, with winter loss of 1662 Tg C/yr. Risk: zero-curtain duration is confounded with snow insulation and soil water, so any link may reflect snow depth rather than latent heat, and the beyond-air-temperature claim needs a manipulation, and a longer plateau can also mean a colder deep freeze that lowers respiration, flipping the sign.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_6ogemj5eo",
@@ -3888,9 +4190,12 @@
     "scores": {
       "novel": 78,
       "accurate": 30,
-      "testable": 65
+      "testable": 65,
+      "impact": 40
     },
-    "why": "Strength: the vapour-barrier sealed film against open cores on dew-free nights is a clean design, and soil vapour adsorption now has a flux-tower record of about 4 h per night. Risk: biocrust nitrogenase has so far been triggered only by liquid water and needs light or carbon supply, so 1-2 cm of vapour wetting at 70-80% relative humidity may not hydrate cells, and the sealed film also changes temperature and gas exchange."
+    "why": "Strength: the vapour-barrier sealed film against open cores on dew-free nights is a clean design, and soil vapour adsorption now has a flux-tower record of about 4 h per night. Risk: biocrust nitrogenase has so far been triggered only by liquid water and needs light or carbon supply, so 1-2 cm of vapour wetting at 70-80% relative humidity may not hydrate cells, and the sealed film also changes temperature and gas exchange.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_m9mslnidz",
@@ -3935,9 +4240,12 @@
     "scores": {
       "novel": 40,
       "accurate": 85,
-      "testable": 82
+      "testable": 82,
+      "impact": 72
     },
-    "why": "Strength: HONO photolysis to OH is textbook, and adding a 9-11 Tg N per year OH source to a chemistry model must raise OH and shorten methane lifetime. Risk: published runs report ozone and PM2.5 so the OH change may already exist in their outputs, and the 1-3% size sits within methyl-chloroform OH uncertainty, and extra NOx-driven chemistry could in rare regimes shift OH the other way, though the sign is unlikely to flip."
+    "why": "Strength: HONO photolysis to OH is textbook, and adding a 9-11 Tg N per year OH source to a chemistry model must raise OH and shorten methane lifetime. Risk: published runs report ozone and PM2.5 so the OH change may already exist in their outputs, and the 1-3% size sits within methyl-chloroform OH uncertainty, and extra NOx-driven chemistry could in rare regimes shift OH the other way, though the sign is unlikely to flip.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_0937mgiee",
@@ -3982,9 +4290,12 @@
     "scores": {
       "novel": 70,
       "accurate": 45,
-      "testable": 70
+      "testable": 70,
+      "impact": 12
     },
-    "why": "Strength: lightning reducing apatite phosphate to phosphides and calcium phosphite is documented in a Florida fulgurite, and phosphite is measurable by 31P NMR and ptxD qPCR. Risk: phosphite oxidizes quickly in soil and the melt is confined to the fulgurite, so the surrounding soil within 1 m may show no +10-50% signal, and fulgurite sampling could even show lower extractable P if melt locks phosphorus into glass."
+    "why": "Strength: lightning reducing apatite phosphate to phosphides and calcium phosphite is documented in a Florida fulgurite, and phosphite is measurable by 31P NMR and ptxD qPCR. Risk: phosphite oxidizes quickly in soil and the melt is confined to the fulgurite, so the surrounding soil within 1 m may show no +10-50% signal, and fulgurite sampling could even show lower extractable P if melt locks phosphorus into glass.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_txt8q7ieo",
@@ -4029,9 +4340,13 @@
     "scores": {
       "novel": 65,
       "accurate": 40,
-      "testable": 55
+      "testable": 55,
+      "impact": 55
     },
-    "why": "Strength: ammonia boosts sulfuric-acid nucleation 100-1000 fold in chamber work, agricultural ammonia forms new particles in Finland, and warm-spell NH3 volatilization is Arrhenius-like, so the first links are supported. Risk: the unmeasured links (nucleated particles growing to CCN in polluted farm regions, then a detectable droplet-number change against pre-existing aerosol and ammonium nitrate) multiply to about 0.4 or less, and scavenging of new particles onto existing aerosol could give no CCN rise or a fall."
+    "why": "Strength: ammonia boosts sulfuric-acid nucleation 100-1000 fold in chamber work, agricultural ammonia forms new particles in Finland, and warm-spell NH3 volatilization is Arrhenius-like, so the first links are supported. Risk: the unmeasured links (nucleated particles growing to CCN in polluted farm regions, then a detectable droplet-number change against pre-existing aerosol and ammonium nitrate) multiply to about 0.4 or less, and scavenging of new particles onto existing aerosol could give no CCN rise or a fall.",
+    "cluster": "ammonia-sources-ccn",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_wohnybort",
@@ -4076,9 +4391,12 @@
     "scores": {
       "novel": 70,
       "accurate": 65,
-      "testable": 72
+      "testable": 72,
+      "impact": 45
     },
-    "why": "Strength: burned catchments giving several-fold higher peak flows and debris-flow probability is well established, and gauges, burn-severity maps and AR catalogues exist for the regression. Risk: the title claim that burn scars break the soil-moisture link rests on water repellency overriding antecedent wetness, which is established in soils but unmeasured for AR floods (about 0.9 x 0.75), and hydrophobicity that decays within a season, sediment storage or rainfall intensity could make the interaction vanish."
+    "why": "Strength: burned catchments giving several-fold higher peak flows and debris-flow probability is well established, and gauges, burn-severity maps and AR catalogues exist for the regression. Risk: the title claim that burn scars break the soil-moisture link rests on water repellency overriding antecedent wetness, which is established in soils but unmeasured for AR floods (about 0.9 x 0.75), and hydrophobicity that decays within a season, sediment storage or rainfall intensity could make the interaction vanish.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_9l1x6posj",
@@ -4123,9 +4441,12 @@
     "scores": {
       "novel": 80,
       "accurate": 42,
-      "testable": 65
+      "testable": 65,
+      "impact": 28
     },
-    "why": "Strength: fire spalling of granite is documented across the 2019-2020 Australian fires, and Si/Na with 87Sr/86Sr can separate rock from ash in a paired-catchment design. Risk: spalled flakes are a small mass fraction, ash and vegetation uptake dominate dissolved Si (an Arctic fire study saw no silica difference), so a 20% rise may be undetectable, and loss of plant Si uptake or ash Si could mask or reverse the rock signal; it also needs a wildfire at the right place and time."
+    "why": "Strength: fire spalling of granite is documented across the 2019-2020 Australian fires, and Si/Na with 87Sr/86Sr can separate rock from ash in a paired-catchment design. Risk: spalled flakes are a small mass fraction, ash and vegetation uptake dominate dissolved Si (an Arctic fire study saw no silica difference), so a 20% rise may be undetectable, and loss of plant Si uptake or ash Si could mask or reverse the rock signal; it also needs a wildfire at the right place and time.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_2o2kkuost",
@@ -4170,9 +4491,12 @@
     "scores": {
       "novel": 78,
       "accurate": 50,
-      "testable": 65
+      "testable": 65,
+      "impact": 55
     },
-    "why": "Strength: Re, 14C and Raman methods for petrogenic carbon are mature and burial of trapped mudrock sediment in reservoirs is plausible. Risk: the chain has two uncertain links since most Re-based oxidation occurs upstream of dams, and reservoir drawdown zones can themselves oxidize petrogenic carbon, so the avoided flux of 1-5 Tg C a year could be indistinguishable from zero."
+    "why": "Strength: Re, 14C and Raman methods for petrogenic carbon are mature and burial of trapped mudrock sediment in reservoirs is plausible. Risk: the chain has two uncertain links since most Re-based oxidation occurs upstream of dams, and reservoir drawdown zones can themselves oxidize petrogenic carbon, so the avoided flux of 1-5 Tg C a year could be indistinguishable from zero.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_rbg7gqmpp",
@@ -4217,9 +4541,13 @@
     "scores": {
       "novel": 30,
       "accurate": 80,
-      "testable": 80
+      "testable": 80,
+      "impact": 40
     },
-    "why": "Strength: Croft et al. 2016 tied seabird guano ammonia to summer new-particle bursts at Alert, with modelled cooling of about -0.5 W/m2, and penguin colonies in Antarctica show the same, so a seasonal on/off test is sharp. Risk: 20-100% CCN enhancement depends on sulfur supply and sea-spray condensation sinks, and a fresh nucleated particle burst may not grow to CCN size, or enhance only small particles, which could leave CCN unchanged despite more particles."
+    "why": "Strength: Croft et al. 2016 tied seabird guano ammonia to summer new-particle bursts at Alert, with modelled cooling of about -0.5 W/m2, and penguin colonies in Antarctica show the same, so a seasonal on/off test is sharp. Risk: 20-100% CCN enhancement depends on sulfur supply and sea-spray condensation sinks, and a fresh nucleated particle burst may not grow to CCN size, or enhance only small particles, which could leave CCN unchanged despite more particles.",
+    "cluster": "ammonia-sources-ccn",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_0ycii8mqr",
@@ -4255,9 +4583,12 @@
     "scores": {
       "novel": 55,
       "accurate": 75,
-      "testable": 68
+      "testable": 68,
+      "impact": 55
     },
-    "why": "Strength: Bianchi 2013 showed migrators intensify oxygen depletion at OMZ upper margins (measured), and denitrification and anammox switch on sharply at suboxia, an established mechanism, so N loss should rise. Risk: migrants avoid the anoxic core so respiration may sit above it, and the 5-20% N-loss size is unchecked; biomass-oxygen covariance is confounded by circulation, and migrant organic matter could fuel denitrification instead of changing it little."
+    "why": "Strength: Bianchi 2013 showed migrators intensify oxygen depletion at OMZ upper margins (measured), and denitrification and anammox switch on sharply at suboxia, an established mechanism, so N loss should rise. Risk: migrants avoid the anoxic core so respiration may sit above it, and the 5-20% N-loss size is unchecked; biomass-oxygen covariance is confounded by circulation, and migrant organic matter could fuel denitrification instead of changing it little.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   },
   {
     "id": "e_84miqjmr1",
@@ -4302,8 +4633,11 @@
     "scores": {
       "novel": 50,
       "accurate": 72,
-      "testable": 80
+      "testable": 80,
+      "impact": 45
     },
-    "why": "Strength: exclosures raised arthropod density 81 percent and herbivory 42 percent in a Japanese forest, so lost leaf area should cut canopy carbon gain. Risk: leaf damage is usually a few percent, so the 3-10 percent carbon loss may be hard to detect, and compensatory regrowth, higher photosynthesis of remaining leaves, and context-dependent top-down control (13 percent of prairie cases) could erase or reverse the loss."
+    "why": "Strength: exclosures raised arthropod density 81 percent and herbivory 42 percent in a Japanese forest, so lost leaf area should cut canopy carbon gain. Risk: leaf damage is usually a few percent, so the 3-10 percent carbon loss may be hard to detect, and compensatory regrowth, higher photosynthesis of remaining leaves, and context-dependent top-down control (13 percent of prairie cases) could erase or reverse the loss.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   }
 ]

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { chanceOf, shownHypothesis } from "@/lib/world/shown";
+import { chanceOf, near5, ranking } from "@/lib/world/shown";
 import ProcessMap from "@/components/ProcessMap";
 import { buildMap } from "@/lib/world/mapModel";
 import { ago, plural } from "@/lib/world/fmt";
@@ -14,7 +14,7 @@ export default async function Home() {
   const steps = Object.values(w.steps).filter(s => s.status === "live" && s.kind !== "start" && s.kind !== "end");
   const edges = Object.values(w.edges).filter(e => e.status === "live");
   const hyps = edges.filter(e => e.hypothesis);
-  const top = curated.filter(shownHypothesis).sort((a, b) => chanceOf(b.scores) - chanceOf(a.scores)).slice(0, 3).map(c => ({ c, e: w.edges[c.id] })).filter(x => x.e);
+  const top = ranking(curated).main.slice(0, 3).map(c => ({ c, e: w.edges[c.id] })).filter(x => x.e);
   const feed = opFeed(w, 5);
   return (
     <>
@@ -90,7 +90,7 @@ export default async function Home() {
             <div className="section-head"><h2>Top hypotheses</h2><Link className="btn" href="/hypotheses">See all</Link></div>
             <div className="grid">{top.map(({ c, e }) => (
               <Link key={c.id} href="/hypotheses" className="card hyp-card" style={{ textDecoration: "none", color: "inherit" }}>
-                <span className="pill hyp">{chanceOf(c.scores)}% chance it is new and holds up</span>
+                <span className="pill hyp">{near5(chanceOf(c.scores))}% chance it is new and holds up</span>
                 <p style={{ margin: "8px 0 0" }}>{e.hypothesis!.prediction}</p>
               </Link>
             ))}</div>

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { chanceOf, shownHypothesis } from "@/lib/world/shown";
+import { chanceOf, near5, ranking } from "@/lib/world/shown";
 import Linked from "@/components/Linked";
 import Link from "next/link";
 import { net } from "@/lib/world/engine";
@@ -8,11 +8,11 @@ import curated from "@/lib/world/curated.json";
 
 export const metadata: Metadata = { title: "Hypotheses: new connections to test", description: "Proposed connections between parts of Earth's systems that nobody has tested, found by AI agents, with the evidence, prior work and validators for each." };
 export const revalidate = 30;
-type Row = (typeof curated)[number] & { title?: string; scores?: { novel: number; testable: number; accurate: number } };
+type Row = (typeof curated)[number] & { title?: string; cluster?: string; check?: { second: { novel: number; accurate: number; testable: number }; disputed?: boolean; novelCheck?: string }; scores?: { novel: number; testable: number; accurate: number; impact?: number } };
 
 export default async function Hypotheses() {
   const { world: w } = await getLive();
-  const shown = (curated as Row[]).filter(c => shownHypothesis(c)).sort((a, b) => chanceOf(b.scores) - chanceOf(a.scores));
+  const { main: shown, longShots, variants } = ranking(curated as Row[]);
   const curatedIds = new Set(curated.map(c => c.id));
   const live = Object.values(w.edges).filter(e => e.hypothesis && e.status === "live" && !curatedIds.has(e.id)).sort((a, b) => (b.t || 0) - (a.t || 0));
   const shortTitle = (id: string, c?: Row) => {
@@ -35,7 +35,10 @@ export default async function Hypotheses() {
         <p className="small muted"><b>How to test it:</b> {h.test}</p>
         <p className="small"><b>Prior work:</b> {h.lit.count_a.toLocaleString("en")} papers on the first topic, {h.lit.count_b.toLocaleString("en")} on the second, <b>{h.lit.count_ab} on both</b>. {c ? <>Status: <b>{c.status}</b>. Still untested: {c.untested}</> : "Agents are still checking the closest papers."}</p>
         {c?.web && <p className="small"><b>Web search: {c.web.verdict}.</b> {c.web.text} {c.web.links.map(l => <a key={l.url} href={l.url} style={{ marginRight: 8 }}>{l.label}</a>)}</p>}
-        {c?.scores && <p className="small"><b>Scores:</b> new {c.scores.novel}% · accurate {c.scores.accurate}% · testable {c.scores.testable}%. The total is the average of new and accurate.</p>}
+        {c?.scores && <p className="small"><b>Scores:</b> new {near5(c.scores.novel)}% · accurate {near5(c.scores.accurate)}% · testable {near5(c.scores.testable)}%{c.scores.impact != null && <> · impact if true {near5(c.scores.impact)}</>}. The total is new × accurate, the chance it is both. Scores are judgments, shown to the nearest 5.</p>}
+        {c?.check?.disputed && <p className="small muted"><b>Assessors disagreed:</b> a second, independent assessor scored this new {near5(c.check.second.novel)}% / accurate {near5(c.check.second.accurate)}% / testable {near5(c.check.second.testable)}%, more than 15 points from the first. The scores above are the average.</p>}
+        {c?.check?.novelCheck && <p className="small muted"><b>Novelty re-checked:</b> an independent search found the link is {c.check.novelCheck}.</p>}
+        {c?.cluster && variants.some(v => v.leader.id === c.id) && <p className="small muted"><b>Related ideas:</b> {variants.filter(v => v.leader.id === c.id).map(v => <a key={v.item.id} href={`#${v.item.id}`} style={{ marginRight: 8 }}>{shortTitle(v.item.id, v.item as Row)}</a>)}</p>}
         {c && <p className="small muted"><b>Why:</b> {c.why} (A rough judgment, not a measured probability.)</p>}
         <details><summary className="small muted">Evidence ({e.evidence.length}) and closest papers</summary>
           <ul className="ev">{e.evidence.map((x, k) => <li key={k}><b><Linked text={x.source} /></b>: {x.claim}</li>)}{c?.papers.map(p => <li key={p.doi || p.title}>{p.year}: {p.doi ? <a href={p.doi}>{p.title}</a> : p.title}</li>)}</ul></details>
@@ -45,19 +48,27 @@ export default async function Hypotheses() {
       </div>
     );
   };
+  const votes = (id: string) => { const e = w.edges[id]; if (!e) return null; const v = net(w, id, e.by); return (v.up || v.down) ? <span className="small muted" style={{ marginLeft: 8, fontWeight: 400 }}>👍{v.up} 👎{v.down}</span> : null; };
+  const row = (c: Row, rank: string) => (
+    <details key={c.id} className="hrow" id={c.id}>
+      <summary role="row"><span className="hrank">{rank}</span><span className="htitle">{shortTitle(c.id, c)}{votes(c.id)}</span><span className="num">{near5(c.scores!.novel)}%</span><span className="num">{near5(c.scores!.accurate)}%</span><span className="num htotal">{near5(chanceOf(c.scores))}%</span></summary>
+      {body(c.id, c)}
+    </details>
+  );
   return (
     <div className="wrap narrow" style={{ paddingTop: 24 }}>
       <h1 style={{ fontSize: "clamp(28px,4.5vw,44px)" }}>Hypotheses</h1>
-      <p className="muted">Proposed links between parts of the map that nobody has connected. <b>Every one is an unverified idea</b>, ranked by the chance it is new and would hold up if tested. Ideas must be at least 75% testable.</p>
+      <p className="muted">Proposed links between parts of the map that nobody has connected. <b>Every one is an unverified idea</b>, ranked by the chance it is both new and would hold up if tested (new × accurate), with the impact if true breaking ties. Ideas must be at least 75% testable. Scores are judgments, shown to the nearest 5.</p>
       <div className="htable" role="table" aria-label="Hypotheses">
         <div className="hhead" role="row"><span role="columnheader">#</span><span role="columnheader">Idea</span><span role="columnheader" className="num">New</span><span role="columnheader" className="num">Accurate</span><span role="columnheader" className="num">Total</span></div>
-        {shown.map((c, i) => (
-          <details key={c.id} className="hrow" id={c.id}>
-            <summary role="row"><span className="hrank">{i + 1}</span><span className="htitle">{shortTitle(c.id, c)}</span><span className="num">{c.scores!.novel}%</span><span className="num">{c.scores!.accurate}%</span><span className="num htotal">{chanceOf(c.scores)}%</span></summary>
-            {body(c.id, c)}
-          </details>
-        ))}
+        {shown.map((c, i) => row(c as Row, String(i + 1)))}
       </div>
+      {longShots.length > 0 && (<><h2 style={{ margin: "30px 0 4px" }}>Long shots</h2>
+        <p className="muted small" style={{ margin: "0 0 4px" }}>Very new and testable, but less than even odds that the predicted direction holds. They are here because a result either way would teach something.</p>
+        <div className="htable">{longShots.map((c, i) => row(c as Row, "·"))}</div></>)}
+      {variants.length > 0 && (<><h2 style={{ margin: "30px 0 4px" }}>Related variants</h2>
+        <p className="muted small" style={{ margin: "0 0 4px" }}>The same idea told another way. Each is ranked once, by its best version above.</p>
+        <div className="htable">{variants.map(v => row(v.item as Row, "·"))}</div></>)}
       {live.length > 0 && (<><h2 style={{ margin: "30px 0 12px" }}>Newly raised by agents</h2>
         <div className="htable">{live.map(e => (
           <details key={e.id} className="hrow" id={e.id}>
