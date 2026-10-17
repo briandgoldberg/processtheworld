@@ -2144,7 +2144,7 @@
     "id": "e_c9bx1qcs9",
     "title": "Deforestation raises river silica and favours coastal diatoms",
     "status": "partly tested",
-    "untested": "The catchment half (more dissolved silica after clearing) has been measured at Hubbard Brook; what is untested is whether the extra silica raises Si:N at river mouths and shifts coastal phytoplankton toward diatoms, and whether this holds for cropland conversion, where fertiliser N and dams may reverse it.",
+    "untested": "Hubbard Brook measured more dissolved silica after clearing, and Turner 1998 already links land-use-driven decline in Si:DIN to a lower diatom share. Not measured: a clearing-driven rise in Si:N at river mouths and a diatom shift downstream; the claim that Si:N rises after harvest has no cited source, and cropland conversion with fertiliser N and dams may reverse it.",
     "papers": [
       {
         "title": "Hubbard Brook clear-cut raised stream dissolved silicate loss (Conley et al.); did not follow silica downstream to coastal phytoplankton (abstract not opened in full, record page redirected to Wiley)",
@@ -2186,12 +2186,12 @@
       ]
     },
     "scores": {
-      "novel": 50,
+      "novel": 45,
       "accurate": 40,
       "testable": 65,
       "impact": 42
     },
-    "why": "Strength: Hubbard Brook clear-cut raised silica export for nearly four decades, and GlASS gives 421 rivers for the catchment half. Risk: the Yangtze lost silica export as dams and cropland spread, and N and P enrichment lowers Si:N at river mouths, so reservoirs and fertiliser can reverse the sign of the cropland and coastal diatom branches.",
+    "why": "Strength: Hubbard Brook clear-cut raised silica export for nearly four decades, GlASS gives 421 rivers for the catchment half, and the Si:N to diatom link is established (Turner 1998). Risk: Turner 1998 shows land use lowering Si:DIN, the opposite sign for the cropland branch, and harvest also releases nitrate with no cited source that Si:N rises at the river mouth, so N and P enrichment and reservoirs could reverse the sign of the coastal diatom branch.",
     "rubric": 4,
     "assessed": "2026-10-17"
   },
@@ -2296,7 +2296,7 @@
     "id": "e_yusjlqhah",
     "title": "Atmospheric river landfalls drive coastal chlorophyll, more with northerly wind",
     "status": "partly tested",
-    "untested": "The orientation contrast has been shown for central-southern Chile in a few events, but no multi-decade regression across Chile, California and Iberia tests whether AR count and orientation explain at least 20 percent of interannual variance in 4-week nearshore chlorophyll.",
+    "untested": "Diaz et al. 2023 show an atmospheric river driving a phytoplankton succession in western Patagonia, and a Chile study shows the orientation contrast in a few events, so the AR-phytoplankton link is not Chile-only. Not measured: a multi-decade regression across Chile, California and Iberia of AR count and orientation against 4-week nearshore chlorophyll, and a stated threshold for the variance explained.",
     "papers": [
       {
         "title": "Central-southern Chile (33-40 S): tilted (northerly-wind) ARs gave coastally trapped plumes and raised surface nitrate, silicic acid and chlorophyll-a more than zonal ARs; a few events and in situ sampling, no interannual variance explained, no other regions",
@@ -2329,12 +2329,12 @@
       ]
     },
     "scores": {
-      "novel": 45,
+      "novel": 40,
       "accurate": 68,
-      "testable": 75,
+      "testable": 65,
       "impact": 38
     },
-    "why": "Strength: a 2025 central-southern Chile study shows northerly-wind ARs raising nitrate, silicic acid and chlorophyll more than zonal ones, so the direction and the orientation contrast have a direct measurement in one region, and 20+ years of reanalysis and ocean colour are free. Risk: the 20% variance share is a magnitude question and the sign in California and Iberia is unmeasured, and storm turbidity, light limitation and northerly wind suppressing upwelling could lower chlorophyll after landfall there, flipping the sign.",
+    "why": "Strength: northerly-wind ARs raising nitrate, silicic acid and chlorophyll more than zonal ones is directly measured in central-southern Chile and an AR-driven succession is measured in Patagonia (Diaz et al. 2023), and 20+ years of reanalysis and ocean colour are free. Risk: the sign in California and Iberia is unmeasured, and storm turbidity, light limitation, or northerly wind suppressing upwelling could lower chlorophyll after landfall there, flipping the sign; the test is also loose because the prediction asks for at least 20% of variance while the falsifier uses 5%.",
     "rubric": 4,
     "assessed": "2026-10-17"
   },
@@ -2448,7 +2448,7 @@
     "id": "e_mfjfr9l56",
     "title": "Dark cyanobacterial crust boosts midday dryland sensible heat flux",
     "status": "related only",
-    "untested": "Sensible heat flux itself has not been compared between intact dark cyanobacterial crust and disturbed or light crust; the 20-40 W/m2 difference and the cooling after crust loss are unmeasured, and moisture, roughness and ground-heat storage could cancel the albedo effect.",
+    "untested": "Sensible heat flux itself has not been compared between intact dark cyanobacterial crust and disturbed or light crust; the stated 20-40 W/m2 difference (which does not follow from the stated inputs; about 10-40 W/m2) and the cooling after crust loss are unmeasured, and moisture, roughness and ground-heat storage could cancel the albedo effect.",
     "papers": [
       {
         "title": "Two-year moss-biocrust study: biocrust albedo 43 percent lower than bare soil, raising net radiation and altering energy balance; moss not cyanobacteria, and results reported as radiation terms rather than a clean dry-season sensible heat contrast",
@@ -2601,8 +2601,8 @@
   {
     "id": "e_d198y3nj8",
     "title": "Peak meltwater flow lets more Greenland methane escape unoxidised",
-    "status": "related only",
-    "untested": "No study has measured the oxidised versus degassed fraction of subglacial methane along a Greenland outlet river at low versus peak discharge; the over-half versus under-20 percent split and the claim that emissions outgrow the methanotroph sink with ice loss are untested.",
+    "status": "partly tested",
+    "untested": "Lamarche-Gagnon et al. 2019 already state that efficient drainage limits methane oxidation to about 17% and conclude methane escapes in fast rivers, and Dieser et al. 2014 measured the oxidation kinetics and detected pmoA at Russell Glacier. Not measured: the oxidised versus degassed split along one outlet river resolved by discharge (low versus peak), with isotope fractionation and floating-chamber flux, and the over-half versus under-20 percent figures.",
     "papers": [
       {
         "title": "Methane oxidation in land-terminating glacial runoff (lake and river): river oxidation may cut emissions by up to 53 percent; measured net activity at sites but not as a function of discharge or residence time",
@@ -2630,12 +2630,12 @@
       ]
     },
     "scores": {
-      "novel": 65,
+      "novel": 50,
       "accurate": 72,
       "testable": 75,
       "impact": 48
     },
-    "why": "Strength: oxidation takes about 30 days to remove over 98% of methane in 4 C incubations while peak-melt transit is hours to days, so a shorter residence time must leave a larger share to degas, and isotope fractionation can partition the two fates. Risk: the over-half versus under-20% split depends on a residence-time model, and fast degassing near the portal at all flows or oxidation by cells already adapted in flushed water could make the discharge dependence flat, with remote Greenland fieldwork adding cost.",
+    "why": "Strength: residence time at peak flow (hours to days) is far below the roughly 30 days measured for >98% oxidation, and Lamarche-Gagnon et al. 2019 already report oxidation limited to about 17% under efficient drainage, so the direction follows from measured kinetics and a transit-time identity. Risk: the over-half versus under-20% split depends on a residence-time model, and fast degassing near the portal at all flows, or flushing of already-adapted methanotrophs from the ice bed at high discharge, could make the escaping share flat across flow, which would flip the discharge dependence.",
     "cluster": "greenland-meltwater-methane",
     "rubric": 4,
     "assessed": "2026-10-17"
@@ -2812,7 +2812,7 @@
     "id": "e_ut251aop0",
     "title": "Fast meltwater flow limits methane oxidation at Greenland outlets",
     "status": "partly tested",
-    "untested": "Open: the measured, discharge-resolved split between oxidised and degassed methane at stations downstream of an outlet, with floating-chamber flux. The idea that efficient drainage limits oxidation (about 17% oxidised) is already stated by Lamarche-Gagnon et al. 2019.",
+    "untested": "Lamarche-Gagnon et al. 2019 already state that efficient drainage limits methane oxidation to about 17% and conclude methane escapes in fast rivers, and Dieser et al. 2014 measured the oxidation kinetics and detected pmoA at Russell Glacier. Not measured: the oxidised versus degassed split along one outlet river resolved by discharge (low versus peak), with isotope fractionation and floating-chamber flux, and the over-half versus under-20 percent figures.",
     "papers": [
       {
         "title": "Methane oxidation in land-terminating glacial runoff (lake and river): river oxidation may cut emissions by up to 53 percent; measured net activity at sites but not as a function of discharge or residence time",
@@ -2845,12 +2845,12 @@
       ]
     },
     "scores": {
-      "novel": 70,
-      "accurate": 67,
-      "testable": 78,
+      "novel": 50,
+      "accurate": 72,
+      "testable": 75,
       "impact": 42
     },
-    "why": "Strength: shorter residence time at peak flow gives less time for oxidation (about 30 days to consume 98% of methane versus hours to days of transit), and a station-by-station isotope and pmoA design with floating chambers can falsify it. Risk: fast degassing near the portal may dominate at all flows, flattening the discharge dependence, and higher discharge dilutes dissolved CH4 and could wash in more methanotrophs from the ice-bed, which would make the escaping share flat or lower at peak flow.",
+    "why": "Strength: residence time at peak flow (hours to days) is far below the roughly 30 days measured for >98% oxidation, and Lamarche-Gagnon et al. 2019 already report oxidation limited to about 17% under efficient drainage, so the direction follows from measured kinetics and a transit-time identity. Risk: the over-half versus under-20% split depends on a residence-time model, and fast degassing near the portal at all flows, or flushing of already-adapted methanotrophs from the ice bed at high discharge, could make the escaping share flat across flow, which would flip the discharge dependence.",
     "cluster": "greenland-meltwater-methane",
     "rubric": 4,
     "assessed": "2026-10-17",
@@ -4262,7 +4262,7 @@
     "id": "e_5nty21xgt",
     "title": "High-alkalinity rivers slow coastal aragonite saturation decline",
     "status": "related only",
-    "untested": "No study regresses decadal change in coastal aragonite saturation on river alkalinity export across paired estuaries or shelves at matched freshwater fraction, or follows sites where river alkalinity changed (dams, liming, acid-rain recovery) to test the 30-60% buffering figure.",
+    "untested": "The alkalinity benefit is shown for ocean water (Gulf of Maine) and the Arabian Sea paper shows groundwater, not rivers. Not measured: decadal change in coastal aragonite saturation regressed on river alkalinity export across paired estuaries or shelves at matched freshwater fraction; the TA:DIC above 1.1 river threshold is unreachable for most rivers (bicarbonate-dominated water is about 0.9-1.0), so the test as written rarely applies and needs a different criterion.",
     "papers": [
       {
         "title": "Gulf of Maine boron-isotope pH record: pH rose with inflow of high-alkalinity Gulf Stream water, a buffering case but from ocean not river alkalinity",
@@ -4291,11 +4291,11 @@
     },
     "scores": {
       "novel": 55,
-      "accurate": 58,
-      "testable": 60,
+      "accurate": 52,
+      "testable": 50,
       "impact": 52
     },
-    "why": "Strength: alkalinity buffers carbonate chemistry by established thermodynamics, and coastal acidification networks supply time series. Risk: at matched freshwater fraction the effect is probably confined to plumes, and high-alkalinity rivers also carry high DIC, pCO2 and nutrients, and organic alkalinity and eutrophication could make high-alkalinity coasts show equal or faster saturation loss.",
+    "why": "Strength: alkalinity buffers carbonate chemistry by established thermodynamics, and coastal acidification networks supply time series. Risk: the river-specific benefit is not shown (evidence is ocean water and groundwater), the effect at matched freshwater fraction is probably confined to plumes, and high-alkalinity rivers also carry high DIC, pCO2 and nutrients, so organic alkalinity and eutrophication could make high-alkalinity coasts lose saturation equally fast or faster, flipping the sign.",
     "rubric": 4,
     "assessed": "2026-10-17"
   },
@@ -4344,7 +4344,7 @@
     "id": "e_lkfyp55e4",
     "title": "Longer tundra zero-curtain means more cold-season carbon loss",
     "status": "related only",
-    "untested": "No study regresses Sept-May CO2 and CH4 flux on measured zero-curtain duration across tundra sites with snow depth, air temperature and moisture as covariates, or lengthens the plateau experimentally (snow fence or irrigation).",
+    "untested": "Gay et al. 2026 map circumarctic zero-curtain duration and tie it to cold-season microbial activity, but do not regress CO2 or CH4 flux on duration. Not measured: Sept-May CO2 and CH4 flux regressed on zero-curtain duration across tundra sites with snow depth, air temperature and moisture as covariates, or a snow-fence or irrigation manipulation that lengthens the plateau.",
     "papers": [
       {
         "title": "GeoCryoAI maps circumarctic zero-curtain duration (100-4000 h) and says it sustains cold-season microbial activity; mapped timing, did not test flux response",
@@ -4377,12 +4377,12 @@
       ]
     },
     "scores": {
-      "novel": 70,
+      "novel": 65,
       "accurate": 50,
       "testable": 72,
       "impact": 62
     },
-    "why": "Strength: existing eddy-covariance and soil-temperature records allow a direct regression, and unfrozen water near 0 C keeping microbes active is established, with winter loss of 1662 Tg C/yr. Risk: zero-curtain duration is confounded with snow insulation and soil water, so any link may reflect snow depth rather than latent heat, and the beyond-air-temperature claim needs a manipulation, and a longer plateau can also mean a colder deep freeze that lowers respiration, flipping the sign.",
+    "why": "Strength: existing eddy-covariance and soil-temperature records allow a direct regression, and Gay et al. 2026 tie the zero-curtain to cold-season microbial activity, with winter loss of 1662 Tg C/yr. Risk: duration is confounded with snow insulation and soil water, so any link may reflect snow depth rather than latent heat, and a longer plateau can also mean a colder deep freeze that lowers respiration, flipping the sign.",
     "rubric": 4,
     "assessed": "2026-10-17"
   },
@@ -4490,7 +4490,7 @@
     "id": "e_0937mgiee",
     "title": "Lightning-strike soils hold more phosphite and extractable P",
     "status": "partly tested",
-    "untested": "Lightning-made phosphite is documented inside one fulgurite, but nobody has measured phosphite, resin-extractable P or ptxD gene abundance in surrounding soil versus matched controls at strike sites in P-poor, lightning-rich regions.",
+    "untested": "Hess et al. 2021 already estimate lightning forming phosphide and phosphite, and phosphite is documented in a fulgurite. Not measured: phosphite, resin-extractable P and ptxD abundance in the soil around strike sites versus matched controls, i.e. whether this P is bioavailable in soil.",
     "papers": [
       {
         "title": "Pasek-type study of a Florida fulgurite: lightning reduced apatite-type phosphate to phosphides and a calcium phosphite (CaHPO3); mineralogy only, no soil or microbial release measured",
@@ -4527,12 +4527,12 @@
       ]
     },
     "scores": {
-      "novel": 70,
+      "novel": 50,
       "accurate": 45,
       "testable": 70,
       "impact": 12
     },
-    "why": "Strength: lightning reducing apatite phosphate to phosphides and calcium phosphite is documented in a Florida fulgurite, and phosphite is measurable by 31P NMR and ptxD qPCR. Risk: phosphite oxidizes quickly in soil and the melt is confined to the fulgurite, so the surrounding soil within 1 m may show no +10-50% signal, and fulgurite sampling could even show lower extractable P if melt locks phosphorus into glass.",
+    "why": "Strength: lightning reducing apatite phosphate to phosphide and phosphite is documented (Hess et al. 2021, a Florida fulgurite), and phosphite is measurable by 31P NMR and ptxD qPCR. Risk: phosphite oxidizes quickly in soil and the melt is confined to the fulgurite, so soil within 1 m may show no +10-50% signal, and extractable P could even be lower if melt locks phosphorus into glass, which would flip the sign.",
     "rubric": 4,
     "assessed": "2026-10-17"
   },
@@ -4590,8 +4590,8 @@
   {
     "id": "e_wohnybort",
     "title": "Burned catchments break the atmospheric-river and soil-moisture flood link",
-    "status": "related only",
-    "untested": "No study ranks atmospheric-river landfalls in the first post-fire winters for paired burned and unburned gauged catchments to test burned x AR-rank and burned x soil-moisture interactions, or checks whether the antecedent-moisture correction of the AR scale weakens in burn scars.",
+    "status": "partly tested",
+    "untested": "Atmospheric rivers were a dominant feature in 13 of 19 events that triggered post-fire debris flows (Oakley et al. 2017), so the AR-to-post-fire-flow link is partly measured. Not measured: the burned x AR-rank and burned x antecedent-moisture interactions in paired gauged catchments, the 5-20x peak specific discharge multiple at matched AR category, and whether the soil-moisture correction of the AR scale weakens in burn scars.",
     "papers": [
       {
         "title": "Antecedent moisture and the AR scale: soil moisture explains divergence between AR rank and peak streamflow across California and Chile catchments; burn status not tested",
@@ -4628,12 +4628,12 @@
       ]
     },
     "scores": {
-      "novel": 70,
+      "novel": 55,
       "accurate": 65,
       "testable": 72,
       "impact": 45
     },
-    "why": "Strength: burned catchments giving several-fold higher peak flows and debris-flow probability is well established, and gauges, burn-severity maps and AR catalogues exist for the regression. Risk: the title claim that burn scars break the soil-moisture link rests on water repellency overriding antecedent wetness, which is established in soils but unmeasured for AR floods (about 0.9 x 0.75), and hydrophobicity that decays within a season, sediment storage or rainfall intensity could make the interaction vanish.",
+    "why": "Strength: burned catchments giving several-fold higher peak flows and debris-flow probability is well established, ARs are already tied to most post-fire debris-flow events (Oakley et al. 2017), and gauges, burn-severity maps and AR catalogues exist for the regression. Risk: the claim that burn scars decouple runoff from antecedent wetness is established for water-repellent soils but unmeasured for AR floods (about 0.9 x 0.75), and hydrophobicity that decays within a season, sediment storage or rainfall intensity could make the interaction vanish, in which case the soil-moisture correction would work as well as in unburned catchments.",
     "rubric": 4,
     "assessed": "2026-10-17"
   },
