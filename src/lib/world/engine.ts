@@ -1,6 +1,6 @@
 // The rules engine for the shared map: validates and applies agents' operations, decides which
 // proposals pass, scores agents, and builds the indexes the site reads. Pure functions over a World.
-import type { Agent, Edge, Evidence, Op, OpResult, Params, Proc, Proposal, Rule, Step, World } from "./types";
+import type { Agent, Edge, Evidence, Impact, Op, OpResult, Params, Proc, Proposal, Rule, Step, World } from "./types";
 
 export const MAX_BATCH = 25;
 const norm = (s: string) => String(s).trim().toLowerCase().replace(/\s+/g, " ");
@@ -73,6 +73,37 @@ const cleanNotes = (r: unknown, resources: string[]): Record<string, string> | u
 };
 const names = (a: unknown) => [...new Set((Array.isArray(a) ? a : []).map(x => clip(x, 80)).filter(Boolean))].slice(0, 12);
 
+const IMPACT_HELP = 'every line needs "impact": {"size": 1-5, "direction": "+" or "-" or "0", "note": "why"}, for example "impact": {"size": 3, "direction": "+", "note": "more light means more growth"}. To quantify it add "elasticity" (% change in the next step per 1% change in this one, signed), "low" and "high" (its range), "value" and "unit" (an absolute rate) and "source" (which cited paper gives the number).';
+/** Validate and normalise an impact. On replay the stored shape is trusted (it passed when it was sent). */
+function cleanImpact(raw: unknown, replay = false): { impact: Impact } | { error: string } {
+  const im = (raw || {}) as Record<string, unknown>;
+  const size = Number(im.size), dir = String(im.direction);
+  if (!raw || typeof raw !== "object" || !(size >= 1 && size <= 5) || !["+", "-", "0"].includes(dir) || (!im.note && !replay)) return { error: IMPACT_HELP };
+  const out: Impact = { size: replay ? size : Math.round(size), direction: dir as Impact["direction"], note: clip(im.note, 600) };
+  const num = (k: string) => (im[k] == null || im[k] === "" ? undefined : Number(im[k]));
+  const el = num("elasticity"), low = num("low"), high = num("high"), value = num("value");
+  if (el !== undefined) {
+    if (!Number.isFinite(el) || Math.abs(el) > 1000) return { error: "impact.elasticity must be a number: % change in the next step per 1% change in this one (for example 0.4 or -1.2)" };
+    if ((dir === "+" && el < 0) || (dir === "-" && el > 0)) return { error: "impact.elasticity has the opposite sign to impact.direction" };
+    out.elasticity = el;
+  }
+  if (low !== undefined || high !== undefined) {
+    if (el === undefined && value === undefined) return { error: "impact.low and impact.high give the range of elasticity or value; send one of those too" };
+    if (low === undefined || high === undefined || !Number.isFinite(low) || !Number.isFinite(high) || low > high) return { error: "impact.low and impact.high must both be numbers with low <= high" };
+    const mid = el ?? value!;
+    if (mid < low || mid > high) return { error: "impact.low <= elasticity (or value) <= impact.high must hold" };
+    out.low = low; out.high = high;
+  }
+  if (value !== undefined) {
+    if (!Number.isFinite(value)) return { error: "impact.value must be a number" };
+    const unit = clip(im.unit, 40);
+    if (!unit) return { error: "impact.value needs impact.unit (for example \"kg N/ha/yr\" or \"% per 10 C\")" };
+    out.value = value; out.unit = unit;
+  }
+  if (im.source) out.source = clip(im.source, 240);
+  return { impact: out };
+}
+
 export function net(w: World, target: string, except?: string) {
   let up = 0, down = 0;
   for (const v of w.votes) if (v.target === target && v.agent !== except) v.vote === "up" ? up++ : down++;
@@ -140,9 +171,9 @@ export function applyOp(w: World, agent: string, o0: Op, ctx: Ctx): OpResult {
     const a = w.steps[ref(o.from)], b = w.steps[ref(o.to)];
     if (!a || !b) return fail(`unknown step: from=${JSON.stringify(o.from)} to=${JSON.stringify(o.to)}. Send "from" and "to" as step ids (like s123) that exist, or as "@name" for a step added earlier in the same request with "ref":"name".`);
     if (a.status === "removed" || b.status === "removed") return fail("cannot link to a removed step");
-    const im = o.impact as Edge["impact"] | undefined;
-    if (!im || !(im.size >= 1 && im.size <= 5) || !["+", "-", "0"].includes(im.direction) || !im.note) return fail('every line needs "impact": {"size": 1-5, "direction": "+" or "-" or "0", "note": "why"}, for example "impact": {"size": 3, "direction": "+", "note": "more light means more growth"}');
-    const e: Edge = { id: mint(ctx, "edge", "e"), from: a.id, to: b.id, label: clip(o.label, 80), impact: { size: Number(im.size), direction: im.direction, note: clip(im.note, 600) }, evidence: cleanEv(o.evidence as Evidence[]), by: agent, status: "live", t: ctx.t };
+    const im = cleanImpact(o.impact, ctx.replay);
+    if ("error" in im) return fail(im.error);
+    const e: Edge = { id: mint(ctx, "edge", "e"), from: a.id, to: b.id, label: clip(o.label, 80), impact: im.impact, evidence: cleanEv(o.evidence as Evidence[]), by: agent, status: "live", t: ctx.t };
     if (a.kind === "fork") {
       const prob = Number(o.prob);
       if (!(prob > 0 && prob <= 100)) return fail("lines out of a fork need prob (1-100); outcomes must add up to 100");
@@ -187,9 +218,9 @@ export function applyOp(w: World, agent: string, o0: Op, ctx: Ctx): OpResult {
       set.lit = { query_a: clip(l.query_a, 200), query_b: clip(l.query_b, 200), ...(l.query_ab ? { query_ab: clip(l.query_ab, 300) } : {}), count_a: Number(l.count_a), count_b: Number(l.count_b), count_ab: Number(l.count_ab) };
     }
     if (set.impact != null && !ctx.replay) {
-      const im = set.impact as { size?: unknown; direction?: unknown; note?: unknown };
-      if (!im || typeof im !== "object" || !Number.isInteger(Number(im.size)) || Number(im.size) < 1 || Number(im.size) > 5 || !["+", "-", "0"].includes(String(im.direction))) return fail("impact needs size 1-5 and direction +, - or 0 (use size 1 with direction 0 for no clear effect)");
-      set.impact = { size: Number(im.size), direction: im.direction, note: clip(im.note, 600) };
+      const im = cleanImpact(set.impact, false);
+      if ("error" in im) return fail(im.error);
+      set.impact = im.impact;
     }
     if (set.participants) set.participants = names(set.participants);
     if (set.resources) set.resources = names(set.resources);

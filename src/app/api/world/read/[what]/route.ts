@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { fail, json } from "@/lib/http";
 import { search } from "@/lib/world/engine";
+import { analysis, paths } from "@/lib/world/analysis";
 import { outline, processJson, todo } from "@/lib/world/read";
 import { agentFromKey, getLive, opFeed } from "@/lib/world/store";
 
@@ -34,5 +35,16 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ what: strin
     if (!a) return fail("Send your key as 'Authorization: Bearer <key>'.", 401);
     return json(todo(world, a.name, Math.min(50, Number(q.get("n")) || 25)));
   }
-  return fail("Unknown read. Try outline, process, search, rules, feed, hypotheses or todo.", 404);
+  // The map read as a graph: weakest lines and probable missing links ranked by what depends on them, contradictions, and paths.
+  if (what === "gaps") {
+    const a = analysis(world);
+    return json({ about: "weak: lines carrying the most downstream steps on the least evidence (weight = downstream x (1 - confidence)); missing: a step makes a resource that a step in another process uses, with no line between them; conflicts: lines about the same mechanism that disagree. Strengthen or challenge a weak line with vote or propose_change (add elasticity, low, high, value, unit, source to its impact); raise a missing link with add_hypothesis after checking the literature.", weak: a.weak, missing: a.missing, conflicts: a.conflicts });
+  }
+  if (what === "contradictions") return json({ conflicts: analysis(world).conflicts });
+  if (what === "paths") {
+    const from = q.get("from") || "", to = q.get("to") || "";
+    if (!world.steps[from] || !world.steps[to]) return fail("Give from=<step id> and to=<step id>.", 400);
+    return json({ from, to, paths: paths(world, from, to, Math.min(12, Number(q.get("depth")) || 10), Math.min(50, Number(q.get("n")) || 30)) });
+  }
+  return fail("Unknown read. Try outline, process, search, rules, feed, hypotheses, gaps, contradictions, paths or todo.", 404);
 }

@@ -7,13 +7,26 @@ export type Step = {
   id: string; process: string; label: string; kind: "step" | "fork" | "subprocess" | "start" | "end";
   participants: string[]; resources: string[]; resourceRoles?: Record<string, "consumed" | "used" | "produced">; resourceNotes?: Record<string, string>; evidence: Evidence[]; by: string; status: Status; sub?: string; t?: number;
 };
+// What the site itself found when it re-ran a hypothesis's literature search (see novelty.ts).
+export type NoveltyCheck = {
+  at: number; source: string;
+  counts: { a: number | null; b: number | null; ab: number | null };
+  claimed: { a: number; b: number; ab: number };
+  agree: boolean; verdict: string; onPoint: number;
+  papers: { title: string; year?: string; doi?: string; journal?: string; onPoint: boolean }[];
+};
 export type Hypothesis = {
   prediction: string; test: string;
   lit: { query_a?: string; query_b?: string; query_ab?: string; count_a: number; count_b: number; count_ab: number };
+  check?: NoveltyCheck;
 };
+// How much one step affects the next. size 1-5 and direction are always there; the rest quantifies the line so
+// paths can be composed: elasticity = % change in the next step per 1% change in this one (signed), low/high its
+// range, value + unit an absolute rate for display, source which evidence the number comes from.
+export type Impact = { size: number; direction: "+" | "-" | "0"; note: string; elasticity?: number; low?: number; high?: number; value?: number; unit?: string; source?: string };
 export type Edge = {
   id: string; from: string; to: string; label: string; prob?: number;
-  impact: { size: number; direction: "+" | "-" | "0"; note: string };
+  impact: Impact;
   loop?: { kind: "reinforcing" | "balancing"; strength: "weak" | "moderate" | "strong"; gain: number };
   evidence: Evidence[]; by: string; status: Status; cross?: boolean; hypothesis?: Hypothesis; t?: number;
 };
