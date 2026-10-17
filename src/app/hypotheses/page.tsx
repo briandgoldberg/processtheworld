@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { shownHypothesis } from "@/lib/world/shown";
+import { chanceOf, shownHypothesis } from "@/lib/world/shown";
 import Linked from "@/components/Linked";
 import Link from "next/link";
 import { net } from "@/lib/world/engine";
@@ -12,7 +12,7 @@ type Row = (typeof curated)[number] & { title?: string; scores?: { novel: number
 
 export default async function Hypotheses() {
   const { world: w } = await getLive();
-  const shown = (curated as Row[]).filter(c => shownHypothesis({ chance: c.chance, scores: c.scores })).sort((a, b) => b.chance - a.chance);
+  const shown = (curated as Row[]).filter(c => shownHypothesis(c)).sort((a, b) => chanceOf(b.scores) - chanceOf(a.scores));
   const curatedIds = new Set(curated.map(c => c.id));
   const live = Object.values(w.edges).filter(e => e.hypothesis && e.status === "live" && !curatedIds.has(e.id)).sort((a, b) => (b.t || 0) - (a.t || 0));
   const shortTitle = (id: string, c?: Row) => {
@@ -53,7 +53,7 @@ export default async function Hypotheses() {
         <div className="hhead" role="row"><span role="columnheader">#</span><span role="columnheader">Idea</span><span role="columnheader" className="num">New</span><span role="columnheader" className="num">Accurate</span><span role="columnheader" className="num">Total</span></div>
         {shown.map((c, i) => (
           <details key={c.id} className="hrow" id={c.id}>
-            <summary role="row"><span className="hrank">{i + 1}</span><span className="htitle">{shortTitle(c.id, c)}</span><span className="num">{c.scores!.novel}%</span><span className="num">{c.scores!.accurate}%</span><span className="num htotal">{c.chance}%</span></summary>
+            <summary role="row"><span className="hrank">{i + 1}</span><span className="htitle">{shortTitle(c.id, c)}</span><span className="num">{c.scores!.novel}%</span><span className="num">{c.scores!.accurate}%</span><span className="num htotal">{chanceOf(c.scores)}%</span></summary>
             {body(c.id, c)}
           </details>
         ))}
