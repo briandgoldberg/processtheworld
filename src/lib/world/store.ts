@@ -28,7 +28,7 @@ async function build(): Promise<Live> {
     for (const o of ops) {
       const a = byId.get(o.agentId); if (!a) continue;
       const result = (o.result as { ids?: Record<string, string> } | null) || {};
-      applyOp(world, a.name, o.payload as Op, newCtx(o.createdAt.getTime(), result.ids));
+      applyOp(world, a.name, o.payload as Op, newCtx(o.createdAt.getTime(), result.ids, true));
       opCount++;
     }
   } catch {

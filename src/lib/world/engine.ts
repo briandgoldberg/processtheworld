@@ -78,8 +78,10 @@ export function net(w: World, target: string, except?: string) {
 }
 const itemOf = (w: World, id: string) => w.steps[id] || w.edges[id] || w.proposals[id] || w.rules[id] || null;
 
-type Ctx = { refs: Record<string, string>; assigned?: Record<string, string>; ids: Record<string, string>; t: number };
-export const newCtx = (t: number, assigned?: Record<string, string>): Ctx => ({ refs: {}, assigned, ids: {}, t });
+// replay: the op comes from the stored log and was accepted when it was sent. A limit added later must not
+// refuse it on replay (that silently erases live work, its author's points and every vote on it): clip instead.
+type Ctx = { refs: Record<string, string>; assigned?: Record<string, string>; ids: Record<string, string>; t: number; replay?: boolean };
+export const newCtx = (t: number, assigned?: Record<string, string>, replay = false): Ctx => ({ refs: {}, assigned, ids: {}, t, replay });
 const mint = (ctx: Ctx, slot: string, kind: string) => { const id = ctx.assigned?.[slot] ?? rid(kind); ctx.ids[slot] = id; return id; };
 
 /** Validate one operation by one agent and apply it. Returns ok, or the reason it was refused. */
@@ -153,8 +155,8 @@ export function applyOp(w: World, agent: string, o0: Op, ctx: Ctx): OpResult {
       const h = (o.hypothesis || o) as { prediction?: string; test?: string; lit?: Record<string, number | string> };
       const l = (h.lit || {}) as Record<string, number | string>;
       if (!h.prediction || !h.test || !(Number(l.count_a) >= 0) || !(Number(l.count_b) >= 0) || !(Number(l.count_ab) >= 0)) return fail("a hypothesis needs prediction, test, and lit {query_a, query_b, count_a, count_b, count_ab} counted from the literature");
-      const long = tooLong("prediction", h.prediction, 700) || tooLong("test", h.test, 700); if (long) return fail(long);
-      e.hypothesis = { prediction: clip(h.prediction, 700), test: clip(h.test, 700), lit: { query_a: clip(l.query_a, 200), query_b: clip(l.query_b, 200), count_a: Number(l.count_a), count_b: Number(l.count_b), count_ab: Number(l.count_ab) } };
+      const long = ctx.replay ? "" : tooLong("prediction", h.prediction, 700) || tooLong("test", h.test, 700); if (long) return fail(long);
+      e.hypothesis ={ prediction: clip(h.prediction, 700), test: clip(h.test, 700), lit: { query_a: clip(l.query_a, 200), query_b: clip(l.query_b, 200), count_a: Number(l.count_a), count_b: Number(l.count_b), count_ab: Number(l.count_ab) } };
       if (a.process === b.process) return fail("a hypothesis links two different processes");
     }
     if (a.process !== b.process) e.cross = true;
@@ -174,7 +176,7 @@ export function applyOp(w: World, agent: string, o0: Op, ctx: Ctx): OpResult {
     if (!o.delete && !Object.keys(set).length) return fail("set or delete required");
     if (kind === "edge" && w.edges[tid].hypothesis) allowed.edge = [...allowed.edge, ...HYP_FIELDS];
     for (const k of Object.keys(set)) if (!allowed[kind].includes(k)) return fail(`cannot change ${k} on a ${kind}; allowed: ${allowed[kind].join(", ")}`);
-    const long = (set.prediction != null && tooLong("prediction", set.prediction, 700)) || (set.test != null && tooLong("test", set.test, 700)); if (long) return fail(long);
+    const long = ctx.replay ? "" : (set.prediction != null && tooLong("prediction", set.prediction, 700)) || (set.test != null && tooLong("test", set.test, 700)); if (long) return fail(long);
     if (set.prediction != null) { set.prediction = clip(set.prediction, 700); if (!set.prediction) return fail("prediction cannot be empty"); }
     if (set.test != null) { set.test = clip(set.test, 700); if (!set.test) return fail("test cannot be empty"); }
     if (set.lit != null) {
