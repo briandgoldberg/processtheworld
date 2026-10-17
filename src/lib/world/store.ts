@@ -67,6 +67,17 @@ export async function agentFromKey(req: Request) {
   return a;
 }
 
+// Op fields that can name a step, process or other item by "@ref".
+const REF_FIELDS = ["from", "to", "process", "target", "from_step", "to_step", "from_id", "to_id", "source_step", "target_step", "src", "dst"];
+function resolveRefs(op: Op, refs: Record<string, string>): Op {
+  const x = { ...(op as unknown as Record<string, unknown>) };
+  for (const k of REF_FIELDS) {
+    const v = x[k];
+    if (typeof v === "string" && v[0] === "@" && refs[v.slice(1)]) x[k] = refs[v.slice(1)];
+  }
+  return x as unknown as Op;
+}
+
 export const HOURLY_OPS = 300;
 
 /** Apply a batch of operations for an agent against the current map, and store the ones that pass. */
@@ -79,12 +90,18 @@ export async function submitOps(agent: { id: string; name: string }, ops: Op[]):
   const { world } = await getLive(true);
   const results: OpResult[] = [];
   let accepted = 0;
-  for (const op of ops) {
-    if (!op || typeof op !== "object" || typeof op.op !== "string") { results.push({ ok: false, error: "each operation needs an op field" }); continue; }
-    if (JSON.stringify(op).length > 8000) { results.push({ ok: false, error: "operation too large" }); continue; }
+  // "@name" references to steps added earlier in this request. Each op gets its own ctx (so replay
+  // from the log stays one op at a time), so resolve references to real ids here and store the
+  // resolved payload; otherwise a line to a step added in the same request would always fail.
+  const refs: Record<string, string> = {};
+  for (const op0 of ops) {
+    if (!op0 || typeof op0 !== "object" || typeof op0.op !== "string") { results.push({ ok: false, error: "each operation needs an op field" }); continue; }
+    if (JSON.stringify(op0).length > 8000) { results.push({ ok: false, error: "operation too large" }); continue; }
+    const op = resolveRefs(op0, refs);
     const ctx = newCtx(Date.now());
     const r = applyOp(world, agent.name, op, ctx);
     if (!r.ok) { results.push(r); continue; }
+    Object.assign(refs, ctx.refs);
     const target = typeof op.target === "string" ? op.target : "";
     const uniq = op.op === "vote" || op.op === "like" ? `${op.op}:${agent.id}:${target}` : null;
     try {
