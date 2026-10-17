@@ -93,38 +93,33 @@ button.qrow{font-family:inherit}
 .xp svg .el{font-size:11px;font-weight:700;fill:var(--ink)}
 
 @media(max-width:1100px){.xp-body{grid-template-columns:minmax(0,1fr) 340px}}
+/* phones: the breadcrumb and the search bar each get a row, the map takes the screen, the inspector slides under it.
+   Full screen means the map alone: the inspector becomes a sheet over the bottom of the map, hidden until something is tapped. */
 @media(max-width:800px){
   .xp{height:auto;min-height:0}
-  .xp-body{grid-template-columns:minmax(0,1fr)}
-  .xp-board{height:62vh}
-  .xp-side{border-left:0;border-top:1px solid var(--line);max-height:50vh}
-  .xp-crumbs{display:none}
-  .xp-layer span{display:none}
-  .xp.fs .xp-body{display:flex;flex-direction:column}
-  .xp.fs .xp-board{flex:1;height:auto}
-}
-
-/* phones: the search bar gets its own row, the map takes the screen, the inspector slides under it */
-@media(max-width:800px){
   .xp-top{padding:8px 10px;gap:8px}
+  .xp-crumbs{order:4;flex-basis:100%;font-size:13px;overflow-x:auto;text-overflow:clip;white-space:nowrap;margin:0;padding:2px 2px 0}
   .xp-search{order:5;flex-basis:100%;max-width:none;margin:0}
   .xp-search input{font-size:16px;padding:11px 14px}
   .xp-zoom .wide{display:none}
   .xp-foot{display:none}
-  .xp{height:auto;min-height:0}
+  .xp-body{grid-template-columns:minmax(0,1fr)}
   .xp-board{height:58vh}
   .xp.walking .xp-board{height:calc(100vh - 200px);height:calc(100dvh - 200px)}
   .btn.guide{padding:6px 10px;font-size:13.5px}
   .walkcard{left:8px;right:8px;bottom:8px;width:auto;max-height:60%;padding:14px 16px}
   .walkcard h3{font-size:18px}
-  .xp-side{max-height:none;border-top:1px solid var(--line)}
+  .xp-side{border-left:0;border-top:1px solid var(--line);max-height:none}
   .xp-insp{padding:14px 16px 20px}
   .xp-insp h3{font-size:17px}
-  .xp.fs{height:100vh;height:100dvh}
-  .xp.fs .xp-body{display:flex;flex-direction:column;overflow:auto}
-  .xp.fs .xp-board{flex:1 0 58vh;height:auto}
-  .xp.fs .xp-side{flex:0 0 auto;max-height:45vh}
   .xp.embed .xp-board{max-height:55vh}
+  .xp.fs{height:100vh;height:100dvh}
+  .xp.fs .xp-crumbs,.xp.fs .xp-search{display:none}
+  .xp.fs .xp-body{display:block;position:relative;overflow:hidden}
+  .xp.fs .xp-board{height:100%}
+  .xp.fs .xp-side{position:absolute;left:0;right:0;bottom:0;max-height:50%;border-radius:16px 16px 0 0;box-shadow:0 -10px 30px rgba(0,0,0,.18);z-index:5}
+  .xp.fs.idle .xp-side{display:none}
+  .xp.fs .walkcard{max-height:50%}
 }
 @media(max-width:700px){
   .hero .ctas input{flex-basis:100%!important}

@@ -206,7 +206,7 @@ export default function Explorer({ model, data, embed = false, initialZoom = 1, 
   );
 
   return (
-    <div className={"xp" + (full ? " fs" : "") + (walk ? " walking" : "")}>
+    <div className={"xp" + (full ? " fs" : "") + (walk ? " walking" : "") + (!node && !edge ? " idle" : "")}>
       <div className="xp-top">
         <nav className="xp-crumbs" aria-label="Where you are">{crumbs.map((c, i) => <span key={c.id}>{i > 0 && <span className="sep">›</span>}{i < crumbs.length - 1 ? <Link href={`/map/${c.id}`}>{c.title}</Link> : <b>{c.title}</b>}</span>)}</nav>
         <div className="xp-search">
