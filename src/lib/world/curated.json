@@ -4878,5 +4878,113 @@
     "why": "Strength: exclosures raised arthropod density 81 percent and herbivory 42 percent in a Japanese forest, so lost leaf area should cut canopy carbon gain. Risk: leaf damage is usually a few percent, so the 3-10 percent carbon loss may be hard to detect, and compensatory regrowth, higher photosynthesis of remaining leaves, and context-dependent top-down control (13 percent of prairie cases) could erase or reverse the loss.",
     "rubric": 4,
     "assessed": "2026-10-17"
+  },
+  {
+    "id": "e_c89fx83zx",
+    "title": "Ocean acidification slows OCS hydrolysis, raising sea-to-air emission",
+    "status": "related only",
+    "untested": "Nobody has measured dissolved carbonyl sulfide loss or sea-to-air flux at pH 8.1 versus 7.9 and 7.7 at fixed temperature and CDOM, or refitted a cruise box model with pH free. Elliott 1989 measured the pH- and temperature-dependent hydrolysis rate law but never applied it to an acidification scenario; Lennartz 2017 fixed pH in the model.",
+    "papers": [
+      {
+        "title": "Rates and mechanisms for the hydrolysis of carbonyl sulfide in natural waters: measured the OCS hydrolysis rate law in water and seawater with a water term and a hydroxide-catalysed term over pH and temperature; did not test a 0.2-unit acidification step or any emission response",
+        "year": "1989",
+        "doi": "https://doi.org/10.1021/es00181a011"
+      },
+      {
+        "title": "Direct oceanic emissions unlikely to account for the missing source of atmospheric carbonyl sulfide: cruise OCS concentrations and a box model with photoproduction, dark production, hydrolysis and air-sea exchange, pH taken from DIC and alkalinity and held fixed; did not vary pH or test an acidification sensitivity",
+        "year": "2017",
+        "doi": "https://doi.org/10.5194/acp-17-385-2017"
+      },
+      {
+        "title": "Sulfur isotopic fractionation during hydrolysis of carbonyl sulfide: ran hydrolysis at pH 4-9, 4-40 C and salinities 0.2-40 and found no pH trend in isotope fractionation; did not report the rate response to a 0.2-unit pH change in seawater or any flux",
+        "year": "2024",
+        "doi": "https://doi.org/10.1016/j.marchem.2024.104458"
+      }
+    ],
+    "web": {
+      "verdict": "Supports half",
+      "text": "Europe PMC gives 16 papers on marine carbonyl sulfide and one off-topic joint hit with acidification or seawater pH wording (a Fusarium sulfur-oxidation paper); the hydrolysis plus seawater joint count is zero. Web search finds Elliott 1989 as the standard rate law with a hydroxide channel, a DFT study saying hydroxide attack is the main hydrolysis channel, and the 2024 isotope study, which varied pH 4-9 but reported only fractionation. No source links projected acidification to OCS hydrolysis or emission. One older lab study found OCS production from polysulfide precursors is itself pH dependent, with moderately basic pH raising steady-state OCS, a competing effect on the production side that the prediction holds fixed.",
+      "links": [
+        {
+          "label": "Elliott 1989 hydrolysis rate law (record)",
+          "url": "https://researchportal.plymouth.ac.uk/en/publications/rates-and-mechanisms-for-the-hydrolysis-of-carbonyl-sulfide-in-na/"
+        },
+        {
+          "label": "2024 isotope fractionation during OCS hydrolysis, pH 4-9",
+          "url": "https://cris.huji.ac.il/en/publications/sulfur-isotopic-fractionation-during-hydrolysis-of-carbonyl-sulfi/"
+        },
+        {
+          "label": "Lennartz 2017 supplement (pH from DIC and alkalinity, fixed)",
+          "url": "https://epic2-clone.awi.de/43370/2/acp-17-385-2017-supplement.pdf"
+        },
+        {
+          "label": "OCS formation from CO and polysulfides, pH-dependent production",
+          "url": "https://cris.huji.ac.il/en/publications/formation-of-carbonyl-sulfide-by-the-reaction-of-carbon-monoxide/"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 65,
+      "accurate": 70,
+      "testable": 88,
+      "impact": 58
+    },
+    "why": "Strength: the hydroxide-catalysed hydrolysis term is a measured rate law (Elliott 1989) used unchanged in the standard box model, so a 37% drop in hydroxide at 0.2 pH units slows the main dissolved OCS sink at fixed temperature, and the CO2-bubbled decay test with a 10% falsification band is a one-week lab job. Risk: the share of the hydroxide term at pH 8.1 and 20 C is not verified here, so the rate change could be nearer the 10% reject band than the predicted 35-55%, and the web text names a competing production-side mechanism (pH-dependent polysulfide OCS production falling at lower pH) plus the warming offset that could flip the net emission sign if production is not constant.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
+  },
+  {
+    "id": "e_w6h0hl40b",
+    "title": "Conifer pollen darkens late snow and advances melt-out",
+    "status": "related only",
+    "untested": "No study has measured snow albedo or melt-out date with and without a conifer pollen load. Pollen layers in snow and firn have been counted only to date accumulation (Nakazawa 2005, Festi 2016), and light-absorbing-particle work lists pollen among impurity types without quantifying it.",
+    "papers": [
+      {
+        "title": "Dating of seasonal snow/firn accumulation layers using pollen analysis (Belukha glacier): counted conifer and other pollen concentrated in seasonal layers to date snow; did not measure albedo, radiative forcing or melt",
+        "year": "2005",
+        "doi": "https://doi.org/10.3189/172756505781829179"
+      },
+      {
+        "title": "Linking pollen deposition, snow accumulation and isotopic composition on the Alto dell'Ortles glacier: related pollen influx to snow accumulation for sub-seasonal firn-core dating; did not measure albedo or melt",
+        "year": "2016",
+        "doi": "https://doi.org/10.5194/tc-2016-221"
+      },
+      {
+        "title": "Soot-on-snow experiment: artificial deposition of light-absorbing particles onto snow surfaces in 2018: dosed snow plots with soot and measured albedo and melt, listing algae and pollen among light-absorbing particle types; did not dose or measure pollen",
+        "year": "2024",
+        "doi": "https://doi.org/10.3389/feart.2024.1358155"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible by analogy",
+      "text": "Europe PMC: 402 papers on snow albedo, 2,222 on pollen deposition, and 9 joint hits with pollen plus snow plus albedo or melt wording, all off-topic (vegetation-albedo feedback, flowering phenology, lake cores). Two web searches found no measurement of pollen on snow albedo. A mountaineering article states that forest pollen blankets summer snowfields, concentrates at the surface as snow ablates and darkens it; a 2024 soot-on-snow paper lists pollen among light-absorbing particle types; a 2018 ACP preprint found a significant share of biological material among light-absorbing particles in snow with absorption 2-3 times what black carbon explains; a Norway spectral study measured albedo cuts of up to 0.13 from red algae, 0.21 from dust and 0.25 from black carbon, not pollen. Dust-on-snow studies give the direct analogue.",
+      "links": [
+        {
+          "label": "Pollen blankets and darkens summer snowfields (field account)",
+          "url": "https://www.piquenewsmagazine.com/whistler-news/summer-snow-science-2479630"
+        },
+        {
+          "label": "Soot-on-snow experiment 2024 (lists pollen as a LAP)",
+          "url": "https://www.frontiersin.org/journals/earth-science/articles/10.3389/feart.2024.1358155/pdf"
+        },
+        {
+          "label": "Biological material among light-absorbing particles in snow (ACP preprint)",
+          "url": "https://acp.copernicus.org/preprints/acp-2018-1307/acp-2018-1307.pdf"
+        },
+        {
+          "label": "Pollen dating of snow layers, Belukha",
+          "url": "https://resolve-he.cambridge.org/core/journals/journal-of-glaciology/article/dating-of-seasonal-snowfirn-accumulation-layers-using-pollen-analysis/BC689C0AB34B499FB7CC4F6F7107A449"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 78,
+      "accurate": 82,
+      "testable": 88,
+      "impact": 40
+    },
+    "why": "Strength: any absorbing impurity that stays on an ablating snow surface lowers albedo and advances melt by well-measured physics (dust on snow advances melt by weeks), pollen is known to concentrate at the surface during melt, and the paired-plot plus dosed-plot design with a 0.005 albedo and 1-day falsifier runs in one season. Risk: pollen is yellow, translucent and 20-60 um, so its mass absorption is far below dust or soot and the broadband change at 0.2-1 g/m2 may sit at pyranometer noise, and if grains sink into melting snow or are washed off by rain the surface load, and hence the melt-out advance, could be too small to detect; nothing found suggests the sign would reverse.",
+    "rubric": 4,
+    "assessed": "2026-10-17"
   }
 ]
