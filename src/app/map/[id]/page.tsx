@@ -42,7 +42,7 @@ export default async function MapPage({ params }: { params: Promise<{ id: string
   // what this process changes elsewhere: the strongest downstream effects of its start step, outside this process
   const start = w.processes[id]?.start;
   const imp = start ? impactOf(w, start, 6, 80) : null;
-  const impactRows = imp ? imp.rows.filter(r => r.process !== id).slice(0, 8).map(r => ({ step: r.step, label: r.label.length > 110 ? r.label.slice(0, 107).trimEnd() + "…" : r.label, process: r.process, processTitle: r.processTitle, sign: r.sign, strength: r.strength, hops: r.hops })) : [];
+  const impactRows = imp ? imp.rows.filter(r => r.process !== id && !w.steps[r.step]?.sub).slice(0, 8).map(r => ({ step: r.step, label: r.label.length > 110 ? r.label.slice(0, 107).trimEnd() + "…" : r.label, process: r.process, processTitle: r.processTitle, sign: r.sign, strength: r.strength, hops: r.hops })) : [];
   const data: ExplorerData = { questions, qByStep, downstream: down, totalQuestions: rank.main.length, impact: imp && impactRows.length ? { from: start!, rows: impactRows } : undefined };
   return <div className="xp-page"><Explorer key={id} model={model} data={data} /></div>;
 }
