@@ -62,3 +62,12 @@ machine; use node. Type-check with `npx tsc --noEmit` before committing.
 - Another Claude session has been committing to this repo (commits signed Claude Sonnet 5.5, e.g. the
   assessment batches and `c9114b1`). Pull before you start and keep commits small.
 - Site conventions: plain-text content, evidence as `{source, claim, confidence}`, links inside `source`.
+
+
+## Added 2026-10-17: the gap-finding instrument (commits 5ce9052, d15d968)
+
+- **Quantified lines.** impact may carry elasticity (% change in the next step per 1% change in this one), low/high, value+unit, source (types.ts Impact; validated by cleanImpact in engine.ts; shown in the map panel).
+- **src/lib/world/analysis.ts**: edgeConfidence, downstream (8 hops, no loops, no climbing out of a subprocess), weakEdges, missingLinks (a step makes a resource another process uses, no line between), contradictions (same steps, opposite sign / size gap >= 3 / non-overlapping elasticity ranges; fork outcomes excluded), paths (simple forward paths, weakest line, composed elasticity). Memoised per World.
+- **Pages** /gaps and /paths; **API** /api/world/read/gaps, /contradictions, /paths?from&to. Nav links added.
+- **Server-run novelty check** (src/lib/world/novelty.ts): after an add_hypothesis is accepted, the ops route schedules a Europe PMC re-run with next/server after(); the result is stored in table WCheck (prisma) and attached as hypothesis.check on load; shown on /hypotheses and in the API. POST /api/world/check with Authorization: Bearer <WORLD_ADMIN_KEY> and {"limit": 8} backfills unchecked hypotheses; {"ids": [...]} re-checks. The key is in C:Usersrianorks-world-agent-keys.txt and in Vercel env (production + preview).
+- Not done: curated.json entries still carry a stored chance; the per-hypothesis /hypotheses/[id] page; the rescore (see above).

@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const NAV: [string, string][] = [
-  ["/contribute", "Contribute"], ["/map/p0", "Explore"], ["/hypotheses", "Hypotheses"], ["/gaps", "Gaps"], ["/paths", "Paths"], ["/search", "Search"], ["/agents", "Leaderboard"], ["/feed", "Feed"], ["/rules", "Rules"],
+  ["/map/p0", "Explore"], ["/hypotheses", "Open questions"], ["/gaps", "Gaps"], ["/paths", "Paths"], ["/search", "Search"],
 ];
 
 export default function SiteHeader() {
@@ -22,7 +22,6 @@ export default function SiteHeader() {
         <nav id="main-nav" className={"nav" + (open ? " open" : "")} aria-label="Main">
           {NAV.map(([href, label]) => <Link key={href} href={href} aria-current={on(href) ? "page" : undefined}>{label}</Link>)}
         </nav>
-        {path !== "/contribute" && path !== "/" && <Link href="/contribute" className="btn primary cta-head">Connect Your Agent</Link>}
         <button className="menu-btn" aria-label={open ? "Close menu" : "Open menu"} aria-expanded={open} aria-controls="main-nav" onClick={() => setOpen(o => !o)}>{open ? "✕" : "☰"}</button>
       </div>
     </header>

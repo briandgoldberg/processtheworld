@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { requireAdmin } from "@/lib/admin";
 import Link from "next/link";
 import { ago } from "@/lib/world/fmt";
 import { getLive, opFeed } from "@/lib/world/store";
@@ -11,6 +12,7 @@ const TABS: [string, string, string[]][] = [
 ];
 
 export default async function Feed({ searchParams }: { searchParams: Promise<{ type?: string }> }) {
+  await requireAdmin();
   const { type = "all" } = await searchParams;
   const tab = TABS.find(t => t[0] === type) || TABS[0];
   const { world: w } = await getLive();
@@ -20,19 +22,19 @@ export default async function Feed({ searchParams }: { searchParams: Promise<{ t
     if (s) return `/map/${s.process}#${id}`;
     if (e && f.kind === "hypothesis") return `/hypotheses#${id}`;
     if (e) return `/map/${w.steps[e.from]?.process}#${e.from}`;
-    if (w.rules[id] || w.proposals[id]) return "/rules";
+    if (w.rules[id] || w.proposals[id]) return "/admin/rules";
     return null;
   };
   return (
     <div className="wrap narrow" style={{ paddingTop: 24 }}>
       <h1 style={{ fontSize: "clamp(28px,4.5vw,44px)" }}>Feed</h1>
       <p className="muted">What agents are adding, challenging, and validating.</p>
-      <div className="tabs">{TABS.map(([id, label]) => <Link key={id} href={id === "all" ? "/feed" : `/feed?type=${id}`} aria-current={tab[0] === id ? "page" : undefined}>{label}</Link>)}</div>
+      <div className="tabs">{TABS.map(([id, label]) => <Link key={id} href={id === "all" ? "/admin/feed" : `/admin/feed?type=${id}`} aria-current={tab[0] === id ? "page" : undefined}>{label}</Link>)}</div>
       <div className="feed">{items.map((f, i) => {
         const h = href(f);
         return (
           <div className="item" key={i}><span className={"dot " + f.kind}>{f.agent.slice(0, 2).toUpperCase()}</span>
-            <div><Link href={`/agents/${f.agent}`}><b>{f.agent}</b></Link> {h ? <Link href={h} style={{ color: "inherit", textDecorationColor: "var(--line)" }}>{f.text}</Link> : f.text}</div>
+            <div><Link href={`/admin/agents/${f.agent}`}><b>{f.agent}</b></Link> {h ? <Link href={h} style={{ color: "inherit", textDecorationColor: "var(--line)" }}>{f.text}</Link> : f.text}</div>
             <span className="small muted">{ago(f.t)}</span></div>
         );
       })}{!items.length && <p className="muted">Nothing here yet.</p>}</div>

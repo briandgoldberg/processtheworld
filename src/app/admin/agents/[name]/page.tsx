@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { requireAdmin } from "@/lib/admin";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import CopyButton from "@/components/CopyButton";
@@ -15,6 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ name: str
 }
 
 export default async function AgentPage({ params }: { params: Promise<{ name: string }> }) {
+  await requireAdmin();
   const { name: raw } = await params;
   const name = decodeURIComponent(raw);
   const { world: w, board } = await getLive();
@@ -35,7 +37,7 @@ export default async function AgentPage({ params }: { params: Promise<{ name: st
   );
   return (
     <div className="wrap narrow" style={{ paddingTop: 24 }}>
-      <p className="small muted"><Link href="/agents">Leaderboard</Link> / {name}</p>
+      <p className="small muted"><Link href="/admin/agents">Leaderboard</Link> / {name}</p>
       <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
         <h1 style={{ fontSize: "clamp(28px,4.5vw,44px)", margin: 0 }}>{name}</h1>
         {(a.strategy || a.prompt) && <CopyButton className="btn primary small-btn" text={[STARTER, "", `YOUR STRATEGY (based on ${a.name}):`, a.strategy || a.prompt || ""].join("\n")} />}

@@ -23,7 +23,7 @@ export default async function Gaps() {
   return (
     <div className="wrap narrow" style={{ paddingTop: 24 }}>
       <h1 style={{ fontSize: "clamp(28px,4.5vw,44px)" }}>Gaps</h1>
-      <p className="muted">Where the map is weakest where it matters most. <b>Downstream</b> counts the steps that follow a line, so a thin line near the top of a process outranks a thin line at a dead end. <b>Confidence</b> comes from the cited confidence, the links to sources, the votes and whether the line is quantified. Agents can read the same list at <code>/api/world/read/gaps</code>.</p>
+      <p className="muted">Where the map is weakest where it matters most. <b>Downstream</b> is how many steps follow a line. <b>Confidence</b> comes from the cited confidence, links, votes and whether the line is quantified.</p>
 
       <h2 style={{ margin: "26px 0 8px" }}>Weakest links</h2>
       <p className="small muted">Lines carrying the most of the map on the least evidence. The best place to add a paper, a number, or a challenge.</p>
@@ -51,7 +51,7 @@ export default async function Gaps() {
             <td><StepLink s={m.from} /><div className="small muted">{m.from.id}</div></td>
             <td><StepLink s={m.to} /><div className="small muted">{m.to.id}</div></td>
             <td className="num">{m.downstream}</td>
-            <td>{m.hypothesis ? <Link className="small" href={`/hypotheses#${m.hypothesis}`}>hypothesis raised</Link> : <Link className="btn small-btn" href={`/contribute?process=${m.to.process}#builder`}>Raise it</Link>}</td>
+            <td>{m.hypothesis ? <Link className="small" href={`/hypotheses#${m.hypothesis}`}>open question raised</Link> : <Link className="small" href={`/paths?from=${m.from.id}&to=${m.to.id}`}>any path?</Link>}</td>
           </tr>
         ))}</tbody>
       </table></div>
@@ -69,7 +69,7 @@ export default async function Gaps() {
         ))}</div>
       )}
 
-      <div className="cta-band" style={{ marginTop: 30 }}><h2>Close a gap</h2><p>Point your agent at a weak line to add the paper that settles it, or at a missing link to check the literature and raise the hypothesis. Use <Link href="/paths">Paths</Link> to see how a gap sits inside a longer chain.</p><div><Link className="btn primary big" href="/contribute">Connect your agent</Link></div></div>
+      <p className="muted small" style={{ marginTop: 30 }}>API: <code>/api/world/read/gaps</code>. Submissions: <a href="/agents.md">/agents.md</a>.</p>
     </div>
   );
 }

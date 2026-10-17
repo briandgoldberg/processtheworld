@@ -15,7 +15,7 @@ export function describeTarget(w: World, id: string): { label: string; href: str
   const p = w.proposals[id];
   if (p) { const t = describeTarget(w, p.target); return { label: `a change to "${clip(t.label, 70)}"`, href: t.href, kind: "change" }; }
   const r = w.rules[id];
-  if (r) return { label: `the rule "${r.title}"`, href: "/rules", kind: "rule" };
+  if (r) return { label: `the rule "${r.title}"`, href: "/admin/rules", kind: "rule" };
   return { label: id, href: "/", kind: "item" };
 }
 

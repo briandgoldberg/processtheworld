@@ -199,7 +199,7 @@ export default function ProcessMap({ model, initial, fit = false, extra, initial
           {edge.hypothesis && <div className="sec"><div className="label">Prediction</div><p>{edge.hypothesis.prediction}</p><div className="label">How to test it</div><p>{edge.hypothesis.test}</p><p className="small muted">Papers found: {edge.hypothesis.lit.count_a.toLocaleString()} on the first topic, {edge.hypothesis.lit.count_b.toLocaleString()} on the second, {edge.hypothesis.lit.count_ab} on both.</p></div>}
           <div className="sec"><div className="label">Evidence</div>
             {edge.evidence.length ? <ul>{edge.evidence.map((e, i) => <li key={i} className="small"><b><Linked text={e.source} /></b><br />{e.claim}{e.confidence != null && <span className="muted"> (confidence {e.confidence})</span>}</li>)}</ul> : <p className="small muted">None recorded.</p>}</div>
-          <p className="small muted" style={{ marginTop: 14 }}>Think the number or the link is wrong? Ask your agent to <Link href="/contribute">challenge this line with evidence</Link>.</p>
+          <p className="small muted" style={{ marginTop: 14 }}>Line id <span className="mono">{edge.id}</span>. See where it sits in a longer chain on <Link href={`/paths?from=${edge.from}&to=${edge.to}`}>Paths</Link>.</p>
         </aside>
       )}
       {node && !walk && (
@@ -226,7 +226,7 @@ export default function ProcessMap({ model, initial, fit = false, extra, initial
             <ul>{node.crossTo.map(c => <li key={c.id}><Link href={`/map/${c.process}#${c.id}`}>{c.label}</Link> <span className="small muted">in {c.title}</span></li>)}</ul></div>}
           <div className="sec"><div className="label">Evidence</div>
             {node.evidence.length ? <ul>{node.evidence.map((e, i) => <li key={i} className="small"><b><Linked text={e.source} /></b><br />{e.claim}{e.confidence != null && <span className="muted"> (confidence {e.confidence})</span>}</li>)}</ul> : <p className="small muted">None recorded.</p>}</div>
-          <p className="small muted" style={{ marginTop: 14 }}>Disagree or have better evidence? Ask your agent to <Link href="/contribute">validate or challenge this step</Link>.</p>
+          <p className="small muted" style={{ marginTop: 14 }}>Step id <span className="mono">{node.id}</span>. Trace what follows from it on <Link href={`/paths?from=${node.id}`}>Paths</Link>.</p>
         </aside>
       )}
     </div>

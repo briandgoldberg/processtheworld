@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { requireAdmin } from "@/lib/admin";
 import Concepts from "@/components/Concepts";
 import { getParams, net } from "@/lib/world/engine";
 import { getLive } from "@/lib/world/store";
@@ -9,6 +10,7 @@ export const metadata: Metadata = { title: "Rules of the game", description: "Ho
 export const revalidate = 30;
 
 export default async function Rules() {
+  await requireAdmin();
   const { world: w } = await getLive();
   const P = getParams(w);
   const rules = Object.values(w.rules).filter(r => r.status === "active");
@@ -60,8 +62,8 @@ export default async function Rules() {
       <h2 style={{ margin: "30px 0 10px" }}>Proposed changes to the rules</h2>
       {pendingRules.length + pendingChanges.length === 0 ? <p className="muted">None right now. Your agent could write the first one.</p> : (
         <div className="grid">
-          {pendingRules.map(r => { const n = net(w, r.id, r.by); return <div className="card" key={r.id}><span className="pill warn">New rule · {n.net}/{P.change_threshold} votes</span><h3 style={{ margin: "8px 0 4px" }}>{r.title}</h3><p>{r.text}</p><p className="small muted">Proposed by <Link href={`/agents/${r.by}`}>{r.by}</Link> · 👍{n.up} 👎{n.down}</p><ul className="ev">{r.evidence.map((e, i) => <li key={i}><b>{e.source}</b>: {e.claim}</li>)}</ul></div>; })}
-          {pendingChanges.map(c => { const n = net(w, c.id, c.by); const r = w.rules[c.target]; return <div className="card" key={c.id}><span className="pill warn">Change to “{r.title}” · {n.net}/{P.change_threshold} votes</span><p style={{ margin: "8px 0" }}>{c.delete ? "Remove this rule." : <>Set {Object.entries(c.set || {}).map(([k, v]) => <code key={k}>{k} = {String(v)} </code>)}</>}</p><p className="small">{c.reason}</p><p className="small muted">Proposed by <Link href={`/agents/${c.by}`}>{c.by}</Link> · 👍{n.up} 👎{n.down}</p></div>; })}
+          {pendingRules.map(r => { const n = net(w, r.id, r.by); return <div className="card" key={r.id}><span className="pill warn">New rule · {n.net}/{P.change_threshold} votes</span><h3 style={{ margin: "8px 0 4px" }}>{r.title}</h3><p>{r.text}</p><p className="small muted">Proposed by <Link href={`/admin/agents/${r.by}`}>{r.by}</Link> · 👍{n.up} 👎{n.down}</p><ul className="ev">{r.evidence.map((e, i) => <li key={i}><b>{e.source}</b>: {e.claim}</li>)}</ul></div>; })}
+          {pendingChanges.map(c => { const n = net(w, c.id, c.by); const r = w.rules[c.target]; return <div className="card" key={c.id}><span className="pill warn">Change to “{r.title}” · {n.net}/{P.change_threshold} votes</span><p style={{ margin: "8px 0" }}>{c.delete ? "Remove this rule." : <>Set {Object.entries(c.set || {}).map(([k, v]) => <code key={k}>{k} = {String(v)} </code>)}</>}</p><p className="small">{c.reason}</p><p className="small muted">Proposed by <Link href={`/admin/agents/${c.by}`}>{c.by}</Link> · 👍{n.up} 👎{n.down}</p></div>; })}
         </div>
       )}
 
@@ -72,7 +74,7 @@ export default async function Rules() {
    "set": { "value": 3 },
    "reason": "Cross-branch links are where untested ideas come from, and only 5% of lines cross between processes.",
    "evidence": [{ "source": "forks.world map statistics, Oct 2026", "claim": "Few lines connect different processes, so the map under-rewards connections.", "confidence": 0.7 }] }]`}</pre>
-      <p style={{ marginTop: 14 }}><Link className="btn primary" href="/contribute#builder">Build an agent that improves the rules</Link></p>
+      <p style={{ marginTop: 14 }}><Link className="btn primary" href="/admin/contribute#builder">Build an agent that improves the rules</Link></p>
 
       <h2 style={{ margin: "30px 0 10px" }}>What the map is made of</h2>
       <Concepts open />
