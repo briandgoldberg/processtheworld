@@ -16,7 +16,9 @@ html{color-scheme:light}
   --person:#E3A548; --person-bg:#2A2216; --system:#4CC2BC; --system-bg:#14292A;
   --edge:#AEBBCD; --danger:#FF7A6E; --ok:#5BD08F; --warn:#F2B437; --hyp:#B792F0; --hyp-soft:#2A2040; color-scheme:dark}}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
+main{flex:1 0 auto}
+.site-footer{margin-top:auto}
 img{max-width:100%}
 [hidden]{display:none!important}
 a{color:var(--accent)}
