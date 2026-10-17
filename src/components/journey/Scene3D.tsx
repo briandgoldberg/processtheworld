@@ -41,7 +41,7 @@ export default function Scene3D({ trail, scenes, rolling }: { trail: Visit[]; sc
     const core = new THREE.Mesh(new THREE.SphereGeometry(0.3, 32, 32), new THREE.MeshBasicMaterial({ color: 0x9fd4ff, transparent: true, opacity: 0.22, blending: THREE.AdditiveBlending, depthWrite: false }));
     scene.add(core);
     // the drop
-    const drop = new THREE.Mesh(new THREE.SphereGeometry(0.42, 64, 64), new THREE.MeshPhysicalMaterial({ color: 0xbfe3ff, roughness: 0.06, metalness: 0.05, clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 2.6, emissive: new THREE.Color(0x1d4f8f), emissiveIntensity: 0.45, specularIntensity: 1 }));
+    const drop = new THREE.Mesh(new THREE.SphereGeometry(0.42, 64, 64), new THREE.MeshPhysicalMaterial({ color: 0x8ec6ff, roughness: 0.08, metalness: 0.05, clearcoat: 1, clearcoatRoughness: 0.04, envMapIntensity: 1.3, emissive: new THREE.Color(0x1d4f8f), emissiveIntensity: 0.2, specularIntensity: 1 }));
     scene.add(drop);
     const halo = new THREE.Mesh(new THREE.SphereGeometry(0.62, 32, 32), new THREE.MeshBasicMaterial({ color: 0x8ec8ff, transparent: true, opacity: 0.12, blending: THREE.AdditiveBlending, depthWrite: false }));
     scene.add(halo);
