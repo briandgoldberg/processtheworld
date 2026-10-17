@@ -155,13 +155,22 @@
     "why": "Strength: disturbance reliably shifts nematode communities from c-p 4-5 toward c-p 1-2 (maturity index logic) and the Patagonian 2011 ash fall already cut nematode numbers, an analogous measurement. Risk: no numeric falsification threshold, and the relative c-p shift is size-uncertain; ash crashing all groups at once or a nutrient pulse with allophane water buffering is a possible mechanism that could mute or flip the contrast, but no paper in the entry names it.",
     "title": "Volcanic ash buries slow nematodes and favours opportunists",
     "scores": {
-      "novel": 78,
-      "accurate": 78,
-      "testable": 75,
+      "novel": 70,
+      "accurate": 69,
+      "testable": 70,
       "impact": 15
     },
     "rubric": 4,
-    "assessed": "2026-10-17"
+    "assessed": "2026-10-17",
+    "check": {
+      "second": {
+        "novel": 70,
+        "accurate": 60,
+        "testable": 65
+      },
+      "disputed": true,
+      "novelCheck": "untested"
+    }
   },
   {
     "id": "e2790",
@@ -606,6 +615,16 @@
         "title": "Fest et al. 2017: soil methane uptake (truncated abstract only)",
         "year": "2017",
         "doi": "https://doi.org/10.1007/s10021-016-0030-y"
+      },
+      {
+        "title": "Under the canopy: disentangling the role of stemflow in shaping spatial patterns of soil microbial community structure u: Stemflow diversion system on live oaks; soil bacterial communities with and without stemflow, with distance from stem; diversion increased diversity; did not test Methane (or any gas flux), soil moisture-driven diffusion limits, methanotroph abundance",
+        "year": "2022",
+        "doi": "https://doi.org/10.1111/1462-2920.15970"
+      },
+      {
+        "title": "Methane emission from stems of European beech (Fagus sylvatica) offsets as much as half of methane oxidation in soil: Seasonal CH4 flux of beech stems and adjacent soil collars (soil a net sink, stems a source, spatial variability unexplained by soil moisture); did not test Radial gradient from the trunk, stemflow volume or diversion, storm-event response (abstract read via web summary; DOI not separately resolved by me)",
+        "year": "2023",
+        "doi": "https://doi.org/10.1111/nph.18726"
       }
     ],
     "web": {
@@ -624,14 +643,23 @@
     },
     "scores": {
       "novel": 80,
-      "accurate": 58,
+      "accurate": 54,
       "testable": 85,
       "impact": 22
     },
     "why": "Strength: one season, collars at 10, 50 and 150 cm, and a stemflow-diversion treatment give a clear falsification, and throughfall exclusion raised methane uptake in Borken 2006, supporting a diffusion limit when wetter. Risk: uptake responds to moisture in a hump shape, so in dry or sandy soil extra wetting could raise uptake, and stem CH4 emission or litter and root differences near the trunk could offset or reverse the soil signal.",
     "title": "Stemflow wetting lowers methane uptake beside tree trunks",
     "rubric": 4,
-    "assessed": "2026-10-17"
+    "assessed": "2026-10-17",
+    "check": {
+      "second": {
+        "novel": 80,
+        "accurate": 50,
+        "testable": 85
+      },
+      "disputed": false,
+      "novelCheck": "untested"
+    }
   },
   {
     "id": "e_taimuxn8j",
@@ -2783,8 +2811,8 @@
   {
     "id": "e_ut251aop0",
     "title": "Fast meltwater flow limits methane oxidation at Greenland outlets",
-    "status": "related only",
-    "untested": "No study has measured the oxidised versus degassed fraction of subglacial methane along a Greenland outlet river at low versus peak discharge; the over-half versus under-20 percent split and the claim that emissions outgrow the methanotroph sink with ice loss are untested.",
+    "status": "partly tested",
+    "untested": "Open: the measured, discharge-resolved split between oxidised and degassed methane at stations downstream of an outlet, with floating-chamber flux. The idea that efficient drainage limits oxidation (about 17% oxidised) is already stated by Lamarche-Gagnon et al. 2019.",
     "papers": [
       {
         "title": "Methane oxidation in land-terminating glacial runoff (lake and river): river oxidation may cut emissions by up to 53 percent; measured net activity at sites but not as a function of discharge or residence time",
@@ -2795,6 +2823,11 @@
         "title": "Greenland subglacial catchment: methane-supersaturated water exported continuously through the melt season with pulses at flushing events; quantified export at the portal, not downstream oxidation versus degassing (abstract only, paywalled)",
         "year": "2019",
         "doi": "https://doi.org/10.1038/s41586-018-0800-0"
+      },
+      {
+        "title": "First observation of direct methane emission to the atmosphere from the subglacial domain of the Greenland Ice Sheet: CH4 in air expelled at a subglacial discharge point (up to 15x background), hourly flux 3.1-134 g/h; did not test Oxidation fraction, discharge dependence, or the downstream river path",
+        "year": "2018",
+        "doi": "https://doi.org/10.1038/s41598-018-35054-7"
       }
     ],
     "web": {
@@ -2813,14 +2846,23 @@
     },
     "scores": {
       "novel": 70,
-      "accurate": 68,
-      "testable": 80,
+      "accurate": 67,
+      "testable": 78,
       "impact": 42
     },
     "why": "Strength: shorter residence time at peak flow gives less time for oxidation (about 30 days to consume 98% of methane versus hours to days of transit), and a station-by-station isotope and pmoA design with floating chambers can falsify it. Risk: fast degassing near the portal may dominate at all flows, flattening the discharge dependence, and higher discharge dilutes dissolved CH4 and could wash in more methanotrophs from the ice-bed, which would make the escaping share flat or lower at peak flow.",
     "cluster": "greenland-meltwater-methane",
     "rubric": 4,
-    "assessed": "2026-10-17"
+    "assessed": "2026-10-17",
+    "check": {
+      "second": {
+        "novel": 70,
+        "accurate": 65,
+        "testable": 75
+      },
+      "disputed": false,
+      "novelCheck": "partly tested"
+    }
   },
   {
     "id": "e_2yqdebopa",
@@ -3019,8 +3061,8 @@
   {
     "id": "e_q77sf7gy3",
     "title": "Basalt spreading darkens bare cropland soil and offsets carbon removal",
-    "status": "related only",
-    "untested": "No study has measured albedo change after crushed rock is spread on cropland, or converted it to CO2-equivalent against the weathering carbon removal. Biochar darkening is the only analogue, and basalt is much less dark and mixes in differently.",
+    "status": "partly tested",
+    "untested": "Open: the albedo drop and how it fades over a season, dark versus light soil, incorporated versus surface-applied and wet versus dry dust, and the CO2-equivalent set against first-year removal. A 2026 EGU abstract (EGU26-5945) already models about a 5% cooling offset for basalt at 25-50 t/ha using albedo values measured on rock-powder-amended soil, and biochar darkening is the field analogue.",
     "papers": [
       {
         "title": "Albedo impact of biochar (30 t/ha cut mean annual albedo by 0.05 and trimmed climate benefit 13-22%); did not test any rock powder.",
@@ -3036,6 +3078,11 @@
         "title": "Process model of enhanced rock weathering with ecohydrology and soil moisture; no surface-albedo term.",
         "year": "2025",
         "doi": "https://doi.org/10.1111/gcb.70650"
+      },
+      {
+        "title": "Temperature outcomes of enhanced rock weathering deployment scenarios constrained by soil albedo measurements: Abstract page opened (not the DOI, which I did not resolve). Uses albedo values measured on soil amended with varying amounts and types of rock powder, fed into an Earth ; did not test Abstract does not say whether the albedo data came from field or lab, give the albedo drop, its decay over a season, surface-applied vs incorporated, ",
+        "year": "2026",
+        "doi": "https://doi.org/10.5194/egusphere-egu26-5945"
       }
     ],
     "web": {
@@ -3053,14 +3100,23 @@
       ]
     },
     "scores": {
-      "novel": 85,
-      "accurate": 88,
-      "testable": 88,
+      "novel": 70,
+      "accurate": 84,
+      "testable": 87,
       "impact": 60
     },
     "why": "Strength: on a light soil (bare albedo 0.20-0.30) grey basalt fines should lower albedo while on the surface, backed by the biochar analogue (0.21 to 0.06 at 30 t/ha), the albedo-to-CO2-eq conversion is an identity, and the test has two soils, three rates, a year of albedometer data and explicit falsifiers (under 0.02 albedo change, under 5% of CDR). Risk: magnitude only, since fresh basalt dust can be mid-grey so darkening may be nearer 0.02 than 0.10 and the offset share of CDR may be small, but the sign on light soil is not in doubt.",
     "rubric": 4,
-    "assessed": "2026-10-17"
+    "assessed": "2026-10-17",
+    "check": {
+      "second": {
+        "novel": 70,
+        "accurate": 80,
+        "testable": 85
+      },
+      "disputed": false,
+      "novelCheck": "partly tested"
+    }
   },
   {
     "id": "e_x1fwfzgyf",
@@ -3090,14 +3146,23 @@
       ]
     },
     "scores": {
-      "novel": 82,
+      "novel": 75,
       "accurate": 80,
       "testable": 85,
       "impact": 40
     },
     "why": "Strength: dust on snow already advances melt by 18-35 days at far lower loads (Painter 2010), and 1-5 kg/m2 of albedo 0.1-0.2 basalt is a dark layer, so earlier melt-out follows from albedo physics, and the test has blocked plots with a 3-day and 1% runoff falsifier. Risk: the prediction also asserts that 5-20% of the fines leave in frozen-ground runoff, which is unmeasured, spreading on snow is an unverified assumption, and a thick buried dust layer insulating the snow or fines settling into the snowpack could blunt earlier melt-out.",
     "rubric": 4,
-    "assessed": "2026-10-17"
+    "assessed": "2026-10-17",
+    "check": {
+      "second": {
+        "novel": 75,
+        "accurate": 80,
+        "testable": 85
+      },
+      "disputed": false,
+      "novelCheck": "untested"
+    }
   },
   {
     "id": "e_rvqoijgyq",
@@ -3114,6 +3179,11 @@
         "title": "12-month litterbag test of UV-B on wheat and maize straw (UV-B raised mass loss 14-19% without soil contact); did not vary aerosols or haze.",
         "year": "2015",
         "doi": "https://doi.org/10.1038/srep14851"
+      },
+      {
+        "title": "Moisture availability influences the effect of ultraviolet-B radiation on leaf litter decomposition: Europe PMC record opened. Aspen litter, three UV-B levels crossed with wetting frequency: UV-B did not consistently raise decomposition; 13% decrease at highest UV-B unde; did not test Not in drylands, no aerosol or haze treatment, no spectrally matched haze filters, no photochemical CO2 flux",
+        "year": "2010",
+        "doi": "https://doi.org/10.1111/j.1365-2486.2009.01973.x"
       }
     ],
     "web": {
@@ -3131,14 +3201,23 @@
       ]
     },
     "scores": {
-      "novel": 80,
-      "accurate": 72,
-      "testable": 78,
+      "novel": 78,
+      "accurate": 69,
+      "testable": 77,
       "impact": 35
     },
     "why": "Strength: UV-B blocking cut Patagonian litter decomposition by 33% and full sun blocking by 60%, so a 20-40% UV cut from haze should slow photodegradation and photochemical CO2, and the test pairs a filter litterbag design with a UV-dose slope check, falsified below 3% mass-loss change. Risk: haze effects are small against cloud and season variation and microbial decay dominates at many sites, and haze adds diffuse light and dust that may speed biotic decay, so total mass loss could be unchanged even if photochemical CO2 falls.",
     "rubric": 4,
-    "assessed": "2026-10-17"
+    "assessed": "2026-10-17",
+    "check": {
+      "second": {
+        "novel": 70,
+        "accurate": 65,
+        "testable": 75
+      },
+      "disputed": false,
+      "novelCheck": "untested"
+    }
   },
   {
     "id": "e_p0zdbbgz0",
@@ -3155,6 +3234,11 @@
         "title": "Review of soil-aquifer processes under Vertisols: cracks as preferential flow and evaporation paths; methane not addressed.",
         "year": "2016",
         "doi": "https://hess.copernicus.org/articles/20/1/2016/"
+      },
+      {
+        "title": "Effects of crack morphology on soil carbon flux dynamics in a dryland vertisol: Minute-scale temperature profiles in a model soil fracture plus CO2 flux in Kenyan vertisols with different crack morphology; enhancement attributed to thermal convection; did not test Methane (I searched the full text: CH4 appears only in three reference-list items); atmospheric uptake by methanotrophs; closed-vs-open crack contrast",
+        "year": "2020",
+        "doi": "https://doi.org/10.1016/j.geoderma.2020.114478"
       }
     ],
     "web": {
@@ -3172,14 +3256,23 @@
       ]
     },
     "scores": {
-      "novel": 85,
-      "accurate": 55,
+      "novel": 80,
+      "accurate": 60,
       "testable": 85,
       "impact": 55
     },
     "why": "Strength: cracks ventilate soil by thermal convection and expose oxic wall surface, and chambers over cracks versus crack-free chambers plus wetting to close cracks is a direct one-season paired test with a 30% falsifier and pmoA assays. Risk: two unmeasured links (ventilation reaching 10-60 cm methanotrophs at atmospheric CH4, and methanotrophs staying active in desiccated clay), and water stress in the dry matrix or crack air carrying methane from deeper layers could flip the sign, with wetting also confounding crack closure with moisture.",
     "rubric": 4,
-    "assessed": "2026-10-17"
+    "assessed": "2026-10-17",
+    "check": {
+      "second": {
+        "novel": 80,
+        "accurate": 65,
+        "testable": 85
+      },
+      "disputed": false,
+      "novelCheck": "untested"
+    }
   },
   {
     "id": "e_f51fx75ms",
@@ -3196,6 +3289,11 @@
         "title": "Masaya Andosols exposed to volcanic acid: pH and base cations fall, sulfate and fluoride retained, HCl main acidifier; no Mo or N fixation data.",
         "year": "2003",
         "doi": "https://eprints.whiterose.ac.uk/id/eprint/6054/"
+      },
+      {
+        "title": "Natural atmospheric deposition of molybdenum: a global model and implications for tropical forests: Global model of Mo deposition from dust, sea salt and volcanic sources; Mo constrains BNF in many ecosystems; deposition higher near active volcanoes; did not test Volcanic acid effects on Mo availability; field fixation downwind; note it treats volcanoes as a Mo source, the opposite sign from this hypothesis",
+        "year": "2020",
+        "doi": "https://doi.org/10.1007/s10533-020-00671-w"
       }
     ],
     "web": {
@@ -3213,14 +3311,23 @@
       ]
     },
     "scores": {
-      "novel": 85,
-      "accurate": 40,
+      "novel": 80,
+      "accurate": 43,
       "testable": 75,
       "impact": 28
     },
     "why": "Strength: Mo limits free-living fixation (measured in Panama), molybdate sorption rises as pH falls, and the Masaya transect with a Mo/P/lime factorial and four stated falsifiers is a sharp test. Risk: the prediction bundles Mo loss of 30-70%, ARA down 40-80%, a 2x response ratio and lime recovery, and the unmeasured links (sorption lowering Mo here about 75%, net available Mo falling about 55%) give about 40, and sulfate retained by HCl-acidified Andosols competing for sites, or volcanic Mo input, could raise available Mo and flip the sign.",
     "rubric": 4,
-    "assessed": "2026-10-17"
+    "assessed": "2026-10-17",
+    "check": {
+      "second": {
+        "novel": 80,
+        "accurate": 45,
+        "testable": 75
+      },
+      "disputed": false,
+      "novelCheck": "untested"
+    }
   },
   {
     "id": "e_jpe27c5ng",
@@ -3255,13 +3362,22 @@
     },
     "scores": {
       "novel": 80,
-      "accurate": 75,
-      "testable": 90,
+      "accurate": 63,
+      "testable": 89,
       "impact": 33
     },
     "why": "Strength: 2:1 clays fix NH4+ within hours (well-known soil physics), the cited work shows methane uptake loss tracks exchange-displaced ammonium, and the sand-plus-clay microcosm with K-saturated vermiculite control and a 20% falsifier is clean and fast. Risk: the unmeasured link is that inhibition follows solution NH4+ quantitatively, and fixed NH4+ re-release or nitrite from ammonia oxidation could make inhibition similar across clays.",
     "rubric": 4,
-    "assessed": "2026-10-17"
+    "assessed": "2026-10-17",
+    "check": {
+      "second": {
+        "novel": 75,
+        "accurate": 50,
+        "testable": 88
+      },
+      "disputed": true,
+      "novelCheck": "untested"
+    }
   },
   {
     "id": "e_u18jpq5nz",
@@ -3406,6 +3522,16 @@
         "title": "Process model of soil inorganic carbon under climate change with daily water balance; no snow fraction test of carbonate depth.",
         "year": "2026",
         "doi": "https://doi.org/10.1093/nsr/nwag075"
+      },
+      {
+        "title": "Seasonal bias in the formation and stable isotopic composition of pedogenic carbonate in modern soils from central New M: Which season carbonate forms in and its isotope composition at semi-arid sites (DOI metadata via Crossref; DOI returned 403 to curl so full text not opened); did not test Snow fraction of precipitation or depth to the Bk horizon as a function of snowmelt versus rain",
+        "year": "2009",
+        "doi": "https://doi.org/10.1130/b26413.1"
+      },
+      {
+        "title": "Dependence of the depth of rainfall penetration and the depth of carbonate nodules of Calcic Chernozem of the South of R: Relation of rainfall penetration depth to carbonate nodule depth in 5318 Calcic Chernozem profiles in southern Russia (abstract read); wetting depth tied to nodule depth ; did not test Snow versus rain partition or any snow fraction predictor",
+        "year": "2023",
+        "doi": "https://doi.org/10.21203/rs.3.rs-2557292/v1"
       }
     ],
     "web": {
@@ -3423,20 +3549,29 @@
       ]
     },
     "scores": {
-      "novel": 78,
+      "novel": 75,
       "accurate": 60,
-      "testable": 82,
+      "testable": 79,
       "impact": 35
     },
     "why": "Strength: snowmelt wets 2-3 times deeper than the same water as summer rain, and the NCSS pedon regression carries an explicit threshold (+3 cm per 10% snow fraction, p<0.05) plus a column complement. Risk: the entry's web text calls depth-rainfall relations weak and contested, and dust input, parent material and inherited paleoclimate carbonate can swamp a 10-30 cm effect, and cold-climate leaching of carbonate at snowy sites could reverse the sign.",
     "rubric": 4,
-    "assessed": "2026-10-17"
+    "assessed": "2026-10-17",
+    "check": {
+      "second": {
+        "novel": 75,
+        "accurate": 60,
+        "testable": 75
+      },
+      "disputed": false,
+      "novelCheck": "untested"
+    }
   },
   {
     "id": "e_wmmog2b13",
     "title": "Clear nights deposit more dew on litter and speed night decay",
-    "status": "related only",
-    "untested": "No study has binned nights by longwave loss or used a longwave-opaque shelter to show cloud cover gates litter wetness and night-time CO2 efflux. Dew studies on litter exist but without this cloud link.",
+    "status": "partly tested",
+    "untested": "Open: the cloud-gated contrast (clear versus cloudy nights at matched humidity) and the size of the extra night decay. Dew and night-time vapour uptake driving dryland litter decay is already shown (Gliksman 2017, Evans 2020).",
     "papers": [
       {
         "title": "Namib litter: fungi respond within minutes to fog and dew moisture and decompose surface litter; cloud or longwave control not examined.",
@@ -3452,6 +3587,16 @@
         "title": "Global eddy covariance evidence for soil water vapour adsorption at high humidity; not litter, no cloud test.",
         "year": "2025",
         "doi": "https://doi.org/10.1111/gcb.70547"
+      },
+      {
+        "title": "Biotic degradation at night, abiotic degradation at day: positive feedbacks on litter decomposition in drylands: Europe PMC record opened. Field litter absorbs dew and water vapor at night; manipulating solar irradiance and nighttime humidity showed most dry-season litter CO2 efflux; did not test Humidity manipulated, cloud cover and net longwave loss not examined; no binning of nights by sky condition; no litter-temperature depression below ai",
+        "year": "2017",
+        "doi": "https://doi.org/10.1111/gcb.13465"
+      },
+      {
+        "title": "Non-rainfall Moisture: A Key Driver of Microbial Respiration from Standing Litter in Arid, Semiarid, and Mesic Grassland: Europe PMC record opened. NRM (humidity, dew, fog) frequent at Namib and Iowa sites, drives litter CO2 release above moisture thresholds, scaled by model; did not test Did not partition NRM by cloud cover or radiative cooling; no test of overcast vs clear nights",
+        "year": "2020",
+        "doi": "https://doi.org/10.1007/s10021-019-00461-y"
       }
     ],
     "web": {
@@ -3470,13 +3615,22 @@
     },
     "scores": {
       "novel": 70,
-      "accurate": 78,
+      "accurate": 82,
       "testable": 85,
       "impact": 30
     },
     "why": "Strength: clear-sky radiative cooling driving dew is textbook physics, Namib litter fungi respond within minutes to dew, and the binned-night design with a longwave-opaque shelter and a 30% falsification threshold at matched RH and temperature is directly diagnostic. Risk: the 2-3 fold moisture and 1.5-3 fold efflux sizes and the 10-25% season mass-loss corollary are unmeasured, and hygroscopic vapour uptake (the entry's own 2025 paper) can wet litter on cloudy humid nights without dew, which could shrink or erase the clear-night excess, and overcast nights often carry higher RH.",
     "rubric": 4,
-    "assessed": "2026-10-17"
+    "assessed": "2026-10-17",
+    "check": {
+      "second": {
+        "novel": 72,
+        "accurate": 85,
+        "testable": 85
+      },
+      "disputed": false,
+      "novelCheck": "partly tested"
+    }
   },
   {
     "id": "e_u458z87x2",
@@ -3498,6 +3652,11 @@
         "title": "Storm-resolving model: tropical cyclones boost CO2 flux 20-40 times and cool the surface; not atmospheric rivers.",
         "year": "2025",
         "doi": "https://doi.org/10.1073/pnas.2506103122"
+      },
+      {
+        "title": "Response of sea surface temperature to atmospheric rivers: 25 yr ocean reanalysis SST budget under ARs over the North Pacific; AR-driven SST warming from cloud reduction and southerly wind/advection changes, with ocean dynamics o; did not test Any carbon variable (pCO2, DIC, flux), gas transfer velocity, or Station Papa moorings; reanalysis not in-situ",
+        "year": "2024",
+        "doi": "https://doi.org/10.1038/s41467-024-48486-9"
       }
     ],
     "web": {
@@ -3515,14 +3674,23 @@
       ]
     },
     "scores": {
-      "novel": 85,
-      "accurate": 62,
-      "testable": 88,
+      "novel": 75,
+      "accurate": 61,
+      "testable": 87,
       "impact": 40
     },
     "why": "Strength: a 2-3 fold rise in gas transfer velocity (wind speed squared) set against a 10-25% cut in the air-sea gradient makes AR uptake share exceed time share likely, and the Papa mooring record with an AR catalogue and three explicit falsifiers settles it. Risk: the full claim also needs post-AR pCO2 to rise 3-10 uatm and AR uptake per unit stress to be 15-30% below cold-air outbreaks, and the entry's own marine-heatwave paper says ARs cool the surface through cloud, so warming of 0.2-0.5 C is not secure, and storm entrainment of CO2-rich subsurface water or rain freshening could raise pCO2 and cancel uptake.",
     "rubric": 4,
-    "assessed": "2026-10-17"
+    "assessed": "2026-10-17",
+    "check": {
+      "second": {
+        "novel": 75,
+        "accurate": 60,
+        "testable": 85
+      },
+      "disputed": false,
+      "novelCheck": "untested"
+    }
   },
   {
     "id": "e_g0h0wq7xd",
@@ -3585,6 +3753,16 @@
         "title": "Flux-system study of ammonia and amines from model aqueous solutions with CIMS; shows Henry's-law uncertainty, no pH series or seawater.",
         "year": "2026",
         "doi": "https://doi.org/10.1021/acsearthspacechem.6c00080"
+      },
+      {
+        "title": "The occurrence and biogeochemical cycling of quaternary, ternary and volatile amines in marine systems: Opened full text. States methylamines are mostly protonated at seawater pH and tabulates the pH-dependent protonated:gas ratio (columns for pH 8.2 and 8.1); did not test The text contains no mention of acidification; no flux projection under lower pH and no measurement of headspace amine at manipulated pH. The Henderso",
+        "year": "2024",
+        "doi": "https://doi.org/10.3389/fmars.2024.1466221"
+      },
+      {
+        "title": "Competitive Uptake of Dimethylamine and Trimethylamine against Ammonia on Acidic Particles in Marine Atmospheres: Europe PMC record opened. Shipboard gas/particle partitioning of DMA and TMA vs NH3; did not test Aerosol-side partitioning only; seawater pH and sea-to-air emission not addressed",
+        "year": "2022",
+        "doi": "https://doi.org/10.1021/acs.est.1c08713"
       }
     ],
     "web": {
@@ -3602,14 +3780,23 @@
       ]
     },
     "scores": {
-      "novel": 78,
+      "novel": 75,
       "accurate": 86,
-      "testable": 90,
+      "testable": 83,
       "impact": 38
     },
     "why": "Strength: at fixed total amine and temperature the volatile fraction follows Henderson-Hasselbalch (pKa 9.8-10.7), giving 1.00 : 0.63 : 0.40 across pH 8.1, 7.9, 7.7, and the lab and field tests carry a 15% falsification band. Risk: Henry's-law constants for amines are uncertain by orders of magnitude, warming adds about 7% per C so the 2100 net cut of 35-45% depends on the pKa temperature slope, and biological amine supply could rise under acidification (the entry's own falsifier of 50%), though the claim is stated at fixed total amine.",
     "rubric": 4,
-    "assessed": "2026-10-17"
+    "assessed": "2026-10-17",
+    "check": {
+      "second": {
+        "novel": 75,
+        "accurate": 85,
+        "testable": 75
+      },
+      "disputed": false,
+      "novelCheck": "untested"
+    }
   },
   {
     "id": "e_3xqyy8y3m",
@@ -3626,6 +3813,11 @@
         "title": "Review of methane cycling in temperate forests; soils are sinks with varying controls, no volcanic ash effect.",
         "year": "2024",
         "doi": "https://doi.org/10.1186/s13021-024-00283-z"
+      },
+      {
+        "title": "Substantial high-affinity methanotroph populations in Andisols effect high rates of atmospheric methane oxidation: Europe PMC record opened. 13C-PLFA SIP on three Andisols (soils derived from ash): large high-affinity methanotroph populations, CH4 oxidation up to 1.58 nmol/g/h; did not test Weathered ash-derived soil, not a fresh tephra layer on top of a soil; no thickness gradient, grain size, moisture or diffusivity",
+        "year": "2009",
+        "doi": "https://doi.org/10.1111/j.1758-2229.2009.00071.x"
       }
     ],
     "web": {
@@ -3644,13 +3836,22 @@
     },
     "scores": {
       "novel": 78,
-      "accurate": 75,
-      "testable": 82,
+      "accurate": 78,
+      "testable": 79,
       "impact": 18
     },
     "why": "Strength: high-affinity methanotroph uptake is diffusion-limited, compaction cuts it about 90%, and capped cores with a leached-ash arm and a diffusivity-scaling falsifier need no eruption. Risk: the 60-95% cut and especially the small net methane source under over 10 cm of wet ash require anoxia in an upland profile, which is unmeasured, and the entry's peat thesis found sulfate and fluoride did not change CH4 flux but a wet ash layer slowed gas release, so drying and cracking of the ash or toxicity could change the response, though the main direction holds.",
     "rubric": 4,
-    "assessed": "2026-10-17"
+    "assessed": "2026-10-17",
+    "check": {
+      "second": {
+        "novel": 78,
+        "accurate": 80,
+        "testable": 75
+      },
+      "disputed": false,
+      "novelCheck": "untested"
+    }
   },
   {
     "id": "e_a45v3py48",
@@ -3672,6 +3873,16 @@
         "title": "Goldschmidt 2023 abstract on two-stage oxidation of petrogenic carbon (priming suggested; I could only read the title).",
         "year": "2023",
         "doi": "https://goldschmidtabstracts.info/2023/18928.pdf"
+      },
+      {
+        "title": "Microbial oxidation of lithospheric organic carbon in rapidly eroding tropical mountain soils: Taiwan soils: 67 percent of bedrock OCpetro oxidised in soils, microbially mediated by biomarker and isotope evolution; CO2 flux increases with erosion; did not test Any labile-carbon amendment or priming test; incubation with 13C tracer",
+        "year": "2018",
+        "doi": "https://doi.org/10.1126/science.aao6463"
+      },
+      {
+        "title": "Deep root activity overprints weathering of petrogenic organic carbon in shale: Per Crossref title/search summary: 16 m shale profile, solid and gas radiocarbon, crushed-regolith incubation; no radiocarbon evidence of OCpetro oxidation in field CO2 b; did not test Controlled glucose/exudate addition with 13C partitioning to test priming of OCpetro",
+        "year": "2023",
+        "doi": "https://doi.org/10.1016/j.epsl.2023.118048"
       }
     ],
     "web": {
@@ -3689,14 +3900,23 @@
       ]
     },
     "scores": {
-      "novel": 85,
-      "accurate": 50,
-      "testable": 82,
+      "novel": 75,
+      "accurate": 53,
+      "testable": 84,
       "impact": 68
     },
     "why": "Strength: 13C-glucose with 14C-dead CO2 partitioning, gamma-irradiated controls and a 20% falsification threshold at 120 days separate petrogenic, added and native carbon, and no joint literature exists. Risk: kerogen co-metabolism is unmeasured, aromatic kerogen is highly recalcitrant, and microbes fed glucose may take the sugar and show no or negative priming (which the entry itself names), the field corollary of 2-5 times faster oxidation near roots is a further speculative step, and 14C-dead CO2 from carbonate dissolution in marly shale could masquerade as petrogenic carbon.",
     "rubric": 4,
-    "assessed": "2026-10-17"
+    "assessed": "2026-10-17",
+    "check": {
+      "second": {
+        "novel": 75,
+        "accurate": 55,
+        "testable": 85
+      },
+      "disputed": false,
+      "novelCheck": "untested"
+    }
   },
   {
     "id": "e_xka1wyy4i",
@@ -3805,6 +4025,16 @@
         "title": "Glacial flour as soil amendment (Himalayan gneiss vs Icelandic basalt flour) with soybean; nutrient supply tested, not diazotrophs",
         "year": "2025",
         "doi": "https://doi.org/10.1016/j.isci.2024.111476"
+      },
+      {
+        "title": "A Taxon-Wise Insight Into Rock Weathering and Nitrogen Fixation Functional Profiles of Proglacial Systems: Shotgun metagenomes from three Arctic forefields (Svalbard, Sweden, Greenland): nitrogenase and weathering genes along succession; did not test Bedrock P content as a predictor of fixation rates, or P addition to low-P rock flour",
+        "year": "2021",
+        "doi": "https://doi.org/10.3389/fmicb.2021.627437"
+      },
+      {
+        "title": "Metagenomic insights into diazotrophic communities across Arctic glacier forefields: nif genes in 70 metagenomes across four Arctic forefields; key diazotroph taxa; did not test Geology contrast or P-limitation test; DOI returned 403 to curl but the EPMC abstract was read",
+        "year": "2018",
+        "doi": "https://doi.org/10.1093/femsec/fiy114"
       }
     ],
     "web": {
@@ -3827,13 +4057,22 @@
     },
     "scores": {
       "novel": 72,
-      "accurate": 62,
-      "testable": 78,
+      "accurate": 54,
+      "testable": 74,
       "impact": 35
     },
     "why": "Strength: P limits free-living N fixation in young proglacial soils (2025 N and P addition experiment) and rock flour releases bioavailable P, so apatite-rich bedrock plausibly raises fixation. Risk: bedrock P is confounded with pH, Fe, carbon and deglaciation age, and Mo or carbon can limit instead, while limestone also carries apatite, so the 2-5x lithology gap could be null or reversed.",
     "rubric": 4,
-    "assessed": "2026-10-17"
+    "assessed": "2026-10-17",
+    "check": {
+      "second": {
+        "novel": 70,
+        "accurate": 45,
+        "testable": 70
+      },
+      "disputed": true,
+      "novelCheck": "untested"
+    }
   },
   {
     "id": "e_lk0k15pfz",
