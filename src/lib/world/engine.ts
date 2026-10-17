@@ -158,7 +158,7 @@ export function applyOp(w: World, agent: string, o0: Op, ctx: Ctx): OpResult {
       const l = (h.lit || {}) as Record<string, number | string>;
       if (!h.prediction || !h.test || !(Number(l.count_a) >= 0) || !(Number(l.count_b) >= 0) || !(Number(l.count_ab) >= 0)) return fail("a hypothesis needs prediction, test, and lit {query_a, query_b, count_a, count_b, count_ab} counted from the literature");
       const long = ctx.replay ? "" : tooLong("prediction", h.prediction, HYP_TEXT_MAX) || tooLong("test", h.test, HYP_TEXT_MAX); if (long) return fail(long);
-      e.hypothesis ={ prediction: clip(h.prediction, HYP_TEXT_MAX), test: clip(h.test, HYP_TEXT_MAX), lit: { query_a: clip(l.query_a, 200), query_b: clip(l.query_b, 200), count_a: Number(l.count_a), count_b: Number(l.count_b), count_ab: Number(l.count_ab) } };
+      e.hypothesis ={ prediction: clip(h.prediction, HYP_TEXT_MAX), test: clip(h.test, HYP_TEXT_MAX), lit: { query_a: clip(l.query_a, 200), query_b: clip(l.query_b, 200), ...(l.query_ab ? { query_ab: clip(l.query_ab, 300) } : {}), count_a: Number(l.count_a), count_b: Number(l.count_b), count_ab: Number(l.count_ab) } };
       if (a.process === b.process) return fail("a hypothesis links two different processes");
     }
     if (a.process !== b.process) e.cross = true;
@@ -184,7 +184,7 @@ export function applyOp(w: World, agent: string, o0: Op, ctx: Ctx): OpResult {
     if (set.lit != null) {
       const l = set.lit as Record<string, number | string>;
       if (typeof l !== "object" || !(Number(l.count_a) >= 0) || !(Number(l.count_b) >= 0) || !(Number(l.count_ab) >= 0)) return fail("lit needs {query_a, query_b, count_a, count_b, count_ab} counted from the literature");
-      set.lit = { query_a: clip(l.query_a, 200), query_b: clip(l.query_b, 200), count_a: Number(l.count_a), count_b: Number(l.count_b), count_ab: Number(l.count_ab) };
+      set.lit = { query_a: clip(l.query_a, 200), query_b: clip(l.query_b, 200), ...(l.query_ab ? { query_ab: clip(l.query_ab, 300) } : {}), count_a: Number(l.count_a), count_b: Number(l.count_b), count_ab: Number(l.count_ab) };
     }
     if (set.participants) set.participants = names(set.participants);
     if (set.resources) set.resources = names(set.resources);
@@ -211,6 +211,15 @@ export function applyOp(w: World, agent: string, o0: Op, ctx: Ctx): OpResult {
     return { ok: true, ids: { ...ctx.ids } };
   }
 
+  if (op === "withdraw_change") {
+    const pid = ref(o.target); const p = w.proposals[pid];
+    if (!p) return fail(`unknown change request ${o.target}`);
+    if (p.by !== agent) return fail("you can only withdraw your own change request");
+    if (p.status !== "open") return fail(`this change request is already ${p.status}`);
+    p.status = "withdrawn";
+    return { ok: true };
+  }
+
   if (op === "add_rule") {
     const bad = checkEvidence(o.evidence); if (bad) return fail(bad);
     const title = clip(o.title, 120), text = clip(o.text, 800);
@@ -226,6 +235,7 @@ export function applyOp(w: World, agent: string, o0: Op, ctx: Ctx): OpResult {
     const id = ref(o.target); const it = itemOf(w, id);
     if (!it) return fail(`unknown target ${o.target}`);
     if ((it as { by: string }).by === agent) return fail("you cannot vote on your own work");
+    if (w.proposals[id]?.status === "withdrawn") return fail("this change request was withdrawn by its author");
     if (!["up", "down"].includes(String(o.vote))) return fail("vote must be up or down");
     if (w.votes.some(v => v.target === id && v.agent === agent)) return fail(`you already voted on ${id}`);
     const reason = clip(o.reason, 600); if (!reason) return fail("reason required");
@@ -257,6 +267,12 @@ export function resolve(w: World) {
     if (!t) { p.status = "rejected"; continue; }
     p.status = "accepted";
     if (p.delete) { if (rule) rule.status = "removed"; else if (!proc) (t as Step | Edge).status = "removed"; continue; }
+    if (step || edge) {
+      // The evidence that justified an accepted change joins the item, so the item never keeps a citation the change disproved without the newer source beside it.
+      const have = new Set((t as Step | Edge).evidence.map(x => x.source + "|" + x.claim));
+      const added = p.evidence.filter(x => !have.has(x.source + "|" + x.claim));
+      if (added.length) (t as Step | Edge).evidence = [...(t as Step | Edge).evidence, ...added].slice(-12);
+    }
     for (const [k, v] of Object.entries(p.set || {})) {
       if (edge?.hypothesis && HYP_FIELDS.includes(k)) (edge.hypothesis as unknown as Record<string, unknown>)[k] = v;
       else if (rule) { if (k === "value" && rule.param) rule.param.value = Number(v); else if (k === "title" || k === "text") (rule as unknown as Record<string, unknown>)[k] = v; }

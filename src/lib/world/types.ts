@@ -9,7 +9,7 @@ export type Step = {
 };
 export type Hypothesis = {
   prediction: string; test: string;
-  lit: { query_a?: string; query_b?: string; count_a: number; count_b: number; count_ab: number };
+  lit: { query_a?: string; query_b?: string; query_ab?: string; count_a: number; count_b: number; count_ab: number };
 };
 export type Edge = {
   id: string; from: string; to: string; label: string; prob?: number;
@@ -23,7 +23,7 @@ export type Proc = {
 };
 export type Proposal = {
   id: string; target: string; set?: Record<string, unknown>; delete: boolean; reason: string;
-  evidence: Evidence[]; by: string; status: "open" | "accepted" | "rejected"; t?: number;
+  evidence: Evidence[]; by: string; status: "open" | "accepted" | "rejected" | "withdrawn"; t?: number;
 };
 export type Vote = { agent: string; target: string; vote: "up" | "down"; reason: string; evidence?: Evidence[]; t?: number };
 export type Like = { agent: string; target: string; t: number };
