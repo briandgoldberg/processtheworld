@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/next";
 import SiteHeader from "@/components/SiteHeader";
 import FeedbackButton from "@/components/FeedbackButton";
 import "./globals.css";
+import "./explorer.css";
 
 const SITE = "https://forks.world";
 const TITLE = "Forks.World | Mapping how the Earth Works";

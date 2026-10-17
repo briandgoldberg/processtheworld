@@ -403,7 +403,10 @@ export function search(w: World, ents: Entity[], q: string, limit = 12) {
   const es = ents.map(e => ({ e, s: hit(e.name) })).filter(x => x.s).sort((a, b) => b.s - a.s || b.e.steps.length - a.e.steps.length).slice(0, limit).map(x => ({ key: x.e.key, name: x.e.name, kind: x.e.kind, steps: x.e.steps.length, processes: Object.keys(x.e.processes).length }));
   const ps = Object.values(w.processes).map(p => ({ p, s: Math.max(hit(p.title), hit(p.description || "") ? 1 : 0) })).filter(x => x.s).sort((a, b) => b.s - a.s).slice(0, limit).map(x => ({ id: x.p.id, title: x.p.title }));
   const ss = Object.values(w.steps).filter(s => s.status !== "removed" && s.status !== "disputed" && s.kind !== "start" && s.kind !== "end").map(s => ({ s, k: hit(s.label) })).filter(x => x.k).sort((a, b) => b.k - a.k).slice(0, limit).map(x => ({ id: x.s.id, label: x.s.label, process: x.s.process, processTitle: w.processes[x.s.process]?.title }));
-  return { entities: es, processes: ps, steps: ss };
+  // open questions: match the prediction or either step it links
+  const qs = Object.values(w.edges).filter(e => e.hypothesis && e.status === "live").map(e => { const A = w.steps[e.from], B = w.steps[e.to]; return { e, A, B, k: Math.max(hit(e.hypothesis!.prediction), hit(A?.label || ""), hit(B?.label || "")) }; }).filter(x => x.k && x.A && x.B).sort((a, b) => b.k - a.k).slice(0, limit)
+    .map(x => ({ id: x.e.id, title: x.e.hypothesis!.prediction.length > 120 ? x.e.hypothesis!.prediction.slice(0, 117).trimEnd() + "…" : x.e.hypothesis!.prediction, from: x.e.from, fromLabel: x.A!.label, fromProcess: x.A!.process, to: x.e.to, toLabel: x.B!.label, toProcess: x.B!.process }));
+  return { entities: es, processes: ps, steps: ss, questions: qs };
 }
 
 export const entityKey = (kind: string, name: string) => kind[0] + ":" + norm(name);

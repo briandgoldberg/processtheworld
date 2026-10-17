@@ -71,10 +71,10 @@ const stepOut = (w: World, id: string) => { const s = w.steps[id]; return { id, 
 
 export type WeakEdge = { id: string; from: ReturnType<typeof stepOut>; to: ReturnType<typeof stepOut>; by: string; impact: Edge["impact"]; conf: number; reasons: string[]; downstream: number; weight: number; sources: string[] };
 /** Lines that carry a lot of the map on little evidence: the best places to add or challenge evidence. */
-export function weakEdges(w: World, n = 40): WeakEdge[] {
+export function weakEdges(w: World, n = 40, only?: (e: Edge) => boolean): WeakEdge[] {
   const out: WeakEdge[] = [];
   for (const e of Object.values(w.edges)) {
-    if (e.status === "removed" || e.hypothesis || !real(w.steps[e.from]) || !real(w.steps[e.to])) continue;
+    if (e.status === "removed" || e.hypothesis || !real(w.steps[e.from]) || !real(w.steps[e.to]) || (only && !only(e))) continue;
     const { conf, reasons } = edgeConfidence(w, e);
     const d = downstream(w, e.to) + 1;
     out.push({ id: e.id, from: stepOut(w, e.from), to: stepOut(w, e.to), by: e.by, impact: e.impact, conf, reasons, downstream: d, weight: Math.round(d * (1 - conf) * 10) / 10, sources: e.evidence.map(x => x.source) });

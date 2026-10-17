@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import Linked from "@/components/Linked";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import Concepts from "@/components/Concepts";
-import ProcessMap from "@/components/ProcessMap";
+import Explorer, { type ConflictRow, type ExplorerData, type MissingRow, type QuestionRow, type WeakRow } from "@/components/Explorer";
 import Tree from "@/components/Tree";
+import { analysis, downstream, edgeConfidence, weakEdges, type WeakEdge } from "@/lib/world/analysis";
 import { buildMap } from "@/lib/world/mapModel";
+import { chanceOf, longShot, near5, ranking, shownHypothesis } from "@/lib/world/shown";
 import { entHref, plural } from "@/lib/world/fmt";
 import { getLive } from "@/lib/world/store";
+import curated from "@/lib/world/curated.json";
 
 export const revalidate = 30;
 
@@ -24,51 +26,53 @@ export default async function MapPage({ params }: { params: Promise<{ id: string
   const { world: w } = await getLive();
   const model = buildMap(w, id);
   if (!model) notFound();
-  const b = model.boundary;
-  const first = model.nodes.find(n => n.kind === "start")?.out[0]?.toLabel;
-  const last = model.nodes.filter(n => n.kind === "end").flatMap(n => n.inc.map(i => i.fromLabel));
-  const startText = b?.start || (first ? `Starts with: ${first}` : model.boundarySteps.start);
-  const endText = b?.end || (last.length ? `Ends after: ${last.slice(0, 2).join("; ")}` : model.boundarySteps.ends.join("; "));
+  const inHere = new Set(Object.values(w.steps).filter(s => s.process === id && s.status === "live").map(s => s.id));
+  const stepOut = (sid: string) => { const s = w.steps[sid]; return { id: sid, label: s?.label || sid, process: s?.process || "", processTitle: (s && w.processes[s.process]?.title) || "" }; };
+
+  // open questions touching this process, with their assessment where one exists
+  const byCur = new Map((curated as { id: string; title?: string; scores?: { novel: number; accurate: number; testable: number; impact?: number }; cluster?: string }[]).map(c => [c.id, c]));
+  const rank = ranking(curated as { id: string; scores?: { novel: number; accurate: number; testable: number; impact?: number }; cluster?: string }[]);
+  const variantIds = new Set(rank.variants.map(v => v.item.id));
+  const questions: QuestionRow[] = Object.values(w.edges).filter(e => e.hypothesis && e.status === "live" && (inHere.has(e.from) || inHere.has(e.to))).map(e => {
+    const c = byCur.get(e.id); const A = stepOut(e.from), B = stepOut(e.to);
+    const status: QuestionRow["status"] = c?.scores ? (variantIds.has(e.id) ? "variant" : shownHypothesis(c) ? "ranked" : longShot(c) ? "long shot" : "unassessed") : "unassessed";
+    const p = e.hypothesis!.prediction;
+    return { id: e.id, title: c?.title || (p.length > 110 ? p.slice(0, 107).trimEnd() + "…" : p), from: e.from, to: e.to, fromLabel: A.label, toLabel: B.label, fromProcess: A.process, toProcess: B.process, total: c?.scores && status !== "unassessed" ? near5(chanceOf(c.scores)) : undefined, novel: c?.scores?.novel, accurate: c?.scores?.accurate, status, countAb: e.hypothesis!.lit.count_ab };
+  }).sort((a, b) => (b.total ?? -1) - (a.total ?? -1));
+  const qByStep: Record<string, string[]> = {};
+  for (const x of questions) { (qByStep[x.from] ||= []).push(x.id); (qByStep[x.to] ||= []).push(x.id); }
+
+  // what the map draws: confidence per line and what follows each step
+  const conf: Record<string, number> = {};
+  for (const e of model.edges) { const real = w.edges[e.id]; if (real && !real.hypothesis) conf[e.id] = edgeConfidence(w, real).conf; }
+  const down: Record<string, number> = {};
+  for (const n of model.nodes) down[n.id] = downstream(w, n.id);
+
+  const row = (x: WeakEdge): WeakRow => ({ id: x.id, from: x.from.id, to: x.to.id, fromLabel: x.from.label, toLabel: x.to.label, fromProcess: x.from.process, toProcess: x.to.process, conf: x.conf, downstream: x.downstream, note: x.impact.note, reasons: x.reasons });
+  const weak = weakEdges(w, 12, e => inHere.has(e.from) || inHere.has(e.to)).map(row);
+  const a = analysis(w);
+  const conflicts: ConflictRow[] = a.conflicts.filter(c => [c.a.from, c.a.to, c.b.from, c.b.to].some(s => s.process === id)).map(c => ({ a: row(c.a), b: row(c.b), kind: c.kind, note: c.note }));
+  const missing: MissingRow[] = a.missing.filter(m => m.from.process === id || m.to.process === id).map(m => ({ resource: m.resource, from: m.from, to: m.to, downstream: m.downstream }));
+  const data: ExplorerData = { questions, weak, conflicts, missing, conf, downstream: down, qByStep, totals: { questions: rank.main.length, weak: a.weak.length, conflicts: a.conflicts.length, missing: a.missing.length } };
+
   const body = Object.values(w.steps).filter(s => s.process === id && s.status === "live" && s.kind !== "start" && s.kind !== "end");
   return (
-    <div className="wrap" style={{ paddingTop: 18 }}>
-      <div className="crumbs">{model.crumbs.map((c, i) => <span key={c.id}>{i > 0 && <span className="sep"> / </span>}{i < model.crumbs.length - 1 ? <Link href={`/map/${c.id}`}>{c.title}</Link> : <b style={{ color: "var(--ink)" }}>{c.title}</b>}</span>)}</div>
-      <div className="section-head" style={{ marginBottom: 10 }}>
-        <div><h1 style={{ fontSize: "clamp(26px,4vw,40px)" }}>{model.title}</h1>
-          <p className="muted" style={{ margin: "8px 0 0", maxWidth: "75ch" }}>{model.description || `This process has ${plural(body.length, "step")}. It does not have a written description yet; an agent can propose one.`}</p></div>
+    <div className="xp-page">
+      <Explorer key={id} model={model} data={data} tree={<Tree w={w} current={id} crumbs={model.crumbs.map(c => c.id)} />} />
+      <div className="wrap">
+        <section className="section steplist">
+          <h2 style={{ marginBottom: 6 }}>Every step in {model.title}, with its evidence</h2>
+          <p className="muted small">The map as a list. {model.boundary?.start ? `Starts: ${model.boundary.start} ` : ""}{model.boundary?.end ? `Ends: ${model.boundary.end}` : ""}</p>
+          {body.map(s => (
+            <div className="row" id={s.id} key={s.id}>
+              <b>{s.kind === "fork" ? "⑂ " : s.kind === "subprocess" ? "↘ " : ""}{s.sub ? <Link href={`/map/${s.sub}`}>{s.label}</Link> : s.label}</b>
+              <div className="chips">{s.participants.map(p => <Link key={p} className="p" href={entHref("participant", p)} style={{ color: "var(--person)", background: "var(--person-bg)" }}>{p}</Link>)}{s.resources.map(p => <Link key={p} className="r" href={entHref("resource", p)} style={{ color: "var(--system)", background: "var(--system-bg)" }}>{p}</Link>)}</div>
+              <details><summary className="small muted">Evidence ({s.evidence.length}){qByStep[s.id]?.length ? ` · ${plural(qByStep[s.id].length, "open question")}` : ""}</summary>
+                <ul className="ev">{s.evidence.map((e, i) => <li key={i}><b><Linked text={e.source} /></b>: {e.claim}{e.confidence != null ? ` (confidence ${e.confidence})` : ""}</li>)}</ul></details>
+            </div>
+          ))}
+        </section>
       </div>
-      <div className="grid c2" style={{ marginBottom: 14 }}>
-        <div className="card"><div className="label">Boundary: where this process starts</div><p style={{ margin: "4px 0 0" }}>{startText}</p></div>
-        <div className="card"><div className="label">Boundary: where it ends</div><p style={{ margin: "4px 0 0" }}>{endText}</p></div>
-      </div>
-      <div className="mapgrid">
-        <nav className="side" aria-label="Outline of the whole map"><h4>All processes</h4><Tree w={w} current={id} crumbs={model.crumbs.map(c => c.id)} /></nav>
-        <div>
-          <ProcessMap key={id} model={model} />
-          <div style={{ marginTop: 14 }}><Concepts /></div>
-        </div>
-      </div>
-
-      {model.children.length > 0 && (
-        <section className="section"><h2 style={{ marginBottom: 12 }}>Inside this process</h2>
-          <div className="grid c3">{model.children.map(c => (
-            <Link key={c.id} href={`/map/${c.id}`} className="card" style={{ textDecoration: "none", color: "inherit" }}><h3>{c.title}</h3>
-              <p className="muted small" style={{ margin: "6px 0 0" }}>{w.processes[c.id].description || `${plural(c.steps, "step")}`}</p></Link>
-          ))}</div></section>
-      )}
-
-      <section className="section steplist">
-        <h2 style={{ marginBottom: 6 }}>Every step, with its evidence</h2>
-        <p className="muted small">The same information as the map, as a list you can search and share. Click a participant or resource to see everywhere it appears.</p>
-        {body.map(s => (
-          <div className="row" id={s.id} key={s.id}>
-            <b>{s.kind === "fork" ? "⑂ " : s.kind === "subprocess" ? "↘ " : ""}{s.sub ? <Link href={`/map/${s.sub}`}>{s.label}</Link> : s.label}</b>
-            <div className="chips">{s.participants.map(p => <Link key={p} className="p" href={entHref("participant", p)} style={{ color: "var(--person)", background: "var(--person-bg)" }}>{p}</Link>)}{s.resources.map(p => <Link key={p} className="r" href={entHref("resource", p)} style={{ color: "var(--system)", background: "var(--system-bg)" }}>{p}</Link>)}</div>
-            <details><summary className="small muted">Evidence ({s.evidence.length}) · added by {s.by === "seed" ? "the founders" : s.by}</summary>
-              <ul className="ev">{s.evidence.map((e, i) => <li key={i}><b><Linked text={e.source} /></b>: {e.claim}{e.confidence != null ? ` (confidence ${e.confidence})` : ""}</li>)}</ul></details>
-          </div>
-        ))}
-      </section>
     </div>
   );
 }
