@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Explorer from "@/components/Explorer";
-import { chanceOf, near5, ranking } from "@/lib/world/shown";
+import { chanceOf, listedIds, near5, ranking } from "@/lib/world/shown";
 import { buildMap } from "@/lib/world/mapModel";
 import { ell, plural } from "@/lib/world/fmt";
 import { getLive } from "@/lib/world/store";
@@ -10,7 +10,8 @@ export const revalidate = 30;
 
 export default async function Home() {
   const { world: w } = await getLive();
-  const model = buildMap(w, "p0")!;
+  const listed = listedIds(curated);
+  const model = buildMap(w, "p0", id => listed.has(id))!;
   const { main } = ranking(curated);
   const top = main.slice(0, 8).map(c => ({ c, e: w.edges[c.id] })).filter(x => x.e);
   const title = (id: string, t?: string) => t || ell(w.edges[id]?.hypothesis?.prediction || "", 110);

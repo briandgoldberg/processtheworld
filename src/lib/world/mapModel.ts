@@ -58,12 +58,12 @@ function columns(ids: string[], next: Record<string, string[]>): Record<string, 
   return col;
 }
 
-export function buildMap(w: World, pid: string): MapModel | null {
+export function buildMap(w: World, pid: string, showHyp?: (id: string) => boolean): MapModel | null {
   const p = w.processes[pid]; if (!p) return null;
   const visible = (s: { status: string }) => s.status === "live";
   const steps = Object.values(w.steps).filter(s => s.process === pid && visible(s));
   const ids = steps.map(s => s.id), idset = new Set(ids);
-  const edgesAll = Object.values(w.edges).filter(visible);
+  const edgesAll = Object.values(w.edges).filter(e => visible(e) && (!e.hypothesis || !showHyp || showHyp(e.id)));
   const edges = edgesAll.filter(e => idset.has(e.from) && idset.has(e.to));
   const next: Record<string, string[]> = {}; edges.forEach(e => (next[e.from] ||= []).push(e.to));
   const col = columns(ids, next);

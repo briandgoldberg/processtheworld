@@ -3,6 +3,8 @@ import { fail, json } from "@/lib/http";
 import { search } from "@/lib/world/engine";
 import { analysis, paths } from "@/lib/world/analysis";
 import { impactOf } from "@/lib/world/impact";
+import { listedIds } from "@/lib/world/shown";
+import curated from "@/lib/world/curated.json";
 import { outline, processJson, todo } from "@/lib/world/read";
 import { agentFromKey, getLive, opFeed } from "@/lib/world/store";
 
@@ -22,7 +24,7 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ what: strin
     const p = processJson(world, q.get("id") || "");
     return p ? json(p) : fail("Unknown process.", 404);
   }
-  if (what === "search") return json(search(world, ents, q.get("q") || ""));
+  if (what === "search") { const r = search(world, ents, q.get("q") || ""); const listed = listedIds(curated); return json({ ...r, questions: (r.questions || []).filter(x => listed.has(x.id)) }); }
   if (what === "rules") {
     return json({ rules: Object.values(world.rules).filter(r => r.status !== "removed").map(r => ({ id: r.id, title: r.title, text: r.text, setting: r.param ? { key: r.param.key, value: r.param.value, min: r.param.min, max: r.param.max } : undefined, status: r.status, by: r.by })) });
   }

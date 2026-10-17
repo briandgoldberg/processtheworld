@@ -203,10 +203,9 @@ export default function Explorer({ model, data, embed = false, initialZoom = 1, 
   const results = hits && (
     <div className="xp-results" role="listbox">
       {hits.steps.length > 0 && <><h4>Steps</h4>{hits.steps.slice(0, 8).map(s => <button key={s.id} onClick={() => goStep(s.id, s.process)}><span>{ell(s.label, 90)}</span><span className="muted">{byId.has(s.id) ? "here" : s.processTitle}</span></button>)}</>}
-      {hits.questions.length > 0 && <><h4>Open questions</h4>{hits.questions.slice(0, 5).map(x => <button key={x.id} onClick={() => { setQ(""); setHits(null); if (byId.has(x.from)) focus(x.from); else router.push(`/map/${x.fromProcess}#${x.from}`); }}><span>{x.title}</span><span className="pill hyp">?</span></button>)}</>}
       {hits.processes.length > 0 && <><h4>Processes</h4>{hits.processes.slice(0, 5).map(p => <button key={p.id} onClick={() => { setQ(""); setHits(null); router.push(`/map/${p.id}`); }}><span>{p.title}</span></button>)}</>}
       {hits.entities.length > 0 && <><h4>Participants and resources</h4>{hits.entities.slice(0, 5).map(e => <button key={e.key} onClick={() => { setQ(""); setHits(null); router.push(`/e/${e.kind}/${enc(e.name)}`); }}><span>{e.name}</span><span className="muted">{e.kind} · {e.processes} processes</span></button>)}</>}
-      {hits.steps.length + hits.processes.length + hits.entities.length + hits.questions.length === 0 && <div className="hint">Nothing matched. Try a shorter word.</div>}
+      {hits.steps.length + hits.processes.length + hits.entities.length === 0 && <div className="hint">Nothing matched. Try a shorter word.</div>}
     </div>
   );
 
@@ -215,7 +214,7 @@ export default function Explorer({ model, data, embed = false, initialZoom = 1, 
       <div className="xp-top">
         <nav className="xp-crumbs" aria-label="Where you are">{crumbs.map((c, i) => <span key={c.id}>{i > 0 && <span className="sep">›</span>}{i < crumbs.length - 1 ? <Link href={`/map/${c.id}`}>{c.title}</Link> : <b>{c.title}</b>}</span>)}</nav>
         <div className="xp-search">
-          <input ref={searchRef} value={q} onChange={e => setQ(e.target.value)} placeholder="Search a step, question, process or resource…" aria-label="Search" onKeyDown={e => { if (e.key === "Enter" && hits?.steps[0]) { const s = hits.steps[0]; goStep(s.id, s.process); } }} />
+          <input ref={searchRef} value={q} onChange={e => setQ(e.target.value)} placeholder="Search a step, process or resource…" aria-label="Search" onKeyDown={e => { if (e.key === "Enter" && hits?.steps[0]) { const s = hits.steps[0]; goStep(s.id, s.process); } }} />
           {results}
         </div>
         {startId && <button className={"btn primary guide" + (walk ? " on" : "")} onClick={walk ? stopWalk : startWalk} aria-pressed={!!walk}>{walk ? "Stop guide" : "▶ Guide me"}</button>}

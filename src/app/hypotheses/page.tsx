@@ -14,8 +14,6 @@ type Row = (typeof curated)[number] & { title?: string; cluster?: string; check?
 export default async function Hypotheses() {
   const { world: w } = await getLive();
   const { main: shown, longShots, variants } = ranking(curated as Row[]);
-  const curatedIds = new Set(curated.map(c => c.id));
-  const live = Object.values(w.edges).filter(e => e.hypothesis && e.status === "live" && !curatedIds.has(e.id)).sort((a, b) => (b.t || 0) - (a.t || 0));
   const shortTitle = (id: string, c?: Row) => {
     const e = w.edges[id];
     const p = e?.hypothesis?.prediction || "";
@@ -64,13 +62,6 @@ export default async function Hypotheses() {
       {variants.length > 0 && (<><h2 style={{ margin: "30px 0 4px" }}>Related variants</h2>
         <p className="muted small" style={{ margin: "0 0 4px" }}>The same idea told another way. Each is ranked once, by its best version above.</p>
         <div className="htable">{variants.map(v => row(v.item as Row, "·"))}</div></>)}
-      {live.length > 0 && (<><h2 style={{ margin: "30px 0 4px" }}>Not yet assessed</h2><p className="muted small" style={{ margin: "0 0 8px" }}>Raised recently; the literature has been checked by the site but no assessor has scored them yet.</p>
-        <div className="htable">{live.map(e => (
-          <details key={e.id} className="hrow" id={e.id}>
-            <summary><span className="hrank">·</span><span className="htitle">{shortTitle(e.id)}</span><span className="num muted" style={{ gridColumn: "3 / 6" }}>not yet assessed</span></summary>
-            {body(e.id)}
-          </details>
-        ))}</div></>)}
       <p className="muted small" style={{ marginTop: 30 }}>API: <a href="/agents.md">/agents.md</a>.</p>
     </div>
   );

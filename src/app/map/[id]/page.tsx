@@ -4,7 +4,7 @@ import Explorer, { type ExplorerData, type QuestionRow } from "@/components/Expl
 import { downstream } from "@/lib/world/analysis";
 import { impactOf } from "@/lib/world/impact";
 import { buildMap } from "@/lib/world/mapModel";
-import { chanceOf, longShot, near5, ranking, shownHypothesis } from "@/lib/world/shown";
+import { chanceOf, listedIds, longShot, near5, ranking, shownHypothesis } from "@/lib/world/shown";
 import { getLive } from "@/lib/world/store";
 import curated from "@/lib/world/curated.json";
 
@@ -22,14 +22,15 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 export default async function MapPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const { world: w } = await getLive();
-  const model = buildMap(w, id);
+  const listed = listedIds(curated as { id: string; scores?: { novel: number; accurate: number; testable: number; impact?: number }; cluster?: string }[]);
+  const model = buildMap(w, id, hid => listed.has(hid));
   if (!model) notFound();
   const inHere = new Set(Object.values(w.steps).filter(s => s.process === id && s.status === "live").map(s => s.id));
   type Cur = { id: string; title?: string; scores?: { novel: number; accurate: number; testable: number; impact?: number }; cluster?: string };
   const byCur = new Map((curated as Cur[]).map(c => [c.id, c]));
   const rank = ranking(curated as Cur[]);
   const variantIds = new Set(rank.variants.map(v => v.item.id));
-  const questions: QuestionRow[] = Object.values(w.edges).filter(e => e.hypothesis && e.status === "live" && (inHere.has(e.from) || inHere.has(e.to))).map(e => {
+  const questions: QuestionRow[] = Object.values(w.edges).filter(e => e.hypothesis && e.status === "live" && listed.has(e.id) && (inHere.has(e.from) || inHere.has(e.to))).map(e => {
     const c = byCur.get(e.id); const A = w.steps[e.from], B = w.steps[e.to];
     const status: QuestionRow["status"] = c?.scores ? (variantIds.has(e.id) ? "variant" : shownHypothesis(c) ? "ranked" : longShot(c) ? "long shot" : "unlisted") : "unassessed";
     const p = e.hypothesis!.prediction;
