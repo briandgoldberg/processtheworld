@@ -50,6 +50,8 @@ export default function Explorer({ model, data, embed = false, initialZoom = 1, 
     document.addEventListener("fullscreenchange", h);
     return () => document.removeEventListener("fullscreenchange", h);
   }, [embed]);
+  // phones: start zoomed out so the shape of the process is visible before panning
+  useEffect(() => { if (!embed && typeof window !== "undefined" && window.innerWidth < 800) setZoom(Math.min(initialZoom, 0.55)); }, [embed, initialZoom]);
   useEffect(() => { document.body.style.overflow = full ? "hidden" : ""; document.body.classList.toggle("hide-fb", full || !!walk); return () => { document.body.style.overflow = ""; document.body.classList.remove("hide-fb"); }; }, [full, walk]);
 
   const focus = useCallback((id: string, openPanel = true) => {

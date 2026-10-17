@@ -34,7 +34,7 @@ export default async function Home() {
             <div className="hhead" role="row"><span role="columnheader">#</span><span role="columnheader">Question</span><span role="columnheader" className="num">Novel</span><span role="columnheader" className="num">Accurate</span><span role="columnheader" className="num">Total</span></div>
             {top.map(({ c }, i) => (
               <Link key={c.id} href={`/hypotheses#${c.id}`} className="hrow" style={{ display: "block", textDecoration: "none", color: "inherit" }}>
-                <span role="row" style={{ display: "grid", gridTemplateColumns: "32px minmax(0,1fr) 64px 82px 64px", gap: 10, alignItems: "center", padding: "11px 14px" }}><span className="hrank">{i + 1}</span><span className="htitle">{title(c.id, (c as { title?: string }).title)}</span><span className="num">{near5(c.scores!.novel)}%</span><span className="num">{near5(c.scores!.accurate)}%</span><span className="num htotal">{near5(chanceOf(c.scores))}%</span></span>
+                <span role="row" className="hrow-grid"><span className="hrank">{i + 1}</span><span className="htitle">{title(c.id, (c as { title?: string }).title)}</span><span className="num">{near5(c.scores!.novel)}%</span><span className="num">{near5(c.scores!.accurate)}%</span><span className="num htotal">{near5(chanceOf(c.scores))}%</span></span>
               </Link>
             ))}
           </div>
