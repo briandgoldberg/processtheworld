@@ -189,6 +189,7 @@ export default function Explorer({ model, data, embed = false, initialZoom = 1, 
       <div className="kind">{model.parent ? <>Inside <Link href={`/map/${model.parent.id}`}>{model.parent.title}</Link></> : "The whole map"}</div>
       <h3>{model.title}</h3>
       {model.description && <p className="small muted">{model.description}</p>}
+      {model.children.length > 0 && <div className="sec"><div className="label">What&apos;s inside</div>{model.children.map(c => <Link key={c.id} href={`/map/${c.id}`} className="qrow"><span>{c.title}</span></Link>)}</div>}
     </div>
   );
 
@@ -203,7 +204,7 @@ export default function Explorer({ model, data, embed = false, initialZoom = 1, 
   );
 
   return (
-    <div className={"xp" + (full ? " fs" : "") + (walk ? " walking" : "") + (!node && !edge ? " idle" : "")}>
+    <div className={"xp" + (full ? " fs" : "") + (walk ? " walking" : "")}>
       <div className="xp-top">
         <nav className="xp-crumbs" aria-label="Where you are">{crumbs.map((c, i) => <span key={c.id}>{i > 0 && <span className="sep">›</span>}{i < crumbs.length - 1 ? <Link href={`/map/${c.id}`}>{c.title}</Link> : <b>{c.title}</b>}</span>)}</nav>
         <div className="xp-search">

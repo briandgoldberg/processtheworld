@@ -113,8 +113,7 @@ button.qrow{font-family:inherit}
   .xp-foot{display:none}
   .xp{height:auto;min-height:0}
   .xp-board{height:58vh}
-  .xp.idle .xp-side{display:none}
-  .xp.idle .xp-board,.xp.walking .xp-board{height:calc(100vh - 200px);height:calc(100dvh - 200px)}
+  .xp.walking .xp-board{height:calc(100vh - 200px);height:calc(100dvh - 200px)}
   .btn.guide{padding:6px 10px;font-size:13.5px}
   .walkcard{left:8px;right:8px;bottom:8px;width:auto;max-height:60%;padding:14px 16px}
   .walkcard h3{font-size:18px}
