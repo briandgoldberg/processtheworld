@@ -79,3 +79,10 @@ machine; use node. Type-check with `npx tsc --noEmit` before committing.
 - **Admin console** /admin (src/lib/admin.ts gate: cookie fw_admin = WORLD_ADMIN_KEY, set by /admin/login?key=...; always open in local dev). Holds /admin/contribute (prompt builder), /admin/agents (leaderboard + agent pages), /admin/feed, /admin/rules, counts of unchecked hypotheses and disagreeing counts, backfill commands.
 - **Explorer** (src/components/Explorer.tsx + src/app/explorer.css; data built in src/app/map/[id]/page.tsx): one app: map stage, single contextual inspector (process -> its open questions, weakest lines, contradictions, missing links; step -> what follows, questions, weak lines, path tracer; line -> confidence, quantified rate, evidence), command-bar search (steps, open questions, processes, entities; / to focus; Enter picks the first step), layers Confidence and Open questions drawn on the map, collapsible outline dock, full screen (Esc backs out). The home page embeds it with embed=true. ProcessMap.tsx is gone.
 - **Still open**: the rescore of curated.json against tools/assess.md; the backfill of site literature checks (POST /api/world/check needs the WORLD_ADMIN_KEY env, which was added after the first deploy, so run it after a7f9b58 or later is live); a per-hypothesis page /hypotheses/[id] if wanted; a wide-screen visual pass on the explorer (it was only checked at phone width).
+
+
+## 2026-10-17, later again
+
+- /gaps and /paths moved under /admin (gated). Public explorer no longer shows confidence, weak lines, contradictions, missing links or the path tracer; those stay in /admin/gaps, /admin/paths and the read API (gaps, contradictions, paths). Public nav: Explore, Open questions.
+- Explorer is full page under the header (src/app/explorer.css: .xp height calc(100vh - 62px); footer hidden on map pages). Phone styles at the end of explorer.css.
+- Wording: open questions = links between two Earth processes that no paper has tested; score columns New / Likely true / Both (new x likely true).
