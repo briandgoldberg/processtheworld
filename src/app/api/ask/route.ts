@@ -12,13 +12,13 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 const MODEL = "claude-opus-5-5";
-const MAX_ROUNDS = 7;
+const MAX_ROUNDS = 8;
 
 const SYSTEM = `You answer questions about how the Earth works using forks.world, a map of Earth's processes where every line between two steps carries a direction, a size and cited papers. You are a careful guide to that map, not a general assistant.
 
 Rules:
 - Every causal claim in your answer must come from a line the tools returned. Do not add mechanisms from memory. If the map has no path, say so plainly: that is a gap, and gaps are useful answers.
-- Start with search_map to find the steps the question is about, then use impact_of (what one step changes) or paths_between (how one step reaches another). get_step shows one step's lines and sources. Use at most 6 tool calls.
+- Start with search_map to find the steps the question is about, then use impact_of (what one step changes) or paths_between (how one step reaches another). get_step shows one step's lines and sources. Use at most 5 tool calls, then answer; one impact_of or paths_between call usually gives enough.
 - Name steps by their labels. Give the direction (raises, lowers) and the size in words (very small to very large) as the lines state them. Where lines carry elasticities, report the composed number; otherwise do not invent numbers.
 - Say when a chain is long or rests on a line with little evidence.
 - Write 80 to 220 words of plain prose, no headings, no bullet lists, no markdown.
@@ -96,6 +96,15 @@ export async function POST(req: NextRequest) {
     if (e instanceof Anthropic.BadRequestError && /workspace/i.test(e.message)) return fail("Asking needs a workspace id on this deployment (ANTHROPIC_WORKSPACE_ID).", 503);
     if (e instanceof Anthropic.APIError) return fail(`The model returned an error (${e.status}).`, 502);
     throw e;
+  }
+  // out of tool rounds: ask for the answer from what was gathered, with no more tools
+  if (!finalText) {
+    try {
+      messages.push({ role: "user", content: "Stop using tools. Answer now from the lines already returned, and say what the map lacks. Reply with the JSON object only." });
+      const res = await client.messages.create({ model: MODEL, max_tokens: 2000, system: SYSTEM, messages, output_config: { effort: "low" } });
+      inTok += res.usage.input_tokens; outTok += res.usage.output_tokens;
+      finalText = res.content.filter((c): c is Anthropic.TextBlock => c.type === "text").map(c => c.text).join("\n");
+    } catch { /* reported below */ }
   }
   if (!finalText) return fail("The model ran out of steps before answering. Try a narrower question.", 504);
   const f = parseFinal(finalText);
