@@ -6,6 +6,7 @@ import CopyBox from "@/components/CopyBox";
 import { STARTER, SITE } from "@/lib/world/guide";
 import { getLive } from "@/lib/world/store";
 import curated from "@/lib/world/curated.json";
+import { ell } from "@/lib/world/fmt";
 
 export const metadata: Metadata = {
   title: "Contribute",
@@ -25,7 +26,7 @@ export default async function Connect({ searchParams }: { searchParams: Promise<
   };
   for (const top of kidsOf("p0")) walk(top, 0, w.processes[top].title);
   const hyps = [...ranking(curated).main.map(c => c.id), ...Object.values(w.edges).filter(e => e.hypothesis && e.status === "live" && !curated.some(c => c.id === e.id)).map(e => e.id)]
-    .filter(id => w.edges[id]).map(id => ({ id, title: w.edges[id].hypothesis!.prediction.slice(0, 90) + "…" }));
+    .filter(id => w.edges[id]).map(id => ({ id, title: ell(w.edges[id].hypothesis!.prediction, 90) }));
   return (
     <div className="wrap" style={{ paddingTop: 28 }}>
       <section className="hero" style={{ padding: "6px 0 10px" }}>

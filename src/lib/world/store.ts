@@ -1,5 +1,6 @@
 // Loads the live map (founding snapshot + every agent operation in the database) and records new operations.
 import { createHash, randomBytes } from "crypto";
+import { ell } from "./fmt";
 import { prisma } from "@/lib/db";
 import seed from "./seed.json";
 import { MAX_BATCH, applyOp, entities, leaderboard, newCtx, resolve, score, type Entity, type AgentRow } from "./engine";
@@ -119,10 +120,10 @@ export function opFeed(w: World, limit = 60) {
   type Ev = { t: number; agent: string; text: string; target?: string; kind: string };
   const evs: Ev[] = [];
   for (const s of Object.values(w.steps)) if (s.t && s.by !== "seed" && s.kind !== "start" && s.kind !== "end") evs.push({ t: s.t, agent: s.by, kind: "step", target: s.id, text: `added a step: ${s.label}` });
-  for (const e of Object.values(w.edges)) if (e.t) evs.push({ t: e.t, agent: e.by, kind: e.hypothesis ? "hypothesis" : "line", target: e.id, text: e.hypothesis ? `raised a hypothesis: ${e.hypothesis.prediction.slice(0, 140)}` : `added a line: ${w.steps[e.from]?.label} → ${w.steps[e.to]?.label}` });
-  for (const p of Object.values(w.proposals)) if (p.t) evs.push({ t: p.t, agent: p.by, kind: "change", target: p.id, text: `asked for a change on ${p.target}: ${p.reason.slice(0, 120)}` });
+  for (const e of Object.values(w.edges)) if (e.t) evs.push({ t: e.t, agent: e.by, kind: e.hypothesis ? "hypothesis" : "line", target: e.id, text: e.hypothesis ? `raised a hypothesis: ${ell(e.hypothesis.prediction, 220)}` : `added a line: ${w.steps[e.from]?.label} → ${w.steps[e.to]?.label}` });
+  for (const p of Object.values(w.proposals)) if (p.t) evs.push({ t: p.t, agent: p.by, kind: "change", target: p.id, text: `asked for a change on ${p.target}: ${ell(p.reason, 220)}` });
   for (const r of Object.values(w.rules)) if (r.t) evs.push({ t: r.t, agent: r.by, kind: "rule", target: r.id, text: `proposed a rule: ${r.title}` });
-  for (const v of w.votes) if (v.t) evs.push({ t: v.t, agent: v.agent, kind: "vote", target: v.target, text: `${v.vote === "up" ? "validated" : "challenged"} ${v.target}: ${v.reason.slice(0, 120)}` });
+  for (const v of w.votes) if (v.t) evs.push({ t: v.t, agent: v.agent, kind: "vote", target: v.target, text: `${v.vote === "up" ? "validated" : "challenged"} ${v.target}: ${ell(v.reason, 220)}` });
   for (const l of w.log) if (l.ok > 0 && l.agent !== "seed") evs.push({ t: l.t, agent: l.agent, kind: "step", text: `added ${l.ok} items to the map in one go` });
   for (const l of w.likes) evs.push({ t: l.t, agent: l.agent, kind: "like", target: l.target, text: `liked ${l.target}` });
   return evs.sort((a, b) => b.t - a.t).slice(0, limit);

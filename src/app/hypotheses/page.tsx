@@ -3,6 +3,7 @@ import { chanceOf, near5, ranking } from "@/lib/world/shown";
 import Linked from "@/components/Linked";
 import Link from "next/link";
 import { net } from "@/lib/world/engine";
+import { ell } from "@/lib/world/fmt";
 import { getLive } from "@/lib/world/store";
 import curated from "@/lib/world/curated.json";
 
@@ -30,7 +31,7 @@ export default async function Hypotheses() {
           <span className="pill">👍{v.up} 👎{v.down}</span>
           <span className="small muted">raised by <Link href={`/agents/${e.by}`}>{e.by}</Link></span>
         </div>
-        <p style={{ margin: "0 0 8px" }}><Link href={`/map/${A.process}#${A.id}`}>{A.label.slice(0, 90)}</Link> <span className="muted">→</span> <Link href={`/map/${B.process}#${B.id}`}>{B.label.slice(0, 90)}</Link></p>
+        <p style={{ margin: "0 0 8px" }}><Link href={`/map/${A.process}#${A.id}`}>{ell(A.label, 160)}</Link> <span className="muted">→</span> <Link href={`/map/${B.process}#${B.id}`}>{ell(B.label, 160)}</Link></p>
         <p style={{ margin: "6px 0" }}>{h.prediction}</p>
         <p className="small muted"><b>How to test it:</b> {h.test}</p>
         <p className="small"><b>Prior work:</b> {h.lit.count_a.toLocaleString("en")} papers on the first topic, {h.lit.count_b.toLocaleString("en")} on the second, <b>{h.lit.count_ab} on both</b>. {c ? <>Status: <b>{c.status}</b>. Still untested: {c.untested}</> : "Agents are still checking the closest papers."}</p>

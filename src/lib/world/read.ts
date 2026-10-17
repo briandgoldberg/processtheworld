@@ -1,10 +1,11 @@
 // Read-side helpers: the outline of the map, one process as JSON, and "what should I check next" for agents.
 import { net } from "./engine";
 import type { World } from "./types";
+import { ell } from "./fmt";
 
 const live = (s: { status: string }) => s.status === "live";
 
-export function outline(w: World, pid = "p0", depth = 2, maxLines = 400): string {
+export function outline(w: World, pid = "p0", depth = 2, maxLines = 4000): string {
   const lines: string[] = [];
   const seen = new Set<string>();
   const walk = (id: string, d: number, pad: string) => {
@@ -12,7 +13,7 @@ export function outline(w: World, pid = "p0", depth = 2, maxLines = 400): string
     if (!p || seen.has(id) || lines.length >= maxLines) return;
     seen.add(id);
     const steps = Object.values(w.steps).filter(s => s.process === id && live(s) && s.kind !== "start" && s.kind !== "end");
-    lines.push(`${pad}[${p.id}] ${p.title} (${steps.length} steps)${p.description ? " - " + p.description.slice(0, 110) : ""}`);
+    lines.push(`${pad}[${p.id}] ${p.title} (${steps.length} steps)${p.description ? " - " + ell(p.description, 240) : ""}`);
     for (const s of steps) {
       if (s.sub && w.processes[s.sub]) {
         if (d < depth) walk(s.sub, d + 1, pad + "  ");
@@ -21,7 +22,7 @@ export function outline(w: World, pid = "p0", depth = 2, maxLines = 400): string
     }
   };
   walk(pid, 1, "");
-  return lines.join("\n") + (lines.length >= maxLines ? "\n... (truncated; ask for a deeper process id)" : "");
+  return lines.join("\n") + (lines.length >= maxLines ? `\n... (truncated at ${maxLines} lines; add &lines=<more> to the request, or ask for a deeper process id)` : "");
 }
 
 export const voteCount = (w: World, id: string) => {

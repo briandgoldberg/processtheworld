@@ -38,7 +38,7 @@ async function callTool(req: NextRequest, name: string, a: Record<string, unknow
   if (name === "get_rules") return asJson(Object.values(world.rules).filter(r => r.status !== "removed").map(r => ({ id: r.id, title: r.title, text: r.text, setting: r.param, status: r.status })));
   if (name === "get_outline") {
     const pid = String(a.process || "p0");
-    return world.processes[pid] ? text(outline(world, pid, Math.min(4, Number(a.depth) || 2))) : text("Unknown process.", true);
+    return world.processes[pid] ? text(outline(world, pid, Math.min(8, Number(a.depth) || 2), Math.min(20000, Number(a.lines) || 4000))) : text("Unknown process.", true);
   }
   if (name === "get_process") { const p = processJson(world, String(a.id || "")); return p ? asJson(p) : text("Unknown process.", true); }
   if (name === "search") return asJson(search(world, ents, String(a.q || "")));

@@ -50,7 +50,7 @@ function checkEvidence(ev: unknown): string | null {
   }
   return null;
 }
-const cleanEv = (ev: Evidence[]): Evidence[] => ev.map(e => ({ source: clip(e.source, 400), claim: clip(e.claim, 600), confidence: typeof e.confidence === "number" ? Math.max(0, Math.min(1, e.confidence)) : null }));
+const cleanEv = (ev: Evidence[]): Evidence[] => ev.map(e => ({ source: clip(e.source, 1000), claim: clip(e.claim, 1500), confidence: typeof e.confidence === "number" ? Math.max(0, Math.min(1, e.confidence)) : null }));
 const cleanRoles = (r: unknown, resources: string[]): Step["resourceRoles"] | undefined => {
   if (!r || typeof r !== "object") return undefined;
   const out: NonNullable<Step["resourceRoles"]> = {};
@@ -126,7 +126,7 @@ export function applyOp(w: World, agent: string, o0: Op, ctx: Ctx): OpResult {
     w.steps[s.id] = s;
     if (o.ref) ctx.refs[String(o.ref)] = s.id;
     if (kind === "subprocess") {
-      const p: Proc = { id: mint(ctx, "proc", "p"), title: label, description: o.description ? clip(o.description, 600) : undefined, parentStep: s.id, start: "", ends: [], by: agent };
+      const p: Proc = { id: mint(ctx, "proc", "p"), title: label, description: o.description ? clip(o.description, 1000) : undefined, parentStep: s.id, start: "", ends: [], by: agent };
       const st: Step = { id: mint(ctx, "pstart", "s"), process: p.id, label: clip(o.start_label, 160) || `Start: ${label}`, kind: "start", participants, resources: [], evidence: s.evidence, by: agent, status: "live", t: ctx.t };
       const en: Step = { id: mint(ctx, "pend", "s"), process: p.id, label: clip(o.end_label, 160) || `End: ${label}`, kind: "end", participants, resources: [], evidence: s.evidence, by: agent, status: "live", t: ctx.t };
       w.steps[st.id] = st; w.steps[en.id] = en; p.start = st.id; p.ends = [en.id]; w.processes[p.id] = p; s.sub = p.id;
@@ -142,7 +142,7 @@ export function applyOp(w: World, agent: string, o0: Op, ctx: Ctx): OpResult {
     if (a.status === "removed" || b.status === "removed") return fail("cannot link to a removed step");
     const im = o.impact as Edge["impact"] | undefined;
     if (!im || !(im.size >= 1 && im.size <= 5) || !["+", "-", "0"].includes(im.direction) || !im.note) return fail('every line needs "impact": {"size": 1-5, "direction": "+" or "-" or "0", "note": "why"}, for example "impact": {"size": 3, "direction": "+", "note": "more light means more growth"}');
-    const e: Edge = { id: mint(ctx, "edge", "e"), from: a.id, to: b.id, label: clip(o.label, 80), impact: { size: Number(im.size), direction: im.direction, note: clip(im.note, 300) }, evidence: cleanEv(o.evidence as Evidence[]), by: agent, status: "live", t: ctx.t };
+    const e: Edge = { id: mint(ctx, "edge", "e"), from: a.id, to: b.id, label: clip(o.label, 80), impact: { size: Number(im.size), direction: im.direction, note: clip(im.note, 600) }, evidence: cleanEv(o.evidence as Evidence[]), by: agent, status: "live", t: ctx.t };
     if (a.kind === "fork") {
       const prob = Number(o.prob);
       if (!(prob > 0 && prob <= 100)) return fail("lines out of a fork need prob (1-100); outcomes must add up to 100");
@@ -191,9 +191,9 @@ export function applyOp(w: World, agent: string, o0: Op, ctx: Ctx): OpResult {
     if (set.resourceRoles) { const base = (w.steps[tid]?.resources || []).concat((set.resources as string[]) || []); set.resourceRoles = cleanRoles(set.resourceRoles, base) || {}; }
     if (set.resourceNotes) { const base = (w.steps[tid]?.resources || []).concat((set.resources as string[]) || []); set.resourceNotes = cleanNotes(set.resourceNotes, base) || {}; }
     if (set.label) set.label = clip(set.label, 160);
-    if (set.description) set.description = clip(set.description, 600);
+    if (set.description) set.description = clip(set.description, 1000);
     if (set.title) set.title = clip(set.title, 120);
-    if (set.text) set.text = clip(set.text, 800);
+    if (set.text) set.text = clip(set.text, 1500);
     if (kind === "rule") {
       const r = t as unknown as Rule;
       if (r.locked) return fail(`this rule defines a main component of the map and is locked. ${LOCKED_MSG}`);
@@ -206,7 +206,7 @@ export function applyOp(w: World, agent: string, o0: Op, ctx: Ctx): OpResult {
       }
       if (o.delete && r.param) return fail("scoring rules cannot be deleted, only changed");
     }
-    const p: Proposal = { id: mint(ctx, "proposal", "c"), target: tid, set: o.delete ? undefined : set, delete: !!o.delete, reason: clip(o.reason, 600), evidence: cleanEv(o.evidence as Evidence[]), by: agent, status: "open", t: ctx.t };
+    const p: Proposal = { id: mint(ctx, "proposal", "c"), target: tid, set: o.delete ? undefined : set, delete: !!o.delete, reason: clip(o.reason, 1500), evidence: cleanEv(o.evidence as Evidence[]), by: agent, status: "open", t: ctx.t };
     w.proposals[p.id] = p;
     return { ok: true, ids: { ...ctx.ids } };
   }
@@ -222,7 +222,7 @@ export function applyOp(w: World, agent: string, o0: Op, ctx: Ctx): OpResult {
 
   if (op === "add_rule") {
     const bad = checkEvidence(o.evidence); if (bad) return fail(bad);
-    const title = clip(o.title, 120), text = clip(o.text, 800);
+    const title = clip(o.title, 120), text = clip(o.text, 1500);
     if (title.length < 4 || text.length < 20) return fail("a rule needs a title (4+ characters) and text (20+ characters)");
     if (LOOKS.test(title + " " + text)) return fail(LOCKED_MSG);
     const r: Rule = { id: mint(ctx, "rule", "r"), title, text, by: agent, status: "proposed", evidence: cleanEv(o.evidence as Evidence[]), t: ctx.t };
@@ -238,7 +238,7 @@ export function applyOp(w: World, agent: string, o0: Op, ctx: Ctx): OpResult {
     if (w.proposals[id]?.status === "withdrawn") return fail("this change request was withdrawn by its author");
     if (!["up", "down"].includes(String(o.vote))) return fail("vote must be up or down");
     if (w.votes.some(v => v.target === id && v.agent === agent)) return fail(`you already voted on ${id}`);
-    const reason = clip(o.reason, 600); if (!reason) return fail("reason required");
+    const reason = clip(o.reason, 1500); if (!reason) return fail("reason required");
     w.votes.push({ agent, target: id, vote: o.vote as "up" | "down", reason, evidence: cleanEv(o.evidence as Evidence[]), t: ctx.t });
     return { ok: true };
   }

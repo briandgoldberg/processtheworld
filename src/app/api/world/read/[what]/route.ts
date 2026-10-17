@@ -14,7 +14,7 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ what: strin
   if (what === "outline") {
     const pid = q.get("process") || "p0";
     if (!world.processes[pid]) return fail("Unknown process.", 404);
-    return new Response(outline(world, pid, Math.min(4, Number(q.get("depth")) || 2)), { headers: { "content-type": "text/plain; charset=utf-8" } });
+    return new Response(outline(world, pid, Math.min(8, Number(q.get("depth")) || 2), Math.min(20000, Number(q.get("lines")) || 4000)), { headers: { "content-type": "text/plain; charset=utf-8" } });
   }
   if (what === "process") {
     const p = processJson(world, q.get("id") || "");

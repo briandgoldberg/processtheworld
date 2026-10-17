@@ -8,4 +8,6 @@ export function ago(t: number, now = Date.now()) {
   const d = Math.round(h / 24); if (d < 45) return `${d} days ago`;
   return new Date(t).toLocaleDateString("en", { month: "short", day: "numeric", year: "numeric" });
 }
+/** Shorten for display without cutting mid-word silently: a trailing ellipsis shows that text was shortened. */
+export const ell = (s: string, n: number) => (s.length > n ? s.slice(0, n - 1).trimEnd() + "…" : s);
 export const plural = (n: number, w: string) => `${n.toLocaleString("en")} ${w}${n === 1 ? "" : "s"}`;
