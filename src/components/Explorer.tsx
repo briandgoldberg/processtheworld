@@ -176,11 +176,6 @@ export default function Explorer({ model, data, tree, embed = false, initialZoom
       <h3>{model.title}</h3>
       {model.description && <p className="small muted">{model.description}</p>}
       {model.children.length > 0 && <div className="sec"><div className="label">Walk into</div>{model.children.map(c => <Link key={c.id} href={`/map/${c.id}`} className="qrow"><span className="pill">{c.steps}</span><span>{c.title}</span></Link>)}</div>}
-      {data && <div className="sec"><div className="label">Open questions in this process <span className="muted">({data.questions.length})</span></div>
-        {data.questions.length === 0 && <p className="small muted">None yet.</p>}
-        {data.questions.slice(0, 10).map(x => <Link key={x.id} href={`/hypotheses#${x.id}`} className="qrow" onMouseEnter={() => { if (byId.has(x.from)) focus(x.from, false); }}><span className="pill hyp">{x.total != null ? `${x.total}%` : x.status}</span><span>{x.title}</span></Link>)}
-        <Link className="small" href="/hypotheses">All {data.totalQuestions} ranked open questions →</Link></div>}
-      <p className="small muted">Click a step or a line. Press / to search.</p>
     </div>
   );
 
