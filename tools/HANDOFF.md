@@ -1,0 +1,64 @@
+# Handoff: hypothesis scoring fix and rescore (started 2026-10-16, evening PT)
+
+Anyone (person or agent) can pick this up. Work in `C:\Users\brian\processtheworld` (Git Bash), branch `main`.
+Pushing to `main` deploys forks.world through Vercel (project `processtheworld`). There is no Python on this
+machine; use node. Type-check with `npx tsc --noEmit` before committing.
+
+## What was wrong
+
+1. **Hypotheses vanished from the live map.** Commit `c9114b1` added a hard reject for hypotheses whose
+   prediction or test is over 700 characters. The live map is rebuilt by replaying every stored operation
+   (`src/lib/world/store.ts` → `applyOp`), so about 70 hypotheses that had been accepted earlier (all of
+   Briangold-Claude's 37, Lodestar's 4, and others) failed on replay and disappeared, with their authors'
+   items and points and every vote on them. **Fixed and pushed** in `7920ac7`: ops replayed from the log carry
+   `replay: true` and are clipped instead of refused. Verify on the site: `/api/world/read/hypotheses` should
+   list ~100 hypotheses again and `/agents/Lodestar` should show 4 hypotheses.
+2. **Scoring compressed "accurate".** Scores live in `src/lib/world/curated.json` (one entry per hypothesis,
+   hand-written by an assessor agent in batches; see the git log "Add assessments for..."). 42 of 90 assessed
+   entries sit in the 50s on `accurate`, because the assessor was scoring effect size and importance rather than
+   whether the predicted direction would hold. The rubric that fixes this is `tools/assess.md` (anchored scales
+   for novel, accurate, testable). **Written, committed with this note, not yet applied to the data.**
+3. **Total and threshold.** `src/lib/world/shown.ts` now computes the total (`chanceOf`) as the average of
+   novel and accurate instead of trusting a stored `chance`, and lists a hypothesis when testable >= 75 and
+   novel >= 50 and accurate >= 50 (was strictly greater, which dropped two scored exactly 50). The pages still
+   read the stored `c.chance` in places; switch them to `chanceOf(c.scores)` (see step 2 below).
+
+## What is left, in order
+
+1. ~~Confirm the deploy of `7920ac7`~~ Done: after the deploy the API lists 101 live hypotheses again and
+   Lodestar shows 4 hypotheses / 14 points, Briangold-Claude 37 / 135.
+2. **Finish the scoring code change.** Replace every `c.chance` read and sort with `chanceOf(c.scores)` in
+   `src/app/hypotheses/page.tsx`, `src/app/page.tsx` (top-3 cards and the pill), `src/app/contribute/page.tsx`.
+   Type-check, commit, push.
+3. **Clickable hypothesis pages** (requested by Brian). Add `src/app/hypotheses/[id]/page.tsx` that renders one
+   hypothesis in full (title, the two linked steps, prediction, test, prior work, web verdict, scores, why,
+   evidence, validate button) and 404s when neither `curated.json` nor the live map knows the id. Move the
+   `body()` function from `src/app/hypotheses/page.tsx` into a shared component (e.g.
+   `src/components/HypothesisBody.tsx`) so the list rows and the page render the same thing. In the list, make
+   the title a `Link` to `/hypotheses/<id>` (keep the row's expand behaviour). Update the links that point to
+   `/hypotheses#<id>` in `src/app/feed/page.tsx` and `src/lib/world/highlights.ts` to `/hypotheses/<id>`, and the
+   home page top-3 cards. Note `body()` returns null when the live edge is missing, which is why clicking a
+   row showed nothing while the replay bug was live; the shared component should show the stored assessment
+   and a one-line note instead of nothing.
+4. **Rescore every hypothesis against `tools/assess.md`.** Get the full list from
+   `https://forks.world/api/world/read/hypotheses` (id, from, to, by, prediction, test, lit) once the deploy is
+   confirmed; `curated.json` has 105 entries (90 scored) and there may be new ones since. For each entry keep
+   id, and keep status/untested/papers/web when they exist and are still right, but re-derive `scores` with the
+   anchors (read the anchors before typing numbers; do not compress `accurate` toward 55), rewrite `why`
+   (strength; risk; the mechanism that could flip the sign), add a `title` where missing, and drop `chance`
+   (the site computes it). Entries with no `scores` yet need the full process (litgap counts, closest papers,
+   web search). This is 100+ items of literature work: split into batches of ~20 and run them in parallel
+   agents, each writing its batch to its own JSON file, then merge into `curated.json` with a node script that
+   validates every entry (id exists, scores are integers 0-100, papers have no invented DOIs). Commit as
+   "Rescore all hypotheses against tools/assess.md", push, then check `/hypotheses` on the site.
+5. **Report** the new top 10 with old vs new scores.
+
+## Context that is easy to lose
+
+- Brian's own agents on forks.world: Briangold-Claude (older, run from another session), plus Lodestar,
+  Bellwether, Cairn, Driftwood and Fathom (registered 2026-10-16 by Claude; keys in
+  `C:\Users\brian\forks-world-agent-keys.txt`, outside the repo on purpose). They must not vote on each
+  other's items (rule r_selfvote). `tools/sibling-agent-brief.md` is the brief those five agents ran with.
+- Another Claude session has been committing to this repo (commits signed Claude Sonnet 5.5, e.g. the
+  assessment batches and `c9114b1`). Pull before you start and keep commits small.
+- Site conventions: plain-text content, evidence as `{source, claim, confidence}`, links inside `source`.
