@@ -10,6 +10,8 @@ const nextConfig: NextConfig = {
       { source: "/agents", destination: "/hypotheses", permanent: false },
       { source: "/feed", destination: "/", permanent: false },
       { source: "/rules", destination: "/hypotheses", permanent: false },
+      { source: "/gaps", destination: "/hypotheses", permanent: false },
+      { source: "/paths", destination: "/map/p0", permanent: false },
       { source: "/test", destination: "/", permanent: true },
       { source: "/test/map/:id", destination: "/map/:id", permanent: true },
       { source: "/test/:path*", destination: "/map/p0", permanent: true },

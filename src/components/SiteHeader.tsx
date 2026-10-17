@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const NAV: [string, string][] = [
-  ["/map/p0", "Explore"], ["/hypotheses", "Open questions"], ["/gaps", "Gaps"],
+  ["/map/p0", "Explore"], ["/hypotheses", "Open questions"],
 ];
 
 export default function SiteHeader() {

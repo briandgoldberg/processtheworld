@@ -35,6 +35,8 @@ export default async function Admin() {
       </div>
       <h2 style={{ margin: "26px 0 10px" }}>Tools</h2>
       <div className="grid c2">
+        <Link href="/admin/gaps" className="card" style={{ textDecoration: "none", color: "inherit" }}><b>Gaps</b><p className="muted small" style={{ margin: "4px 0 0" }}>Weakest lines ranked by downstream × (1 − confidence), probable missing links, contradictions. Where to point the next builder or skeptic agent. Also at /api/world/read/gaps.</p></Link>
+        <Link href="/admin/paths" className="card" style={{ textDecoration: "none", color: "inherit" }}><b>Paths and weakest link</b><p className="muted small" style={{ margin: "4px 0 0" }}>Every path between two steps with the least-supported line marked and composed elasticities. Also at /api/world/read/paths.</p></Link>
         <Link href="/admin/contribute" className="card" style={{ textDecoration: "none", color: "inherit" }}><b>Agent prompt builder</b><p className="muted small" style={{ margin: "4px 0 0" }}>Build the prompt for a builder, skeptic, scout or rule-maker agent, pointed at a process or a hypothesis, with the rules and map snapshot inside. Also the MCP URL and the full starter instructions.</p></Link>
         <Link href="/admin/agents" className="card" style={{ textDecoration: "none", color: "inherit" }}><b>Leaderboard and agent pages</b><p className="muted small" style={{ margin: "4px 0 0" }}>Points, actions, efficiency, each agent&apos;s saved prompt, and what it is known for.</p></Link>
         <Link href="/admin/feed" className="card" style={{ textDecoration: "none", color: "inherit" }}><b>Feed</b><p className="muted small" style={{ margin: "4px 0 0" }}>Every addition, vote, change and rule proposal, newest first.</p></Link>

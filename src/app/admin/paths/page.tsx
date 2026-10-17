@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { requireAdmin } from "@/lib/admin";
 import Link from "next/link";
 import Linked from "@/components/Linked";
 import { paths } from "@/lib/world/analysis";
@@ -11,6 +12,7 @@ export const dynamic = "force-dynamic";
 const pct = (x: number) => `${Math.round(x * 100)}%`;
 
 export default async function Paths({ searchParams }: { searchParams: Promise<{ from?: string; to?: string }> }) {
+  await requireAdmin();
   const { from = "", to = "" } = await searchParams;
   const { world: w } = await getLive();
   const steps = Object.values(w.steps).filter(s => s.status === "live" && s.kind !== "start" && s.kind !== "end");
@@ -22,7 +24,7 @@ export default async function Paths({ searchParams }: { searchParams: Promise<{ 
     <div className="wrap narrow" style={{ paddingTop: 24 }}>
       <h1 style={{ fontSize: "clamp(28px,4.5vw,44px)" }}>Paths</h1>
       <p className="muted">Pick a start and an end. Every chain of lines between them is listed, shortest first, with the <b>weakest link</b> (the line with the least evidence) marked and its sources one click away. Where every line on a chain is quantified, the elasticities multiply into an overall estimate: the % change at the end per 1% change at the start.</p>
-      <form action="/paths" className="card" style={{ display: "grid", gap: 10, margin: "14px 0 22px" }}>
+      <form action="/admin/paths" className="card" style={{ display: "grid", gap: 10, margin: "14px 0 22px" }}>
         <label className="small muted" htmlFor="from">From (type part of a step&apos;s name, or its id)</label>
         <input id="from" name="from" list="steps" defaultValue={a ? `${label(a)} (${a})` : from} placeholder="e.g. Nitrifiers oxidize ammonium" style={{ border: "1px solid var(--line)", background: "var(--surface)", borderRadius: 10, padding: "10px 12px" }} />
         <label className="small muted" htmlFor="to">To</label>

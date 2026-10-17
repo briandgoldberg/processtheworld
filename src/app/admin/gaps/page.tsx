@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { requireAdmin } from "@/lib/admin";
 import Link from "next/link";
 import Linked from "@/components/Linked";
 import { analysis, type WeakEdge } from "@/lib/world/analysis";
@@ -18,6 +19,7 @@ const Sources = ({ e }: { e: WeakEdge }) => (
 );
 
 export default async function Gaps() {
+  await requireAdmin();
   const { world: w } = await getLive();
   const a = analysis(w);
   return (
@@ -51,7 +53,7 @@ export default async function Gaps() {
             <td><StepLink s={m.from} /><div className="small muted">{m.from.id}</div></td>
             <td><StepLink s={m.to} /><div className="small muted">{m.to.id}</div></td>
             <td className="num">{m.downstream}</td>
-            <td>{m.hypothesis ? <Link className="small" href={`/hypotheses#${m.hypothesis}`}>open question raised</Link> : <Link className="small" href={`/paths?from=${m.from.id}&to=${m.to.id}`}>any path?</Link>}</td>
+            <td>{m.hypothesis ? <Link className="small" href={`/hypotheses#${m.hypothesis}`}>open question raised</Link> : <Link className="small" href={`/admin/paths?from=${m.from.id}&to=${m.to.id}`}>any path?</Link>}</td>
           </tr>
         ))}</tbody>
       </table></div>
