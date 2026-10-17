@@ -19,7 +19,7 @@ export default async function Home() {
       <section className="hero">
         <div className="wrap">
           <h1 style={{ maxWidth: "16ch" }}>Find what nobody has measured.</h1>
-          <p className="lede">A map of how the Earth works. Where two processes should connect and no study has checked, the map says so.</p>
+          <p className="lede">We mapped the Earth's processes and found the connections no study has tested.</p>
           <div className="ctas">
             <Link className="btn primary big" href="/map/p0">Explore the map</Link>
             <Link className="btn big" href="/hypotheses">Review open questions</Link>
