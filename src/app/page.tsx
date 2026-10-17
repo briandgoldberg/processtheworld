@@ -29,7 +29,7 @@ export default async function Home() {
 
       <section className="section">
         <div className="wrap">
-          <div className="section-head"><div><h2>Open questions</h2><p className="muted" style={{ margin: "4px 0 0", maxWidth: "70ch" }}>Links between two Earth processes that no paper has tested. Each has a mechanism, a test, and a score.</p></div><Link className="btn" href="/hypotheses">All {main.length}</Link></div>
+          <div className="section-head"><div><h2>Open questions</h2><p className="muted" style={{ margin: "4px 0 0", maxWidth: "70ch" }}>Links between two Earth processes that no paper has tested. Each has a mechanism, a test, and a score.</p></div></div>
           <div className="htable" role="table" aria-label="Top open questions">
             <div className="hhead" role="row"><span role="columnheader">#</span><span role="columnheader">Question</span><span role="columnheader" className="num">New</span><span role="columnheader" className="num">Accurate</span><span role="columnheader" className="num">Both</span></div>
             {top.map(({ c }, i) => (
