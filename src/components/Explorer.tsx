@@ -24,7 +24,7 @@ export default function Explorer({ model, data, tree, embed = false, initialZoom
   const [zoom, setZoom] = useState(initialZoom);
   const [full, setFull] = useState(false);
   const [showTree, setShowTree] = useState(false);
-  const [layerQ, setLayerQ] = useState(true);
+  const layerQ = true; // untested connections are always drawn
   const [q, setQ] = useState("");
   const [hits, setHits] = useState<SearchHit | null>(null);
   const board = useRef<HTMLDivElement>(null);
@@ -203,7 +203,6 @@ export default function Explorer({ model, data, tree, embed = false, initialZoom
           <input ref={searchRef} value={q} onChange={e => setQ(e.target.value)} placeholder="Search a step, question, process or resource…" aria-label="Search" onKeyDown={e => { if (e.key === "Enter" && hits?.steps[0]) { const s = hits.steps[0]; goStep(s.id, s.process); } }} />
           {results}
         </div>
-        <label className={"xp-layer" + (layerQ ? " on" : "")} title="Show untested connections on the map"><input type="checkbox" checked={layerQ} onChange={e => setLayerQ(e.target.checked)} /><span>Open questions</span></label>
         <div className="xp-zoom">
           <button className="btn icon" onClick={() => setZoom(z => Math.max(0.12, z / 1.2))} aria-label="Zoom out">−</button>
           <button className="btn icon wide" onClick={() => setZoom(initialZoom)} aria-label="Reset zoom">{Math.round(zoom * 100)}%</button>
