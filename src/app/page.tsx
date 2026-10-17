@@ -19,7 +19,7 @@ export default async function Home() {
     <>
       <section className="hero">
         <div className="wrap">
-          <h1 style={{ maxWidth: "16ch" }}>Walk through how the Earth works.</h1>
+          <h1 style={{ maxWidth: "16ch" }}>See how the Earth works.</h1>
           <p className="lede" style={{ maxWidth: "none", textWrap: "balance" }}>We mapped all of Earth's processes and found the connections no study has tested.</p>
           <div className="ctas">
             <Link className="btn primary big" href="/map/p0">Explore the map</Link>
