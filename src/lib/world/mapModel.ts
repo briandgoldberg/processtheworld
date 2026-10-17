@@ -5,7 +5,8 @@ import type { Edge, Step, World } from "./types";
 import { net } from "./engine";
 import { ROLE_LABEL, roleOf, type Role } from "./roles";
 
-const L = { HEAD: 150, COL: 200, BOXW: 160, BOXH: 62, ROWGAP: 16, PADX: 28, PADY: 16, BAND: 22, CHIPW: 152, CHIPH: 36 };
+const L = { HEAD: 150, COL: 250, BOXW: 160, BOXH: 62, ROWGAP: 28, PADX: 28, PADY: 18, BAND: 22, CHIPW: 152, CHIPH: 36 };
+const ARC0 = 30, ARCSTEP = 24; // first arc height above a row, and the extra height for each further arc that would overlap
 const MAX_PEOPLE = 5, MAX_RES = 5;
 
 type LaneT = { id: string; name: string; kind: "participant" | "resource"; key: string; y: number; h: number };
@@ -86,6 +87,24 @@ export function buildMap(w: World, pid: string, showHyp?: (id: string) => boolea
   const slot: Record<string, number> = {}, rowOf: Record<string, number> = {}, rows: Record<string, number> = {};
   steps.forEach(s => { const lane = laneOfStep(s); const k = lane + "|" + col[s.id]; rowOf[s.id] = slot[k] = (slot[k] ?? -1) + 1; rows[lane] = Math.max(rows[lane] || 1, rowOf[s.id] + 1); });
   const maxCol = Math.max(0, ...Object.values(col));
+  // lines that arc over a row: every backward line, and a forward line that would otherwise run through the boxes between.
+  // Arcs that share a row and overlap in columns get different heights, shortest span lowest, so they fan out instead of piling up.
+  const laneIdx = new Map(laneList.map((l, i) => [l.id, i]));
+  const ord = (id: string) => (laneIdx.get(laneOfStep(w.steps[id])) ?? 0) * 1000 + rowOf[id];
+  const arcLevel = new Map<string, number>(); const topPad: Record<string, number> = {};
+  const arcs = edges.map(e => {
+    const forward = col[e.to] > col[e.from];
+    const arc = !forward || (ord(e.from) === ord(e.to) && col[e.to] - col[e.from] > 1);
+    if (!arc) return null;
+    const top = ord(e.from) <= ord(e.to) ? e.from : e.to;
+    return { id: e.id, ca: Math.min(col[e.from], col[e.to]), cb: Math.max(col[e.from], col[e.to]), o: ord(top), lane: laneOfStep(w.steps[top]), row: rowOf[top] };
+  }).filter((x): x is NonNullable<typeof x> => !!x).sort((x, y) => (x.cb - x.ca) - (y.cb - y.ca));
+  const placedArcs: { ca: number; cb: number; o: number; level: number }[] = [];
+  for (const x of arcs) {
+    let k = 0; while (placedArcs.some(q => q.level === k && q.o === x.o && q.ca <= x.cb && x.ca <= q.cb)) k++;
+    arcLevel.set(x.id, k); placedArcs.push({ ...x, level: k });
+    if (x.row === 0) topPad[x.lane] = Math.max(topPad[x.lane] || 0, ARC0 + k * ARCSTEP + 14);
+  }
   const width = L.HEAD + L.PADX * 2 + (maxCol + 1) * L.COL;
   // how many resource chips stack in one column of each resource lane
   const stackMax: Record<string, number> = {}; const stackCnt: Record<string, number> = {};
@@ -95,13 +114,13 @@ export function buildMap(w: World, pid: string, showHyp?: (id: string) => boolea
   laneList.forEach((l, i) => {
     if (i === 0) { bands.push({ y, t: "Participants" }); y += L.BAND; }
     if (i === firstRes) { bands.push({ y, t: "Resources" }); y += L.BAND; }
-    const h = l.kind === "resource" ? Math.max(L.BOXH + L.PADY * 2 - L.ROWGAP + 8 + L.ROWGAP, (stackMax[l.id] || 1) * (L.CHIPH + 8) + L.PADY * 2) : (rows[l.id] || 1) * (L.BOXH + L.ROWGAP) + L.PADY * 2 - L.ROWGAP + 8;
+    const h = (l.kind === "resource" ? Math.max(L.BOXH + L.PADY * 2 - L.ROWGAP + 8 + L.ROWGAP, (stackMax[l.id] || 1) * (L.CHIPH + 8) + L.PADY * 2) : (rows[l.id] || 1) * (L.BOXH + L.ROWGAP) + L.PADY * 2 - L.ROWGAP + 8) + (topPad[l.id] || 0);
     lanes.push({ ...l, y, h }); y += h;
   });
   const laneBy = new Map(lanes.map(l => [l.id, l]));
   const xOf = (c: number) => L.HEAD + L.PADX + c * L.COL;
   const pos: Record<string, { x: number; y: number }> = {};
-  steps.forEach(s => { const lane = laneBy.get(laneOfStep(s))!; pos[s.id] = { x: xOf(col[s.id]), y: lane.y + L.PADY + rowOf[s.id] * (L.BOXH + L.ROWGAP) }; });
+  steps.forEach(s => { const lane = laneBy.get(laneOfStep(s))!; pos[s.id] = { x: xOf(col[s.id]), y: lane.y + L.PADY + (topPad[lane.id] || 0) + rowOf[s.id] * (L.BOXH + L.ROWGAP) }; });
 
   // resource chips: one per lane and column, with an arrow from every step in that column that uses the resource
   const chips: ChipM[] = []; const arrows: ArrowM[] = [];
@@ -130,15 +149,17 @@ export function buildMap(w: World, pid: string, showHyp?: (id: string) => boolea
   const edgeModels: EdgeM[] = edges.map(e => {
     const a = pos[e.from], b = pos[e.to];
     const forward = col[e.to] > col[e.from];
+    const level = arcLevel.get(e.id);
     let d: string, lx: number, ly: number;
-    if (forward) {
+    if (level == null) {
       const x1 = a.x + L.BOXW, y1 = a.y + L.BOXH / 2, x2 = b.x, y2 = b.y + L.BOXH / 2, mx = (x1 + x2) / 2;
       d = `M${x1} ${y1} C${mx} ${y1} ${mx} ${y2} ${x2} ${y2}`; lx = mx; ly = (y1 + y2) / 2;
     } else {
-      const x1 = a.x + L.BOXW / 2, y1 = a.y - 2, x2 = b.x + L.BOXW / 2, y2 = b.y - 2, dy = 38;
-      d = `M${x1} ${y1} C${x1} ${y1 - dy} ${x2} ${y2 - dy} ${x2} ${y2}`; lx = (x1 + x2) / 2; ly = Math.min(y1, y2) - dy * 0.75;
+      const x1 = a.x + L.BOXW / 2, y1 = a.y - 2, x2 = b.x + L.BOXW / 2, y2 = b.y - 2, dy = ARC0 + level * ARCSTEP;
+      d = `M${x1} ${y1} C${x1} ${y1 - dy} ${x2} ${y2 - dy} ${x2} ${y2}`; lx = (x1 + x2) / 2; ly = Math.min(y1, y2) - dy * 0.75 - 2;
     }
-    const label = [e.prob != null ? `${e.prob}%` : "", e.loop ? `↻ ${e.loop.kind === "reinforcing" ? "reinforces" : "balances"} · ${e.loop.strength} · ${e.loop.gain}` : "", e.label].filter(Boolean).join(" ").slice(0, e.loop ? 44 : 28);
+    // a label between two neighbouring boxes has only the gap to sit in, so it is kept short
+    const label = [e.prob != null ? `${e.prob}%` : "", e.loop ? `↻ ${e.loop.kind === "reinforcing" ? "reinforces" : "balances"} · ${e.loop.strength} · ${e.loop.gain}` : "", e.label].filter(Boolean).join(" ").slice(0, e.loop ? 44 : level == null && col[e.to] - col[e.from] === 1 ? 14 : 28);
     const nv = net(w, e.id, e.by);
     return { id: e.id, d, lx, ly, label, prob: e.prob, loop: !!e.loop, back: !forward, size: e.impact.size, dir: e.impact.direction, hyp: !!e.hypothesis, by: e.by, from: e.from, to: e.to, fromLabel: w.steps[e.from]?.label || e.from, toLabel: w.steps[e.to]?.label || e.to, rawLabel: e.label, impact: e.impact, loopInfo: e.loop, evidence: e.evidence, up: nv.up, down: nv.down, hypothesis: e.hypothesis };
   });
