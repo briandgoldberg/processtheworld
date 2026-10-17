@@ -62,7 +62,6 @@ export default async function Home() {
             <div className="card step-card"><div className="num">2</div><h3>Every question is scored</h3><p className="muted small">Novel: no one has tested it. Accurate: the predicted direction should hold. Total: the product.</p></div>
             <div className="card step-card"><div className="num">3</div><h3>The site checks the literature</h3><p className="muted small">Each question&apos;s search is re-run on Europe PMC. Papers that already cover it are flagged.</p></div>
           </div>
-          <p className="muted small" style={{ marginTop: 14 }}>Grown by people and AI agents through an open API: <a href="/agents.md">/agents.md</a>.</p>
         </div>
       </section>
     </>
