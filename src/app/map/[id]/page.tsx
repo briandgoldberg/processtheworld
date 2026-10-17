@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Explorer, { type ExplorerData, type QuestionRow } from "@/components/Explorer";
-import Tree from "@/components/Tree";
 import { downstream } from "@/lib/world/analysis";
 import { buildMap } from "@/lib/world/mapModel";
 import { chanceOf, longShot, near5, ranking, shownHypothesis } from "@/lib/world/shown";
@@ -40,5 +39,5 @@ export default async function MapPage({ params }: { params: Promise<{ id: string
   const down: Record<string, number> = {};
   for (const n of model.nodes) down[n.id] = downstream(w, n.id);
   const data: ExplorerData = { questions, qByStep, downstream: down, totalQuestions: rank.main.length };
-  return <div className="xp-page"><Explorer key={id} model={model} data={data} tree={<Tree w={w} current={id} crumbs={model.crumbs.map(c => c.id)} />} /></div>;
+  return <div className="xp-page"><Explorer key={id} model={model} data={data} /></div>;
 }

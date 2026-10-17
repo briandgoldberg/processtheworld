@@ -17,13 +17,14 @@ const IMPACT = ["", "Very small", "Small", "Moderate", "Large", "Very large"];
 const enc = (s: string) => encodeURIComponent(s.toLowerCase().trim().replace(/\s+/g, " "));
 const ell = (s: string, n: number) => (s.length > n ? s.slice(0, n - 1).trimEnd() + "…" : s);
 
-export default function Explorer({ model, data, tree, embed = false, initialZoom = 1, extra }: { model: MapModel; data?: ExplorerData; tree?: ReactNode; embed?: boolean; initialZoom?: number; extra?: ReactNode }) {
+export default function Explorer({ model, data, embed = false, initialZoom = 1, extra }: { model: MapModel; data?: ExplorerData; embed?: boolean; initialZoom?: number; extra?: ReactNode }) {
   const router = useRouter();
   const [sel, setSel] = useState<string | null>(null);
   const [selE, setSelE] = useState<string | null>(null);
   const [zoom, setZoom] = useState(initialZoom);
   const [full, setFull] = useState(false);
-  const [showTree, setShowTree] = useState(false);
+  // Guide me: follow the process one step at a time, choosing a branch at each fork.
+  const [walk, setWalk] = useState<{ trail: string[] } | null>(null);
   const layerQ = true; // untested connections are always drawn
   const [q, setQ] = useState("");
   const [hits, setHits] = useState<SearchHit | null>(null);
@@ -49,13 +50,26 @@ export default function Explorer({ model, data, tree, embed = false, initialZoom
     document.addEventListener("fullscreenchange", h);
     return () => document.removeEventListener("fullscreenchange", h);
   }, [embed]);
-  useEffect(() => { document.body.style.overflow = full ? "hidden" : ""; document.body.classList.toggle("hide-fb", full); return () => { document.body.style.overflow = ""; document.body.classList.remove("hide-fb"); }; }, [full]);
+  useEffect(() => { document.body.style.overflow = full ? "hidden" : ""; document.body.classList.toggle("hide-fb", full || !!walk); return () => { document.body.style.overflow = ""; document.body.classList.remove("hide-fb"); }; }, [full, walk]);
 
   const focus = useCallback((id: string, openPanel = true) => {
     const n = byId.get(id); if (!n) return;
     if (openPanel) { setSel(id); setSelE(null); }
     const b = board.current; if (b) b.scrollTo({ left: Math.max(0, (n.x + n.w / 2) * zoom - b.clientWidth / 2), top: Math.max(0, (n.y + n.h / 2) * zoom - b.clientHeight / 2), behavior: "smooth" });
   }, [byId, zoom]);
+  const hypEdges = useMemo(() => new Set(model.edges.filter(e => e.hyp).map(e => e.id)), [model]);
+  const startId = (model.nodes.find(n => n.kind === "start") || model.nodes.find(n => n.label === model.boundarySteps.start) || model.nodes[0])?.id;
+  const walkNow = walk ? byId.get(walk.trail[walk.trail.length - 1]) : undefined;
+  const walkChoices = walkNow ? walkNow.out.filter(o => byId.has(o.to) && !hypEdges.has(o.edge)) : [];
+  const goTo = (id: string) => {
+    setWalk(w => ({ trail: [...(w?.trail || []), id] })); setSel(id); setSelE(null);
+    const n = byId.get(id), b = board.current;
+    if (n && b) b.scrollTo({ left: Math.max(0, (n.x + n.w / 2) * zoom - b.clientWidth / 2), top: Math.max(0, (n.y + n.h / 2) * zoom - b.clientHeight / 2 + 60), behavior: "smooth" });
+  };
+  const startWalk = () => { if (!startId) return; setWalk({ trail: [] }); goTo(startId); };
+  const stopWalk = () => { setWalk(null); setSel(null); };
+  const walkBack = () => { if (!walk || walk.trail.length < 2) return; const t = walk.trail.slice(0, -1); setWalk({ trail: t }); focus(t[t.length - 1]); };
+  const trail = useMemo(() => new Set(walk?.trail || []), [walk]);
   useEffect(() => {
     const h = typeof location !== "undefined" ? location.hash.slice(1) : "";
     if (h && byId.has(h)) setTimeout(() => focus(h), 50);
@@ -76,7 +90,7 @@ export default function Explorer({ model, data, tree, embed = false, initialZoom
     const k = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement; const typing = t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA");
       if (e.key === "/" && !typing && !embed) { e.preventDefault(); searchRef.current?.focus(); }
-      if (e.key === "Escape") { if (hits) { setHits(null); setQ(""); } else if (sel || selE) { setSel(null); setSelE(null); } else if (full) toggleFull(); }
+      if (e.key === "Escape") { if (hits) { setHits(null); setQ(""); } else if (walk) stopWalk(); else if (sel || selE) { setSel(null); setSelE(null); } else if (full) toggleFull(); }
     };
     window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k);
   });
@@ -136,7 +150,7 @@ export default function Explorer({ model, data, tree, embed = false, initialZoom
         {model.chips.map(c => (
           <a key={c.id} href={`/e/resource/${enc(c.name)}`}><g className={"chip " + c.role + (node && node.id !== c.step ? " dim" : "")}><rect x={c.x} y={c.y} width={c.w} height={c.h} rx={14} />{c.lines.map((t, i) => <text key={i} x={c.x + c.w / 2} y={c.y + (c.lines.length === 1 ? 22 : 15 + i * 12)} textAnchor="middle">{t}</text>)}<title>{c.name + ": " + c.text}</title></g></a>
         ))}
-        {model.nodes.map(n => <Node key={n.id} n={n} selected={sel === n.id} dim={!!related && !related.has(n.id)} questions={layerQ ? (data?.qByStep[n.id]?.length || 0) : 0} onSelect={() => { setSel(n.id); setSelE(null); }} />)}
+        {model.nodes.map(n => <Node key={n.id} n={n} selected={sel === n.id} trail={trail.has(n.id)} dim={!!related && !related.has(n.id)} questions={layerQ ? (data?.qByStep[n.id]?.length || 0) : 0} onSelect={() => { setSel(n.id); setSelE(null); }} />)}
       </svg>
     </div>
   );
@@ -175,7 +189,6 @@ export default function Explorer({ model, data, tree, embed = false, initialZoom
       <div className="kind">{model.parent ? <>Inside <Link href={`/map/${model.parent.id}`}>{model.parent.title}</Link></> : "The whole map"}</div>
       <h3>{model.title}</h3>
       {model.description && <p className="small muted">{model.description}</p>}
-      {model.children.length > 0 && <div className="sec"><div className="label">Walk into</div>{model.children.map(c => <Link key={c.id} href={`/map/${c.id}`} className="qrow"><span>{c.title}</span></Link>)}</div>}
     </div>
   );
 
@@ -190,14 +203,14 @@ export default function Explorer({ model, data, tree, embed = false, initialZoom
   );
 
   return (
-    <div className={"xp" + (full ? " fs" : "") + (showTree ? " tree" : "")}>
+    <div className={"xp" + (full ? " fs" : "") + (walk ? " walking" : "") + (!node && !edge ? " idle" : "")}>
       <div className="xp-top">
-        <button className={"btn icon" + (showTree ? " on" : "")} onClick={() => setShowTree(s => !s)} aria-label={showTree ? "Hide the outline" : "Show all processes"} title="All processes">☰</button>
         <nav className="xp-crumbs" aria-label="Where you are">{crumbs.map((c, i) => <span key={c.id}>{i > 0 && <span className="sep">›</span>}{i < crumbs.length - 1 ? <Link href={`/map/${c.id}`}>{c.title}</Link> : <b>{c.title}</b>}</span>)}</nav>
         <div className="xp-search">
           <input ref={searchRef} value={q} onChange={e => setQ(e.target.value)} placeholder="Search a step, question, process or resource…" aria-label="Search" onKeyDown={e => { if (e.key === "Enter" && hits?.steps[0]) { const s = hits.steps[0]; goStep(s.id, s.process); } }} />
           {results}
         </div>
+        {startId && <button className={"btn primary guide" + (walk ? " on" : "")} onClick={walk ? stopWalk : startWalk} aria-pressed={!!walk}>{walk ? "Stop guide" : "▶ Guide me"}</button>}
         <div className="xp-zoom">
           <button className="btn icon" onClick={() => setZoom(z => Math.max(0.12, z / 1.2))} aria-label="Zoom out">−</button>
           <button className="btn icon wide" onClick={() => setZoom(initialZoom)} aria-label="Reset zoom">{Math.round(zoom * 100)}%</button>
@@ -206,9 +219,28 @@ export default function Explorer({ model, data, tree, embed = false, initialZoom
         </div>
       </div>
       <div className="xp-body">
-        {showTree && <aside className="xp-tree" aria-label="All processes">{tree}</aside>}
         {canvas}
-        <aside className="xp-side" aria-label="Details">{inspector}</aside>
+        {!walk && <aside className="xp-side" aria-label="Details">{inspector}</aside>}
+        {walk && walkNow && (
+          <div className="walkcard" role="dialog" aria-label="Guide me">
+            <div className="wk-top"><span className="pill">{walkNow.kind === "fork" ? "Decision fork" : walkNow.kind === "end" ? "End" : walkNow.kind === "start" ? "Start" : walkNow.kind === "subprocess" ? "Subprocess" : "Step"} · {walk.trail.length}</span>
+              <button className="x" onClick={stopWalk} aria-label="Close guide">×</button></div>
+            <h3>{walkNow.label}</h3>
+            {walkNow.participants.length > 0 && <p className="small muted" style={{ margin: "2px 0 6px" }}>{walkNow.participants.join(", ")}</p>}
+            {walkNow.evidence[0] && !/^Scaffold/i.test(walkNow.evidence[0].claim) && <p className="small" style={{ margin: "0 0 8px" }}>{walkNow.evidence[0].claim}</p>}
+            {walkNow.sub && <p style={{ margin: "0 0 8px" }}><Link className="btn small-btn" href={`/map/${walkNow.sub}`}>Look inside this step →</Link></p>}
+            {walkNow.kind === "end" || walkChoices.length === 0
+              ? <p className="small"><b>That is the end of this path.</b> You took {walk.trail.length} steps.</p>
+              : <div className="wk-choices">
+                  <div className="small muted">{walkChoices.length > 1 ? (walkNow.kind === "fork" ? "Which way does it go?" : "What happens next?") : "Next"}</div>
+                  {walkChoices.map(o => <button key={o.edge} className="btn wk-opt" onClick={() => goTo(o.to)}>{o.prob != null && <b>{o.prob}%</b>}{o.loop ? "↻ " : ""}<span>{o.toLabel}</span></button>)}
+                </div>}
+            <div className="wk-nav">
+              <button className="btn small-btn" onClick={walkBack} disabled={walk.trail.length < 2}>← Back</button>
+              <button className="btn small-btn" onClick={startWalk}>Restart</button>
+            </div>
+          </div>
+        )}
       </div>
       <div className="xp-foot">
         <span><i className="sw plus" />Positive</span><span><i className="sw minus" />Negative</span><span><i className="sw loop" />Loops back</span><span><i className="sw hyp" />Open question</span>
@@ -225,14 +257,14 @@ function wrapName(name: string): string[] {
   return out.slice(0, 3);
 }
 
-function Node({ n, selected, dim, questions, onSelect }: { n: NodeM; selected: boolean; dim: boolean; questions: number; onSelect: () => void }) {
+function Node({ n, selected, trail, dim, questions, onSelect }: { n: NodeM; selected: boolean; trail: boolean; dim: boolean; questions: number; onSelect: () => void }) {
   const cx = n.x + n.w / 2;
   const y0 = n.y + n.h / 2 - (n.lines.length * 14) / 2 + 11;
   const shape = n.kind === "fork"
     ? <polygon points={`${n.x + 14},${n.y} ${n.x + n.w - 14},${n.y} ${n.x + n.w},${n.y + n.h / 2} ${n.x + n.w - 14},${n.y + n.h} ${n.x + 14},${n.y + n.h} ${n.x},${n.y + n.h / 2}`} />
     : <rect x={n.x} y={n.y} width={n.w} height={n.h} rx={n.kind === "start" || n.kind === "end" ? n.h / 2 : 12} />;
   const body = (
-    <g className={`node ${n.kind}${selected ? " sel" : ""}${dim ? " dim" : ""}`} tabIndex={0} role="button" aria-label={n.label} filter="url(#nshadow)"
+    <g className={`node ${n.kind}${selected ? " sel" : ""}${trail ? " trail" : ""}${dim ? " dim" : ""}`} tabIndex={0} role="button" aria-label={n.label} filter="url(#nshadow)"
        onClick={n.sub ? undefined : onSelect} onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); if (!n.sub) onSelect(); } }} id={n.id}>
       {n.kind === "subprocess" && <rect x={n.x + 4} y={n.y - 4} width={n.w - 8} height={n.h} rx={12} className="stack" />}
       {shape}
