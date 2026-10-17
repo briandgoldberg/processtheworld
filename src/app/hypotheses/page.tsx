@@ -9,7 +9,7 @@ import curated from "@/lib/world/curated.json";
 
 export const metadata: Metadata = { title: "Open questions: what nobody has measured", description: "Connections between parts of Earth's systems that nobody has tested, ranked by how likely each is to be both novel and true, with the prior work, the proposed test and the evidence for each." };
 export const revalidate = 30;
-type Row = (typeof curated)[number] & { title?: string; cluster?: string; firstLook?: { verdict: string; summary: string; data: { name: string; url: string }[]; n?: number; date: string }; check?: { second: { novel: number; accurate: number; testable: number }; disputed?: boolean; novelCheck?: string }; scores?: { novel: number; testable: number; accurate: number; impact?: number } };
+type Row = (typeof curated)[number] & { title?: string; cluster?: string; check?: { second: { novel: number; accurate: number; testable: number }; disputed?: boolean; novelCheck?: string }; scores?: { novel: number; testable: number; accurate: number; impact?: number } };
 
 export default async function Hypotheses() {
   const { world: w } = await getLive();
@@ -35,7 +35,6 @@ export default async function Hypotheses() {
         {c?.scores && <p className="small"><b>Scores:</b> novel {near5(c.scores.novel)}% · accurate {near5(c.scores.accurate)}% · testable {near5(c.scores.testable)}%{c.scores.impact != null && <> · impact if true {near5(c.scores.impact)}</>}. Total = novel × accurate. Scores are judgments, shown to the nearest 5.</p>}
         {c?.check?.disputed && <p className="small muted"><b>Assessors disagreed:</b> a second, independent assessor scored this novel {near5(c.check.second.novel)}% / accurate {near5(c.check.second.accurate)}% / testable {near5(c.check.second.testable)}%, more than 15 points from the first. The scores above are the average.</p>}
         {c?.check?.novelCheck && <p className="small muted"><b>Novelty re-checked:</b> an independent search found the link is {c.check.novelCheck}.</p>}
-        {c?.firstLook && <div className="card" style={{ margin: "10px 0", padding: "10px 12px", background: "var(--sunk)" }}><p className="small" style={{ margin: 0 }}><b>First look at open data: {c.firstLook.verdict}.</b> {c.firstLook.summary}</p>{c.firstLook.data.length > 0 && <p className="small muted" style={{ margin: "6px 0 0" }}>Data: {c.firstLook.data.map((d, i) => <span key={d.url}>{i > 0 && " · "}<a href={d.url}>{d.name}</a></span>)}. Run by an AI agent on {c.firstLook.date}; a first pass, not a study.</p>}</div>}
         {c?.cluster && variants.some(v => v.leader.id === c.id) && <p className="small muted"><b>Related ideas:</b> {variants.filter(v => v.leader.id === c.id).map(v => <a key={v.item.id} href={`#${v.item.id}`} style={{ marginRight: 8 }}>{shortTitle(v.item.id, v.item as Row)}</a>)}</p>}
         {c && <p className="small muted"><b>Why:</b> {c.why} (A rough judgment, not a measured probability.)</p>}
         <details><summary className="small muted">Evidence ({e.evidence.length}) and closest papers</summary>
@@ -47,7 +46,7 @@ export default async function Hypotheses() {
   const votes = (id: string) => { const e = w.edges[id]; if (!e) return null; const v = net(w, id, e.by); return (v.up || v.down) ? <span className="small muted" style={{ marginLeft: 8, fontWeight: 400 }}>👍{v.up} 👎{v.down}</span> : null; };
   const row = (c: Row, rank: string) => (
     <details key={c.id} className="hrow" id={c.id}>
-      <summary role="row"><span className="hrank">{rank}</span><span className="htitle">{shortTitle(c.id, c)}{c.firstLook && <span className="pill" style={{ marginLeft: 8, fontWeight: 600 }}>first look: {c.firstLook.verdict}</span>}{votes(c.id)}</span><span className="num">{near5(c.scores!.novel)}%</span><span className="num">{near5(c.scores!.accurate)}%</span><span className="num htotal">{near5(chanceOf(c.scores))}%</span></summary>
+      <summary role="row"><span className="hrank">{rank}</span><span className="htitle">{shortTitle(c.id, c)}{votes(c.id)}</span><span className="num">{near5(c.scores!.novel)}%</span><span className="num">{near5(c.scores!.accurate)}%</span><span className="num htotal">{near5(chanceOf(c.scores))}%</span></summary>
       {body(c.id, c)}
     </details>
   );

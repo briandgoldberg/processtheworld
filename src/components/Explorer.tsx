@@ -9,7 +9,8 @@ import Linked from "@/components/Linked";
 import type { MapModel, NodeM } from "@/lib/world/mapModel";
 
 export type QuestionRow = { id: string; title: string; from: string; to: string; fromLabel: string; toLabel: string; fromProcess: string; toProcess: string; total?: number; status: "ranked" | "long shot" | "variant" | "unassessed" };
-export type ExplorerData = { questions: QuestionRow[]; qByStep: Record<string, string[]>; downstream: Record<string, number>; totalQuestions: number };
+export type ImpactRowM = { step: string; label: string; process: string; processTitle: string; sign: "+" | "-" | "0"; strength: number; hops: number };
+export type ExplorerData = { questions: QuestionRow[]; qByStep: Record<string, string[]>; downstream: Record<string, number>; totalQuestions: number; impact?: { from: string; rows: ImpactRowM[] } };
 type SearchHit = { entities: { key: string; name: string; kind: string; steps: number; processes: number }[]; processes: { id: string; title: string }[]; steps: { id: string; label: string; process: string; processTitle: string }[]; questions: { id: string; title: string; from: string; fromLabel: string; fromProcess: string; to: string; toLabel: string; toProcess: string }[] };
 
 const ROLE_TEXT = { consumed: "Takes in and uses up", used: "Uses (not used up)", produced: "Makes or releases" } as const;
@@ -193,6 +194,9 @@ export default function Explorer({ model, data, embed = false, initialZoom = 1, 
       <h3>{model.title}</h3>
       {model.description && <p className="small muted">{model.description}</p>}
       {model.children.length > 0 && <div className="sec"><div className="label">What&apos;s inside</div>{model.children.map(c => <Link key={c.id} href={`/map/${c.id}`} className="qrow"><span>{c.title}</span></Link>)}</div>}
+      {data?.impact && data.impact.rows.length > 0 && <div className="sec"><div className="label">Impact</div><p className="small muted" style={{ margin: "4px 0 6px" }}>What this process changes elsewhere on the map, strongest first.</p>
+        {data.impact.rows.map(r => <Link key={r.step} href={`/map/${r.process}#${r.step}`} className="qrow"><span className="pill">{r.sign === "-" ? "lowers" : r.sign === "0" ? "changes" : "raises"}</span><span>{r.label} <span className="muted">· {r.processTitle}</span></span></Link>)}
+        <Link className="small" href={`/impact?step=${data.impact.from}`}>Every effect with its chain and sources →</Link></div>}
     </div>
   );
 

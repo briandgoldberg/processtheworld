@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Explorer, { type ExplorerData, type QuestionRow } from "@/components/Explorer";
 import { downstream } from "@/lib/world/analysis";
+import { impactOf } from "@/lib/world/impact";
 import { buildMap } from "@/lib/world/mapModel";
 import { chanceOf, longShot, near5, ranking, shownHypothesis } from "@/lib/world/shown";
 import { getLive } from "@/lib/world/store";
@@ -38,6 +39,10 @@ export default async function MapPage({ params }: { params: Promise<{ id: string
   for (const x of questions) { (qByStep[x.from] ||= []).push(x.id); (qByStep[x.to] ||= []).push(x.id); }
   const down: Record<string, number> = {};
   for (const n of model.nodes) down[n.id] = downstream(w, n.id);
-  const data: ExplorerData = { questions, qByStep, downstream: down, totalQuestions: rank.main.length };
+  // what this process changes elsewhere: the strongest downstream effects of its start step, outside this process
+  const start = w.processes[id]?.start;
+  const imp = start ? impactOf(w, start, 6, 80) : null;
+  const impactRows = imp ? imp.rows.filter(r => r.process !== id).slice(0, 8).map(r => ({ step: r.step, label: r.label.length > 110 ? r.label.slice(0, 107).trimEnd() + "…" : r.label, process: r.process, processTitle: r.processTitle, sign: r.sign, strength: r.strength, hops: r.hops })) : [];
+  const data: ExplorerData = { questions, qByStep, downstream: down, totalQuestions: rank.main.length, impact: imp && impactRows.length ? { from: start!, rows: impactRows } : undefined };
   return <div className="xp-page"><Explorer key={id} model={model} data={data} /></div>;
 }

@@ -3116,30 +3116,6 @@
    },
    "disputed": false,
    "novelCheck": "partly tested"
-  },
-  "firstLook": {
-   "verdict": "inconclusive",
-   "summary": "Tested whether the MODIS 500 m pixel over the UIUC Energy Farm basalt trial (50 t/ha/yr, falls 2016-19) darkened in bare-soil seasons relative to 72 surrounding cropland pixels. Difference-in-differences shortwave albedo = -0.018 (95% CI -0.030 to -0.007; 19 pixel-dates), ~7% of reported CO2 removal if taken at face value. But the treated field is <=18% of a mixed pixel dominated by perennial-grass plots, the implied field-level darkening (-0.10) is physically implausible, and the pixel's NDVI also shifted, so land-use change on the farm is the likelier cause.",
-   "data": [
-    {
-     "name": "ORNL DAAC MODIS global subsets, MOD09A1 (surface reflectance 8-day 500 m) at the Energy Farm, 9x9 pixels, 2010-2023 bare windows",
-     "url": "https://modis.ornl.gov/rst/api/v1/MOD09A1/subset?latitude=40.0628&longitude=-88.1961&band=sur_refl_b01&startDate=A2020089&endDate=A2020137&kmAboveBelow=2&kmLeftRight=2"
-    },
-    {
-     "name": "ORNL DAAC MCD12Q1 land cover (LC_Type1, 2019) same box",
-     "url": "https://modis.ornl.gov/rst/api/v1/MCD12Q1/subset?latitude=40.0628&longitude=-88.1961&band=LC_Type1&startDate=A2019001&endDate=A2019001&kmAboveBelow=2&kmLeftRight=2"
-    },
-    {
-     "name": "Daymet v4 single-pixel daily srad, dayl, swe 2012-2022 at the site",
-     "url": "https://daymet.ornl.gov/single-pixel/api/data?lat=40.0628&lon=-88.1961&vars=srad,dayl,swe&years=2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022"
-    },
-    {
-     "name": "Beerling et al. 2024 PNAS (site coordinates, plot sizes, application schedule, CDR) via Europe PMC full text",
-     "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC10907306/fullTextXML"
-    }
-   ],
-   "n": "1 trial site; 1 treated pixel vs 72 control cropland pixels; 19 clear, snow-free, bare (NDVI<0.3) pixel-dates (8 pre, 11 post) in 11 season-year units (4 pre, 7 post); 169 pixel-dates without the NDVI filter",
-   "date": "2026-10-17"
   }
  },
  {
@@ -3654,30 +3630,6 @@
    },
    "disputed": false,
    "novelCheck": "partly tested"
-  },
-  "firstLook": {
-   "verdict": "inconclusive",
-   "summary": "Tested on 2,768 rain-free dry-season nights at 8 ICOS/FLUXNET Mediterranean and Israeli sites. Nights classed dew-likely from meteorology (dawn RH>=85-90%, calm, clear) had 0.18-0.30 umol CO2 m-2 s-1 (~19-30%) higher measured nighttime NEE than dew-unlikely nights after controlling for soil temperature, soil moisture and days since rain (95% CI 0.09-0.27 relaxed class), but the sign flips to -0.22 (-14%) when dew is identified from measured nighttime condensation (LE<-3 W m-2) and the strict-class effect vanishes with a lenient u* filter, so the result is proxy- and filter-dependent.",
-   "data": [
-    {
-     "name": "ICOS Carbon Portal FLUXNET (ONEFlux) archive products, half-hourly FLUXMET, CC BY 4.0 (ES-Abr, ES-Amo, ES-LJu, ES-LM1, FR-Pue, IL-Yat, IT-Cp2, IT-Noe)",
-     "url": "https://data.icos-cp.eu/portal/"
-    },
-    {
-     "name": "ICOS metadata SPARQL endpoint used to locate the archives",
-     "url": "https://meta.icos-cp.eu/sparql"
-    },
-    {
-     "name": "Example object: EUF_IL-Yat_FLUXNET_2000-2024_v1.3_r1.zip",
-     "url": "https://meta.icos-cp.eu/objects/ddBS_ZLjXuBI8SSQV2cskqda"
-    },
-    {
-     "name": "Example object: EUF_ES-Amo_FLUXNET_2007-2019_v1.3_r1.zip",
-     "url": "https://meta.icos-cp.eu/objects/O6rek4-yeo_2LQrvCqM88Xvf"
-    }
-   ],
-   "n": 2768,
-   "date": "2026-10-17"
   }
  },
  {
@@ -5033,30 +4985,6 @@
   },
   "why": "Strength: any absorbing impurity that stays on an ablating snow surface lowers albedo and advances melt by well-measured physics (dust on snow advances melt by weeks), pollen is known to concentrate at the surface during melt, and the paired-plot plus dosed-plot design with a 0.005 albedo and 1-day falsifier runs in one season. Risk: pollen is yellow, translucent and 20-60 um, so its mass absorption is far below dust or soot and the broadband change at 0.2-1 g/m2 may sit at pyranometer noise, and if grains sink into melting snow or are washed off by rain the surface load, and hence the melt-out advance, could be too small to detect; nothing found suggests the sign would reverse.",
   "rubric": 4,
-  "assessed": "2026-10-17",
-  "firstLook": {
-   "verdict": "no signal",
-   "summary": "Tested whether years with earlier regional conifer pollen release (USA-NPN first open-pollen-cone date, sites within 150 km) show earlier SNOTEL melt-out than spring warmth explains, across 410 station-years at 51 western SNOTEL stations (2010-2025). Raw within-station correlation exists (r=0.22, p<0.001) but vanishes after controlling for Mar-May NASA POWER temperature, peak SWE and peak date (r=0.045, slope 0.017 d/d, 95% CI -0.014 to 0.055, p=0.36). Main caveat: the proxy is pollen timing at mostly lower-elevation NPN sites, not pollen load on snow.",
-   "data": [
-    {
-     "name": "NRCS AWDB REST API (SNOTEL daily WTEQ)",
-     "url": "https://wcc.sc.egov.usda.gov/awdbRestApi/services/v1/data"
-    },
-    {
-     "name": "NRCS AWDB station metadata",
-     "url": "https://wcc.sc.egov.usda.gov/awdbRestApi/services/v1/stations"
-    },
-    {
-     "name": "USA National Phenology Network observations (phenophases 490/495/503, conifers)",
-     "url": "https://services.usanpn.org/npn_portal/observations/getObservations.json"
-    },
-    {
-     "name": "NASA POWER daily point T2M",
-     "url": "https://power.larc.nasa.gov/api/temporal/daily/point"
-    }
-   ],
-   "n": 410,
-   "date": "2026-10-17"
-  }
+  "assessed": "2026-10-17"
  }
 ]
