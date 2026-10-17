@@ -186,6 +186,11 @@ export function applyOp(w: World, agent: string, o0: Op, ctx: Ctx): OpResult {
       if (typeof l !== "object" || !(Number(l.count_a) >= 0) || !(Number(l.count_b) >= 0) || !(Number(l.count_ab) >= 0)) return fail("lit needs {query_a, query_b, count_a, count_b, count_ab} counted from the literature");
       set.lit = { query_a: clip(l.query_a, 200), query_b: clip(l.query_b, 200), ...(l.query_ab ? { query_ab: clip(l.query_ab, 300) } : {}), count_a: Number(l.count_a), count_b: Number(l.count_b), count_ab: Number(l.count_ab) };
     }
+    if (set.impact != null && !ctx.replay) {
+      const im = set.impact as { size?: unknown; direction?: unknown; note?: unknown };
+      if (!im || typeof im !== "object" || !Number.isInteger(Number(im.size)) || Number(im.size) < 1 || Number(im.size) > 5 || !["+", "-", "0"].includes(String(im.direction))) return fail("impact needs size 1-5 and direction +, - or 0 (use size 1 with direction 0 for no clear effect)");
+      set.impact = { size: Number(im.size), direction: im.direction, note: clip(im.note, 600) };
+    }
     if (set.participants) set.participants = names(set.participants);
     if (set.resources) set.resources = names(set.resources);
     if (set.resourceRoles) { const base = (w.steps[tid]?.resources || []).concat((set.resources as string[]) || []); set.resourceRoles = cleanRoles(set.resourceRoles, base) || {}; }
