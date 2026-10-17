@@ -20,8 +20,8 @@ export default async function ImpactPage({ searchParams }: { searchParams: Promi
   const inputStyle = { border: "1px solid var(--line)", background: "var(--surface)", borderRadius: 12, padding: "12px 14px", fontSize: 16, flex: "1 1 auto", width: "100%", minWidth: 0 } as const;
   return (
     <div className="wrap" style={{ paddingTop: 24, maxWidth: 960 }}>
-      <h1 style={{ fontSize: "clamp(28px,4.5vw,44px)" }}>Impact</h1>
-      {imp && <p className="small" style={{ margin: "4px 0 0" }}><Link href={`/map/${imp.step.process}#${imp.step.id}`}>← Back to the map: {imp.step.processTitle}</Link></p>}
+      {imp && <p className="small" style={{ margin: "0 0 6px" }}><Link href={`/map/${imp.step.process}#${imp.step.id}`}>← Back to the map: {imp.step.processTitle}</Link></p>}
+      <h1 style={{ fontSize: "clamp(28px,4.5vw,44px)", marginTop: 0 }}>Impact</h1>
       <form action="/impact" style={{ display: "flex", gap: 10, margin: "14px 0 22px", alignItems: "stretch" }}>
         <input name="q" defaultValue={imp ? "" : q} placeholder="Find a step: ocean acidification, snowmelt, fertiliser…" aria-label="Find a step" style={inputStyle} />
         <button className="btn primary big" type="submit">Find</button>

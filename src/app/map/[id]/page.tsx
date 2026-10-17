@@ -31,9 +31,9 @@ export default async function MapPage({ params }: { params: Promise<{ id: string
   const variantIds = new Set(rank.variants.map(v => v.item.id));
   const questions: QuestionRow[] = Object.values(w.edges).filter(e => e.hypothesis && e.status === "live" && (inHere.has(e.from) || inHere.has(e.to))).map(e => {
     const c = byCur.get(e.id); const A = w.steps[e.from], B = w.steps[e.to];
-    const status: QuestionRow["status"] = c?.scores ? (variantIds.has(e.id) ? "variant" : shownHypothesis(c) ? "ranked" : longShot(c) ? "long shot" : "unassessed") : "unassessed";
+    const status: QuestionRow["status"] = c?.scores ? (variantIds.has(e.id) ? "variant" : shownHypothesis(c) ? "ranked" : longShot(c) ? "long shot" : "unlisted") : "unassessed";
     const p = e.hypothesis!.prediction;
-    return { id: e.id, title: c?.title || (p.length > 110 ? p.slice(0, 107).trimEnd() + "…" : p), from: e.from, to: e.to, fromLabel: A?.label || "", toLabel: B?.label || "", fromProcess: A?.process || "", toProcess: B?.process || "", total: c?.scores && status !== "unassessed" ? near5(chanceOf(c.scores)) : undefined, status };
+    return { id: e.id, title: c?.title || (p.length > 110 ? p.slice(0, 107).trimEnd() + "…" : p), from: e.from, to: e.to, fromLabel: A?.label || "", toLabel: B?.label || "", fromProcess: A?.process || "", toProcess: B?.process || "", total: c?.scores ? near5(chanceOf(c.scores)) : undefined, status };
   }).sort((a, b) => (b.total ?? -1) - (a.total ?? -1));
   const qByStep: Record<string, string[]> = {};
   for (const x of questions) { (qByStep[x.from] ||= []).push(x.id); (qByStep[x.to] ||= []).push(x.id); }

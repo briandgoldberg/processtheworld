@@ -8,7 +8,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import Linked from "@/components/Linked";
 import type { MapModel, NodeM } from "@/lib/world/mapModel";
 
-export type QuestionRow = { id: string; title: string; from: string; to: string; fromLabel: string; toLabel: string; fromProcess: string; toProcess: string; total?: number; status: "ranked" | "long shot" | "variant" | "unassessed" };
+export type QuestionRow = { id: string; title: string; from: string; to: string; fromLabel: string; toLabel: string; fromProcess: string; toProcess: string; total?: number; status: "ranked" | "long shot" | "variant" | "unlisted" | "unassessed" };
 export type ImpactRowM = { step: string; label: string; process: string; processTitle: string; sign: "+" | "-" | "0"; strength: number; hops: number };
 export type ExplorerData = { questions: QuestionRow[]; qByStep: Record<string, string[]>; downstream: Record<string, number>; totalQuestions: number; impact?: { from: string; rows: ImpactRowM[] } };
 type SearchHit = { entities: { key: string; name: string; kind: string; steps: number; processes: number }[]; processes: { id: string; title: string }[]; steps: { id: string; label: string; process: string; processTitle: string }[]; questions: { id: string; title: string; from: string; fromLabel: string; fromProcess: string; to: string; toLabel: string; toProcess: string }[] };

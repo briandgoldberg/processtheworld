@@ -3,7 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const NAV: [string, string][] = [
-  ["/", "Home"], ["/map/p0", "Explore"], ["/hypotheses", "Open Questions"],
+  ["/", "Home"], ["/map/p0", "Explore"], ["/hypotheses", "Open Questions"], ["/impact", "Impact"],
 ];
 
 export default function SiteHeader() {
