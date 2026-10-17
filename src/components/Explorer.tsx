@@ -175,7 +175,7 @@ export default function Explorer({ model, data, tree, embed = false, initialZoom
       <div className="kind">{model.parent ? <>Inside <Link href={`/map/${model.parent.id}`}>{model.parent.title}</Link></> : "The whole map"}</div>
       <h3>{model.title}</h3>
       {model.description && <p className="small muted">{model.description}</p>}
-      {model.children.length > 0 && <div className="sec"><div className="label">Walk into</div>{model.children.map(c => <Link key={c.id} href={`/map/${c.id}`} className="qrow"><span className="pill">{c.steps}</span><span>{c.title}</span></Link>)}</div>}
+      {model.children.length > 0 && <div className="sec"><div className="label">Walk into</div>{model.children.map(c => <Link key={c.id} href={`/map/${c.id}`} className="qrow"><span>{c.title}</span></Link>)}</div>}
     </div>
   );
 
