@@ -18,7 +18,7 @@ export default async function Feed({ searchParams }: { searchParams: Promise<{ t
   const href = (f: { kind: string; target?: string }) => {
     const id = f.target || ""; const s = w.steps[id], e = w.edges[id];
     if (s) return `/map/${s.process}#${id}`;
-    if (e && f.kind === "hypothesis") return `/hypotheses/${id}`;
+    if (e && f.kind === "hypothesis") return `/hypotheses#${id}`;
     if (e) return `/map/${w.steps[e.from]?.process}#${e.from}`;
     if (w.rules[id] || w.proposals[id]) return "/rules";
     return null;

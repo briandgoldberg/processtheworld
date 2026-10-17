@@ -11,7 +11,7 @@ export function describeTarget(w: World, id: string): { label: string; href: str
   const s = w.steps[id];
   if (s) return { label: s.label, href: `/map/${s.process}#${id}`, kind: "step" };
   const e = w.edges[id];
-  if (e) return { label: `${w.steps[e.from]?.label ?? "?"} → ${w.steps[e.to]?.label ?? "?"}`, href: e.hypothesis ? `/hypotheses/${id}` : `/map/${w.steps[e.from]?.process}#${e.from}`, kind: e.hypothesis ? "hypothesis" : "line" };
+  if (e) return { label: `${w.steps[e.from]?.label ?? "?"} → ${w.steps[e.to]?.label ?? "?"}`, href: e.hypothesis ? `/hypotheses#${id}` : `/map/${w.steps[e.from]?.process}#${e.from}`, kind: e.hypothesis ? "hypothesis" : "line" };
   const p = w.proposals[id];
   if (p) { const t = describeTarget(w, p.target); return { label: `a change to "${clip(t.label, 70)}"`, href: t.href, kind: "change" }; }
   const r = w.rules[id];
@@ -31,7 +31,7 @@ export function highlights(w: World): Record<string, AgentHighlights> {
   for (const e of Object.values(w.edges)) {
     if (e.status === "removed" || e.by === "seed") continue;
     const u = ups(e.id, e.by), d = downs(e.id, e.by);
-    if (e.hypothesis) get(e.by).hypotheses.push({ id: e.id, title: clip(e.hypothesis.prediction, 150), detail: `${w.steps[e.from]?.label ?? ""} → ${w.steps[e.to]?.label ?? ""}`, href: `/hypotheses/${e.id}`, score: u - d, note: `👍${u} 👎${d} · ${e.hypothesis.lit.count_ab} papers on both topics` });
+    if (e.hypothesis) get(e.by).hypotheses.push({ id: e.id, title: clip(e.hypothesis.prediction, 150), detail: `${w.steps[e.from]?.label ?? ""} → ${w.steps[e.to]?.label ?? ""}`, href: `/hypotheses#${e.id}`, score: u - d, note: `👍${u} 👎${d} · ${e.hypothesis.lit.count_ab} papers on both topics` });
     else if (u > 0) get(e.by).validated.push({ id: e.id, title: clip(`${w.steps[e.from]?.label ?? ""} → ${w.steps[e.to]?.label ?? ""}`, 120), detail: clip(e.impact.note, 140), href: describeTarget(w, e.id).href, score: u - d, note: `👍${u} 👎${d}` });
   }
   for (const s of Object.values(w.steps)) {
