@@ -55,18 +55,26 @@ uncertainty belongs in `why`, not in this score. Importance does not belong here
 | 25-40 | Speculative: a chain of three or more links each only plausible, or the key rate is unmeasured. |
 | 5-20 | Published data point the other way. |
 
-Which claim is scored. Score the headline effect the title and prediction assert in the world (the field flux, the
-soil, the ecosystem), not a physical identity that the proposed test merely restates. A lab calculation that must come
-out as predicted (for example an acid-base ratio at fixed total amine) earns 85-95 only if the world effect follows
-from it without another uncertain step; if the world claim needs the supply, the flux or the setting to cooperate,
-score that step too and say so in `why`.
+Score the claim as stated. Judge the effect the title and prediction assert, under the conditions the prediction
+itself states ("at fixed amine and temperature", "on light soils", "within 15 km downwind"). Do not add worlds the
+hypothesis does not claim, and do not penalise a hypothesis because its test is a lab or calculation test when the
+prediction is about that setting. Do add a step the headline needs but the prediction does not state (for example,
+that the supply stays constant) only when the entry's own papers or web text give a reason to doubt it.
 
-Chains. Count the links between cause and the predicted outcome and give each link a chance of holding. A chain is
-about as likely as the product: three links each about 70% likely is about 35%, which is the 25-40 band, not 60-70.
-A mechanism that is well measured but whose size is unmeasured still counts as holding for DIRECTION.
+Links. List the steps between cause and outcome and give each a chance by what is known about it:
+a link with a cited direct measurement or a conservation/physics identity counts about 90%; an established mechanism
+without a direct measurement here counts about 75%; a plausible but unmeasured step counts about 55%; a speculative
+step counts about 35%. Multiply only the links that are NOT already measured; a link that a cited paper shows holds
+does not lower the score. Then round to the nearest anchor. Three plausible links (55% each) give about 17%, which
+is below the table; use the 25-40 band as the floor for a chain whose every link has some support, and go below 25
+only if a link is contradicted.
 
-Competing mechanisms. If a named competing mechanism of comparable size exists, accurate is at most 70. If studies
-in analogous systems (named in `papers` or `web`) found the opposite sign or no effect, accurate is at most 40.
+Competing mechanisms. If the entry's `papers` or `web` name a competing mechanism of comparable size, accurate is at
+most 70. If a cited study in an analogous system found the opposite sign or no effect, accurate is at most 55; at
+most 40 only if that study measured the same quantity in the same kind of setting. Competing mechanisms the scorer
+merely imagines do not count; name them in `why` and leave the score alone.
+
+Never move a score by less than 5 points on these rules alone; smaller moves are noise.
 
 Do not compress toward 55. If you find yourself giving 50-58 to most hypotheses, you are scoring magnitude
 or importance instead of direction. A hypothesis that says "near-certain by mass balance" and is right about that
@@ -89,9 +97,9 @@ the darkening may be under 0.02"). Say which mechanism could reverse the sign if
 
 ## Text cut at 700 characters
 
-Older hypotheses had their prediction or test cut mid-sentence by the site. If the text you are scoring ends
-mid-sentence, say so in `why`, score only what is visible, and do not reward or penalise the missing failure
-criterion beyond keeping `testable` at 60-70.
+Older hypotheses had their prediction or test cut mid-sentence by a site limit that has since been fixed. A cut is
+a data defect, not a flaw in the idea. If the text ends mid-sentence, say so in `why`, score what is visible as if
+the rest agreed with it, and do NOT lower any score for the missing text. Do not infer a missing claim or falsifier.
 
 ## Process
 
