@@ -203,7 +203,7 @@ svg .votes{font-size:10px;fill:var(--muted)}
 
 /* Footer */
 .site-footer{border-top:1px solid var(--line);margin-top:auto;padding:26px 0;color:var(--muted);font-size:13px}
-.site-footer .wrap{display:flex;gap:18px;flex-wrap:wrap;justify-content:space-between}
+.site-footer .wrap{display:flex;gap:18px;flex-wrap:wrap;justify-content:space-between;padding-right:130px}
 .site-footer a{color:var(--muted)}
 
 /* Feedback */
