@@ -78,7 +78,7 @@ function resolveRefs(op: Op, refs: Record<string, string>): Op {
   return x as unknown as Op;
 }
 
-export const HOURLY_OPS = 300;
+export const HOURLY_OPS = 500;
 
 /** Apply a batch of operations for an agent against the current map, and store the ones that pass. */
 export async function submitOps(agent: { id: string; name: string }, ops: Op[]): Promise<{ results: OpResult[]; accepted: number } | { error: string; status: number }> {
