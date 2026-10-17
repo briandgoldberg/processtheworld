@@ -3479,5 +3479,820 @@
     },
     "why": "Strength: clear paired design with a before-after canopy removal; risk: shaded boulders stay wetter, so moisture-driven subcritical cracking may offset the temperature damping, and the 70-95% reduction is likely overstated.",
     "chance": 55
+  },
+  {
+    "id": "e_qrvgylpfo",
+    "title": "Glacier-ground apatite bedrock boosts free-living N fixation",
+    "status": "related only",
+    "untested": "No study has compared diazotroph activity (acetylene reduction or nifH) across glacier forelands or glacier-fed streams on contrasting bedrock types (apatite-bearing vs P-poor), nor run P/Mo additions on rock-flour soils to see how much of the gap closes.",
+    "papers": [
+      {
+        "title": "Large-scale N and P addition in early proglacial soils: P availability drove biological N fixation, but lithology of the bedrock was not varied",
+        "year": "2025",
+        "doi": "https://doi.org/10.1038/s41467-025-62425-2"
+      },
+      {
+        "title": "Glacial rock flour supplies bioavailable P, Fe and Mn to an Arctic alga within days; phytoplankton growth tested, not N fixation or bedrock contrasts",
+        "year": "2026",
+        "doi": "https://doi.org/10.1016/j.isci.2026.115813"
+      },
+      {
+        "title": "Glacial flour as soil amendment (Himalayan gneiss vs Icelandic basalt flour) with soybean; nutrient supply tested, not diazotrophs",
+        "year": "2025",
+        "doi": "https://doi.org/10.1016/j.isci.2024.111476"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible by analogy",
+      "text": "Foreland chronosequence studies (Hailuogou, Damma, Arctic forefields) show nifH abundance rising with succession and correlating with available P, and a 2025 proglacial N and P addition experiment found P availability drives N fixation. Rock flour is known to release bioavailable P. None of these compare bedrock types, so the 2-5x lithology effect is untested.",
+      "links": [
+        {
+          "label": "Hailuogou nifH chronosequence (PMC)",
+          "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8200853/"
+        },
+        {
+          "label": "Damma glacier diazotrophs",
+          "url": "https://doc.rero.ch/record/314508?ln=en"
+        },
+        {
+          "label": "Proglacial N-P co-amplification",
+          "url": "https://doi.org/10.1038/s41467-025-62425-2"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 72,
+      "testable": 72,
+      "accurate": 45
+    },
+    "why": "Strength: each link (P limits fixation in young soils, rock flour is P-rich) has support; risk: bedrock P content is confounded with pH, Fe, carbon and age, and Mo or C may limit instead, so a 2-5x effect is a large claim.",
+    "chance": 59
+  },
+  {
+    "id": "e_lk0k15pfz",
+    "title": "N-rich bedrock lowers free-living nitrogen fixation",
+    "status": "partly tested",
+    "untested": "The direction was tested and found opposite for free-living fixation in temperate forests; untested is the symbiotic/nodulation part, the fertilizer-equalization test, and whether the effect flips in other biomes.",
+    "papers": [
+      {
+        "title": "Dynarski et al.: forests on N-rich bedrock had HIGHER free-living N fixation than on N-poor rock, attributed to more soil C and P; did not test legume nodulation or tropical sites",
+        "year": "2019",
+        "doi": "https://doi.org/10.1002/ecy.2741"
+      },
+      {
+        "title": "Houlton et al.: bedrock N is a global N source (19-31 Tg N/yr mobilized); did not measure fixation response",
+        "year": "2018",
+        "doi": "https://doi.org/10.1126/science.aan4399"
+      }
+    ],
+    "web": {
+      "verdict": "Contradicted",
+      "text": "The closest direct test (Dynarski et al. 2019) found free-living N fixation was higher on N-rich bedrock, because such sites accumulate more soil C and P that feed fixers. The proposed down-regulation by rock-derived mineral N is therefore opposed by published field data, though legumes could still respond differently.",
+      "links": [
+        {
+          "label": "Dynarski 2019 Ecology (Europe PMC)",
+          "url": "https://europepmc.org/article/MED/31006111"
+        },
+        {
+          "label": "Houlton 2018 Science",
+          "url": "https://europepmc.org/article/MED/29622648"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 25,
+      "testable": 80,
+      "accurate": 12
+    },
+    "why": "Strength: a clear paired-catchment design; risk: the direction is already reversed by published data, since C and P co-vary with rock N and outweigh any N down-regulation.",
+    "chance": 19
+  },
+  {
+    "id": "e_zh3fqkxfq",
+    "title": "N-rich rock lowers total forest nitrogen fixation",
+    "status": "partly tested",
+    "untested": "Total (symbiotic plus free-living) fixation per area on rock-N gradients, 15N2 or nodule measurements, and regression on rock N weathered have not been reported; the one study found the opposite sign for free-living fixation.",
+    "papers": [
+      {
+        "title": "Dynarski et al.: free-living N fixation higher in forests on N-rich bedrock; symbiotic fixation and per-area totals not measured",
+        "year": "2019",
+        "doi": "https://doi.org/10.1002/ecy.2741"
+      },
+      {
+        "title": "Houlton et al.: global rock N weathering flux; no fixation response tested",
+        "year": "2018",
+        "doi": "https://doi.org/10.1126/science.aan4399"
+      }
+    ],
+    "web": {
+      "verdict": "Contradicted",
+      "text": "Published field data show higher, not lower, free-living fixation on N-rich bedrock, explained by greater soil C and P. Whether symbiotic fixers respond the other way (as facultative fixers do under high soil N) remains open, but the headline 30-60% lower total fixation is not supported.",
+      "links": [
+        {
+          "label": "Dynarski 2019 Ecology (Europe PMC)",
+          "url": "https://europepmc.org/article/MED/31006111"
+        },
+        {
+          "label": "Houlton 2018 Science",
+          "url": "https://europepmc.org/article/MED/29622648"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 28,
+      "testable": 78,
+      "accurate": 14
+    },
+    "why": "Strength: separates symbiotic and free-living pools with testable d15N and mass-balance; risk: the existing study already shows the opposite sign for the free-living half.",
+    "chance": 21
+  },
+  {
+    "id": "e_iv8tukxga",
+    "title": "Volcanic ash ballasts marine snow and boosts deep carbon flux",
+    "status": "related only",
+    "untested": "No study has measured sinking POC flux, lithogenic flux or marine-snow sinking speed at 500-1000 m before and after an ash fall, nor roller-tank tests of marine snow with added volcanic ash separating ballast from bloom effects.",
+    "papers": [
+      {
+        "title": "2022 Hunga Tonga eruption: GEOTRACES South Pacific trace-metal and Nd-isotope input from ash; documented ash chemistry, not sinking flux or ballast",
+        "year": "2024",
+        "doi": "https://doi.org/10.1038/s41467-024-52904-3"
+      },
+      {
+        "title": "Ocean-colour analysis of phytoplankton carbon after Hunga Tonga; surface satellite anomalies only, no particle-flux data",
+        "year": "2024",
+        "doi": "https://doi.org/10.1038/s43247-024-01421-8"
+      },
+      {
+        "title": "Soviadan et al.: BGC-Argo imaging shows marine-snow morphology controls sinking speed and attenuation; ballast discussed but no ash or dust manipulation",
+        "year": "2025",
+        "doi": "https://bg.copernicus.org/articles/22/3485/2025/"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible by analogy",
+      "text": "Mineral ballast is well known to correlate with POC flux, and Saharan dust increases aggregate sinking in mesocosm work, so ash ballast is plausible. Eruption studies so far focus on iron and trace-metal fertilization and surface ocean colour, not sinking-particle flux, and ash can also be toxic or dissolve, which could cancel ballast.",
+      "links": [
+        {
+          "label": "Hunga Tonga trace metals",
+          "url": "https://doi.org/10.1038/s41467-024-52904-3"
+        },
+        {
+          "label": "Marine snow morphology and sinking (Biogeosciences)",
+          "url": "https://bg.copernicus.org/articles/22/3485/2025/"
+        },
+        {
+          "label": "Hunga Tonga ocean carbon anomalies",
+          "url": "https://doi.org/10.1038/s43247-024-01421-8"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 78,
+      "testable": 68,
+      "accurate": 42
+    },
+    "why": "Strength: ballast physics is well established and the roller-tank test is cheap; risk: eruptions are rare and unplanned, ash may dissolve or inhibit plankton, and a 1.5-3x deep flux rise beyond the bloom effect is hard to isolate.",
+    "chance": 60
+  },
+  {
+    "id": "e_4swbljxgj",
+    "title": "Flood basalt eruptions raise marine phosphorus burial within 500 kyr",
+    "status": "partly tested",
+    "untested": "No compilation compares P/Al or SEDEX phosphorus rise across multiple dated LIP onsets against non-LIP hyperthermals, with Hg timing and Os/Sr/Li weathering proxies, to test the 1.5-3x size and the lead-lag.",
+    "papers": [
+      {
+        "title": "Hg, conodont temperature and weathering proxies show volcanism and basalt weathering drove Ordovician cooling; one interval, not a multi-LIP P/Al comparison",
+        "year": "2025",
+        "doi": "https://doi.org/10.1038/s41467-025-66316-4"
+      },
+      {
+        "title": "Model of coupled marine P and atmospheric oscillation after end-Permian extinction; modelling, not P/Al across LIP onsets",
+        "year": "2025",
+        "doi": "https://doi.org/10.1038/s41467-025-59038-0"
+      },
+      {
+        "title": "Terrestrial forcing of marine biodiversification: links volcanism and nutrient runoff to marine diversification; coarse Phanerozoic scale",
+        "year": "2022",
+        "doi": "https://doi.org/10.1038/s41598-022-12384-1"
+      }
+    ],
+    "web": {
+      "verdict": "Partly supported",
+      "text": "Hg-timed LIP records often show rising weathering and nutrient influx, and P-cycle models invoke enhanced P supply after Siberian Traps volcanism. But marine P burial after anoxia is also driven by P recycling from sediments, which can raise or lower P/Al independent of weathering, and Hg anomalies are patchy in shallow settings.",
+      "links": [
+        {
+          "label": "Ordovician volcanism and basalt weathering",
+          "url": "https://doi.org/10.1038/s41467-025-66316-4"
+        },
+        {
+          "label": "End-Permian P and atmosphere oscillation",
+          "url": "https://doi.org/10.1038/s41467-025-59038-0"
+        },
+        {
+          "label": "Recurring Palaeozoic marine P spikes",
+          "url": "https://doi.org/10.1038/s41467-026-70701-y"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 50,
+      "testable": 76,
+      "accurate": 50
+    },
+    "why": "Strength: Hg, Os and P/Al are measurable on existing cores with a clear lead-lag falsifier; risk: redox-driven P regeneration and diagenesis can mimic or mask a weathering signal.",
+    "chance": 50
+  },
+  {
+    "id": "e_5nty21xgt",
+    "title": "High-alkalinity rivers slow coastal aragonite saturation decline",
+    "status": "related only",
+    "untested": "No study regresses decadal change in coastal aragonite saturation on river alkalinity export across paired estuaries or shelves at matched freshwater fraction, or follows sites where river alkalinity changed (dams, liming, acid-rain recovery) to test the 30-60% buffering figure.",
+    "papers": [
+      {
+        "title": "Gulf of Maine boron-isotope pH record: pH rose with inflow of high-alkalinity Gulf Stream water, a buffering case but from ocean not river alkalinity",
+        "year": "2025",
+        "doi": "https://doi.org/10.1038/s41598-024-84537-3"
+      },
+      {
+        "title": "Mississippi Basin liming: century of river alkalinity flux records show lime raised alkalinity export with decadal lag; ocean carbonate chemistry not examined",
+        "year": "2026",
+        "doi": "https://doi.org/10.1038/s41586-026-11040-2"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible by analogy",
+      "text": "It is well accepted that low-alkalinity freshwater makes coasts such as the Gulf of Maine poorly buffered and that organic alkalinity complicates estuary budgets. Direct quantitative tests of river alkalinity as a modifier of the decadal aragonite-saturation trend are lacking, and at matched freshwater fraction the effect is probably confined to plumes and low-salinity zones.",
+      "links": [
+        {
+          "label": "Delayed ocean acidification, Gulf of Maine",
+          "url": "https://doi.org/10.1038/s41598-024-84537-3"
+        },
+        {
+          "label": "Liming and river alkalinity, Mississippi",
+          "url": "https://doi.org/10.1038/s41586-026-11040-2"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 50,
+      "testable": 75,
+      "accurate": 52
+    },
+    "why": "Strength: carbonate chemistry predicts alkalinity buffering and coastal networks supply the data; risk: freshwater fractions are small, high-alkalinity rivers also carry high DIC and nutrients, and organic alkalinity and eutrophication confound the regression.",
+    "chance": 51
+  },
+  {
+    "id": "e_2831v75cm",
+    "title": "Mineral CO2 adsorption drives dryland night-day soil CO2 flux",
+    "status": "partly tested",
+    "untested": "A published study covers isotherms, Mojave field flux and hysteresis, but the abstract does not report sterilised-versus-live monolith chambers, a sand-versus-clay surface-area scaling test, or the specific 0.1-0.5 umol/m2/s magnitude and 10-30% Q10 change.",
+    "papers": [
+      {
+        "title": "Thermally driven CO2 adsorption/desorption and soil respiration: desert-soil isotherms plus Mojave field data show adsorption gives negative night and positive day flux and reverses apparent hysteresis; no sterilised monolith or soil-texture comparison reported",
+        "year": "2026",
+        "doi": "https://doi.org/10.1126/sciadv.aed9979"
+      },
+      {
+        "title": "Abiotic reactions after wetting gamma-irradiated vs live dryland soil cores: abiotic N2O/NO emissions and partial CO2; tested wetting pulses, not diel temperature cycling of dry soil",
+        "year": "2025",
+        "doi": "https://doi.org/10.1038/s41598-025-12362-3"
+      }
+    ],
+    "web": {
+      "verdict": "Already studied",
+      "text": "A 2026 Science Advances paper reports that thermally driven CO2 adsorption/desorption on desert soil produces negative nocturnal and positive daytime flux, and that accounting for it reverses the apparent temperature hysteresis. The sterilisation and mineral-surface-area controls proposed here would be the confirmatory next steps rather than a new idea.",
+      "links": [
+        {
+          "label": "Thermally driven CO2 adsorption (Sci Adv 2026)",
+          "url": "https://doi.org/10.1126/sciadv.aed9979"
+        },
+        {
+          "label": "Abiotic post-wetting emissions, irradiated soil",
+          "url": "https://doi.org/10.1038/s41598-025-12362-3"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 22,
+      "testable": 88,
+      "accurate": 70
+    },
+    "why": "Strength: mechanism is physically sound, directly measured and testable with sterilised controls; risk: the core claim is already published, so only the sterilisation and texture-scaling extensions are new.",
+    "chance": 46
+  },
+  {
+    "id": "e_lkfyp55e4",
+    "title": "Longer tundra zero-curtain means more cold-season carbon loss",
+    "status": "related only",
+    "untested": "No study regresses Sept-May CO2 and CH4 flux on measured zero-curtain duration across tundra sites with snow depth, air temperature and moisture as covariates, or lengthens the plateau experimentally (snow fence or irrigation).",
+    "papers": [
+      {
+        "title": "GeoCryoAI maps circumarctic zero-curtain duration (100-4000 h) and says it sustains cold-season microbial activity; mapped timing, did not test flux response",
+        "year": "2026",
+        "doi": "https://doi.org/10.1038/s41598-026-61719-9"
+      },
+      {
+        "title": "Natali et al.: winter CO2 loss of 1662 Tg C/yr from permafrost region synthesized from in situ flux; tied to soil temperature, not zero-curtain duration",
+        "year": "2019",
+        "doi": "https://doi.org/10.1038/s41558-019-0592-8"
+      },
+      {
+        "title": "Long-term drainage and carbon fluxes from 8 years of eddy covariance at a permafrost site; hydrology effects, no zero-curtain metric",
+        "year": "2025",
+        "doi": "https://doi.org/10.1111/gcb.70346"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible by analogy",
+      "text": "It is established that unfrozen water near 0 C keeps microbes active and that winter carbon loss is large and underestimated. The zero-curtain is proposed as the mechanism in review and mapping papers, but its duration has not been shown to predict cold-season CO2 plus CH4 better than snow depth or soil temperature.",
+      "links": [
+        {
+          "label": "Circumarctic zero-curtain mapping",
+          "url": "https://doi.org/10.1038/s41598-026-61719-9"
+        },
+        {
+          "label": "Winter CO2 loss synthesis",
+          "url": "https://doi.org/10.1038/s41558-019-0592-8"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 65,
+      "testable": 76,
+      "accurate": 55
+    },
+    "why": "Strength: existing flux and soil-temperature networks allow a direct regression; risk: zero-curtain duration is strongly confounded with snow insulation and soil water, so the 'better than air temperature' claim may reflect snow rather than latent heat.",
+    "chance": 60
+  },
+  {
+    "id": "e_6ogemj5eo",
+    "title": "Night soil-vapour uptake switches on biocrust nitrogen fixation",
+    "status": "related only",
+    "untested": "No study has run overnight acetylene reduction or 15N2 on crust cores with and without a vapour barrier on dew-free nights, or linked negative latent heat flux periods to nitrogenase activity.",
+    "papers": [
+      {
+        "title": "Eddy-covariance network shows soil water vapour adsorption (negative latent heat flux) occurs about 4 h per night, most in drylands; no biological activity measured",
+        "year": "2025",
+        "doi": "https://doi.org/10.1111/gcb.70547"
+      },
+      {
+        "title": "Negev lithic lichens: vapour distilled from wet soil after rain supplies much of their liquid water; tested hydration of lichens, not nitrogen fixation",
+        "year": "2026",
+        "doi": "https://doi.org/10.1007/s00425-025-04916-6"
+      },
+      {
+        "title": "Biocrust N fixation and exogenous P under N deposition; tested nutrient effects, not vapour-driven hydration",
+        "year": "2025",
+        "doi": "https://doi.org/10.1016/j.jenvman.2025.127830"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible by analogy",
+      "text": "Soil vapour adsorption is now documented across dryland flux towers, and lichens use vapour-derived water. Biocrust nitrogenase studies I found all wet crusts with liquid water or rain, and vapour or dew alone was not tested as a trigger, so the claimed 2-5x activation is unsupported either way.",
+      "links": [
+        {
+          "label": "Soil water vapour adsorption, global flux towers",
+          "url": "https://doi.org/10.1111/gcb.70547"
+        },
+        {
+          "label": "Distillation as water source, Negev lichens",
+          "url": "https://doi.org/10.1007/s00425-025-04916-6"
+        },
+        {
+          "label": "Biocrust N fixation, P and N deposition",
+          "url": "https://doi.org/10.1016/j.jenvman.2025.127830"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 78,
+      "testable": 74,
+      "accurate": 35
+    },
+    "why": "Strength: a clean vapour-barrier design with a measurable readout; risk: nitrogenase in crusts usually needs liquid-water hydration (and light or carbon supply), and 1-2 cm vapour wetting at 70-80% RH may not hydrate cells enough.",
+    "chance": 57
+  },
+  {
+    "id": "e_m9mslnidz",
+    "title": "Soil nitrous acid shortens methane lifetime via extra OH",
+    "status": "partly tested",
+    "untested": "Chemistry-climate runs with and without soil HONO already exist for ozone, but OH change and methane lifetime were not reported in the abstracts read, and no field dawn OH comparison over fertilized vs unfertilized plots was found.",
+    "papers": [
+      {
+        "title": "Global soil HONO emissions (9.4 to 11.5 Tg N, 1980-2016) in a chemistry-climate model raised surface O3 by 2.5%; abstract does not report OH or methane lifetime",
+        "year": "2025",
+        "doi": "https://doi.org/10.1038/s41467-025-57161-6"
+      },
+      {
+        "title": "Global soil HONO and PM2.5 over the last century with a process-based soil HONO module; air quality outcomes, not methane sink",
+        "year": "2026",
+        "doi": "https://doi.org/10.1021/acs.est.5c08207"
+      },
+      {
+        "title": "Field fluxes and lab simulations: fertilizer-enhanced soil HONO emission at an agricultural site and the ozone-mitigation case; no OH measurement",
+        "year": "2024",
+        "doi": "https://doi.org/10.1021/acs.est.4c01070"
+      }
+    ],
+    "web": {
+      "verdict": "Partly supported",
+      "text": "Soil HONO as an OH precursor is established, and global models with soil HONO already exist, giving about 9-11 Tg N per year. Their reported effects are on ozone and PM2.5, so the specific methane-lifetime and global-OH change remains to be stated, and it is likely small relative to other OH sources.",
+      "links": [
+        {
+          "label": "Soil HONO and global ozone",
+          "url": "https://doi.org/10.1038/s41467-025-57161-6"
+        },
+        {
+          "label": "Soil HONO and PM2.5",
+          "url": "https://doi.org/10.1021/acs.est.5c08207"
+        },
+        {
+          "label": "Fertilizer-enhanced soil HONO",
+          "url": "https://doi.org/10.1021/acs.est.4c01070"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 55,
+      "testable": 86,
+      "accurate": 60
+    },
+    "why": "Strength: HONO photolysis to OH is textbook and the model experiment is cheap with an existing inventory; risk: the 1-3% OH change may already be in those model outputs and is small against the methyl-chloroform OH uncertainty.",
+    "chance": 58
+  },
+  {
+    "id": "e_0937mgiee",
+    "title": "Lightning-strike soils hold more phosphite and extractable P",
+    "status": "partly tested",
+    "untested": "Lightning-made phosphite is documented inside one fulgurite, but nobody has measured phosphite, resin-extractable P or ptxD gene abundance in surrounding soil versus matched controls at strike sites in P-poor, lightning-rich regions.",
+    "papers": [
+      {
+        "title": "Pasek-type study of a Florida fulgurite: lightning reduced apatite-type phosphate to phosphides and a calcium phosphite (CaHPO3); mineralogy only, no soil or microbial release measured",
+        "year": "2023",
+        "doi": "https://doi.org/10.1038/s43247-023-00736-2"
+      },
+      {
+        "title": "Laboratory fulgurites made from volcanic ash under realistic discharge; reproduced formation conditions, not soil P chemistry or bioavailability",
+        "year": "2023",
+        "doi": "https://doi.org/10.1038/s41598-023-38781-8"
+      },
+      {
+        "title": "Widespread promiscuous alkaline phosphatases support ancient microbial phosphite oxidation; enzyme evolution, not soil strike sites",
+        "year": "2025",
+        "doi": "https://doi.org/10.1073/pnas.2513042122"
+      }
+    ],
+    "web": {
+      "verdict": "Partly supported",
+      "text": "Lightning reducing phosphate to phosphide and phosphite in fulgurites is documented, and microbes widely carry phosphite-oxidation enzymes. Whether this leaves a measurable, bioavailable P signal in the surrounding soil, and in which climates, is untested and likely small and local.",
+      "links": [
+        {
+          "label": "Reduction of phosphate by lightning (fulgurite)",
+          "url": "https://doi.org/10.1038/s43247-023-00736-2"
+        },
+        {
+          "label": "Experimental fulgurite generation",
+          "url": "https://doi.org/10.1038/s41598-023-38781-8"
+        },
+        {
+          "label": "Phosphite oxidation enzymes",
+          "url": "https://doi.org/10.1073/pnas.2513042122"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 65,
+      "testable": 74,
+      "accurate": 40
+    },
+    "why": "Strength: fulgurite phosphite chemistry is real and measurable by 31P NMR; risk: phosphite oxidizes quickly in soil, fulgurite sites are rare and small, so a +10-50% soil signal within 1 m may be undetectable.",
+    "chance": 53
+  },
+  {
+    "id": "e_txt8q7ieo",
+    "title": "Warm-spell fertilizer ammonia raises downwind cloud condensation nuclei",
+    "status": "related only",
+    "untested": "No study regresses week-to-week satellite NH3 columns (IASI/CrIS) on CCN or droplet number across farm regions controlling for SO2, temperature and humidity, or warms manure experimentally and sizes downwind aerosol to quantify +10-30% droplets per NH3 doubling.",
+    "papers": [
+      {
+        "title": "Agricultural land in Finland: soil-emitted ammonia and amines with sulfuric acid form new particles that grow to climate-relevant sizes; observed particle formation, not CCN or droplet number across NH3 anomalies",
+        "year": "2023",
+        "doi": "https://doi.org/10.1039/d3ea00065f"
+      },
+      {
+        "title": "Global impact of anthropogenic NH3 on upper-tropospheric aerosol formation; model and chamber nucleation, not boundary-layer droplet number over farmland",
+        "year": "2025",
+        "doi": "https://doi.org/10.1073/pnas.2506658122"
+      },
+      {
+        "title": "Seabird-colony ammonia drives new particles and cloud-albedo effect in the clean Arctic; natural analogue, clean low-SO2 setting",
+        "year": "2016",
+        "doi": "https://doi.org/10.1038/ncomms13444"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible by analogy",
+      "text": "Chamber and field work show ammonia greatly boosts sulfuric-acid nucleation, and agricultural ammonia forms new particles in Finland. In polluted farm regions such as the North China Plain, pre-existing aerosol and ammonium nitrate dominate, so a clean +10-30% droplet response per NH3 doubling is untested and may be much weaker.",
+      "links": [
+        {
+          "label": "Agricultural particle formation, Qvidja",
+          "url": "https://doi.org/10.1039/d3ea00065f"
+        },
+        {
+          "label": "Anthropogenic NH3 and aerosol formation (PNAS)",
+          "url": "https://doi.org/10.1073/pnas.2506658122"
+        },
+        {
+          "label": "Seabird ammonia and clouds",
+          "url": "https://doi.org/10.1038/ncomms13444"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 65,
+      "testable": 66,
+      "accurate": 38
+    },
+    "why": "Strength: mechanism and satellite data both exist; risk: NH3 anomalies covary with temperature, nitrate formation and agricultural burning, and in polluted regions CCN is limited by other factors, so a clean regression is hard.",
+    "chance": 52
+  },
+  {
+    "id": "e_wohnybort",
+    "title": "Burned catchments break the atmospheric-river and soil-moisture flood link",
+    "status": "related only",
+    "untested": "No study ranks atmospheric-river landfalls in the first post-fire winters for paired burned and unburned gauged catchments to test burned x AR-rank and burned x soil-moisture interactions, or checks whether the antecedent-moisture correction of the AR scale weakens in burn scars.",
+    "papers": [
+      {
+        "title": "Antecedent moisture and the AR scale: soil moisture explains divergence between AR rank and peak streamflow across California and Chile catchments; burn status not tested",
+        "year": "2026",
+        "doi": "https://doi.org/10.1038/s41467-026-69286-3"
+      },
+      {
+        "title": "Upper limits for post-wildfire floods: envelope curve of peak flows (43 m3/s/km2 in small basins); no AR rank or paired unburned control",
+        "year": "2024",
+        "doi": "https://doi.org/10.1126/sciadv.adk5713"
+      },
+      {
+        "title": "Eagle Creek Fire debris flows in the Columbia River Gorge: fire raised little long-term erosion relative to background; not AR-ranked and no flood scaling",
+        "year": "2025",
+        "doi": "https://doi.org/10.1126/sciadv.adw8633"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible by analogy",
+      "text": "It is well established that burned catchments produce much higher peak flows and debris-flow probability, and a 2026 study shows soil moisture explains the AR-rank to flood mismatch in unburned-type catchments. Whether burn scars decouple runoff from antecedent wetness, and by how much at a fixed AR category, has not been quantified.",
+      "links": [
+        {
+          "label": "Antecedent moisture and AR flood hazard",
+          "url": "https://doi.org/10.1038/s41467-026-69286-3"
+        },
+        {
+          "label": "Post-wildfire flood upper limits",
+          "url": "https://doi.org/10.1126/sciadv.adk5713"
+        },
+        {
+          "label": "Fire and debris flows, Columbia Gorge",
+          "url": "https://doi.org/10.1126/sciadv.adw8633"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 68,
+      "testable": 80,
+      "accurate": 58
+    },
+    "why": "Strength: gauges, burn-severity maps and AR catalogues already exist for a clean paired regression; risk: only a few burned gauged catchments and AR landfalls fit the first-winter window, and debris flows depend strongly on grain size and sediment storage.",
+    "chance": 63
+  },
+  {
+    "id": "e_9l1x6posj",
+    "title": "Fire-spalled granite raises post-fire stream silica and sodium",
+    "status": "related only",
+    "untested": "No paired burned/unburned granitic-catchment study has measured dissolved Si, Na and 87Sr/86Sr after fire with ash subtracted, nor flow-through dissolution of fresh fire-spalled flakes against aged rock surfaces.",
+    "papers": [
+      {
+        "title": "Fire-induced rock spalling as a weathering mechanism for flared slopes and inselbergs (2019-2020 Australian fires); shows widespread spalling, but no solute or stream chemistry",
+        "year": "2021",
+        "doi": "https://doi.org/10.1038/s41467-021-22451-2"
+      },
+      {
+        "title": "Fire influence on land-water interactions in aridland catchments: conceptual framework of fire effects on discharge, erosion and water quality; no silicate-weathering flux measured",
+        "year": "2025",
+        "doi": "https://doi.org/10.1093/biosci/biae120"
+      },
+      {
+        "title": "Post-wildfire water quality in Pacific Northwest: review of monitoring gaps; ash and nutrient pulses, not rock weathering",
+        "year": "2026",
+        "doi": "https://doi.org/10.1088/3033-4942/ae36cb"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible by analogy",
+      "text": "Fire spalling of granite is documented and can strip large surface fractions, but I found no stream-chemistry test of whether it raises silica or sodium export. A search summary of an Arctic tundra fire study reported no difference in stream dissolved silica between burned and unburned catchments, attributed to plant uptake, which argues the signal can be small.",
+      "links": [
+        {
+          "label": "Fire-spalling and inselbergs",
+          "url": "https://doi.org/10.1038/s41467-021-22451-2"
+        },
+        {
+          "label": "Fire and aridland land-water interactions",
+          "url": "https://doi.org/10.1093/biosci/biae120"
+        },
+        {
+          "label": "PNW post-wildfire water quality gaps",
+          "url": "https://doi.org/10.1088/3033-4942/ae36cb"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 75,
+      "testable": 75,
+      "accurate": 30
+    },
+    "why": "Strength: Si/Na and Sr isotopes can separate rock from ash and the lab dissolution test is clean; risk: spalled flakes are a small mass fraction, ash and vegetation uptake dominate Si, so a 20% rise may be undetectable.",
+    "chance": 53
+  },
+  {
+    "id": "e_2o2kkuost",
+    "title": "Reservoirs bury rock organic carbon, cutting its CO2 oxidation",
+    "status": "related only",
+    "untested": "No study has cored reservoir sediments in mudrock basins to measure the petrogenic fraction retained, or compared dissolved Re yield per unit erosion between dammed and undammed rivers of similar lithology.",
+    "papers": [
+      {
+        "title": "Rio Madre de Dios Re budget: over 75% of dissolved Re from rock organic carbon oxidation, with 40% of oxidation in Andean-fed floodplains; no dams or reservoir burial examined",
+        "year": "2023",
+        "doi": "https://doi.org/10.1073/pnas.2306343120"
+      },
+      {
+        "title": "Catchment lithology controls sedimentary OC burial and oxidation in Antarctic Peninsula fjords via ramped pyrolysis; lithology and burial tested, not reservoirs or Re",
+        "year": "2026",
+        "doi": "https://doi.org/10.1038/s41467-026-74667-9"
+      },
+      {
+        "title": "Persistent organic carbon storage in floodplain deposits over millennia; floodplain OC reactivity, not petrogenic carbon in reservoirs",
+        "year": "2026",
+        "doi": "https://doi.org/10.1038/s41467-026-72405-9"
+      }
+    ],
+    "web": {
+      "verdict": "Plausible by analogy",
+      "text": "Floodplain transit is now shown to double rock organic carbon oxidation downstream of the Andes, so trapping that sediment in a reservoir could plausibly avoid some of that CO2. I found no reservoir-specific petrogenic carbon budget or dam-versus-undammed Re comparison, and most Re-based oxidation occurs upstream in mountains where dams do not intervene.",
+      "links": [
+        {
+          "label": "Rock OC oxidation Amazon floodplain (PNAS)",
+          "url": "https://doi.org/10.1073/pnas.2306343120"
+        },
+        {
+          "label": "Lithology and net carbon balance, Antarctic Peninsula",
+          "url": "https://doi.org/10.1038/s41467-026-74667-9"
+        },
+        {
+          "label": "Floodplain OC persistence",
+          "url": "https://doi.org/10.1038/s41467-026-72405-9"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 78,
+      "testable": 70,
+      "accurate": 50
+    },
+    "why": "Strength: Re and 14C methods are mature and the floodplain counterfactual exists; risk: the avoided flux (1-5 Tg C/yr) is small, most oxidation occurs upstream of dams, and reservoir sediment may itself oxidize petrogenic carbon in drawdown zones.",
+    "chance": 64
+  },
+  {
+    "id": "e_rbg7gqmpp",
+    "title": "Seabird colony ammonia raises downwind cloud condensation nuclei",
+    "status": "partly tested",
+    "untested": "Colony ammonia driving new particle formation is documented (Arctic and Antarctic), but a paired upwind/downwind CCN spectra measurement against a colony-free coast, and a before/after-breeding-season decline in CCN or droplet number, has not been reported.",
+    "papers": [
+      {
+        "title": "Croft et al.: seabird-colony guano ammonia drives summer new-particle bursts at Alert; model estimates of cloud-droplet effect and cooling of about -0.5 W/m2; CCN not directly measured against colony-free coast",
+        "year": "2016",
+        "doi": "https://doi.org/10.1038/ncomms13444"
+      },
+      {
+        "title": "Penguin guano as a source of Antarctic ammonia and dimethylamine that boosts new particle formation; coastal site observations (preprint), no matched colony-free control or post-breeding comparison",
+        "year": "2024",
+        "doi": "https://doi.org/10.21203/rs.3.rs-5372386/v1"
+      },
+      {
+        "title": "Atmospheric amines review: ppt-level amines boost nucleation and CCN activation; general mechanism not colony-specific",
+        "year": "2025",
+        "doi": "https://doi.org/10.1038/s43247-025-02063-0"
+      }
+    ],
+    "web": {
+      "verdict": "Partly supported",
+      "text": "Arctic and Antarctic work shows seabird or penguin ammonia triggers particle formation and seeds CCN in clean air, with modelled cloud-albedo effects. Direct paired colony-versus-control CCN measurements and the seasonal decline after the colony empties remain to be shown, and the 20-100% range depends on available sulfur and condensation sinks.",
+      "links": [
+        {
+          "label": "Arctic seabird ammonia and clouds",
+          "url": "https://doi.org/10.1038/ncomms13444"
+        },
+        {
+          "label": "Penguin guano aerosol, Antarctica (preprint)",
+          "url": "https://doi.org/10.21203/rs.3.rs-5372386/v1"
+        },
+        {
+          "label": "Atmospheric amines and aerosol",
+          "url": "https://doi.org/10.1038/s43247-025-02063-0"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 30,
+      "testable": 85,
+      "accurate": 65
+    },
+    "why": "Strength: mechanism confirmed in two polar regions with a sharp seasonal on/off test; risk: the 20-100% CCN enhancement depends on sulfur supply and sea-spray sinks, and matched colony-free coasts are hard to find.",
+    "chance": 48
+  },
+  {
+    "id": "e_0ycii8mqr",
+    "title": "Migrating animals deepen oxygen loss and boost ocean nitrogen loss",
+    "status": "partly tested",
+    "untested": "Migrant respiration is known to deepen oxygen depletion at OMZ upper margins in a global model, but nitrite, N* and denitrification responses, and paired biomass-versus-oxygen/nitrite observations across OMZ margins, have not been tested; the 5-20% nitrogen-loss change is unchecked.",
+    "papers": [
+      {
+        "title": "Bianchi et al.: ADCP-derived migration depths plus a global model show diel migrators intensify oxygen depletion at OMZ upper margins; BLING model did not resolve denitrification or N loss",
+        "year": "2013",
+        "doi": "https://doi.org/10.1038/ngeo1837"
+      },
+      {
+        "title": "California Current budget quantifying sinking particles, vertical migration and physical pump carbon export and sequestration; carbon not nitrogen loss, no OMZ margin model",
+        "year": "2023",
+        "doi": "https://doi.org/10.1038/s41467-023-37771-8"
+      }
+    ],
+    "web": {
+      "verdict": "Partly supported",
+      "text": "Bianchi et al. 2013 showed with a coupled model that migrators concentrate oxygen consumption in poorly ventilated upper waters and deepen suboxic margins of OMZs. Because denitrification and anammox depend sharply on suboxia, an effect on N loss is a natural next step, but no model or observational study I found quantified it.",
+      "links": [
+        {
+          "label": "Bianchi 2013, Nature Geoscience",
+          "url": "https://doi.org/10.1038/ngeo1837"
+        },
+        {
+          "label": "Multiple biological pump pathways, California Current",
+          "url": "https://doi.org/10.1038/s41467-023-37771-8"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 55,
+      "testable": 72,
+      "accurate": 52
+    },
+    "why": "Strength: oxygen effect already shown, and a model with an explicit N cycle can test the N-loss step; risk: migrants avoid the anoxic core, so extra respiration may sit above it and change N loss less than the 5-20% guessed.",
+    "chance": 54
+  },
+  {
+    "id": "e_84miqjmr1",
+    "title": "Excluding birds and bats cuts seasonal canopy carbon gain",
+    "status": "partly tested",
+    "untested": "Exclosure experiments show more arthropods and leaf damage, but few if any measure canopy photosynthesis or leaf-area-integrated carbon gain, so the 3-10% carbon loss, and whether compensation erases it, is unmeasured.",
+    "papers": [
+      {
+        "title": "Japanese temperate forest factorial exclusion: without birds and bats arthropod density rose 81% and herbivory 42%; carbon gain not measured",
+        "year": "2024",
+        "doi": "https://doi.org/10.1111/1365-2656.14146"
+      },
+      {
+        "title": "Subtropical forest bird/bat exclusion with spider removal on Machilus: leaf-chewing damage rose, sap suckers unchanged; no photosynthesis or growth measured",
+        "year": "2025",
+        "doi": "https://doi.org/10.1007/s00442-025-05726-z"
+      },
+      {
+        "title": "34-year bird exclosure experiments in four prairie systems: top-down control (plants down, grasshoppers up) in only 13% of cases, plants and grasshoppers varied with context",
+        "year": "2024",
+        "doi": "https://doi.org/10.1002/ecs2.70066"
+      }
+    ],
+    "web": {
+      "verdict": "Partly supported",
+      "text": "Recent exclosure experiments confirm that removing birds and bats raises arthropod density and leaf damage by tens of percent in forests. A link from that damage to measurable loss of canopy carbon gain is much less documented, and grassland studies show top-down control is context dependent, so the 3-10% figure is unverified and may be too high given compensatory growth.",
+      "links": [
+        {
+          "label": "Birds, bats and ants across forest strata",
+          "url": "https://doi.org/10.1111/1365-2656.14146"
+        },
+        {
+          "label": "Insectivores and spiders in subtropical forest",
+          "url": "https://doi.org/10.1007/s00442-025-05726-z"
+        },
+        {
+          "label": "How often are ecosystems top-down controlled",
+          "url": "https://doi.org/10.1002/ecs2.70066"
+        }
+      ]
+    },
+    "scores": {
+      "novel": 42,
+      "testable": 82,
+      "accurate": 45
+    },
+    "why": "Strength: exclosures plus gas exchange make a clean falsifiable test; risk: leaf-area loss from herbivory is usually a few percent and plants compensate, so a 3-10% seasonal carbon-gain loss may be too large to detect.",
+    "chance": 44
   }
 ]
