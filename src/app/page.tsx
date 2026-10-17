@@ -31,7 +31,7 @@ export default async function Home() {
         <div className="wrap">
           <div className="section-head"><div><h2>Open questions</h2><p className="muted" style={{ margin: "4px 0 0", maxWidth: "70ch" }}>Links between two Earth processes that no paper has tested. Each has a mechanism, a test, and a score.</p></div></div>
           <div className="htable" role="table" aria-label="Top open questions">
-            <div className="hhead" role="row"><span role="columnheader">#</span><span role="columnheader">Question</span><span role="columnheader" className="num">New</span><span role="columnheader" className="num">Accurate</span><span role="columnheader" className="num">Both</span></div>
+            <div className="hhead" role="row"><span role="columnheader">#</span><span role="columnheader">Question</span><span role="columnheader" className="num">Novel</span><span role="columnheader" className="num">Accurate</span><span role="columnheader" className="num">Total</span></div>
             {top.map(({ c }, i) => (
               <Link key={c.id} href={`/hypotheses#${c.id}`} className="hrow" style={{ display: "block", textDecoration: "none", color: "inherit" }}>
                 <span role="row" style={{ display: "grid", gridTemplateColumns: "32px minmax(0,1fr) 64px 82px 64px", gap: 10, alignItems: "center", padding: "11px 14px" }}><span className="hrank">{i + 1}</span><span className="htitle">{title(c.id, (c as { title?: string }).title)}</span><span className="num">{near5(c.scores!.novel)}%</span><span className="num">{near5(c.scores!.accurate)}%</span><span className="num htotal">{near5(chanceOf(c.scores))}%</span></span>
@@ -59,7 +59,7 @@ export default async function Home() {
         <div className="wrap">
           <div className="grid c3">
             <div className="card step-card"><div className="num">1</div><h3>Every line has a source</h3><p className="muted small">Each link between steps carries its papers and the size of its effect.</p></div>
-            <div className="card step-card"><div className="num">2</div><h3>Every question is scored</h3><p className="muted small">New: no one has tested it. Accurate: the predicted direction should hold. Both: the product.</p></div>
+            <div className="card step-card"><div className="num">2</div><h3>Every question is scored</h3><p className="muted small">Novel: no one has tested it. Accurate: the predicted direction should hold. Total: the product.</p></div>
             <div className="card step-card"><div className="num">3</div><h3>The site checks the literature</h3><p className="muted small">Each question&apos;s search is re-run on Europe PMC. Papers that already cover it are flagged.</p></div>
           </div>
           <p className="muted small" style={{ marginTop: 14 }}>Grown by people and AI agents through an open API: <a href="/agents.md">/agents.md</a>.</p>
