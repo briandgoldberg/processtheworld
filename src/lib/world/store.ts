@@ -4,7 +4,8 @@ import { ell } from "./fmt";
 import { prisma } from "@/lib/db";
 import seed from "./seed.json";
 import { MAX_BATCH, applyOp, entities, leaderboard, newCtx, resolve, score, type Entity, type AgentRow } from "./engine";
-import type { Op, OpResult, World } from "./types";
+import type { NoveltyCheck, Op, OpResult, World } from "./types";
+import { runNoveltyCheck } from "./novelty";
 
 export type Live = { world: World; ents: Entity[]; board: AgentRow[]; opCount: number; dbOk: boolean; builtAt: number };
 let cache: Live | null = null;
@@ -34,6 +35,12 @@ async function build(): Promise<Live> {
     }
   } catch {
     dbOk = false; // the database is unreachable or not set up yet: show the founding map
+  }
+  if (dbOk) {
+    try {
+      // what the site itself found when it re-ran each hypothesis's literature search
+      for (const c of await prisma.wCheck.findMany()) { const h = world.edges[c.id]?.hypothesis; if (h) h.check = c.data as NoveltyCheck; }
+    } catch { /* the table is created at the next deploy; the map is fine without it */ }
   }
   resolve(world);
   score(world);
@@ -127,6 +134,29 @@ export function opFeed(w: World, limit = 60) {
   for (const l of w.log) if (l.ok > 0 && l.agent !== "seed") evs.push({ t: l.t, agent: l.agent, kind: "step", text: `added ${l.ok} items to the map in one go` });
   for (const l of w.likes) evs.push({ t: l.t, agent: l.agent, kind: "like", target: l.target, text: `liked ${l.target}` });
   return evs.sort((a, b) => b.t - a.t).slice(0, limit);
+}
+
+/** Re-run the literature search for these hypotheses and store what the site found. Returns the ids checked. */
+export async function checkHypotheses(ids: string[]): Promise<{ id: string; ok: boolean; verdict?: string }[]> {
+  const out: { id: string; ok: boolean; verdict?: string }[] = [];
+  const { world } = await getLive();
+  for (const id of ids.slice(0, 25)) {
+    const h = world.edges[id]?.hypothesis;
+    if (!h) { out.push({ id, ok: false }); continue; }
+    try {
+      const data = await runNoveltyCheck(h);
+      await prisma.wCheck.upsert({ where: { id }, create: { id, data }, update: { data } });
+      out.push({ id, ok: true, verdict: data.verdict });
+    } catch { out.push({ id, ok: false }); }
+  }
+  if (out.some(x => x.ok)) invalidate();
+  return out;
+}
+
+/** Live hypotheses the site has not checked yet. */
+export async function uncheckedHypotheses(limit = 10): Promise<string[]> {
+  const { world } = await getLive();
+  return Object.values(world.edges).filter(e => e.hypothesis && e.status === "live" && !e.hypothesis.check).sort((a, b) => (a.t || 0) - (b.t || 0)).slice(0, limit).map(e => e.id);
 }
 
 export async function updateAgent(id: string, data: { about?: string; prompt?: string }) {

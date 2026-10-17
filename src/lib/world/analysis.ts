@@ -28,17 +28,17 @@ export function edgeConfidence(w: World, e: Edge): { conf: number; reasons: stri
   return { conf: Math.max(0.05, Math.min(0.98, c)), reasons };
 }
 
-type Hop = { to: string; edge?: string };
-/** Forward adjacency over live lines, stepping into a subprocess at its start and out again from its ends. */
+type Hop = { to: string; edge?: string; kind: "line" | "loop" | "enter" | "exit" };
+/** Forward adjacency over live lines, stepping into a subprocess at its start ("enter") and out again from its ends ("exit"). */
 export function forwardIndex(w: World): Map<string, Hop[]> {
   const idx = new Map<string, Hop[]>();
   const push = (from: string, h: Hop) => { (idx.get(from) || idx.set(from, []).get(from)!).push(h); };
-  for (const e of Object.values(w.edges)) if (live(e) && live(w.steps[e.from]) && live(w.steps[e.to])) push(e.from, { to: e.to, edge: e.id });
+  for (const e of Object.values(w.edges)) if (live(e) && live(w.steps[e.from]) && live(w.steps[e.to])) push(e.from, { to: e.to, edge: e.id, kind: e.loop ? "loop" : "line" });
   for (const s of Object.values(w.steps)) {
     if (!live(s) || !s.sub) continue;
     const p = w.processes[s.sub]; if (!p) continue;
-    if (w.steps[p.start]) push(s.id, { to: p.start });
-    for (const end of p.ends || []) if (w.steps[end]) push(end, { to: s.id });
+    if (w.steps[p.start]) push(s.id, { to: p.start, kind: "enter" });
+    for (const end of p.ends || []) if (w.steps[end]) push(end, { to: s.id, kind: "exit" });
   }
   return idx;
 }
@@ -47,14 +47,21 @@ type Memo = { idx: Map<string, Hop[]>; down: Map<string, number> };
 const memo = new WeakMap<World, Memo>();
 const mem = (w: World): Memo => { let m = memo.get(w); if (!m) { m = { idx: forwardIndex(w), down: new Map() }; memo.set(w, m); } return m; };
 
-/** How many distinct real steps can be reached from this step by following lines forward: what depends on it. */
+const DOWN_DEPTH = 8;
+/** How many distinct real steps follow this one within 8 hops, going forward along lines and down into subprocesses:
+ *  what depends on it. Loops and climbing back out of a subprocess are not followed, otherwise every step would
+ *  reach the whole map and the number would say nothing. */
 export function downstream(w: World, stepId: string): number {
   const m = mem(w);
   const hit = m.down.get(stepId); if (hit != null) return hit;
-  const seen = new Set<string>([stepId]); const q = [stepId]; let n = 0;
-  while (q.length && seen.size < 20000) {
-    const cur = q.shift()!;
-    for (const h of m.idx.get(cur) || []) if (!seen.has(h.to)) { seen.add(h.to); q.push(h.to); if (real(w.steps[h.to])) n++; }
+  const seen = new Set<string>([stepId]); let frontier = [stepId]; let n = 0;
+  for (let d = 0; d < DOWN_DEPTH && frontier.length; d++) {
+    const next: string[] = [];
+    for (const cur of frontier) for (const h of m.idx.get(cur) || []) {
+      if (h.kind === "loop" || h.kind === "exit" || seen.has(h.to)) continue;
+      seen.add(h.to); next.push(h.to); if (real(w.steps[h.to])) n++;
+    }
+    frontier = next;
   }
   m.down.set(stepId, n);
   return n;
@@ -89,26 +96,33 @@ export function missingLinks(w: World, n = 60): MissingLink[] {
   }
   const linked = new Set<string>(); const hyp = new Map<string, string>();
   for (const e of Object.values(w.edges)) if (e.status !== "removed") { linked.add(e.from + ">" + e.to); linked.add(e.to + ">" + e.from); if (e.hypothesis) hyp.set(e.from + ">" + e.to, e.id); }
-  const byRes: MissingLink[][] = [];
+  const all: (MissingLink & { pairs: number })[] = [];
   for (const [r, ps] of prod) {
     const cs = cons.get(r); if (!cs) continue;
-    const list: MissingLink[] = []; const seen = new Set<string>();
+    const list: (MissingLink & { pairs: number })[] = []; const seen = new Set<string>();
     for (const a of ps) for (const b of cs) {
       if (a.id === b.id || a.process === b.process || linked.has(a.id + ">" + b.id) || seen.has(a.id + ">" + b.id)) continue;
       seen.add(a.id + ">" + b.id);
       const d = downstream(w, b.id) + 1;
-      list.push({ resource: r, from: stepOut(w, a.id), to: stepOut(w, b.id), downstream: d, weight: d, hypothesis: hyp.get(a.id + ">" + b.id) });
+      list.push({ resource: r, from: stepOut(w, a.id), to: stepOut(w, b.id), downstream: d, weight: d, hypothesis: hyp.get(a.id + ">" + b.id), pairs: 0 });
     }
-    // a resource that everything uses (water, carbon dioxide) would swamp the list: keep its 3 heaviest pairs
-    byRes.push(list.sort((x, y) => y.weight - x.weight).slice(0, 3));
+    // a resource that everything makes and uses (water, carbon dioxide) is a weak cue: a specific one (geosmin, molybdate) a strong one
+    for (const x of list) x.pairs = list.length;
+    all.push(...list.sort((x, y) => y.weight - x.weight).slice(0, 3));
   }
-  return byRes.flat().sort((a, b) => b.weight - a.weight).slice(0, n);
+  const perTarget = new Map<string, number>();
+  return all
+    .sort((a, b) => b.weight - a.weight || a.pairs - b.pairs)
+    .filter(m => { const k = (perTarget.get(m.to.id) || 0) + 1; perTarget.set(m.to.id, k); return k <= 2; })
+    .slice(0, n)
+    .map(({ pairs: _p, ...m }) => m);
 }
 
 export type Contradiction = { a: WeakEdge; b: WeakEdge; kind: "sign" | "size" | "range"; note: string };
 /** Pairs of lines about the same mechanism (same or near-same steps) that disagree in sign, size or range. */
 export function contradictions(w: World, n = 50): Contradiction[] {
-  const edges = Object.values(w.edges).filter(e => e.status !== "removed" && !e.hypothesis && real(w.steps[e.from]) && real(w.steps[e.to]));
+  // lines leaving a fork describe shares of an outcome, not an effect size, so they are not compared
+  const edges = Object.values(w.edges).filter(e => e.status !== "removed" && !e.hypothesis && e.prob == null && real(w.steps[e.from]) && real(w.steps[e.to]));
   const tf = new Map<string, Set<string>>(), tt = new Map<string, Set<string>>();
   const index = new Map<string, string[]>();
   for (const e of edges) {
@@ -126,7 +140,7 @@ export function contradictions(w: World, n = 50): Contradiction[] {
       const b = byId.get(id)!; const key = a.id < b.id ? a.id + "|" + b.id : b.id + "|" + a.id;
       if (done.has(key)) continue;
       const same = a.from === b.from && a.to === b.to;
-      if (!same && (k < 2 || jaccard(tf.get(a.id)!, tf.get(b.id)!) < 0.4 || jaccard(tt.get(a.id)!, tt.get(b.id)!) < 0.4)) continue;
+      if (!same && (k < 2 || jaccard(tf.get(a.id)!, tf.get(b.id)!) < 0.5 || jaccard(tt.get(a.id)!, tt.get(b.id)!) < 0.5)) continue;
       done.add(key);
       const ia = a.impact, ib = b.impact;
       let kind: Contradiction["kind"] | null = null, note = "";

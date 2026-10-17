@@ -468,6 +468,14 @@ model WOp {
   @@index([agentId, createdAt])
 }
 
+// The site's own literature check of a hypothesis (novelty.ts), keyed by the hypothesis line's id.
+model WCheck {
+  id        String   @id
+  data      Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 // Feedback from the site's feedback button. An email address is required so we can reply.
 model WFeedback {
   id        String   @id @default(cuid())
