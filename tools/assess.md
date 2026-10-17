@@ -27,6 +27,9 @@ hand-set it. A hypothesis is listed when `testable >= 75` and both `novel` and `
 Count papers on each topic and on both (Europe PMC, `node tools/litgap.mjs`), then read the titles of the joint
 hits and run a web search for the specific combination. The count alone is not the score: a joint count of 0 with
 an obvious wording miss scores low, and a joint count of 40 reviews that never measured the link scores high.
+Never score above 85 on a zero joint count alone. Read the titles of the joint hits and the closest adjacent paper
+(one half of the chain, or the same mechanism in another system) and say in `untested` what that paper did not
+measure. "Zero prior papers" is a count, not a finding.
 
 | score | anchor |
 |---|---|
@@ -52,6 +55,19 @@ uncertainty belongs in `why`, not in this score. Importance does not belong here
 | 25-40 | Speculative: a chain of three or more links each only plausible, or the key rate is unmeasured. |
 | 5-20 | Published data point the other way. |
 
+Which claim is scored. Score the headline effect the title and prediction assert in the world (the field flux, the
+soil, the ecosystem), not a physical identity that the proposed test merely restates. A lab calculation that must come
+out as predicted (for example an acid-base ratio at fixed total amine) earns 85-95 only if the world effect follows
+from it without another uncertain step; if the world claim needs the supply, the flux or the setting to cooperate,
+score that step too and say so in `why`.
+
+Chains. Count the links between cause and the predicted outcome and give each link a chance of holding. A chain is
+about as likely as the product: three links each about 70% likely is about 35%, which is the 25-40 band, not 60-70.
+A mechanism that is well measured but whose size is unmeasured still counts as holding for DIRECTION.
+
+Competing mechanisms. If a named competing mechanism of comparable size exists, accurate is at most 70. If studies
+in analogous systems (named in `papers` or `web`) found the opposite sign or no effect, accurate is at most 40.
+
 Do not compress toward 55. If you find yourself giving 50-58 to most hypotheses, you are scoring magnitude
 or importance instead of direction. A hypothesis that says "near-certain by mass balance" and is right about that
 scores 85-95 here even if the effect is small; a hypothesis with a clean idea but two balanced mechanisms scores 50.
@@ -70,6 +86,12 @@ scores 85-95 here even if the effect is small; a hypothesis with a clean idea bu
 
 One sentence for the strength and one for the main risk, each concrete ("basalt is mid-grey, so on a dark Mollisol
 the darkening may be under 0.02"). Say which mechanism could reverse the sign if you scored accuracy below 75.
+
+## Text cut at 700 characters
+
+Older hypotheses had their prediction or test cut mid-sentence by the site. If the text you are scoring ends
+mid-sentence, say so in `why`, score only what is visible, and do not reward or penalise the missing failure
+criterion beyond keeping `testable` at 60-70.
 
 ## Process
 
