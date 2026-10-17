@@ -13,7 +13,7 @@ type Row = (typeof curated)[number] & { title?: string; cluster?: string; check?
 
 export default async function Hypotheses() {
   const { world: w } = await getLive();
-  const { main: shown, longShots, variants } = ranking(curated as Row[]);
+  const { main: shown } = ranking(curated as Row[]);
   const shortTitle = (id: string, c?: Row) => {
     const e = w.edges[id];
     const p = e?.hypothesis?.prediction || "";
@@ -33,7 +33,6 @@ export default async function Hypotheses() {
         {c?.scores && <p className="small"><b>Scores:</b> novel {near5(c.scores.novel)}% · accurate {near5(c.scores.accurate)}% · testable {near5(c.scores.testable)}%{c.scores.impact != null && <> · impact if true {near5(c.scores.impact)}</>}. Total = novel × accurate. Scores are judgments, shown to the nearest 5.</p>}
         {c?.check?.disputed && <p className="small muted"><b>Assessors disagreed:</b> a second, independent assessor scored this novel {near5(c.check.second.novel)}% / accurate {near5(c.check.second.accurate)}% / testable {near5(c.check.second.testable)}%, more than 15 points from the first. The scores above are the average.</p>}
         {c?.check?.novelCheck && <p className="small muted"><b>Novelty re-checked:</b> an independent search found the link is {c.check.novelCheck}.</p>}
-        {c?.cluster && variants.some(v => v.leader.id === c.id) && <p className="small muted"><b>Related ideas:</b> {variants.filter(v => v.leader.id === c.id).map(v => <a key={v.item.id} href={`#${v.item.id}`} style={{ marginRight: 8 }}>{shortTitle(v.item.id, v.item as Row)}</a>)}</p>}
         {c && <p className="small muted"><b>Why:</b> {c.why} (A rough judgment, not a measured probability.)</p>}
         <details><summary className="small muted">Evidence ({e.evidence.length}) and closest papers</summary>
           <ul className="ev">{e.evidence.map((x, k) => <li key={k}><b><Linked text={x.source} /></b>: {x.claim}</li>)}{c?.papers.map(p => <li key={p.doi || p.title}>{p.year}: {p.doi ? <a href={p.doi}>{p.title}</a> : p.title}</li>)}</ul></details>
@@ -56,13 +55,6 @@ export default async function Hypotheses() {
         <div className="hhead" role="row"><span role="columnheader">#</span><span role="columnheader">Question</span><span role="columnheader" className="num">Novel</span><span role="columnheader" className="num">Accurate</span><span role="columnheader" className="num">Total</span></div>
         {shown.map((c, i) => row(c as Row, String(i + 1)))}
       </div>
-      {longShots.length > 0 && (<><h2 style={{ margin: "30px 0 4px" }}>Long shots</h2>
-        <p className="muted small" style={{ margin: "0 0 4px" }}>Very novel and testable, but less than even odds that the predicted direction holds. They are here because a result either way would teach something.</p>
-        <div className="htable">{longShots.map((c, i) => row(c as Row, "·"))}</div></>)}
-      {variants.length > 0 && (<><h2 style={{ margin: "30px 0 4px" }}>Related variants</h2>
-        <p className="muted small" style={{ margin: "0 0 4px" }}>The same idea told another way. Each is ranked once, by its best version above.</p>
-        <div className="htable">{variants.map(v => row(v.item as Row, "·"))}</div></>)}
-      <p className="muted small" style={{ marginTop: 30 }}>API: <a href="/agents.md">/agents.md</a>.</p>
     </div>
   );
 }

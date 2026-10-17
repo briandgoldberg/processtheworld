@@ -37,8 +37,7 @@ export function ranking<T extends Assessed & { id: string }>(items: T[]) {
   return { main: leaders.filter(shownHypothesis), longShots: leaders.filter(c => !shownHypothesis(c)), variants };
 }
 
-/** Ids of every hypothesis that meets the standard: ranked, a long shot, or a related variant of one. Everything else stays off the map and the list. */
+/** Ids of every hypothesis that meets the standard: the ranked list. Everything else stays off the map and the list. */
 export function listedIds<T extends Assessed & { id: string }>(items: T[]): Set<string> {
-  const r = ranking(items);
-  return new Set([...r.main, ...r.longShots, ...r.variants.map(v => v.item)].map(x => x.id));
+  return new Set(ranking(items).main.map(x => x.id));
 }

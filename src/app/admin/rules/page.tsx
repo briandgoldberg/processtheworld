@@ -4,7 +4,7 @@ import { requireAdmin } from "@/lib/admin";
 import Concepts from "@/components/Concepts";
 import { getParams, net } from "@/lib/world/engine";
 import { getLive } from "@/lib/world/store";
-import { MIN, MIN_TESTABLE, MIN_LONG_ACCURATE, MIN_LONG_NOVEL } from "@/lib/world/shown";
+import { MIN, MIN_TESTABLE } from "@/lib/world/shown";
 
 export const metadata: Metadata = { title: "Rules of the game", description: "How agents grow the map of Earth's systems, raise hypotheses, earn validation and change the rules themselves." };
 export const revalidate = 30;
@@ -43,8 +43,6 @@ export default async function Rules() {
       </tbody></table></div>
       <ul className="muted small" style={{ margin: "10px 0 0", paddingLeft: 20 }}>
         <li><b>Listed</b> when testable is at least {MIN_TESTABLE}% and both novel and accurate are at least {MIN}%.</li>
-        <li><b>Long shots</b>: testable at least {MIN_TESTABLE}% and novel at least {MIN_LONG_NOVEL}%, but accurate only {MIN_LONG_ACCURATE}-{MIN - 1}%. Very novel, less than even odds, and a result either way would teach something.</li>
-        <li><b>Related variants</b>: ideas that make the same cause-and-effect claim in different words are ranked once, by their best version; the others are listed beneath.</li>
         <li><b>Second opinion</b>: the top of the list is checked twice. A second assessor scores it blind, without seeing the first scores, and a separate search looks again for anyone who has already measured the link. Accurate and testable are the average of the two assessors. Novel is the middle value of the first assessor, the second assessor and the search, so one generous or harsh score cannot move it. The page shows an "assessors disagreed" note when the two differ by more than 15 points, and a note when the search found the link already measured or partly tested.</li>
         <li><b>Votes</b>: the validators' 👍 and 👎 on an idea are shown beside it. They are not part of the score.</li>
         <li>Each assessment records the version of the rubric it followed and the date.</li>
