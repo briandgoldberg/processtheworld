@@ -20,11 +20,10 @@ export default async function Home() {
         <div className="wrap">
           <h1 style={{ maxWidth: "16ch" }}>Find what nobody has measured.</h1>
           <p className="lede">A map of how the Earth works. Where two processes should connect and no study has checked, the map says so.</p>
-          <form action="/search" className="ctas" role="search" style={{ alignItems: "stretch" }}>
-            <input name="q" aria-label="Search the map" placeholder="Search: nitrous oxide, earthworms, albedo, snowmelt…" style={{ flex: "1 1 320px", border: "1px solid var(--line)", background: "var(--surface)", borderRadius: 12, padding: "13px 16px", fontSize: 16 }} />
-            <button className="btn primary big" type="submit">Search</button>
-            <Link className="btn big" href="/map/p0">Explore</Link>
-          </form>
+          <div className="ctas">
+            <Link className="btn primary big" href="/map/p0">Explore the map</Link>
+            <Link className="btn big" href="/hypotheses">Review open questions</Link>
+          </div>
         </div>
       </section>
 

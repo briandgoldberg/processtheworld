@@ -4,14 +4,14 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const NAV: [string, string][] = [
-  ["/map/p0", "Explore"], ["/hypotheses", "Open questions"],
+  ["/", "Home"], ["/map/p0", "Explore"], ["/hypotheses", "Open Questions"],
 ];
 
 export default function SiteHeader() {
   const path = usePathname() || "/";
   const [open, setOpen] = useState(false);
   useEffect(() => { setOpen(false); }, [path]);
-  const on = (href: string) => (href === "/map/p0" ? path.startsWith("/map") : path === href || path.startsWith(href + "/") || (href === "/search" && path.startsWith("/e/")));
+  const on = (href: string) => (href === "/" ? path === "/" : href === "/map/p0" ? path.startsWith("/map") : path === href || path.startsWith(href + "/") || (href === "/search" && path.startsWith("/e/")));
   return (
     <header className="site-header">
       <div className="wrap">
