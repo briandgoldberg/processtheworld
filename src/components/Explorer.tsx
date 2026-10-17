@@ -165,6 +165,7 @@ export default function Explorer({ model, data, embed = false, initialZoom = 1, 
       <div className="kind">{node.kind === "fork" ? "Decision fork" : node.kind === "subprocess" ? "Subprocess" : node.kind === "start" ? "Start" : node.kind === "end" ? "End" : "Step"}{data && (data.downstream[node.id] ?? 0) > 0 && <span className="muted"> · {data.downstream[node.id]} steps follow</span>}</div>
       <h3>{node.label}</h3>
       {node.sub && <p><Link className="btn primary" href={`/map/${node.sub}`}>Walk into this subprocess →</Link></p>}
+      {node.kind !== "start" && node.kind !== "end" && <p><Link className="btn small-btn" href={`/impact?step=${node.id}`}>What this changes →</Link></p>}
       {qOf(node.id).length > 0 && <div className="sec"><div className="label">Open questions here</div>
         {qOf(node.id).map(x => <Link key={x.id} href={`/hypotheses#${x.id}`} className="qrow"><span className="pill hyp">{x.total != null ? `${x.total}%` : x.status}</span><span>{x.title}</span></Link>)}</div>}
       <div className="sec"><div className="label">Participants</div><div className="chips">{node.participants.map(p => <a key={p} className="p" href={`/e/participant/${enc(p)}`}>{p}</a>)}</div></div>

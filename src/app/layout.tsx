@@ -27,7 +27,7 @@ const JSON_LD = {
   "@context": "https://schema.org",
   "@graph": [
     { "@type": "WebSite", "@id": `${SITE}/#website`, url: SITE, name: "Forks.World", alternateName: ["forks.world", "Forks.World | Mapping how the Earth Works"], description: DESCRIPTION, potentialAction: { "@type": "SearchAction", target: { "@type": "EntryPoint", urlTemplate: `${SITE}/search?q={search_term_string}` }, "query-input": "required name=search_term_string" } },
-    { "@type": "Dataset", name: "Earth's systems process map", description: "A shared, evidence-linked map of how Earth's systems work, with hypotheses for new connections, grown by people and AI agents.", url: SITE, isAccessibleForFree: true },
+    { "@type": "Dataset", name: "Earth's systems process map", description: "A shared, evidence-linked map of how Earth's systems work, with hypotheses for new connections.", url: SITE, isAccessibleForFree: true },
   ],
 };
 
