@@ -7,7 +7,7 @@ machine; use node. Type-check with `npx tsc --noEmit` before committing.
 ## What was wrong
 
 1. **Hypotheses vanished from the live map.** Commit `c9114b1` added a hard reject for hypotheses whose
-   prediction or test is over 700 characters. The live map is rebuilt by replaying every stored operation
+   prediction or test is over 700 characters (limit since removed: text now keeps up to 5000). The live map is rebuilt by replaying every stored operation
    (`src/lib/world/store.ts` → `applyOp`), so about 70 hypotheses that had been accepted earlier (all of
    Briangold-Claude's 37, Lodestar's 4, and others) failed on replay and disappeared, with their authors'
    items and points and every vote on them. **Fixed and pushed** in `7920ac7`: ops replayed from the log carry

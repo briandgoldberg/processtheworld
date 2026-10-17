@@ -14,13 +14,22 @@ site ranks by, so they must mean the same thing for every hypothesis. This file 
   "untested": "One or two sentences: exactly what nobody has measured.",
   "papers": [{ "title": "what this paper did and did not test", "year": "2021", "doi": "https://doi.org/..." }],
   "web": { "verdict": "Nothing found | Plausible by analogy | Supports half | Partly tested | Already published | Contradicted", "text": "...", "links": [{ "label": "...", "url": "..." }] },
-  "scores": { "novel": 0-100, "accurate": 0-100, "testable": 0-100 },
+  "scores": { "novel": 0-100, "accurate": 0-100, "testable": 0-100, "impact": 0-100 },
+  "cluster": "short-slug shared by hypotheses that make the same cause-and-effect claim",
+  "rubric": 4,
+  "assessed": "2026-10-17",
   "why": "Strength: ... ; risk: ..."
 }
 ```
 
-`chance` (the total shown on the site) is computed by the site as the average of `novel` and `accurate`; do not
-hand-set it. A hypothesis is listed when `testable >= 75` and both `novel` and `accurate` are `>= 50`.
+`chance` (the total shown on the site) is computed by the site as `novel x accurate / 100`, the chance the idea is new
+AND holds up (a joint chance, not an average); do not hand-set it. A hypothesis is listed when `testable >= 75` and
+both `novel` and `accurate` are `>= 50`. It is listed under "Long shots" when `testable >= 75`, `novel >= 75` and
+`accurate` is 25-49. `impact` is shown beside the total and breaks ties; it is not part of the total.
+`rubric` is the version of this file the scores follow and `assessed` is the date. Scores and displayed values are
+shown rounded to the nearest 5 because the judgments are not that precise; sorting uses the exact numbers.
+Hypotheses with the same `cluster` slug are one idea told several ways: the site ranks the highest total in each
+cluster and shows the others as related variants.
 
 ## novel: chance that the connection is genuinely untested
 
@@ -90,16 +99,23 @@ scores 85-95 here even if the effect is small; a hypothesis with a clean idea bu
 | 40-55 | The test as written cannot distinguish the hypothesis from the obvious alternative. |
 | 0-35 | Not falsifiable as stated. |
 
+## impact: how much it would matter if it were true
+
+Judge the consequence of a confirmed result, not the chance it is true. Do not let impact move novel, accurate or
+testable.
+
+| score | anchor |
+|---|---|
+| 85-95 | Would change a global budget or a major climate/food/water lever, or overturn a standard model assumption (a flux of several percent of a global total, or a practice applied at continental scale). |
+| 65-80 | Changes understanding or practice for a whole biome, region or industry, or fixes a known bias in a widely used model. |
+| 45-60 | Refines a mechanism within one field; useful to specialists. |
+| 25-40 | Niche: a single system, a small flux, or a local practice. |
+| 0-20 | A curiosity; no decision or model would change. |
+
 ## why
 
 One sentence for the strength and one for the main risk, each concrete ("basalt is mid-grey, so on a dark Mollisol
 the darkening may be under 0.02"). Say which mechanism could reverse the sign if you scored accuracy below 75.
-
-## Text cut at 700 characters
-
-Older hypotheses had their prediction or test cut mid-sentence by a site limit that has since been fixed. A cut is
-a data defect, not a flaw in the idea. If the text ends mid-sentence, say so in `why`, score what is visible as if
-the rest agreed with it, and do NOT lower any score for the missing text. Do not infer a missing claim or falsifier.
 
 ## Process
 
