@@ -9,6 +9,8 @@ const clip = (s: unknown, n: number) => String(s ?? "").replace(/<[^>]*>/g, "").
 // Agents change what the map says and how the game is scored. They do not change how the site looks or its main components.
 const LOOKS = /\b(colou?rs?|fonts?|css|styles?|styling|themes?|layouts?|logos?|buttons?|icons?|animations?|dark mode|html|svg|navigation|menu|homepage|home page|ui|ux)\b/i;
 const LOCKED_MSG = "Agents cannot change how the site looks or its main components (participants, resources, steps, forks, loops, evidence, impact, boundaries, subprocesses, descriptions, hypotheses). You can change what the map says and the scoring settings.";
+/** Fields of a hypothesis that a change request may correct (a wrong literature count or an unflagged estimate should be fixable). */
+const HYP_FIELDS = ["prediction", "test", "lit"];
 const rid = (kind: string) => kind + "_" + Math.random().toString(36).slice(2, 8) + Date.now().toString(36).slice(-3);
 
 export const DEFAULT_PARAMS: Params = {
@@ -168,7 +170,15 @@ export function applyOp(w: World, agent: string, o0: Op, ctx: Ctx): OpResult {
     const allowed: Record<string, string[]> = { step: ["label", "participants", "resources", "resourceRoles", "resourceNotes"], edge: ["label", "prob", "impact", "loop"], process: ["description", "boundary"], rule: ["title", "text", "value"] };
     const set = { ...((o.set as Record<string, unknown>) || {}) };
     if (!o.delete && !Object.keys(set).length) return fail("set or delete required");
+    if (kind === "edge" && w.edges[tid].hypothesis) allowed.edge = [...allowed.edge, ...HYP_FIELDS];
     for (const k of Object.keys(set)) if (!allowed[kind].includes(k)) return fail(`cannot change ${k} on a ${kind}; allowed: ${allowed[kind].join(", ")}`);
+    if (set.prediction != null) { set.prediction = clip(set.prediction, 700); if (!set.prediction) return fail("prediction cannot be empty"); }
+    if (set.test != null) { set.test = clip(set.test, 700); if (!set.test) return fail("test cannot be empty"); }
+    if (set.lit != null) {
+      const l = set.lit as Record<string, number | string>;
+      if (typeof l !== "object" || !(Number(l.count_a) >= 0) || !(Number(l.count_b) >= 0) || !(Number(l.count_ab) >= 0)) return fail("lit needs {query_a, query_b, count_a, count_b, count_ab} counted from the literature");
+      set.lit = { query_a: clip(l.query_a, 200), query_b: clip(l.query_b, 200), count_a: Number(l.count_a), count_b: Number(l.count_b), count_ab: Number(l.count_ab) };
+    }
     if (set.participants) set.participants = names(set.participants);
     if (set.resources) set.resources = names(set.resources);
     if (set.resourceRoles) { const base = (w.steps[tid]?.resources || []).concat((set.resources as string[]) || []); set.resourceRoles = cleanRoles(set.resourceRoles, base) || {}; }
@@ -241,7 +251,8 @@ export function resolve(w: World) {
     p.status = "accepted";
     if (p.delete) { if (rule) rule.status = "removed"; else if (!proc) (t as Step | Edge).status = "removed"; continue; }
     for (const [k, v] of Object.entries(p.set || {})) {
-      if (rule) { if (k === "value" && rule.param) rule.param.value = Number(v); else if (k === "title" || k === "text") (rule as unknown as Record<string, unknown>)[k] = v; }
+      if (edge?.hypothesis && HYP_FIELDS.includes(k)) (edge.hypothesis as unknown as Record<string, unknown>)[k] = v;
+      else if (rule) { if (k === "value" && rule.param) rule.param.value = Number(v); else if (k === "title" || k === "text") (rule as unknown as Record<string, unknown>)[k] = v; }
       else (t as unknown as Record<string, unknown>)[k] = v;
     }
   }
