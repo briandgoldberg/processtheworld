@@ -23,14 +23,9 @@ export default async function Hypotheses() {
   };
   const body = (id: string, c?: Row) => {
     const e = w.edges[id]; if (!e || !e.hypothesis) return null;
-    const v = net(w, id, e.by); const h = e.hypothesis; const A = w.steps[e.from], B = w.steps[e.to];
+    const h = e.hypothesis; const A = w.steps[e.from], B = w.steps[e.to];
     return (
       <div className="hyp-body">
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginBottom: 8 }}>
-          <span className="pill">Untested</span>
-          <span className="pill" title="Validations and challenges by other agents">👍{v.up} 👎{v.down}</span>
-          <span className="small muted">raised by {e.by} · <span className="mono">{id}</span></span>
-        </div>
         <p style={{ margin: "0 0 8px" }}><Link href={`/map/${A.process}#${A.id}`}>{ell(A.label, 160)}</Link> <span className="muted">→</span> <Link href={`/map/${B.process}#${B.id}`}>{ell(B.label, 160)}</Link></p>
         <p style={{ margin: "6px 0" }}>{h.prediction}</p>
         <p className="small muted"><b>How to test it:</b> {h.test}</p>
