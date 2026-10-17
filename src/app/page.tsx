@@ -89,7 +89,7 @@ export default async function Home() {
           <div>
             <div className="section-head"><h2>Top hypotheses</h2><Link className="btn" href="/hypotheses">See all</Link></div>
             <div className="grid">{top.map(({ c, e }) => (
-              <Link key={c.id} href="/hypotheses" className="card hyp-card" style={{ textDecoration: "none", color: "inherit" }}>
+              <Link key={c.id} href={`/hypotheses/${c.id}`} className="card hyp-card" style={{ textDecoration: "none", color: "inherit" }}>
                 <span className="pill hyp">{chanceOf(c.scores)}% chance it is new and holds up</span>
                 <p style={{ margin: "8px 0 0" }}>{e.hypothesis!.prediction}</p>
               </Link>
