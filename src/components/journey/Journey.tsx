@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Scene, Stage } from "@/lib/journeys/raindrop";
+import { RAINDROP_ROUTE, type Place } from "@/lib/journeys/raindropRoute";
 
 export type SceneLive = Omit<Scene, "fork"> & {
   fork?: { step: string; options: { to: string; target: string; label: string; share?: number }[] };
@@ -15,6 +16,7 @@ export type JourneyData = { id: string; title: string; intro: string; start: str
 export type Visit = { scene: string; stage: Stage; share?: number };
 
 const Scene3D = dynamic(() => import("./Scene3D"), { ssr: false, loading: () => <div className="jy-stage jy-loading" /> });
+const GlobeInset = dynamic(() => import("./GlobeInset"), { ssr: false });
 
 export default function Journey({ data }: { data: JourneyData }) {
   const byId = useMemo(() => new Map(data.scenes.map(s => [s.id, s])), [data]);
@@ -43,13 +45,20 @@ export default function Journey({ data }: { data: JourneyData }) {
   const oddsText = odds >= 0.1 ? `${Math.round(odds * 100)} in 100` : `1 in ${rarity}`;
   const passed = trail.map(v => byId.get(v.scene)?.question).filter((q, i, a): q is { id: string; title: string } => !!q && a.findIndex(x => x?.id === q.id) === i);
   const stepsTaken = trail.length - 1;
+  // where on Earth: the route's typical places, for the globe inset and the card
+  const visited = useMemo(() => trail.map(v => RAINDROP_ROUTE[v.scene]).filter((p): p is Place => !!p), [trail]);
+  const nexts = useMemo(() => { const ids = cur.fork ? cur.fork.options.map(o => o.to) : cur.choice ? cur.choice.options.map(o => o.to) : cur.next ? [cur.next] : []; return ids.map(id => RAINDROP_ROUTE[id]).filter((p): p is Place => !!p); }, [cur]);
+  const here = RAINDROP_ROUTE[cur.id];
   const share = async () => {
     const text = `I followed a raindrop through ${stepsTaken} real steps of the water cycle on forks.world and ended: ${cur.end?.title}. About ${oddsText} raindrops take this exact route.`;
     try { if (navigator.share) await navigator.share({ title: data.title, text, url: location.href }); else { await navigator.clipboard.writeText(text + " " + location.href); alert("Copied to your clipboard."); } } catch { /* cancelled */ }
   };
   return (
     <div className="jy">
-      <Scene3D trail={trail} scenes={byId} rolling={rolling} />
+      <div className="jy-top">
+        <Scene3D trail={trail} scenes={byId} rolling={rolling} />
+        <div className="jy-globe"><GlobeInset visited={visited} nexts={nexts} />{here && <div className="jy-globe-place">{here.place}</div>}</div>
+      </div>
       <div className="jy-panel">
         <div className="jy-head">
           <span className="jy-kicker">{data.title}</span>
@@ -57,7 +66,7 @@ export default function Journey({ data }: { data: JourneyData }) {
         </div>
         {!cur.end ? (
           <div className="jy-card" key={cur.id}>
-            <div className="jy-stage-name">{cur.live?.processTitle || ""}</div>
+            <div className="jy-stage-name">{cur.live?.processTitle || ""}{here && <span className="jy-where"> · {here.place}</span>}</div>
             <h2>{cur.title}</h2>
             {stepsTaken === 0 && <p className="jy-intro">{data.intro}</p>}
             <p className="jy-say">{cur.say}</p>
