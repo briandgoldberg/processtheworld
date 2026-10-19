@@ -359,6 +359,17 @@ body:has(.wd-page) .site-footer{display:none}
 .wd-panel .muted{color:rgba(255,255,255,.6)}
 .wd-kicker{font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:800;color:rgba(255,255,255,.75)}
 .wd-odds{font-size:15px;margin:0 0 10px}
+.wd-pick{display:flex;gap:8px;flex-wrap:wrap}
+.wd-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.wd-fork{margin-top:14px}
+.wd-ask{font-size:13.5px;color:rgba(255,255,255,.75);margin-bottom:8px}
+.wd-ask b{color:#fff}
+.wd-options{display:grid;gap:8px;margin-bottom:10px}
+.wd-opt{display:flex;align-items:center;gap:12px;text-align:left;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);border-radius:12px;padding:11px 13px;font:inherit;font-size:15px;color:#fff;cursor:pointer}
+.wd-opt:hover{border-color:#9fd4ff}
+.wd-opt:disabled{opacity:.6;cursor:default}
+.wd-opt b{min-width:48px;color:#9fd4ff;font-size:17px}
+.wd-end h3{margin-top:14px}
 .wd-rolls{margin:0 0 10px;padding-left:20px}
 .wd-rolls li{margin:8px 0;font-size:14px}
 .wd-rolls b{color:#9fd4ff;margin-right:6px}

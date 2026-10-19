@@ -1,43 +1,83 @@
 "use client";
-// The living Earth: hundreds of threads of water, carbon and dust moving over a globe, each a route rolled on the map's
-// real forks. Drag to turn, scroll to zoom, tap a thread to see its route and odds, tap a hotspot for a chapter.
+// The living Earth, guided: pick a traveller, tap the globe to choose where it starts, and follow it leg by leg. Each leg
+// is a real step on the map; at a fork the branches draw on the globe with the map's shares and you choose or roll.
+// Hundreds of sampled threads of the chosen traveller move faintly in the background so the picture of where most of
+// them go stays honest.
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import type { Route } from "@/lib/journeys/flows";
+import type { Flow, FlowNode, Link as FlowLink, Route } from "@/lib/journeys/flows";
 
-export type WorldData = {
-  flows: { id: string; title: string; traveller: string; plural: string; color: string; ride?: string; nodes: Record<string, { name: string; step?: string }> }[];
-  routes: Route[]; stepLabel: Record<string, string>; stepProcess: Record<string, string>;
-  hotspots: { id: string; name: string; lat: number; lon: number; radius: number; text: string; questions: { id: string; title: string }[] }[];
-};
+export type WorldData = { flows: Flow[]; routes: Route[]; stepLabel: Record<string, string>; stepProcess: Record<string, string>; hotspots: { id: string; name: string; lat: number; lon: number; radius: number; text: string; questions: { id: string; title: string }[] }[] };
+type Roll = { fork: string; chosen: string; share?: number; rolled: boolean };
+type Visit = { node: string; roll?: Roll };
+type Option = { key: string; label: string; share?: number; links: FlowLink[]; forkStep?: string };
 
 const R = 1;
 const toVec = (lat: number, lon: number, alt = 0) => { const phi = (90 - lat) * Math.PI / 180, th = (lon + 180) * Math.PI / 180, r = R + alt; return new THREE.Vector3(-r * Math.sin(phi) * Math.cos(th), r * Math.cos(phi), r * Math.sin(phi) * Math.sin(th)); };
-const TAIL = 16;
-
-function densify(route: Route): THREE.Vector3[] {
-  const out: THREE.Vector3[] = [];
-  for (let i = 1; i < route.pts.length; i++) {
-    const a = route.pts[i - 1], b = route.pts[i];
-    const va = toVec(a.lat, a.lon).normalize(), vb = toVec(b.lat, b.lon).normalize(); const w = Math.acos(THREE.MathUtils.clamp(va.dot(vb), -1, 1)) || 1e-6;
-    const n = Math.max(6, Math.round(w * 40));
-    for (let k = i === 1 ? 0 : 1; k <= n; k++) { const t = k / n; const v = va.clone().multiplyScalar(Math.sin((1 - t) * w) / Math.sin(w)).add(vb.clone().multiplyScalar(Math.sin(t * w) / Math.sin(w))).normalize(); const alt = a.alt + (b.alt - a.alt) * t + Math.sin(Math.PI * t) * Math.min(0.08, w * 0.25) + 0.012; out.push(v.multiplyScalar(R + alt)); }
-  }
+const toLatLon = (v: THREE.Vector3) => { const n = v.clone().normalize(); const lat = 90 - Math.acos(THREE.MathUtils.clamp(n.y, -1, 1)) * 180 / Math.PI; const lon = Math.atan2(n.z, -n.x) * 180 / Math.PI - 180; return { lat, lon: ((lon + 540) % 360) - 180 }; };
+function arcPts(a: { lat: number; lon: number; alt?: number }, b: { lat: number; lon: number; alt?: number }, lift = 1): THREE.Vector3[] {
+  const va = toVec(a.lat, a.lon).normalize(), vb = toVec(b.lat, b.lon).normalize(); const w = Math.acos(THREE.MathUtils.clamp(va.dot(vb), -1, 1)) || 1e-6;
+  const n = Math.max(8, Math.round(w * 48)); const out: THREE.Vector3[] = [];
+  for (let k = 0; k <= n; k++) { const t = k / n; const v = va.clone().multiplyScalar(Math.sin((1 - t) * w) / Math.sin(w)).add(vb.clone().multiplyScalar(Math.sin(t * w) / Math.sin(w))).normalize(); const alt = (a.alt ?? 0.02) + ((b.alt ?? 0.02) - (a.alt ?? 0.02)) * t + Math.sin(Math.PI * t) * Math.min(0.09, w * 0.28) * lift + 0.012; out.push(v.multiplyScalar(R + alt)); }
   return out;
 }
+const TAIL = 14;
+const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+const short = (t: string, n = 80) => (t.length > n ? t.slice(0, n - 3).trimEnd() + "…" : t);
+
+type Api = { focus: (flowId: string | null) => void; setRoute: (nodes: FlowNode[]) => void; setBranches: (from: FlowNode | null, to: { node: FlowNode; share?: number }[]) => void; flyTo: (from: FlowNode | null, to: FlowNode, onDone: () => void) => void; marker: (node: FlowNode | null) => void };
 
 export default function Globe({ data }: { data: WorldData }) {
   const host = useRef<HTMLDivElement>(null);
-  const [sel, setSel] = useState<number | null>(null);
+  const api = useRef<Api | null>(null);
+  const [flowId, setFlowId] = useState<string | null>(null);
+  const [trail, setTrail] = useState<Visit[]>([]);
+  const [flying, setFlying] = useState(false);
   const [hot, setHot] = useState<string | null>(null);
-  const [shown, setShown] = useState<Record<string, boolean>>(() => Object.fromEntries(data.flows.map(f => [f.id, true])));
-  const [intro, setIntro] = useState(true);
-  const api = useRef<{ setShown: (s: Record<string, boolean>) => void; setSel: (i: number | null) => void } | null>(null);
-  const flowBy = useMemo(() => new Map(data.flows.map(f => [f.id, f])), [data]);
-  const counts = useMemo(() => { const c: Record<string, number> = {}; data.routes.forEach(r => { c[r.flow] = (c[r.flow] || 0) + 1; }); return c; }, [data]);
-  const hotspotRoutes = useMemo(() => data.hotspots.map(h => ({ id: h.id, per: data.flows.map(f => ({ flow: f, n: data.routes.filter(r => r.flow === f.id && r.pts.some(p => Math.abs(p.lat - h.lat) < h.radius && Math.abs(p.lon - h.lon) < h.radius)).length })) })), [data]);
+  const [startName, setStartName] = useState<string | null>(null);
+  const flow = useMemo(() => data.flows.find(f => f.id === flowId) || null, [data, flowId]);
+  const cur = flow && trail.length ? flow.nodes[trail[trail.length - 1].node] : null;
+  const starts = useMemo(() => { if (!flow) return []; const ids = flow.id === "dust" ? (flow.nodes.lift.next || []).map(l => l.to) : flow.start.map(s => s.to); return ids.map(id => flow.nodes[id]).filter(Boolean); }, [flow]);
+  const seedRef = useRef(1);
+  const rand = () => { seedRef.current = (seedRef.current * 1664525 + 1013904223) % 4294967296; return seedRef.current / 4294967296; };
+  const tapRef = useRef<(lat: number, lon: number) => void>(() => undefined);
+
+  // options at the current node: map forks grouped by target, plain geographic choices otherwise
+  const options: Option[] = useMemo(() => {
+    if (!cur || !flow || !cur.next?.length) return [];
+    const forkLinks = cur.next.filter(l => l.forkStep && l.target);
+    if (forkLinks.length) { const byTarget = new Map<string, FlowLink[]>(); forkLinks.forEach(l => { (byTarget.get(l.target!) || byTarget.set(l.target!, []).get(l.target!)!).push(l); }); return [...byTarget.entries()].map(([target, links]) => ({ key: target, label: data.stepLabel[target] || target, share: links[0].share, links, forkStep: links[0].forkStep })); }
+    return cur.next.map(l => ({ key: l.to, label: flow.nodes[l.to]?.name || l.to, links: [l] }));
+  }, [cur, flow, data]);
+  const single = cur?.next && cur.next.length === 1 && !cur.next[0].forkStep ? cur.next[0] : null;
+  const atEnd = !!cur && (!cur.next || cur.next.length === 0);
+
+  const go = useCallback((toId: string, roll?: Roll) => {
+    if (!flow || !cur) return; const nd = flow.nodes[toId]; if (!nd) return;
+    setFlying(true); api.current?.setBranches(null, []);
+    api.current?.flyTo(cur, nd, () => { setTrail(t => [...t, { node: toId, roll }]); setFlying(false); });
+  }, [flow, cur]);
+  const choose = (o: Option, rolled: boolean) => {
+    if (!cur) return;
+    const link = o.links.length === 1 ? o.links[0] : (() => { const tot = o.links.reduce((a, l) => a + (l.w ?? 1), 0); let u = rand() * tot; for (const l of o.links) { u -= l.w ?? 1; if (u <= 0) return l; } return o.links[o.links.length - 1]; })();
+    go(link.to, o.forkStep ? { fork: data.stepLabel[o.forkStep] || "A fork on the map", chosen: o.label, share: o.share, rolled } : { fork: "Where next", chosen: o.label, rolled });
+  };
+  const roll = () => { const withShare = options.filter(o => o.share != null); const tot = withShare.reduce((a, o) => a + (o.share || 0), 0) || 1; let u = rand() * tot; let pick = withShare[withShare.length - 1]; for (const o of withShare) { u -= o.share || 0; if (u <= 0) { pick = o; break; } } choose(pick, true); };
+  const begin = (nd: FlowNode) => { setTrail([{ node: nd.id }]); setStartName(nd.name); api.current?.marker(nd); api.current?.setRoute([nd]); };
+  const reset = () => { setTrail([]); setStartName(null); api.current?.setRoute([]); api.current?.setBranches(null, []); api.current?.marker(null); };
+
+  // a tap on the globe while choosing a start snaps to the nearest start for the traveller
+  tapRef.current = (lat, lon) => {
+    if (!flow || trail.length) return;
+    const v = toVec(lat, lon).normalize(); let best: FlowNode | null = null, bd = -2;
+    for (const s of starts) { const d = toVec(s.lat, s.lon).normalize().dot(v); if (d > bd) { bd = d; best = s; } }
+    if (best) begin(best);
+  };
+  useEffect(() => { api.current?.focus(flowId); reset(); // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [flowId]);
+  useEffect(() => { if (!flow || !cur) return; api.current?.setRoute(trail.map(v => flow.nodes[v.node])); api.current?.marker(cur); const br = options.map(o => { const l = o.links[0]; return { node: flow.nodes[l.to], share: o.share }; }).filter(x => x.node); api.current?.setBranches(cur, flying ? [] : br); }, [trail, options, flow, cur, flying]);
 
   useEffect(() => {
     const el = host.current; if (!el) return;
@@ -45,65 +85,50 @@ export default function Globe({ data }: { data: WorldData }) {
     const renderer = new THREE.WebGLRenderer({ antialias: !phone, powerPreference: "high-performance" }); renderer.setPixelRatio(Math.min(phone ? 1.5 : 2, window.devicePixelRatio)); renderer.setSize(el.clientWidth, el.clientHeight); renderer.toneMapping = THREE.ACESFilmicToneMapping; el.appendChild(renderer.domElement);
     const scene = new THREE.Scene(); scene.background = new THREE.Color(0x04070f);
     const camera = new THREE.PerspectiveCamera(38, el.clientWidth / el.clientHeight, 0.05, 50); camera.position.set(0, 0.9, phone ? 3.9 : 3.1);
-    const controls = new OrbitControls(camera, renderer.domElement); controls.enableDamping = true; controls.dampingFactor = 0.06; controls.minDistance = 1.45; controls.maxDistance = 6; controls.autoRotate = true; controls.autoRotateSpeed = 0.35; controls.enablePan = false;
-    // stars
+    const controls = new OrbitControls(camera, renderer.domElement); controls.enableDamping = true; controls.dampingFactor = 0.07; controls.minDistance = 1.35; controls.maxDistance = 6; controls.autoRotate = true; controls.autoRotateSpeed = 0.3; controls.enablePan = false;
     const SN = 1500; const sp = new Float32Array(SN * 3); for (let i = 0; i < SN; i++) { const v = new THREE.Vector3().randomDirection().multiplyScalar(30); sp[i * 3] = v.x; sp[i * 3 + 1] = v.y; sp[i * 3 + 2] = v.z; }
     const sg = new THREE.BufferGeometry(); sg.setAttribute("position", new THREE.BufferAttribute(sp, 3)); scene.add(new THREE.Points(sg, new THREE.PointsMaterial({ color: 0xaab8d0, size: 0.06, transparent: true, opacity: 0.7 })));
-    // earth
     scene.add(new THREE.AmbientLight(0xffffff, 0.75)); const sun = new THREE.DirectionalLight(0xfff4e0, 1.5); scene.add(sun);
     const tex = new THREE.TextureLoader().load("/journey/earth.jpg"); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4;
     const earth = new THREE.Mesh(new THREE.SphereGeometry(R, 96, 64), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.85, metalness: 0 })); scene.add(earth);
     scene.add(new THREE.Mesh(new THREE.SphereGeometry(R * 1.03, 64, 48), new THREE.MeshBasicMaterial({ color: 0x5fa8ff, transparent: true, opacity: 0.16, side: THREE.BackSide, blending: THREE.AdditiveBlending, depthWrite: false })));
     scene.add(new THREE.Mesh(new THREE.SphereGeometry(R * 1.09, 64, 48), new THREE.MeshBasicMaterial({ color: 0x3a7fff, transparent: true, opacity: 0.06, side: THREE.BackSide, blending: THREE.AdditiveBlending, depthWrite: false })));
-    // routes: dense points per route, a faint static network, and moving comets
-    const dense = data.routes.map(densify);
+    // background threads
+    const flowBy = new Map(data.flows.map(f => [f.id, f]));
+    const dense = data.routes.map(r => { const out: THREE.Vector3[] = []; for (let i = 1; i < r.pts.length; i++) { const seg = arcPts(r.pts[i - 1], r.pts[i]); out.push(...(i === 1 ? seg : seg.slice(1))); } return out; });
     const colors = data.routes.map(r => new THREE.Color(flowBy.get(r.flow)?.color || "#ffffff"));
-    let segCount = 0; dense.forEach(d => { segCount += d.length - 1; });
-    const netPos = new Float32Array(segCount * 6), netCol = new Float32Array(segCount * 6); let o = 0;
-    dense.forEach((d, ri) => { const c = colors[ri]; for (let i = 1; i < d.length; i++) { netPos.set([d[i - 1].x, d[i - 1].y, d[i - 1].z, d[i].x, d[i].y, d[i].z], o); netCol.set([c.r, c.g, c.b, c.r, c.g, c.b], o); o += 6; } });
-    const netGeo = new THREE.BufferGeometry(); netGeo.setAttribute("position", new THREE.BufferAttribute(netPos, 3)); netGeo.setAttribute("color", new THREE.BufferAttribute(netCol, 3));
-    const net = new THREE.LineSegments(netGeo, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.1, blending: THREE.AdditiveBlending, depthWrite: false })); scene.add(net);
     const NR = data.routes.length; const cPos = new Float32Array(NR * TAIL * 6), cCol = new Float32Array(NR * TAIL * 6);
     const cGeo = new THREE.BufferGeometry(); cGeo.setAttribute("position", new THREE.BufferAttribute(cPos, 3)); cGeo.setAttribute("color", new THREE.BufferAttribute(cCol, 3));
-    const comets = new THREE.LineSegments(cGeo, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false })); scene.add(comets);
-    const heads = new THREE.Points(new THREE.BufferGeometry().setAttribute("position", new THREE.BufferAttribute(new Float32Array(NR * 3), 3)).setAttribute("color", new THREE.BufferAttribute(new Float32Array(NR * 3), 3)), new THREE.PointsMaterial({ vertexColors: true, size: 0.016, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true })); scene.add(heads);
-    // selected route
-    const selGroup = new THREE.Group(); scene.add(selGroup);
+    const comets = new THREE.LineSegments(cGeo, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending, depthWrite: false })); scene.add(comets);
+    const phase = data.routes.map(r => r.phase); let focusId: string | null = null; let dim = 1;
+    // guided route
+    const routeGroup = new THREE.Group(); scene.add(routeGroup); const branchGroup = new THREE.Group(); scene.add(branchGroup);
+    const marker = new THREE.Mesh(new THREE.SphereGeometry(0.014, 16, 16), new THREE.MeshBasicMaterial({ color: 0xffffff })); marker.visible = false; scene.add(marker);
+    const glow = new THREE.Mesh(new THREE.SphereGeometry(0.03, 16, 16), new THREE.MeshBasicMaterial({ color: 0x9fd4ff, transparent: true, opacity: 0.35, blending: THREE.AdditiveBlending, depthWrite: false })); glow.visible = false; scene.add(glow);
+    const ring = new THREE.Mesh(new THREE.RingGeometry(0.035, 0.045, 40), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.8, side: THREE.DoubleSide, depthWrite: false })); ring.visible = false; scene.add(ring);
     // hotspots
-    const hotMeshes: { id: string; ring: THREE.Mesh; pin: THREE.Mesh }[] = [];
-    for (const h of data.hotspots) {
-      const p = toVec(h.lat, h.lon, 0.01); const n = p.clone().normalize();
-      const ring = new THREE.Mesh(new THREE.RingGeometry(0.05, 0.065, 48), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.8, side: THREE.DoubleSide, depthWrite: false })); ring.position.copy(p); ring.lookAt(p.clone().add(n)); scene.add(ring);
-      const pin = new THREE.Mesh(new THREE.SphereGeometry(0.02, 16, 16), new THREE.MeshBasicMaterial({ color: 0xffffff })); pin.position.copy(p); scene.add(pin);
-      const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.004, 0.012, 0.22, 8, 1, true), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.35, blending: THREE.AdditiveBlending, depthWrite: false })); beam.position.copy(toVec(h.lat, h.lon, 0.11)); beam.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), n); scene.add(beam);
-      hotMeshes.push({ id: h.id, ring, pin });
-    }
-    let shownMap: Record<string, boolean> = Object.fromEntries(data.flows.map(f => [f.id, true]));
-    const phase = data.routes.map(r => r.phase);
-    const setSelection = (i: number | null) => {
-      selGroup.clear(); if (i == null) return;
-      const d = dense[i]; const c = colors[i];
-      selGroup.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(d), Math.min(400, d.length * 2), 0.0028, 6, false), new THREE.MeshBasicMaterial({ color: 0xffffff })));
-      selGroup.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(d), Math.min(400, d.length * 2), 0.008, 6, false), new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: 0.4, blending: THREE.AdditiveBlending, depthWrite: false })));
-      data.routes[i].pts.forEach(p => { const m = new THREE.Mesh(new THREE.SphereGeometry(0.008, 10, 10), new THREE.MeshBasicMaterial({ color: 0xffffff })); m.position.copy(toVec(p.lat, p.lon, p.alt + 0.012)); selGroup.add(m); });
-      controls.autoRotate = false;
+    const hotMeshes: THREE.Mesh[] = [];
+    for (const h of data.hotspots) { const p = toVec(h.lat, h.lon, 0.01); const n = p.clone().normalize(); const hr = new THREE.Mesh(new THREE.RingGeometry(0.05, 0.065, 48), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.7, side: THREE.DoubleSide, depthWrite: false })); hr.position.copy(p); hr.lookAt(p.clone().add(n)); scene.add(hr); hotMeshes.push(hr); const pin = new THREE.Mesh(new THREE.SphereGeometry(0.016, 12, 12), new THREE.MeshBasicMaterial({ color: 0xffffff })); pin.position.copy(p); scene.add(pin); }
+    // flight state
+    let flight: { pts: THREE.Vector3[]; t0: number; dur: number; done: () => void } | null = null; let camDist = camera.position.length(); const targetLook = new THREE.Vector3(0, 0, 0); let follow = false;
+    const colorOf = () => new THREE.Color(focusId ? flowBy.get(focusId)?.color || "#ffffff" : "#ffffff");
+    api.current = {
+      focus: id => { focusId = id; controls.autoRotate = !id; },
+      setRoute: nodes => { routeGroup.clear(); if (!nodes.length) return; const c = colorOf(); for (let i = 1; i < nodes.length; i++) { const pts = arcPts(nodes[i - 1], nodes[i]); routeGroup.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), pts.length * 2, 0.0032, 6, false), new THREE.MeshBasicMaterial({ color: 0xffffff }))); routeGroup.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), pts.length * 2, 0.009, 6, false), new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: 0.45, blending: THREE.AdditiveBlending, depthWrite: false }))); } nodes.forEach((n, i) => { if (i === nodes.length - 1) return; const m = new THREE.Mesh(new THREE.SphereGeometry(0.009, 10, 10), new THREE.MeshBasicMaterial({ color: 0xffffff })); m.position.copy(toVec(n.lat, n.lon, (n.alt ?? 0.02) + 0.012)); routeGroup.add(m); }); },
+      setBranches: (from, to) => { branchGroup.clear(); if (!from || !to.length) return; const c = colorOf(); to.forEach(b => { const pts = arcPts(from, b.node); const th = b.share != null ? 0.003 + (b.share / 100) * 0.012 : 0.005; branchGroup.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), pts.length * 2, th, 6, false), new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending, depthWrite: false }))); const d = new THREE.Mesh(new THREE.SphereGeometry(0.012, 10, 10), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.7 })); d.position.copy(toVec(b.node.lat, b.node.lon, (b.node.alt ?? 0.02) + 0.012)); branchGroup.add(d); }); },
+      flyTo: (from, to, onDone) => { const pts = from ? arcPts(from, to) : [toVec(to.lat, to.lon, (to.alt ?? 0.02) + 0.012)]; flight = { pts, t0: performance.now(), dur: 900 + Math.min(1800, pts.length * 28), done: onDone }; follow = true; camDist = Math.min(camDist, 2.2); },
+      marker: node => { const on = !!node; marker.visible = glow.visible = ring.visible = on; if (!node) { follow = false; return; } const p = toVec(node.lat, node.lon, (node.alt ?? 0.02) + 0.012); marker.position.copy(p); glow.position.copy(p); ring.position.copy(p); ring.lookAt(p.clone().multiplyScalar(2)); targetLook.copy(p); follow = true; camDist = Math.min(camDist, 2.3); },
     };
-    api.current = { setShown: s => { shownMap = s; }, setSel: setSelection };
-    // picking: nearest route head or point in screen space
-    const ndc = new THREE.Vector3(); let downAt = 0, downX = 0, downY = 0;
+    // taps: pick a start on the globe, or open a hotspot
+    const ray = new THREE.Raycaster(); let downAt = 0, downX = 0, downY = 0;
     const onDown = (e: PointerEvent) => { downAt = performance.now(); downX = e.clientX; downY = e.clientY; };
     const onUp = (e: PointerEvent) => {
       if (performance.now() - downAt > 350 || Math.hypot(e.clientX - downX, e.clientY - downY) > 6) return;
-      const rect = el.getBoundingClientRect(); const px = e.clientX - rect.left, py = e.clientY - rect.top; const W = rect.width, H = rect.height;
-      const camDir = camera.position.clone().normalize();
-      let best = -1, bestD = 14; let bestHot: string | null = null;
-      for (const h of data.hotspots) { const p = toVec(h.lat, h.lon, 0.02); if (p.dot(camDir) < 0.1) continue; ndc.copy(p).project(camera); const d = Math.hypot((ndc.x + 1) / 2 * W - px, (1 - ndc.y) / 2 * H - py); if (d < 22) bestHot = h.id; }
-      if (bestHot) { setHot(bestHot); setSel(null); setSelection(null); return; }
-      for (let i = 0; i < NR; i++) {
-        if (!shownMap[data.routes[i].flow]) continue; const d = dense[i];
-        for (let k = 0; k < d.length; k += 2) { if (d[k].dot(camDir) < 0.15) continue; ndc.copy(d[k]).project(camera); const dist = Math.hypot((ndc.x + 1) / 2 * W - px, (1 - ndc.y) / 2 * H - py); if (dist < bestD) { bestD = dist; best = i; } }
-      }
-      setHot(null); setSel(best >= 0 ? best : null); setSelection(best >= 0 ? best : null); setIntro(false);
+      const rect = el.getBoundingClientRect(); const nd = new THREE.Vector2(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1);
+      ray.setFromCamera(nd, camera);
+      for (const h of data.hotspots) { const p = toVec(h.lat, h.lon, 0.02); const v = p.clone().project(camera); const d = Math.hypot((v.x - nd.x) / 2 * rect.width, (v.y - nd.y) / 2 * rect.height); if (d < 22 && p.dot(camera.position.clone().normalize()) > 0.1) { setHot(h.id); return; } }
+      const hit = ray.intersectObject(earth, false)[0]; if (!hit) return;
+      const { lat, lon } = toLatLon(hit.point); tapRef.current(lat, lon);
     };
     el.addEventListener("pointerdown", onDown); el.addEventListener("pointerup", onUp);
     const onResize = () => { if (!host.current) return; const W = host.current.clientWidth, H = host.current.clientHeight; renderer.setSize(W, H); camera.aspect = W / H; camera.updateProjectionMatrix(); };
@@ -112,53 +137,61 @@ export default function Globe({ data }: { data: WorldData }) {
     const tick = () => {
       raf = requestAnimationFrame(tick); const now = performance.now(); const dt = Math.min(0.05, (now - last) / 1000); last = now; t += dt;
       sun.position.copy(camera.position).normalize().multiplyScalar(5).add(new THREE.Vector3(2, 2.5, 0));
-      const cp = cGeo.attributes.position as THREE.BufferAttribute, cc = cGeo.attributes.color as THREE.BufferAttribute; const hp = heads.geometry.attributes.position as THREE.BufferAttribute, hc = heads.geometry.attributes.color as THREE.BufferAttribute;
+      dim += ((focusId ? 0.35 : 1) - dim) * (1 - Math.pow(0.001, dt));
+      const cp = cGeo.attributes.position as THREE.BufferAttribute, cc = cGeo.attributes.color as THREE.BufferAttribute;
       for (let i = 0; i < NR; i++) {
-        const d = dense[i]; const on = shownMap[data.routes[i].flow]; const c = colors[i];
-        phase[i] = (phase[i] + dt * data.routes[i].speed * 0.045) % 1;
-        const head = Math.floor(phase[i] * (d.length - 1));
-        for (let k = 0; k < TAIL; k++) {
-          const a = Math.max(0, head - k - 1), b = Math.max(0, head - k); const fade = on ? (1 - k / TAIL) * (1 - k / TAIL) : 0;
-          cp.setXYZ((i * TAIL + k) * 2, d[a].x, d[a].y, d[a].z); cp.setXYZ((i * TAIL + k) * 2 + 1, d[b].x, d[b].y, d[b].z);
-          cc.setXYZ((i * TAIL + k) * 2, c.r * fade, c.g * fade, c.b * fade); cc.setXYZ((i * TAIL + k) * 2 + 1, c.r * fade, c.g * fade, c.b * fade);
-        }
-        hp.setXYZ(i, d[head].x, d[head].y, d[head].z); hc.setXYZ(i, on ? 1 : 0, on ? 1 : 0, on ? 1 : 0);
+        const d = dense[i]; const on = !focusId || data.routes[i].flow === focusId; const c = colors[i];
+        phase[i] = (phase[i] + dt * data.routes[i].speed * 0.045) % 1; const head = Math.floor(phase[i] * (d.length - 1));
+        for (let k = 0; k < TAIL; k++) { const a = Math.max(0, head - k - 1), b = Math.max(0, head - k); const fade = on ? (1 - k / TAIL) * (1 - k / TAIL) * dim : 0; cp.setXYZ((i * TAIL + k) * 2, d[a].x, d[a].y, d[a].z); cp.setXYZ((i * TAIL + k) * 2 + 1, d[b].x, d[b].y, d[b].z); cc.setXYZ((i * TAIL + k) * 2, c.r * fade, c.g * fade, c.b * fade); cc.setXYZ((i * TAIL + k) * 2 + 1, c.r * fade, c.g * fade, c.b * fade); }
       }
-      cp.needsUpdate = true; cc.needsUpdate = true; hp.needsUpdate = true; hc.needsUpdate = true;
-      hotMeshes.forEach(h => { h.ring.scale.setScalar(1 + Math.sin(t * 2.5) * 0.25); (h.ring.material as THREE.MeshBasicMaterial).opacity = 0.5 + Math.sin(t * 2.5) * 0.3; });
+      cp.needsUpdate = true; cc.needsUpdate = true;
+      if (flight) { const u = Math.min(1, (now - flight.t0) / flight.dur); const e = ease(u); const idx = e * (flight.pts.length - 1); const i0 = Math.floor(idx), i1 = Math.min(flight.pts.length - 1, i0 + 1); const p = flight.pts[i0].clone().lerp(flight.pts[i1], idx - i0); marker.position.copy(p); glow.position.copy(p); ring.position.copy(p); ring.lookAt(p.clone().multiplyScalar(2)); targetLook.copy(p); if (u >= 1) { const done = flight.done; flight = null; done(); } }
+      if (follow) { const look = targetLook.clone().normalize(); controls.target.lerp(targetLook.clone().multiplyScalar(0.25), 0.08); const want = look.multiplyScalar(camDist).add(new THREE.Vector3(0, camDist * 0.18, 0)); camera.position.lerp(want, 0.045); }
+      ring.scale.setScalar(1 + Math.sin(t * 3) * 0.2); hotMeshes.forEach(h => { h.scale.setScalar(1 + Math.sin(t * 2.5) * 0.25); });
       controls.update(); renderer.render(scene, camera);
     };
     tick();
     return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", onResize); el.removeEventListener("pointerdown", onDown); el.removeEventListener("pointerup", onUp); controls.dispose(); renderer.dispose(); el.innerHTML = ""; api.current = null; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  useEffect(() => { api.current?.setShown(shown); }, [shown]);
 
-  const route = sel != null ? data.routes[sel] : null; const flow = route ? flowBy.get(route.flow) : null;
-  const hotspot = hot ? data.hotspots.find(h => h.id === hot) : null; const hotPer = hot ? hotspotRoutes.find(h => h.id === hot)?.per : null;
-  const oddsText = (r: Route) => (r.odds >= 0.1 ? `${Math.round(r.odds * 100)} in 100` : `1 in ${Math.max(1, Math.round(1 / r.odds))}`);
-  const short = (t: string) => (t.length > 70 ? t.slice(0, 67).trimEnd() + "…" : t);
+  const rolls = trail.map(v => v.roll).filter((r): r is Roll => !!r);
+  const hotspot = hot ? data.hotspots.find(h => h.id === hot) : null;
+  const stepOf = (nd: FlowNode) => (nd.step && data.stepLabel[nd.step] ? { label: data.stepLabel[nd.step], href: `/map/${data.stepProcess[nd.step]}#${nd.step}` } : null);
+  const lastRoll = trail.length ? trail[trail.length - 1].roll : undefined;
   return (
     <div className="wd">
       <div ref={host} className="wd-canvas" />
       <div className="wd-legend">
-        {data.flows.map(f => <button key={f.id} className={"wd-flow" + (shown[f.id] ? " on" : "")} onClick={() => setShown(s => ({ ...s, [f.id]: !s[f.id] }))}><i style={{ background: f.color }} />{f.title}<span className="muted"> · {counts[f.id] || 0}</span></button>)}
+        {flow ? <button className="wd-flow on" onClick={() => setFlowId(null)}>← Travellers</button> : data.flows.map(f => <button key={f.id} className="wd-flow on" onClick={() => setFlowId(f.id)}><i style={{ background: f.color }} />{f.title}</button>)}
+        {flow && <span className="wd-flow on" style={{ cursor: "default" }}><i style={{ background: flow.color }} />{flow.title}</span>}
       </div>
-      {intro && !route && !hotspot && <div className="wd-intro"><h1>The living Earth</h1><p>Every thread is one traveller taking a real route through the map, rolled on the map&apos;s own odds. Most water falls back into the sea. Most carbon stays in the air. Little dust reaches the Amazon. Drag to turn, tap a thread to follow it, tap the beacon for a chapter.</p><button className="btn primary" onClick={() => setIntro(false)}>Start</button></div>}
-      {route && flow && (
+      {!flow && !hotspot && <div className="wd-intro"><h1>The living Earth</h1><p>Pick a traveller, tap the globe where it should start, and follow it leg by leg. Every leg is a real step on the map, and every fork uses the map&apos;s own odds. The faint threads are hundreds of other travellers rolled the same way.</p><div className="wd-pick">{data.flows.map(f => <button key={f.id} className="btn primary" onClick={() => setFlowId(f.id)}>{f.title}</button>)}</div></div>}
+      {flow && !cur && !hotspot && <div className="wd-intro"><h1>Where does your {flow.title.replace(/^a /i, "")} start?</h1><p>Tap anywhere on the globe. It will begin at the nearest place this traveller can start.</p><div className="wd-pick">{starts.slice(0, 6).map(s => <button key={s.id} className="btn" onClick={() => begin(s)}>{s.name}</button>)}</div></div>}
+      {flow && cur && !hotspot && (
         <aside className="wd-panel">
-          <button className="x" onClick={() => { setSel(null); api.current?.setSel(null); }} aria-label="Close">×</button>
-          <div className="wd-kicker" style={{ color: flow.color }}>{flow.title}</div>
-          <h2>One {flow.title.replace(/^a /i, "")}, {route.pts.length - 1} legs</h2>
-          <h3>Dice rolled on the way</h3>
-          {route.rolls.length === 0 ? <p className="small muted">None. The map has no fork with odds on this route yet.</p> : (
-            <ol className="wd-rolls">{route.rolls.map((r, i) => <li key={i}><div className="small muted">{short(data.stepLabel[r.forkStep] || "A fork on the map")}</div><div><b>{r.share}%</b> {short(data.stepLabel[r.target] || r.target)}</div></li>)}</ol>
+          <button className="x" onClick={reset} aria-label="Start over">×</button>
+          <div className="wd-kicker" style={{ color: flow.color }}>{flow.title} · leg {trail.length}{startName ? ` · from ${startName}` : ""}</div>
+          <h2>{cur.name}</h2>
+          {stepOf(cur) ? <p className="small muted">On the map: <Link href={stepOf(cur)!.href}>{short(stepOf(cur)!.label, 140)}</Link></p> : <p className="small muted">Geographic detail: the map&apos;s steps happen everywhere, the route makes them somewhere.</p>}
+          {lastRoll && <p className="wd-odds">{lastRoll.rolled ? "The dice chose" : "You chose"}: {short(lastRoll.chosen, 60)}{lastRoll.share != null ? ` (${lastRoll.share}% of ${flow.plural} go this way)` : ""}.</p>}
+          {!atEnd && single && <div className="wd-actions"><button className="btn primary big" disabled={flying} onClick={() => go(single.to)}>{flying ? "Travelling…" : "Continue →"}</button></div>}
+          {!atEnd && !single && options.length > 0 && (
+            <div className="wd-fork">
+              <div className="wd-ask">{options[0].forkStep ? <>A fork on the map: <b>{short(data.stepLabel[options[0].forkStep] || "", 90)}</b>. The odds are the map&apos;s own.</> : "The map has lines for each of these but gives no odds. Where next?"}</div>
+              <div className="wd-options">{options.map(o => <button key={o.key} className="wd-opt" disabled={flying} onClick={() => choose(o, false)}>{o.share != null && <b>{o.share}%</b>}<span>{short(o.label, 90)}</span></button>)}</div>
+              {options[0].forkStep && <button className="btn primary big" disabled={flying} onClick={roll}>{flying ? "Travelling…" : "Let the dice decide"}</button>}
+            </div>
           )}
-          {route.rolls.length === 1 && <p className="wd-odds">So {route.rolls[0].share} in 100 {flow.plural} that reach that fork go this way.</p>}
-          {route.rolls.length > 1 && <p className="wd-odds">Multiplied together: about {oddsText(route)} {flow.plural} take all of these branches.</p>}
-          <h3>Where it went</h3>
-          <ol className="wd-legs">{route.pts.map((p, i) => { const nd = flow.nodes[p.node]; const st = nd?.step; return <li key={i}><b>{nd?.name || p.node}</b>{st && data.stepLabel[st] ? <div className="small muted">On the map: <Link href={`/map/${data.stepProcess[st]}#${st}`}>{data.stepLabel[st]}</Link></div> : <div className="small muted">Geographic detail, not a step on the map.</div>}</li>; })}</ol>
-          {flow.ride && <Link className="btn primary" href={flow.ride}>Ride this journey →</Link>}
+          {atEnd && (
+            <div className="wd-end">
+              <h3>Journey&apos;s end</h3>
+              <p>{trail.length - 1} legs. {rolls.filter(r => r.rolled).length} roll{rolls.filter(r => r.rolled).length === 1 ? "" : "s"} of the dice, {rolls.filter(r => !r.rolled).length} choice{rolls.filter(r => !r.rolled).length === 1 ? "" : "s"} of yours.</p>
+              {rolls.length > 0 && <ol className="wd-rolls">{rolls.map((r, i) => <li key={i}><div className="small muted">{short(r.fork, 70)}</div><div>{r.share != null && <b>{r.share}%</b>}{short(r.chosen, 70)}</div></li>)}</ol>}
+              <ol className="wd-legs">{trail.map((v, i) => <li key={i}>{flow.nodes[v.node]?.name}</li>)}</ol>
+              <div className="wd-actions">{flow.ride && <Link className="btn primary" href={flow.ride}>Ride it in 3D →</Link>}<button className="btn" onClick={reset}>Start again</button></div>
+            </div>
+          )}
         </aside>
       )}
       {hotspot && (
@@ -167,7 +200,6 @@ export default function Globe({ data }: { data: WorldData }) {
           <div className="wd-kicker">Chapter</div>
           <h2>{hotspot.name}</h2>
           <p>{hotspot.text}</p>
-          {hotPer && <ul className="wd-per">{hotPer.map(x => <li key={x.flow.id}><i style={{ background: x.flow.color }} />{x.n} of {counts[x.flow.id]} {x.flow.title.toLowerCase().replace(/^a /, "")} threads pass here</li>)}</ul>}
           {hotspot.questions.length > 0 ? <><h3>Open questions nobody has tested</h3><ul className="wd-q">{hotspot.questions.map(q => <li key={q.id}><Link href={`/hypotheses#${q.id}`}>{q.title}</Link></li>)}</ul></> : <p className="small muted">No ranked open question touches these steps yet.</p>}
         </aside>
       )}
