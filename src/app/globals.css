@@ -327,7 +327,6 @@ body.hide-fb .fb-btn,body.hide-fb .fb-panel{display:none}
 /* journey stage: a soft vignette, heavier underground */
 .jy-stage::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.35) 100%);transition:background .8s}
 .jy-stage[data-stage=soil]::after{background:radial-gradient(ellipse at center,transparent 35%,rgba(0,0,0,.75) 100%)}
-.jy-stage[data-stage=ice]::after{background:radial-gradient(ellipse at center,transparent 60%,rgba(255,255,255,.25) 100%)}
 /* journey globe inset */
 .jy-top{position:relative}
 .jy-globe{position:absolute;right:18px;top:14px;width:200px;z-index:3;text-align:center;pointer-events:auto}
@@ -335,4 +334,4 @@ body.hide-fb .fb-btn,body.hide-fb .fb-panel{display:none}
 .jy-globe-canvas canvas{display:block;border-radius:50%}
 .jy-globe-place{margin-top:6px;font-size:12px;font-weight:700;color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.6);letter-spacing:.01em}
 .jy-where{text-transform:none;letter-spacing:0;font-weight:600;color:var(--accent)}
-@media(max-width:700px){.jy-globe{right:10px;top:10px;width:118px}.jy-globe-canvas{width:118px;height:118px}.jy-globe-place{font-size:11px}}
+@media(max-width:700px){.jy-globe{right:10px;top:10px;width:96px}.jy-globe-canvas{width:96px;height:96px}.jy-globe-place{display:none}}

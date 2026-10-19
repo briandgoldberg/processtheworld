@@ -23,7 +23,7 @@ export default function GlobeInset({ visited, nexts }: { visited: Place[]; nexts
     const size = el.clientWidth;
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); renderer.setPixelRatio(Math.min(2, window.devicePixelRatio)); renderer.setSize(size, size); el.appendChild(renderer.domElement);
     const scene = new THREE.Scene(); const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 20);
-    scene.add(new THREE.AmbientLight(0xffffff, 0.55)); const key = new THREE.DirectionalLight(0xffffff, 1.6); scene.add(key);
+    scene.add(new THREE.AmbientLight(0xffffff, 1.1)); const key = new THREE.DirectionalLight(0xffffff, 1.0); scene.add(key);
     const tex = new THREE.TextureLoader().load("/journey/earth.jpg"); tex.colorSpace = THREE.SRGBColorSpace;
     const globe = new THREE.Mesh(new THREE.SphereGeometry(R, 64, 48), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.9, metalness: 0 })); scene.add(globe);
     const atmo = new THREE.Mesh(new THREE.SphereGeometry(R * 1.035, 48, 36), new THREE.MeshBasicMaterial({ color: 0x7fb8ff, transparent: true, opacity: 0.18, side: THREE.BackSide, blending: THREE.AdditiveBlending, depthWrite: false })); scene.add(atmo);

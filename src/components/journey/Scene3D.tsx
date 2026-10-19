@@ -20,7 +20,7 @@ const LOOK: Record<Stage, { sky: number; fog: number; ground: number; water: num
   cloud: { sky: 0x7d8ca6, fog: 0x5f6c86, ground: 0x3a5a48, water: 0x33627f, sun: 0xd9dde6, rain: 0xcfe0ff },
   land: { sky: 0x4d6f9b, fog: 0x3b5578, ground: 0x3e7a3f, water: 0x2e6f8f, sun: 0xd8e4ff, rain: 0xbfdcff },
   soil: { sky: 0x2a1c12, fog: 0x1b120b, ground: 0x4a3221, water: 0x2d4a5e, sun: 0x000000, rain: 0x8c6a4a },
-  ice: { sky: 0x8fb6d8, fog: 0xb4cde1, ground: 0xd6e3ee, water: 0x7fb4d6, sun: 0xfff6e0, rain: 0xffffff },
+  ice: { sky: 0x6f9cc6, fog: 0x9fbdd6, ground: 0xb9cfe0, water: 0x7fb4d6, sun: 0xfff6e0, rain: 0xffffff },
   river: { sky: 0x3f7fa8, fog: 0x2d607f, ground: 0x4c7f46, water: 0x1f88b4, sun: 0xffe7b0, rain: 0xbfdcff },
   end: { sky: 0x1a4e8a, fog: 0x12365f, ground: 0x0e2b45, water: 0x1b6fa8, sun: 0xffd9a0, rain: 0xbfdcff },
 };
@@ -99,7 +99,7 @@ export default function Scene3D({ trail, scenes, rolling }: { trail: Visit[]; sc
     const trees = new THREE.InstancedMesh(new THREE.ConeGeometry(0.35, 1.2, 6), new THREE.MeshStandardMaterial({ color: 0x1f6b3a, roughness: 0.9, flatShading: true }), TREES);
     const trunks = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.06, 0.08, 0.5, 5), new THREE.MeshStandardMaterial({ color: 0x5b3a1e, roughness: 1 }), TREES);
     scene.add(trees); scene.add(trunks);
-    const treeSeed: { x: number; z: number; s: number }[] = []; for (let i = 0; i < TREES; i++) treeSeed.push({ x: (hash(i, 7) - 0.5) * 70, z: -hash(i, 13) * 150 + 10, s: 0.7 + hash(i, 3) * 0.8 });
+    const treeSeed: { x: number; z: number; s: number }[] = []; for (let i = 0; i < TREES; i++) { const rx = (hash(i, 7) - 0.5) * 70; treeSeed.push({ x: rx + Math.sign(rx || 1) * 5, z: -hash(i, 13) * 150 + 10, s: 0.6 + hash(i, 3) * 0.6 }); }
     // clouds
     const cloudTex = softTexture("rgba(255,255,255,0.95)", "rgba(255,255,255,0)");
     const clouds: THREE.Sprite[] = [];
@@ -191,7 +191,7 @@ export default function Scene3D({ trail, scenes, rolling }: { trail: Visit[]; sc
       // colours
       col.sky.lerp(new THREE.Color(look.sky), k * 0.5); col.fog.lerp(new THREE.Color(look.fog), k * 0.5); col.ground.lerp(new THREE.Color(look.ground), k * 0.5); col.water.lerp(new THREE.Color(look.water), k * 0.5); col.sun.lerp(new THREE.Color(look.sun), k * 0.5); col.rain.lerp(new THREE.Color(look.rain), k * 0.5);
       (skyMat.uniforms.top.value as THREE.Color).copy(col.sky); (skyMat.uniforms.bottom.value as THREE.Color).copy(col.fog); (scene.fog as THREE.Fog).color.copy(col.fog); sky.position.copy(camera.position); (terrain.material as THREE.MeshStandardMaterial).color.copy(col.ground); (water.material as THREE.MeshPhysicalMaterial).color.copy(col.water); (sun.material as THREE.SpriteMaterial).color.copy(col.sun); rainMat.color.copy(col.rain);
-      hemi.intensity += ((st === "soil" ? 0.25 : st === "ice" ? 1.1 : 0.8) - hemi.intensity) * k; sunLight.intensity += ((st === "soil" ? 0.2 : 1.8) - sunLight.intensity) * k;
+      hemi.intensity += ((st === "soil" ? 0.25 : 0.8) - hemi.intensity) * k; sunLight.intensity += ((st === "soil" ? 0.2 : st === "ice" ? 1.2 : 1.8) - sunLight.intensity) * k;
       // the drop moves: glide along the new segment, then hover
       if (move) {
         const u = Math.min(1, (t - move.t0) / move.dur); const e = ease(u);
@@ -211,7 +211,7 @@ export default function Scene3D({ trail, scenes, rolling }: { trail: Visit[]; sc
       for (let i = 0; i < VN; i++) { const ph = i * 0.7 + t * (0.6 + (i % 5) * 0.15); const r = spreadV * (0.5 + hash(i, 1) * 0.8); va.setXYZ(i, drop.position.x + Math.cos(ph) * r, drop.position.y + Math.sin(ph * 0.7 + i) * r * 0.6, drop.position.z + Math.sin(ph) * r); }
       va.needsUpdate = true;
       // world layers
-      terrainAlpha += ((st === "soil" ? 0.18 : 1) - terrainAlpha) * k; (terrain.material as THREE.MeshStandardMaterial).opacity = terrainAlpha;
+      terrainAlpha += ((st === "soil" ? 0.18 : st === "sea" || st === "end" ? 0 : 1) - terrainAlpha) * k; terrain.visible = terrainAlpha > 0.02; (terrain.material as THREE.MeshStandardMaterial).opacity = terrainAlpha;
       strataAlpha += ((st === "soil" ? 0.35 : 0) - strataAlpha) * k;
       strata.children.forEach((m, i) => { const mm = m as THREE.Mesh; (mm.material as THREE.MeshBasicMaterial).opacity = strataAlpha * (1 - i * 0.12); mm.position.set(0, groundAt(ground, drop.position.z) - 1.2 - i * 1.1, drop.position.z); });
       waterAlpha += ((st === "sea" || st === "river" || st === "end" ? 0.85 : 0) - waterAlpha) * k; (water.material as THREE.MeshPhysicalMaterial).opacity = waterAlpha; water.visible = waterAlpha > 0.02;
