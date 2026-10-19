@@ -51,7 +51,13 @@ export default function Globe({ data }: { data: WorldData }) {
     if (forkLinks.length) { const byTarget = new Map<string, FlowLink[]>(); forkLinks.forEach(l => { (byTarget.get(l.target!) || byTarget.set(l.target!, []).get(l.target!)!).push(l); }); return [...byTarget.entries()].map(([target, links]) => ({ key: target, label: data.stepLabel[target] || target, share: links[0].share, links, forkStep: links[0].forkStep })); }
     return cur.next.map(l => ({ key: l.to, label: flow.nodes[l.to]?.name || l.to, links: [l] }));
   }, [cur, flow, data]);
-  const single = cur?.next && cur.next.length === 1 && !cur.next[0].forkStep ? cur.next[0] : null;
+  const single = useMemo(() => {
+    if (!cur?.next?.length) return null;
+    if (cur.next.length === 1 && !cur.next[0].forkStep) return cur.next[0];
+    if (cur.auto) { const tot = cur.next.reduce((a, l) => a + (l.w ?? 1), 0); let u = rand() * tot; for (const l of cur.next) { u -= l.w ?? 1; if (u <= 0) return l; } return cur.next[cur.next.length - 1]; }
+    return null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cur]);
   const atEnd = !!cur && (!cur.next || cur.next.length === 0);
 
   const go = useCallback((toId: string, choice?: Choice) => {

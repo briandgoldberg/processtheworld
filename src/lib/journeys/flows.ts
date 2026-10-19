@@ -5,7 +5,7 @@
 // most carbon stays in the air, most dust lands short of the Amazon.
 
 export type Link = { to: string; forkStep?: string; target?: string; share?: number; w?: number };
-export type FlowNode = { id: string; name: string; lat: number; lon: number; spread: number; step?: string; alt?: number; next?: Link[] };
+export type FlowNode = { id: string; name: string; lat: number; lon: number; spread: number; step?: string; alt?: number; next?: Link[]; /** several next places but no meaningful choice: the globe picks one by weight */ auto?: boolean };
 export type Flow = { id: string; title: string; traveller: string; plural: string; color: string; start: { to: string; w: number }[]; nodes: Record<string, FlowNode>; ride?: string };
 export type RoutePoint = { lat: number; lon: number; alt: number; node: string };
 export type Roll = { forkStep: string; target: string; share: number };
@@ -61,7 +61,7 @@ function carbon(): Flow {
     nodes[`stays-${k}`] = node(`stays-${k}`, "Stays in the atmosphere, drifting east", lat + 12, lon + 70, 9, { step: "s_cwebgs8fs", alt: 0.12, next: [{ to: "mixed" }] });
   }
   // the atmosphere mixes within about a year, so carbon that stays aloft or returns to the air meets the fork again anywhere
-  nodes.mixed = node("mixed", "Mixed through the whole atmosphere", 10, 0, 40, { step: "s_cwebgs8fs", alt: 0.14, next: CITIES.map(([k, , , , w]) => ({ to: `aloft-${k}`, w })) });
+  nodes.mixed = node("mixed", "Mixed through the whole atmosphere", 10, 0, 40, { step: "s_cwebgs8fs", alt: 0.14, auto: true, next: CITIES.map(([k, , , , w]) => ({ to: `aloft-${k}`, w })) });
   for (const [o, name, lat, lon] of OCEANS) { nodes[`ocean-${o}`] = node(`ocean-${o}`, name, lat, lon, 8, { step: "s_vvn1ha8g0", alt: 0, next: [{ to: `outgas-${o}` }] }); nodes[`outgas-${o}`] = node(`outgas-${o}`, `Given back across the sea surface, ${name.replace(" sink", "")}`, lat + 4, lon + 10, 8, { step: "s242", alt: 0.05, next: [{ to: "mixed" }] }); }
   for (const [f, name, lat, lon] of FORESTS) {
     nodes[`forest-${f}`] = node(`forest-${f}`, name, lat, lon, 4, { step: "s_cl8rw78g8", alt: 0.01, next: [{ to: `fixed-${f}` }] });
