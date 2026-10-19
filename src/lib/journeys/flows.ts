@@ -6,7 +6,7 @@
 
 export type Link = { to: string; forkStep?: string; target?: string; share?: number; w?: number };
 export type FlowNode = { id: string; name: string; lat: number; lon: number; spread: number; step?: string; alt?: number; next?: Link[] };
-export type Flow = { id: string; title: string; traveller: string; color: string; start: { to: string; w: number }[]; nodes: Record<string, FlowNode>; ride?: string };
+export type Flow = { id: string; title: string; traveller: string; plural: string; color: string; start: { to: string; w: number }[]; nodes: Record<string, FlowNode>; ride?: string };
 export type RoutePoint = { lat: number; lon: number; alt: number; node: string };
 export type Route = { flow: string; pts: RoutePoint[]; odds: number; rolls: number; speed: number; phase: number };
 
@@ -39,7 +39,7 @@ function raindrop(): Flow {
     add("estuary", b.estuary, 0.5, { step: "s_4pmhj59kg", alt: 0, next: [{ to: `${k}-back` }] });
     add("back", b.back, 0.6, { alt: 0 });
   }
-  return { id: "raindrop", title: "A raindrop", traveller: "one water molecule", color: "#7fd0ff", start, nodes, ride: "/journey/raindrop" };
+  return { id: "raindrop", title: "A raindrop", traveller: "one water molecule", plural: "raindrops", color: "#7fd0ff", start, nodes, ride: "/journey/raindrop" };
 }
 
 // ---------- a carbon atom: from a city's exhaust to the air, the sea or a forest ----------
@@ -66,7 +66,7 @@ function carbon(): Flow {
     nodes[`respired-${f}`] = node(`respired-${f}`, `Breathed back out, ${name}`, lat + 3, lon + 4, 4, { step: "s_0sk8px6fz", alt: 0.06 });
     nodes[`stored-${f}`] = node(`stored-${f}`, `Stored as wood and soil, ${name}`, lat, lon, 3, { step: "s_2ctusx6g8", alt: 0 });
   }
-  return { id: "carbon", title: "A carbon atom", traveller: "one carbon atom from a tailpipe", color: "#ffd27f", start, nodes };
+  return { id: "carbon", title: "A carbon atom", traveller: "one carbon atom from a tailpipe", plural: "carbon atoms", color: "#ffd27f", start, nodes };
 }
 
 // ---------- a grain of dust: lifted from a desert, carried across an ocean ----------
@@ -96,7 +96,7 @@ function dust(): Flow {
   n.southern2 = node("southern2", "Southern Ocean, iron for plankton", -52, -10, 7, { alt: 0 });
   n.greatbasin = node("greatbasin", "Great Basin, Nevada", 40, -116, 3, { step: "s_z60olqv10", alt: 0.03, next: [{ to: "plains" }] });
   n.plains = node("plains", "Settles on the Great Plains", 41, -100, 5, { alt: 0 });
-  return { id: "dust", title: "A grain of dust", traveller: "one grain of desert dust", color: "#f0b27a", start: [{ to: "lift", w: 1 }], nodes: n };
+  return { id: "dust", title: "A grain of dust", traveller: "one grain of desert dust", plural: "dust grains", color: "#f0b27a", start: [{ to: "lift", w: 1 }], nodes: n };
 }
 
 export const FLOWS: Flow[] = [raindrop(), carbon(), dust()];

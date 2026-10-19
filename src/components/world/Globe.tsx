@@ -8,7 +8,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import type { Route } from "@/lib/journeys/flows";
 
 export type WorldData = {
-  flows: { id: string; title: string; traveller: string; color: string; ride?: string; nodes: Record<string, { name: string; step?: string }> }[];
+  flows: { id: string; title: string; traveller: string; plural: string; color: string; ride?: string; nodes: Record<string, { name: string; step?: string }> }[];
   routes: Route[]; stepLabel: Record<string, string>; stepProcess: Record<string, string>;
   hotspots: { id: string; name: string; lat: number; lon: number; radius: number; text: string; questions: { id: string; title: string }[] }[];
 };
@@ -50,7 +50,7 @@ export default function Globe({ data }: { data: WorldData }) {
     const SN = 1500; const sp = new Float32Array(SN * 3); for (let i = 0; i < SN; i++) { const v = new THREE.Vector3().randomDirection().multiplyScalar(30); sp[i * 3] = v.x; sp[i * 3 + 1] = v.y; sp[i * 3 + 2] = v.z; }
     const sg = new THREE.BufferGeometry(); sg.setAttribute("position", new THREE.BufferAttribute(sp, 3)); scene.add(new THREE.Points(sg, new THREE.PointsMaterial({ color: 0xaab8d0, size: 0.06, transparent: true, opacity: 0.7 })));
     // earth
-    scene.add(new THREE.AmbientLight(0xffffff, 0.35)); const sun = new THREE.DirectionalLight(0xfff4e0, 2.2); sun.position.set(5, 2, 3); scene.add(sun);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.75)); const sun = new THREE.DirectionalLight(0xfff4e0, 1.5); scene.add(sun);
     const tex = new THREE.TextureLoader().load("/journey/earth.jpg"); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4;
     const earth = new THREE.Mesh(new THREE.SphereGeometry(R, 96, 64), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.85, metalness: 0 })); scene.add(earth);
     scene.add(new THREE.Mesh(new THREE.SphereGeometry(R * 1.03, 64, 48), new THREE.MeshBasicMaterial({ color: 0x5fa8ff, transparent: true, opacity: 0.16, side: THREE.BackSide, blending: THREE.AdditiveBlending, depthWrite: false })));
@@ -83,9 +83,9 @@ export default function Globe({ data }: { data: WorldData }) {
     const setSelection = (i: number | null) => {
       selGroup.clear(); if (i == null) return;
       const d = dense[i]; const c = colors[i];
-      selGroup.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(d), Math.min(400, d.length * 2), 0.006, 6, false), new THREE.MeshBasicMaterial({ color: 0xffffff })));
-      selGroup.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(d), Math.min(400, d.length * 2), 0.012, 6, false), new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: 0.35, blending: THREE.AdditiveBlending, depthWrite: false })));
-      data.routes[i].pts.forEach(p => { const m = new THREE.Mesh(new THREE.SphereGeometry(0.012, 10, 10), new THREE.MeshBasicMaterial({ color: 0xffffff })); m.position.copy(toVec(p.lat, p.lon, p.alt + 0.012)); selGroup.add(m); });
+      selGroup.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(d), Math.min(400, d.length * 2), 0.0028, 6, false), new THREE.MeshBasicMaterial({ color: 0xffffff })));
+      selGroup.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(d), Math.min(400, d.length * 2), 0.008, 6, false), new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: 0.4, blending: THREE.AdditiveBlending, depthWrite: false })));
+      data.routes[i].pts.forEach(p => { const m = new THREE.Mesh(new THREE.SphereGeometry(0.008, 10, 10), new THREE.MeshBasicMaterial({ color: 0xffffff })); m.position.copy(toVec(p.lat, p.lon, p.alt + 0.012)); selGroup.add(m); });
       controls.autoRotate = false;
     };
     api.current = { setShown: s => { shownMap = s; }, setSel: setSelection };
@@ -111,7 +111,7 @@ export default function Globe({ data }: { data: WorldData }) {
     let raf = 0, last = performance.now(), t = 0;
     const tick = () => {
       raf = requestAnimationFrame(tick); const now = performance.now(); const dt = Math.min(0.05, (now - last) / 1000); last = now; t += dt;
-      sun.position.set(Math.cos(t * 0.05) * 5, 2, Math.sin(t * 0.05) * 5);
+      sun.position.copy(camera.position).normalize().multiplyScalar(5).add(new THREE.Vector3(2, 2.5, 0));
       const cp = cGeo.attributes.position as THREE.BufferAttribute, cc = cGeo.attributes.color as THREE.BufferAttribute; const hp = heads.geometry.attributes.position as THREE.BufferAttribute, hc = heads.geometry.attributes.color as THREE.BufferAttribute;
       for (let i = 0; i < NR; i++) {
         const d = dense[i]; const on = shownMap[data.routes[i].flow]; const c = colors[i];
@@ -149,7 +149,7 @@ export default function Globe({ data }: { data: WorldData }) {
           <button className="x" onClick={() => { setSel(null); api.current?.setSel(null); }} aria-label="Close">×</button>
           <div className="wd-kicker" style={{ color: flow.color }}>{flow.title}</div>
           <h2>{route.pts.length - 1} legs · {route.rolls} roll{route.rolls === 1 ? "" : "s"} of the dice</h2>
-          <p className="wd-odds">{oddsText(route)} of {flow.traveller.replace(/^one /, "")}s take this route.</p>
+          <p className="wd-odds">{oddsText(route)} {flow.plural} take this route.</p>
           <ol className="wd-legs">{route.pts.map((p, i) => { const nd = flow.nodes[p.node]; const st = nd?.step; return <li key={i}><b>{nd?.name || p.node}</b>{st && data.stepLabel[st] ? <div className="small muted">On the map: <Link href={`/map/${data.stepProcess[st]}#${st}`}>{data.stepLabel[st]}</Link></div> : <div className="small muted">Geographic detail, not a step on the map.</div>}</li>; })}</ol>
           {flow.ride && <Link className="btn primary" href={flow.ride}>Ride this journey →</Link>}
         </aside>
