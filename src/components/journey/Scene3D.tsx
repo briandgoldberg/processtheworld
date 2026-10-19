@@ -20,7 +20,7 @@ const LOOK: Record<Stage, { sky: number; fog: number; ground: number; water: num
   cloud: { sky: 0x7d8ca6, fog: 0x5f6c86, ground: 0x3a5a48, water: 0x33627f, sun: 0xd9dde6, rain: 0xcfe0ff },
   land: { sky: 0x4d6f9b, fog: 0x3b5578, ground: 0x3e7a3f, water: 0x2e6f8f, sun: 0xd8e4ff, rain: 0xbfdcff },
   soil: { sky: 0x2a1c12, fog: 0x1b120b, ground: 0x4a3221, water: 0x2d4a5e, sun: 0x000000, rain: 0x8c6a4a },
-  ice: { sky: 0xbfd6ea, fog: 0x9fbdd6, ground: 0xe9f2fa, water: 0x7fb4d6, sun: 0xffffff, rain: 0xffffff },
+  ice: { sky: 0x8fb6d8, fog: 0xb4cde1, ground: 0xd6e3ee, water: 0x7fb4d6, sun: 0xfff6e0, rain: 0xffffff },
   river: { sky: 0x3f7fa8, fog: 0x2d607f, ground: 0x4c7f46, water: 0x1f88b4, sun: 0xffe7b0, rain: 0xbfdcff },
   end: { sky: 0x1a4e8a, fog: 0x12365f, ground: 0x0e2b45, water: 0x1b6fa8, sun: 0xffd9a0, rain: 0xbfdcff },
 };
@@ -65,22 +65,26 @@ export default function Scene3D({ trail, scenes, rolling }: { trail: Visit[]; sc
     renderer.setPixelRatio(Math.min(phone ? 1.5 : 2, window.devicePixelRatio)); renderer.setSize(el.clientWidth, el.clientHeight);
     renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.1;
     el.appendChild(renderer.domElement);
-    const scene = new THREE.Scene(); scene.background = new THREE.Color(LOOK.sea.sky); scene.fog = new THREE.Fog(LOOK.sea.fog, 8, 42);
-    const camera = new THREE.PerspectiveCamera(46, el.clientWidth / el.clientHeight, 0.1, 120);
+    const scene = new THREE.Scene(); scene.fog = new THREE.Fog(LOOK.sea.fog, 10, 60);
+    const skyMat = new THREE.ShaderMaterial({ side: THREE.BackSide, depthWrite: false, fog: false, uniforms: { top: { value: new THREE.Color(LOOK.sea.sky) }, bottom: { value: new THREE.Color(LOOK.sea.fog) } },
+      vertexShader: "varying vec3 vW; void main(){ vW = (modelMatrix * vec4(position,1.0)).xyz; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }",
+      fragmentShader: "uniform vec3 top; uniform vec3 bottom; varying vec3 vW; void main(){ float h = clamp(normalize(vW).y * 1.6 + 0.25, 0.0, 1.0); gl_FragColor = vec4(mix(bottom, top, pow(h, 0.8)), 1.0); }" });
+    const sky = new THREE.Mesh(new THREE.SphereGeometry(95, 24, 16), skyMat); scene.add(sky);
+    const camera = new THREE.PerspectiveCamera(40, el.clientWidth / el.clientHeight, 0.1, 220);
     const pmrem = new THREE.PMREMGenerator(renderer); scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
     const composer = new EffectComposer(renderer); composer.addPass(new RenderPass(scene, camera));
-    const bloom = new UnrealBloomPass(new THREE.Vector2(el.clientWidth, el.clientHeight), 0.55, 0.5, 0.78); composer.addPass(bloom);
+    const bloom = new UnrealBloomPass(new THREE.Vector2(el.clientWidth, el.clientHeight), 0.32, 0.6, 0.92); composer.addPass(bloom);
 
     // light
     const hemi = new THREE.HemisphereLight(0xdfe9ff, 0x1a2a1a, 0.8); scene.add(hemi);
     const sunLight = new THREE.DirectionalLight(0xffffff, 1.8); sunLight.position.set(6, 12, -6); scene.add(sunLight);
     const glint = new THREE.PointLight(0xffffff, 30, 16); scene.add(glint);
-    const sun = new THREE.Sprite(new THREE.SpriteMaterial({ map: softTexture("rgba(255,245,220,1)", "rgba(255,220,150,0)"), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending })); sun.scale.set(14, 14, 1); scene.add(sun);
+    const sun = new THREE.Sprite(new THREE.SpriteMaterial({ map: softTexture("rgba(255,245,220,1)", "rgba(255,220,150,0)"), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending })); sun.scale.set(7, 7, 1); scene.add(sun);
 
     // terrain: a long strip beneath the route whose height follows the ground profile
     const TW = 90, TL = 160, SEG = phone ? 60 : 110;
     const tg = new THREE.PlaneGeometry(TW, TL, SEG, SEG * 2); tg.rotateX(-Math.PI / 2);
-    const terrain = new THREE.Mesh(tg, new THREE.MeshStandardMaterial({ color: LOOK.sea.ground, roughness: 0.95, metalness: 0, flatShading: true, transparent: true }));
+    const terrain = new THREE.Mesh(tg, new THREE.MeshStandardMaterial({ color: LOOK.sea.ground, roughness: 0.95, metalness: 0, transparent: true }));
     scene.add(terrain);
     // strata: translucent bands seen when the drop is underground
     const strata = new THREE.Group(); scene.add(strata);
@@ -108,7 +112,7 @@ export default function Scene3D({ trail, scenes, rolling }: { trail: Visit[]; sc
     const crystal = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.07, 6), new THREE.MeshPhysicalMaterial({ color: 0xeaf6ff, roughness: 0.1, metalness: 0, clearcoat: 1, emissive: new THREE.Color(0x9fd4ff), emissiveIntensity: 0.5, transparent: true, opacity: 0.95 })); crystal.rotation.x = Math.PI / 2; crystal.scale.setScalar(0.001); scene.add(crystal);
     // vapour swarm for the air stages
     const VN = 90; const vp = new Float32Array(VN * 3); const vg = new THREE.BufferGeometry(); vg.setAttribute("position", new THREE.BufferAttribute(vp, 3));
-    const vapour = new THREE.Points(vg, new THREE.PointsMaterial({ color: 0xdff1ff, size: 0.09, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending })); scene.add(vapour);
+    const vapour = new THREE.Points(vg, new THREE.PointsMaterial({ color: 0xdff1ff, size: 0.06, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending })); scene.add(vapour);
     // rain, snow or motes
     const N = phone ? 900 : 1800; const pos = new Float32Array(N * 3); const vel = new Float32Array(N);
     for (let i = 0; i < N; i++) { pos[i * 3] = (Math.random() - 0.5) * 36; pos[i * 3 + 1] = Math.random() * 30 - 10; pos[i * 3 + 2] = (Math.random() - 0.5) * 50 - 10; vel[i] = 0.08 + Math.random() * 0.12; }
@@ -134,10 +138,10 @@ export default function Scene3D({ trail, scenes, rolling }: { trail: Visit[]; sc
 
     const rebuildTerrain = () => {
       const a = tg.attributes.position as THREE.BufferAttribute;
-      for (let i = 0; i < a.count; i++) { const x = a.getX(i), z = a.getZ(i) - 50; const h = groundAt(ground, z) + (noise(x * 0.09, z * 0.09) * 2.4 + noise(x * 0.3, z * 0.3) * 0.5) * Math.min(1, Math.abs(x) / 2.5 + 0.15) - 0.9; a.setY(i, h); }
-      a.needsUpdate = true; tg.computeVertexNormals(); terrain.position.z = 50;
+      for (let i = 0; i < a.count; i++) { const x = a.getX(i), z = a.getZ(i) - 50; const h = groundAt(ground, z) + (noise(x * 0.09, z * 0.09) * 1.9 + noise(x * 0.3, z * 0.3) * 0.4) * Math.min(1, Math.abs(x) / 3 + 0.1) - 0.8; a.setY(i, h); }
+      a.needsUpdate = true; tg.computeVertexNormals(); terrain.position.z = -50;
       const d = new THREE.Object3D();
-      for (let i = 0; i < TREES; i++) { const s = treeSeed[i]; const y = groundAt(ground, s.z) + (noise(s.x * 0.09, s.z * 0.09) * 2.4 + noise(s.x * 0.3, s.z * 0.3) * 0.5) * Math.min(1, Math.abs(s.x) / 2.5 + 0.15) - 0.9; d.position.set(s.x, y + 0.8 * s.s, s.z); d.scale.setScalar(s.s); d.updateMatrix(); trees.setMatrixAt(i, d.matrix); d.position.y = y + 0.2 * s.s; d.updateMatrix(); trunks.setMatrixAt(i, d.matrix); }
+      for (let i = 0; i < TREES; i++) { const s = treeSeed[i]; const y = groundAt(ground, s.z) + (noise(s.x * 0.09, s.z * 0.09) * 1.9 + noise(s.x * 0.3, s.z * 0.3) * 0.4) * Math.min(1, Math.abs(s.x) / 3 + 0.1) - 0.8; d.position.set(s.x, y + 0.8 * s.s, s.z); d.scale.setScalar(s.s); d.updateMatrix(); trees.setMatrixAt(i, d.matrix); d.position.y = y + 0.2 * s.s; d.updateMatrix(); trunks.setMatrixAt(i, d.matrix); }
       trees.instanceMatrix.needsUpdate = true; trunks.instanceMatrix.needsUpdate = true;
     };
     const rebuildRoute = (tr: Visit[], sc: Map<string, SceneLive>) => {
@@ -145,9 +149,9 @@ export default function Scene3D({ trail, scenes, rolling }: { trail: Visit[]; sc
       trailGroup.clear(); ghosts.clear(); ghostMats.length = 0;
       if (pts.length > 1) {
         const curve = new THREE.CatmullRomCurve3(pts, false, "catmullrom", 0.6);
-        trailGroup.add(new THREE.Mesh(new THREE.TubeGeometry(curve, Math.max(12, pts.length * 14), 0.07, 10, false), new THREE.MeshStandardMaterial({ color: 0x9fd4ff, emissive: 0x3d8fe0, emissiveIntensity: 1.1, roughness: 0.3 })));
+        trailGroup.add(new THREE.Mesh(new THREE.TubeGeometry(curve, Math.max(12, pts.length * 14), 0.045, 10, false), new THREE.MeshStandardMaterial({ color: 0x9fd4ff, emissive: 0x3d8fe0, emissiveIntensity: 0.6, roughness: 0.3 })));
       }
-      pts.forEach((p, i) => { if (i === pts.length - 1) return; const m = new THREE.Mesh(new THREE.SphereGeometry(0.13, 12, 12), new THREE.MeshStandardMaterial({ color: 0xcfe9ff, emissive: 0x6fb6ff, emissiveIntensity: 1 })); m.position.copy(p); trailGroup.add(m); });
+      pts.forEach((p, i) => { if (i === pts.length - 1) return; const m = new THREE.Mesh(new THREE.SphereGeometry(0.1, 12, 12), new THREE.MeshStandardMaterial({ color: 0xcfe9ff, emissive: 0x6fb6ff, emissiveIntensity: 0.6 })); m.position.copy(p); trailGroup.add(m); });
       const cur = sc.get(tr[tr.length - 1].scene); const last = pts[pts.length - 1]; const i = pts.length;
       const nexts: { stage: Stage; share?: number; to: string }[] = cur?.fork ? cur.fork.options.map(o => ({ stage: sc.get(o.to)?.stage || "air", share: o.share, to: o.to })) : cur?.choice ? cur.choice.options.map(o => ({ stage: sc.get(o.to)?.stage || "air", to: o.to })) : cur?.next ? [{ stage: sc.get(cur.next)?.stage || "air", to: cur.next }] : [];
       nexts.forEach((n, k) => {
@@ -186,7 +190,7 @@ export default function Scene3D({ trail, scenes, rolling }: { trail: Visit[]; sc
       const k = 1 - Math.pow(0.001, dt); // frame-rate independent smoothing
       // colours
       col.sky.lerp(new THREE.Color(look.sky), k * 0.5); col.fog.lerp(new THREE.Color(look.fog), k * 0.5); col.ground.lerp(new THREE.Color(look.ground), k * 0.5); col.water.lerp(new THREE.Color(look.water), k * 0.5); col.sun.lerp(new THREE.Color(look.sun), k * 0.5); col.rain.lerp(new THREE.Color(look.rain), k * 0.5);
-      (scene.background as THREE.Color).copy(col.sky); (scene.fog as THREE.Fog).color.copy(col.fog); (terrain.material as THREE.MeshStandardMaterial).color.copy(col.ground); (water.material as THREE.MeshPhysicalMaterial).color.copy(col.water); (sun.material as THREE.SpriteMaterial).color.copy(col.sun); rainMat.color.copy(col.rain);
+      (skyMat.uniforms.top.value as THREE.Color).copy(col.sky); (skyMat.uniforms.bottom.value as THREE.Color).copy(col.fog); (scene.fog as THREE.Fog).color.copy(col.fog); sky.position.copy(camera.position); (terrain.material as THREE.MeshStandardMaterial).color.copy(col.ground); (water.material as THREE.MeshPhysicalMaterial).color.copy(col.water); (sun.material as THREE.SpriteMaterial).color.copy(col.sun); rainMat.color.copy(col.rain);
       hemi.intensity += ((st === "soil" ? 0.25 : st === "ice" ? 1.1 : 0.8) - hemi.intensity) * k; sunLight.intensity += ((st === "soil" ? 0.2 : 1.8) - sunLight.intensity) * k;
       // the drop moves: glide along the new segment, then hover
       if (move) {
@@ -211,7 +215,7 @@ export default function Scene3D({ trail, scenes, rolling }: { trail: Visit[]; sc
       strataAlpha += ((st === "soil" ? 0.35 : 0) - strataAlpha) * k;
       strata.children.forEach((m, i) => { const mm = m as THREE.Mesh; (mm.material as THREE.MeshBasicMaterial).opacity = strataAlpha * (1 - i * 0.12); mm.position.set(0, groundAt(ground, drop.position.z) - 1.2 - i * 1.1, drop.position.z); });
       waterAlpha += ((st === "sea" || st === "river" || st === "end" ? 0.85 : 0) - waterAlpha) * k; (water.material as THREE.MeshPhysicalMaterial).opacity = waterAlpha; water.visible = waterAlpha > 0.02;
-      water.position.set(0, groundAt(ground, drop.position.z) + 0.05, drop.position.z);
+      water.position.set(0, groundAt(ground, drop.position.z) + 0.05, -50);
       const wa = wg.attributes.position as THREE.BufferAttribute;
       for (let i = 0; i < wa.count; i++) { const x = waterBase[i * 3], z = waterBase[i * 3 + 2]; wa.setY(i, Math.sin(x * 0.8 + t * 1.6) * 0.08 + Math.sin(z * 0.6 - t * 1.1) * 0.08 + Math.sin((x + z) * 0.3 + t * 0.7) * 0.05); }
       wa.needsUpdate = true;
@@ -219,7 +223,7 @@ export default function Scene3D({ trail, scenes, rolling }: { trail: Visit[]; sc
       clouds.forEach((c, i) => { (c.material as THREE.SpriteMaterial).opacity = cloudAlpha * (0.6 + hash(i, 9) * 0.4); c.position.x += c.userData.drift * dt; if (c.position.x > 32) c.position.x = -32; c.position.y = (st === "cloud" ? drop.position.y + (hash(i, 41) - 0.5) * 3 : groundAt(ground, c.position.z) + 4 + hash(i, 41) * 5) * 0.03 + c.position.y * 0.97; });
       treeAlpha += ((st === "land" || st === "river" ? 1 : st === "air" || st === "cloud" ? 0.6 : 0) - treeAlpha) * k;
       trees.visible = trunks.visible = treeAlpha > 0.02; (trees.material as THREE.MeshStandardMaterial).transparent = (trunks.material as THREE.MeshStandardMaterial).transparent = true; (trees.material as THREE.MeshStandardMaterial).opacity = (trunks.material as THREE.MeshStandardMaterial).opacity = treeAlpha;
-      sun.position.set(drop.position.x + 14, drop.position.y + 12, drop.position.z - 30); (sun.material as THREE.SpriteMaterial).opacity = st === "soil" ? 0 : st === "cloud" ? 0.35 : 0.9;
+      sun.position.set(camera.position.x + 22, camera.position.y + 16, camera.position.z - 55); (sun.material as THREE.SpriteMaterial).opacity = st === "soil" ? 0 : st === "cloud" ? 0.25 : 0.7;
       // particles: rain in cloud/land/river, snow in ice, motes underground, thin drizzle elsewhere
       const mode = st === "ice" ? "snow" : st === "soil" ? "motes" : st === "cloud" || st === "land" || st === "river" ? "rain" : "none";
       const arr = rg.attributes.position as THREE.BufferAttribute;
@@ -233,12 +237,12 @@ export default function Scene3D({ trail, scenes, rolling }: { trail: Visit[]; sc
       ghostMats.forEach((m, i) => { const lit = rl ? (rl === m.userData.to ? 1 : Math.max(0, Math.sin(t * 9 + i * 2.1))) : 0; m.opacity = 0.35 + lit * 0.55; m.color.setHex(lit > 0.6 ? 0xffffff : 0xbfe3ff); });
       halo.scale.setScalar(rl ? 1.15 + Math.sin(t * 16) * 0.12 : 1); (halo.material as THREE.MeshBasicMaterial).opacity = rl ? 0.3 : 0.12;
       // camera: circles behind and above, pulls back while the drop glides, dips low underground, drag to look around
-      const orbit = t * 0.1 + dragX; const back = move ? 7.2 : 5.4; const high = st === "soil" ? 0.6 : st === "air" ? 1.2 : 1.9;
+      const orbit = t * 0.08 + dragX; const back = move ? 9.5 : 7.8; const high = st === "soil" ? 1.0 : st === "air" ? 1.6 : 2.6;
       camPos.set(drop.position.x + Math.sin(orbit) * back, drop.position.y + high, drop.position.z + Math.cos(orbit) * back + 1.2);
-      camera.position.lerp(camPos, k * 0.9); camera.lookAt(drop.position.x, drop.position.y + 0.15, drop.position.z - 0.5);
-      camera.fov += ((move ? 52 : 46) - camera.fov) * k; camera.updateProjectionMatrix();
+      camera.position.lerp(camPos, k * 0.9); camera.lookAt(drop.position.x, drop.position.y + 0.1, drop.position.z - 1.5);
+      camera.fov += ((move ? 46 : 40) - camera.fov) * k; camera.updateProjectionMatrix();
       glint.position.set(camera.position.x + 1.5, camera.position.y + 2.5, camera.position.z);
-      bloom.strength = st === "ice" ? 0.9 : st === "soil" ? 0.3 : 0.55;
+      bloom.strength = st === "soil" ? 0.22 : 0.32;
       composer.render();
     };
     tick();
