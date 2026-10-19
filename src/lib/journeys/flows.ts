@@ -32,13 +32,13 @@ function raindrop(): Flow {
     add("winds", b.winds, 5, { step: "s_y3m0ver5j", alt: 0.09, next: [{ to: `${k}-coast` }] });
     add("coast", b.coast, 2, { step: "s378", alt: 0.07, next: [{ to: `${k}-mountains` }] });
     add("mountains", b.mountains, 1.5, { step: "s380", alt: 0.05, next: [{ to: `${k}-oceanEnd`, forkStep: "s380", target: "s381", share: 78 }, { to: `${k}-land`, forkStep: "s380", target: "s382", share: 22 }] });
-    add("oceanEnd", b.oceanEnd, 9, { step: "s381", alt: 0 });
+    add("oceanEnd", b.oceanEnd, 9, { step: "s381", alt: 0, next: [{ to: `${k}-sea` }] });
     add("land", b.mountains, 1.2, { step: "s383", alt: 0.01, next: [{ to: `${k}-airEnd`, forkStep: "s384", target: "s385", share: 64 }, { to: `${k}-soil`, forkStep: "s384", target: "s386", share: 36 }] });
-    add("airEnd", b.valley, 2, { step: "s385", alt: 0.05 });
+    add("airEnd", b.valley, 2, { step: "s385", alt: 0.05, next: [{ to: `${k}-air` }] });
     add("soil", b.valley, 1.5, { step: "s386", alt: 0, next: [{ to: `${k}-river` }] });
     add("river", b.river, 0.8, { step: "s388", alt: 0, next: [{ to: `${k}-estuary` }] });
     add("estuary", b.estuary, 0.5, { step: "s_4pmhj59kg", alt: 0, next: [{ to: `${k}-back` }] });
-    add("back", b.back, 0.6, { alt: 0 });
+    add("back", b.back, 0.6, { alt: 0, next: [{ to: `${k}-sea` }] });
   }
   return { id: "raindrop", title: "A raindrop", traveller: "one water molecule", plural: "raindrops", color: "#7fd0ff", start, nodes, ride: "/journey/raindrop" };
 }
@@ -58,14 +58,16 @@ function carbon(): Flow {
       ...OCEANS.map(([o]) => ({ to: `ocean-${o}`, forkStep: "s_259nwe8fj", target: "s_vvn1ha8g0", share: 25, w: 1 })),
       ...FORESTS.map(([f, , , , fw]) => ({ to: `forest-${f}`, forkStep: "s_259nwe8fj", target: "s_cl8rw78g8", share: 34, w: fw })),
     ] });
-    nodes[`stays-${k}`] = node(`stays-${k}`, "Stays in the atmosphere, drifting east", lat + 12, lon + 70, 9, { step: "s_cwebgs8fs", alt: 0.12 });
+    nodes[`stays-${k}`] = node(`stays-${k}`, "Stays in the atmosphere, drifting east", lat + 12, lon + 70, 9, { step: "s_cwebgs8fs", alt: 0.12, next: [{ to: "mixed" }] });
   }
-  for (const [o, name, lat, lon] of OCEANS) nodes[`ocean-${o}`] = node(`ocean-${o}`, name, lat, lon, 8, { step: "s_vvn1ha8g0", alt: 0 });
+  // the atmosphere mixes within about a year, so carbon that stays aloft or returns to the air meets the fork again anywhere
+  nodes.mixed = node("mixed", "Mixed through the whole atmosphere", 10, 0, 40, { step: "s_cwebgs8fs", alt: 0.14, next: CITIES.map(([k, , , , w]) => ({ to: `aloft-${k}`, w })) });
+  for (const [o, name, lat, lon] of OCEANS) { nodes[`ocean-${o}`] = node(`ocean-${o}`, name, lat, lon, 8, { step: "s_vvn1ha8g0", alt: 0, next: [{ to: `outgas-${o}` }] }); nodes[`outgas-${o}`] = node(`outgas-${o}`, `Given back across the sea surface, ${name.replace(" sink", "")}`, lat + 4, lon + 10, 8, { step: "s242", alt: 0.05, next: [{ to: "mixed" }] }); }
   for (const [f, name, lat, lon] of FORESTS) {
     nodes[`forest-${f}`] = node(`forest-${f}`, name, lat, lon, 4, { step: "s_cl8rw78g8", alt: 0.01, next: [{ to: `fixed-${f}` }] });
     nodes[`fixed-${f}`] = node(`fixed-${f}`, `Fixed by leaves, ${name}`, lat, lon, 3, { step: "s_sxbirk6fh", alt: 0, next: [{ to: `respired-${f}`, forkStep: "s_2jquon6fr", target: "s_0sk8px6fz", share: 57 }, { to: `stored-${f}`, forkStep: "s_2jquon6fr", target: "s_2ctusx6g8", share: 43 }] });
-    nodes[`respired-${f}`] = node(`respired-${f}`, `Breathed back out, ${name}`, lat + 3, lon + 4, 4, { step: "s_0sk8px6fz", alt: 0.06 });
-    nodes[`stored-${f}`] = node(`stored-${f}`, `Stored as wood and soil, ${name}`, lat, lon, 3, { step: "s_2ctusx6g8", alt: 0 });
+    nodes[`respired-${f}`] = node(`respired-${f}`, `Breathed back out, ${name}`, lat + 3, lon + 4, 4, { step: "s_0sk8px6fz", alt: 0.06, next: [{ to: "mixed" }] });
+    nodes[`stored-${f}`] = node(`stored-${f}`, `Stored as wood and soil, ${name}`, lat, lon, 3, { step: "s_2ctusx6g8", alt: 0, next: [{ to: `decay-${f}` }] }); nodes[`decay-${f}`] = node(`decay-${f}`, `Decades later, soil respiration returns it, ${name}`, lat + 2, lon + 3, 3, { step: "s1267", alt: 0.04, next: [{ to: "mixed" }] });
   }
   return { id: "carbon", title: "A carbon atom", traveller: "one carbon atom from a tailpipe", plural: "carbon atoms", color: "#ffd27f", start, nodes };
 }
@@ -107,13 +109,13 @@ function rng(seed: number) { let a = seed >>> 0; return () => { a = (a + 0x6D2B7
 const pick = <T>(items: T[], weight: (x: T) => number, r: number): T => { const tot = items.reduce((a, x) => a + weight(x), 0); let u = r * tot; for (const x of items) { u -= weight(x); if (u <= 0) return x; } return items[items.length - 1]; };
 
 /** Sample `n` routes per flow. `share(forkStep, target)` returns the live share from the map, or undefined to fall back to the static one. */
-export function sampleRoutes(flows: Flow[], n: number, share: (forkStep: string, target: string) => number | undefined, seed = 7): Route[] {
+export function sampleRoutes(flows: Flow[], n: number, share: (forkStep: string, target: string) => number | undefined, seed = 7, maxNodes = 9): Route[] {
   const out: Route[] = []; const R = rng(seed);
   const gauss = () => (R() + R() + R() - 1.5) * 1.2;
   for (const f of flows) {
     for (let i = 0; i < n; i++) {
       let id = pick(f.start, s => s.w, R()).to; const pts: RoutePoint[] = []; const rolls: Roll[] = []; let odds = 1, guard = 0;
-      while (id && guard++ < 24) {
+      while (id && guard++ < maxNodes) {
         const nd = f.nodes[id]; if (!nd) break;
         pts.push({ lat: nd.lat + gauss() * nd.spread, lon: nd.lon + gauss() * nd.spread * (nd.spread > 4 ? 1.6 : 1), alt: nd.alt ?? 0.02, node: nd.id });
         if (!nd.next || nd.next.length === 0) break;

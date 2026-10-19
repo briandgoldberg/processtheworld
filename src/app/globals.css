@@ -374,7 +374,8 @@ body:has(.wd-page) .site-footer{display:none}
 .wd-rolls li{margin:8px 0;font-size:14px}
 .wd-rolls b{color:#9fd4ff;margin-right:6px}
 .wd-legs{margin:0 0 14px;padding-left:20px}
-.wd-legs li{margin:7px 0;font-size:14px}
+.wd-legs li{margin:5px 0;font-size:13.5px;color:rgba(255,255,255,.75)}
+.wd-legs li.now{color:#fff;font-weight:700}
 .wd-per{list-style:none;margin:0;padding:0}
 .wd-per li{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:14px}
 .wd-per i{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}

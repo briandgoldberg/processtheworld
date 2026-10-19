@@ -10,8 +10,8 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import type { Flow, FlowNode, Link as FlowLink, Route } from "@/lib/journeys/flows";
 
 export type WorldData = { flows: Flow[]; routes: Route[]; stepLabel: Record<string, string>; stepProcess: Record<string, string>; hotspots: { id: string; name: string; lat: number; lon: number; radius: number; text: string; questions: { id: string; title: string }[] }[] };
-type Roll = { fork: string; chosen: string; share?: number; rolled: boolean };
-type Visit = { node: string; roll?: Roll };
+type Choice = { fork: string; chosen: string; share?: number };
+type Visit = { node: string; choice?: Choice };
 type Option = { key: string; label: string; share?: number; links: FlowLink[]; forkStep?: string };
 
 const R = 1;
@@ -54,17 +54,16 @@ export default function Globe({ data }: { data: WorldData }) {
   const single = cur?.next && cur.next.length === 1 && !cur.next[0].forkStep ? cur.next[0] : null;
   const atEnd = !!cur && (!cur.next || cur.next.length === 0);
 
-  const go = useCallback((toId: string, roll?: Roll) => {
+  const go = useCallback((toId: string, choice?: Choice) => {
     if (!flow || !cur) return; const nd = flow.nodes[toId]; if (!nd) return;
     setFlying(true); api.current?.setBranches(null, []);
-    api.current?.flyTo(cur, nd, () => { setTrail(t => [...t, { node: toId, roll }]); setFlying(false); });
+    api.current?.flyTo(cur, nd, () => { setTrail(t => [...t, { node: toId, choice }]); setFlying(false); });
   }, [flow, cur]);
-  const choose = (o: Option, rolled: boolean) => {
+  const choose = (o: Option) => {
     if (!cur) return;
     const link = o.links.length === 1 ? o.links[0] : (() => { const tot = o.links.reduce((a, l) => a + (l.w ?? 1), 0); let u = rand() * tot; for (const l of o.links) { u -= l.w ?? 1; if (u <= 0) return l; } return o.links[o.links.length - 1]; })();
-    go(link.to, o.forkStep ? { fork: data.stepLabel[o.forkStep] || "A fork on the map", chosen: o.label, share: o.share, rolled } : { fork: "Where next", chosen: o.label, rolled });
+    go(link.to, o.forkStep ? { fork: data.stepLabel[o.forkStep] || "A fork on the map", chosen: o.label, share: o.share } : { fork: "Where next", chosen: o.label });
   };
-  const roll = () => { const withShare = options.filter(o => o.share != null); const tot = withShare.reduce((a, o) => a + (o.share || 0), 0) || 1; let u = rand() * tot; let pick = withShare[withShare.length - 1]; for (const o of withShare) { u -= o.share || 0; if (u <= 0) { pick = o; break; } } choose(pick, true); };
   const begin = (nd: FlowNode) => { setTrail([{ node: nd.id }]); setStartName(nd.name); api.current?.marker(nd); api.current?.setRoute([nd]); };
   const reset = () => { setTrail([]); setStartName(null); api.current?.setRoute([]); api.current?.setBranches(null, []); api.current?.marker(null); };
 
@@ -155,10 +154,11 @@ export default function Globe({ data }: { data: WorldData }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const rolls = trail.map(v => v.roll).filter((r): r is Roll => !!r);
+  const choices = trail.map(v => v.choice).filter((c): c is Choice => !!c);
+  const laps = flow ? trail.filter((v, i) => i > 0 && starts.some(s => s.id === v.node)).length + 1 : 1;
   const hotspot = hot ? data.hotspots.find(h => h.id === hot) : null;
   const stepOf = (nd: FlowNode) => (nd.step && data.stepLabel[nd.step] ? { label: data.stepLabel[nd.step], href: `/map/${data.stepProcess[nd.step]}#${nd.step}` } : null);
-  const lastRoll = trail.length ? trail[trail.length - 1].roll : undefined;
+  const last = trail.length ? trail[trail.length - 1].choice : undefined;
   return (
     <div className="wd">
       <div ref={host} className="wd-canvas" />
@@ -166,32 +166,32 @@ export default function Globe({ data }: { data: WorldData }) {
         {flow ? <button className="wd-flow on" onClick={() => setFlowId(null)}>← Travellers</button> : data.flows.map(f => <button key={f.id} className="wd-flow on" onClick={() => setFlowId(f.id)}><i style={{ background: f.color }} />{f.title}</button>)}
         {flow && <span className="wd-flow on" style={{ cursor: "default" }}><i style={{ background: flow.color }} />{flow.title}</span>}
       </div>
-      {!flow && !hotspot && <div className="wd-intro"><h1>The living Earth</h1><p>Pick a traveller, tap the globe where it should start, and follow it leg by leg. Every leg is a real step on the map, and every fork uses the map&apos;s own odds. The faint threads are hundreds of other travellers rolled the same way.</p><div className="wd-pick">{data.flows.map(f => <button key={f.id} className="btn primary" onClick={() => setFlowId(f.id)}>{f.title}</button>)}</div></div>}
+      {!flow && !hotspot && <div className="wd-intro"><h1>The living Earth</h1><p>Pick a traveller, tap the globe where it should start, and follow it leg by leg, choosing the way at every fork. Every leg is a real step on the map, and every fork shows the map&apos;s own shares. Water and carbon never end: they cycle. The faint threads are hundreds of other travellers.</p><div className="wd-pick">{data.flows.map(f => <button key={f.id} className="btn primary" onClick={() => setFlowId(f.id)}>{f.title}</button>)}</div></div>}
       {flow && !cur && !hotspot && <div className="wd-intro"><h1>Where does your {flow.title.replace(/^a /i, "")} start?</h1><p>Tap anywhere on the globe. It will begin at the nearest place this traveller can start.</p><div className="wd-pick">{starts.slice(0, 6).map(s => <button key={s.id} className="btn" onClick={() => begin(s)}>{s.name}</button>)}</div></div>}
       {flow && cur && !hotspot && (
         <aside className="wd-panel">
           <button className="x" onClick={reset} aria-label="Start over">×</button>
-          <div className="wd-kicker" style={{ color: flow.color }}>{flow.title} · leg {trail.length}{startName ? ` · from ${startName}` : ""}</div>
+          <div className="wd-kicker" style={{ color: flow.color }}>{flow.title} · leg {trail.length}{laps > 1 ? ` · lap ${laps}` : ""}{startName ? ` · from ${startName}` : ""}</div>
           <h2>{cur.name}</h2>
           {stepOf(cur) ? <p className="small muted">On the map: <Link href={stepOf(cur)!.href}>{short(stepOf(cur)!.label, 140)}</Link></p> : <p className="small muted">Geographic detail: the map&apos;s steps happen everywhere, the route makes them somewhere.</p>}
-          {lastRoll && <p className="wd-odds">{lastRoll.rolled ? "The dice chose" : "You chose"}: {short(lastRoll.chosen, 60)}{lastRoll.share != null ? ` (${lastRoll.share}% of ${flow.plural} go this way)` : ""}.</p>}
+          {last && <p className="wd-odds">You chose {short(last.chosen, 60)}{last.share != null ? `: ${last.share}% of ${flow.plural} go this way` : ""}.</p>}
           {!atEnd && single && <div className="wd-actions"><button className="btn primary big" disabled={flying} onClick={() => go(single.to)}>{flying ? "Travelling…" : "Continue →"}</button></div>}
           {!atEnd && !single && options.length > 0 && (
             <div className="wd-fork">
-              <div className="wd-ask">{options[0].forkStep ? <>A fork on the map: <b>{short(data.stepLabel[options[0].forkStep] || "", 90)}</b>. The odds are the map&apos;s own.</> : "The map has lines for each of these but gives no odds. Where next?"}</div>
-              <div className="wd-options">{options.map(o => <button key={o.key} className="wd-opt" disabled={flying} onClick={() => choose(o, false)}>{o.share != null && <b>{o.share}%</b>}<span>{short(o.label, 90)}</span></button>)}</div>
-              {options[0].forkStep && <button className="btn primary big" disabled={flying} onClick={roll}>{flying ? "Travelling…" : "Let the dice decide"}</button>}
+              <div className="wd-ask">{options[0].forkStep ? <>A fork on the map: <b>{short(data.stepLabel[options[0].forkStep] || "", 90)}</b>. The shares are the map&apos;s own. Pick a branch.</> : "The map has lines for each of these but gives no shares. Pick one."}</div>
+              <div className="wd-options">{options.map(o => <button key={o.key} className="wd-opt" disabled={flying} onClick={() => choose(o)}>{o.share != null && <b>{o.share}%</b>}<span>{short(o.label, 90)}</span></button>)}</div>
             </div>
           )}
           {atEnd && (
             <div className="wd-end">
               <h3>Journey&apos;s end</h3>
-              <p>{trail.length - 1} legs. {rolls.filter(r => r.rolled).length} roll{rolls.filter(r => r.rolled).length === 1 ? "" : "s"} of the dice, {rolls.filter(r => !r.rolled).length} choice{rolls.filter(r => !r.rolled).length === 1 ? "" : "s"} of yours.</p>
-              {rolls.length > 0 && <ol className="wd-rolls">{rolls.map((r, i) => <li key={i}><div className="small muted">{short(r.fork, 70)}</div><div>{r.share != null && <b>{r.share}%</b>}{short(r.chosen, 70)}</div></li>)}</ol>}
-              <ol className="wd-legs">{trail.map((v, i) => <li key={i}>{flow.nodes[v.node]?.name}</li>)}</ol>
-              <div className="wd-actions">{flow.ride && <Link className="btn primary" href={flow.ride}>Ride it in 3D →</Link>}<button className="btn" onClick={reset}>Start again</button></div>
+              <p>A grain of dust lands and stays. {trail.length - 1} legs, {choices.length} fork{choices.length === 1 ? "" : "s"} chosen.</p>
+              <div className="wd-actions"><button className="btn primary" onClick={reset}>Start again</button></div>
             </div>
           )}
+          <h3>Your path</h3>
+          <ol className="wd-legs">{trail.map((v, i) => <li key={i} className={i === trail.length - 1 ? "now" : ""}>{flow.nodes[v.node]?.name}{v.choice?.share != null && <span className="muted"> · {v.choice.share}%</span>}</li>)}</ol>
+          {flow.ride && <p className="small"><Link href={flow.ride}>Ride a {flow.title.replace(/^a /i, "")} in 3D →</Link></p>}
         </aside>
       )}
       {hotspot && (
