@@ -14,7 +14,7 @@ export default async function WorldPage() {
   const share = (forkStep: string, target: string) => Object.values(w.edges).find(e => e.status === "live" && e.from === forkStep && e.to === target)?.prob;
   const routes = sampleRoutes(FLOWS, 240, share);
   const stepLabel: Record<string, string> = {};
-  for (const f of FLOWS) for (const nd of Object.values(f.nodes)) if (nd.step && w.steps[nd.step]) stepLabel[nd.step] = w.steps[nd.step].label;
+  for (const f of FLOWS) for (const nd of Object.values(f.nodes)) { if (nd.step && w.steps[nd.step]) stepLabel[nd.step] = w.steps[nd.step].label; for (const l of nd.next || []) for (const id of [l.forkStep, l.target]) if (id && w.steps[id]) stepLabel[id] = w.steps[id].label; }
   const stepProcess: Record<string, string> = {}; for (const id of Object.keys(stepLabel)) stepProcess[id] = w.steps[id].process;
   // open questions on the map that touch the steps the Amazon chapter passes through
   const amazonSteps = new Set(["s_06qv9rv1c", "s_cl8rw78g8", "s_sxbirk6fh", "s_2ctusx6g8", "s_0sk8px6fz", "s_ddkzl37kj", "s1589", "s383", "s386"]);

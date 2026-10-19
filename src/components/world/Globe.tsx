@@ -136,7 +136,8 @@ export default function Globe({ data }: { data: WorldData }) {
 
   const route = sel != null ? data.routes[sel] : null; const flow = route ? flowBy.get(route.flow) : null;
   const hotspot = hot ? data.hotspots.find(h => h.id === hot) : null; const hotPer = hot ? hotspotRoutes.find(h => h.id === hot)?.per : null;
-  const oddsText = (r: Route) => (r.rolls === 0 ? "no dice on this route" : r.odds >= 0.1 ? `${Math.round(r.odds * 100)} in 100` : `1 in ${Math.max(1, Math.round(1 / r.odds))}`);
+  const oddsText = (r: Route) => (r.odds >= 0.1 ? `${Math.round(r.odds * 100)} in 100` : `1 in ${Math.max(1, Math.round(1 / r.odds))}`);
+  const short = (t: string) => (t.length > 70 ? t.slice(0, 67).trimEnd() + "…" : t);
   return (
     <div className="wd">
       <div ref={host} className="wd-canvas" />
@@ -148,8 +149,14 @@ export default function Globe({ data }: { data: WorldData }) {
         <aside className="wd-panel">
           <button className="x" onClick={() => { setSel(null); api.current?.setSel(null); }} aria-label="Close">×</button>
           <div className="wd-kicker" style={{ color: flow.color }}>{flow.title}</div>
-          <h2>{route.pts.length - 1} legs · {route.rolls} roll{route.rolls === 1 ? "" : "s"} of the dice</h2>
-          <p className="wd-odds">{oddsText(route)} {flow.plural} take this route.</p>
+          <h2>One {flow.title.replace(/^a /i, "")}, {route.pts.length - 1} legs</h2>
+          <h3>Dice rolled on the way</h3>
+          {route.rolls.length === 0 ? <p className="small muted">None. The map has no fork with odds on this route yet.</p> : (
+            <ol className="wd-rolls">{route.rolls.map((r, i) => <li key={i}><div className="small muted">{short(data.stepLabel[r.forkStep] || "A fork on the map")}</div><div><b>{r.share}%</b> {short(data.stepLabel[r.target] || r.target)}</div></li>)}</ol>
+          )}
+          {route.rolls.length === 1 && <p className="wd-odds">So {route.rolls[0].share} in 100 {flow.plural} that reach that fork go this way.</p>}
+          {route.rolls.length > 1 && <p className="wd-odds">Multiplied together: about {oddsText(route)} {flow.plural} take all of these branches.</p>}
+          <h3>Where it went</h3>
           <ol className="wd-legs">{route.pts.map((p, i) => { const nd = flow.nodes[p.node]; const st = nd?.step; return <li key={i}><b>{nd?.name || p.node}</b>{st && data.stepLabel[st] ? <div className="small muted">On the map: <Link href={`/map/${data.stepProcess[st]}#${st}`}>{data.stepLabel[st]}</Link></div> : <div className="small muted">Geographic detail, not a step on the map.</div>}</li>; })}</ol>
           {flow.ride && <Link className="btn primary" href={flow.ride}>Ride this journey →</Link>}
         </aside>

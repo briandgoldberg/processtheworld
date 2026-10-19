@@ -8,7 +8,8 @@ export type Link = { to: string; forkStep?: string; target?: string; share?: num
 export type FlowNode = { id: string; name: string; lat: number; lon: number; spread: number; step?: string; alt?: number; next?: Link[] };
 export type Flow = { id: string; title: string; traveller: string; plural: string; color: string; start: { to: string; w: number }[]; nodes: Record<string, FlowNode>; ride?: string };
 export type RoutePoint = { lat: number; lon: number; alt: number; node: string };
-export type Route = { flow: string; pts: RoutePoint[]; odds: number; rolls: number; speed: number; phase: number };
+export type Roll = { forkStep: string; target: string; share: number };
+export type Route = { flow: string; pts: RoutePoint[]; odds: number; rolls: Roll[]; speed: number; phase: number };
 
 const node = (id: string, name: string, lat: number, lon: number, spread: number, extra: Partial<FlowNode> = {}): FlowNode => ({ id, name, lat, lon, spread, ...extra });
 
@@ -111,14 +112,14 @@ export function sampleRoutes(flows: Flow[], n: number, share: (forkStep: string,
   const gauss = () => (R() + R() + R() - 1.5) * 1.2;
   for (const f of flows) {
     for (let i = 0; i < n; i++) {
-      let id = pick(f.start, s => s.w, R()).to; const pts: RoutePoint[] = []; let odds = 1, rolls = 0, guard = 0;
+      let id = pick(f.start, s => s.w, R()).to; const pts: RoutePoint[] = []; const rolls: Roll[] = []; let odds = 1, guard = 0;
       while (id && guard++ < 24) {
         const nd = f.nodes[id]; if (!nd) break;
         pts.push({ lat: nd.lat + gauss() * nd.spread, lon: nd.lon + gauss() * nd.spread * (nd.spread > 4 ? 1.6 : 1), alt: nd.alt ?? 0.02, node: nd.id });
         if (!nd.next || nd.next.length === 0) break;
         const links = nd.next.map(l => ({ l, wt: (l.forkStep && l.target ? (share(l.forkStep, l.target) ?? l.share ?? 1) : l.share ?? 100) * (l.w ?? 1) }));
         const chosen = pick(links, x => x.wt, R());
-        if (chosen.l.forkStep) { const forkTotal = links.filter(x => x.l.forkStep === chosen.l.forkStep).reduce((a, x) => a + x.wt, 0); const sameTarget = links.filter(x => x.l.forkStep === chosen.l.forkStep && x.l.target === chosen.l.target).reduce((a, x) => a + x.wt, 0); odds *= sameTarget / (forkTotal || 1); rolls++; }
+        if (chosen.l.forkStep) { const forkTotal = links.filter(x => x.l.forkStep === chosen.l.forkStep).reduce((a, x) => a + x.wt, 0); const sameTarget = links.filter(x => x.l.forkStep === chosen.l.forkStep && x.l.target === chosen.l.target).reduce((a, x) => a + x.wt, 0); const sh = sameTarget / (forkTotal || 1); odds *= sh; rolls.push({ forkStep: chosen.l.forkStep, target: chosen.l.target!, share: Math.round(sh * 100) }); }
         id = chosen.l.to;
       }
       if (pts.length > 1) out.push({ flow: f.id, pts, odds, rolls, speed: 0.6 + R() * 0.9, phase: R() });
