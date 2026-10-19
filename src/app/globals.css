@@ -291,50 +291,7 @@ body.hide-fb .fb-btn,body.hide-fb .fb-panel{display:none}
   .hrow>summary .num,.hrow-grid .num{font-size:13px;color:var(--muted)}.hrow>summary .htotal,.hrow-grid .htotal{color:var(--ink)}
   .hhead{font-size:10px;letter-spacing:.02em;gap:2px 8px}.hyp-body{padding:4px 12px 16px}}
 
-/* Journeys: a 3D stage on top, the story beneath */
-.jy{display:flex;flex-direction:column;min-height:calc(100vh - 62px)}
-.jy-stage{position:relative;height:56vh;min-height:340px;background:#0a2f52;overflow:hidden;cursor:grab}
-.jy-stage canvas{display:block}
-.jy-loading{background:linear-gradient(180deg,#0a2f52,#072038)}
-.jy-panel{max-width:760px;width:100%;margin:-54px auto 0;padding:0 16px 40px;position:relative;z-index:2}
-.jy-head{display:flex;justify-content:space-between;gap:12px;align-items:baseline;color:#fff;padding:0 4px 10px;font-size:13px;text-shadow:0 1px 8px rgba(0,0,0,.5)}
-.jy-kicker{font-weight:800;letter-spacing:.06em;text-transform:uppercase;font-size:12px;white-space:nowrap}
-.jy-intro{font-size:14px;color:var(--muted);margin:0 0 10px;padding:8px 12px;border-left:3px solid var(--accent);background:var(--sunk);border-radius:0 8px 8px 0}
-.jy-count{opacity:.9;text-align:right}
-.jy-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px 24px 24px;box-shadow:0 24px 60px -20px rgba(0,0,0,.45);animation:jy-in .35s ease-out}
 @keyframes jy-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-.jy-stage-name{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
-.jy-card h2{margin:4px 0 8px;font-size:clamp(24px,3.4vw,34px);line-height:1.15}
-.jy-say{font-size:clamp(17px,2vw,20px);line-height:1.55;margin:0 0 12px}
-.jy-real{font-size:13.5px;color:var(--muted);margin:0 0 6px}
-.jy-q{font-size:13.5px;margin:8px 0 0;padding:10px 12px;border-radius:10px;background:var(--hyp-soft);color:var(--ink)}
-.jy-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
-.jy-fork{margin-top:16px}
-.jy-ask{font-size:13.5px;color:var(--muted);margin-bottom:8px}
-.jy-options{display:grid;gap:8px;margin-bottom:12px}
-.jy-opt{display:flex;align-items:center;gap:14px;text-align:left;border:1px solid var(--line);background:var(--bg);border-radius:12px;padding:12px 14px;font:inherit;font-size:16px;color:var(--ink);cursor:pointer;transition:transform .12s,border-color .12s,background .12s}
-.jy-opt:hover{border-color:var(--accent);transform:translateY(-1px)}
-.jy-opt b{min-width:52px;color:var(--accent);font-size:18px}
-.jy-opt.hit{background:var(--accent-soft);border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
-.jy-opt:disabled{cursor:default;opacity:.8}
-.jy-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
-.jy-stats div{background:var(--sunk);border-radius:12px;padding:12px;text-align:center}
-.jy-stats b{display:block;font-size:24px;font-family:var(--f-display)}
-.jy-stats span{font-size:12.5px;color:var(--muted)}
-.jy-path{margin:0;padding-left:20px;font-size:14px;columns:2;column-gap:24px}
-.jy-path li{margin:3px 0;break-inside:avoid}
-@media(max-width:700px){.jy-stage{height:46vh;min-height:280px}.jy-panel{margin-top:-40px;padding:0 12px 28px}.jy-head{flex-direction:column;align-items:flex-start;gap:4px}.jy-count{text-align:left}.jy-card{padding:18px 16px 20px}.jy-stats b{font-size:20px}.jy-path{columns:1}}
-/* journey stage: a soft vignette, heavier underground */
-.jy-stage::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.35) 100%);transition:background .8s}
-.jy-stage[data-stage=soil]::after{background:radial-gradient(ellipse at center,transparent 35%,rgba(0,0,0,.75) 100%)}
-/* journey globe inset */
-.jy-top{position:relative}
-.jy-globe{position:absolute;right:18px;top:14px;width:200px;z-index:3;text-align:center;pointer-events:auto}
-.jy-globe-canvas{width:200px;height:200px;border-radius:50%;cursor:grab;filter:drop-shadow(0 10px 24px rgba(0,0,0,.45))}
-.jy-globe-canvas canvas{display:block;border-radius:50%}
-.jy-globe-place{margin-top:6px;font-size:12px;font-weight:700;color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.6);letter-spacing:.01em}
-.jy-where{text-transform:none;letter-spacing:0;font-weight:600;color:var(--accent)}
-@media(max-width:700px){.jy-globe{right:10px;top:10px;width:96px}.jy-globe-canvas{width:96px;height:96px}.jy-globe-place{display:none}}
 
 /* The living Earth */
 .wd-page{margin:0}

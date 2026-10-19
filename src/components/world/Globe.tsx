@@ -197,7 +197,6 @@ export default function Globe({ data }: { data: WorldData }) {
           )}
           <h3>Your path</h3>
           <ol className="wd-legs">{trail.map((v, i) => <li key={i} className={i === trail.length - 1 ? "now" : ""}>{flow.nodes[v.node]?.name}{v.choice?.share != null && <span className="muted"> · {v.choice.share}%</span>}</li>)}</ol>
-          {flow.ride && <p className="small"><Link href={flow.ride}>Ride a {flow.title.replace(/^a /i, "")} in 3D →</Link></p>}
         </aside>
       )}
       {hotspot && (

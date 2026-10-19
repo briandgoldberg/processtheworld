@@ -6,7 +6,7 @@
 
 export type Link = { to: string; forkStep?: string; target?: string; share?: number; w?: number };
 export type FlowNode = { id: string; name: string; lat: number; lon: number; spread: number; step?: string; alt?: number; next?: Link[]; /** several next places but no meaningful choice: the globe picks one by weight */ auto?: boolean };
-export type Flow = { id: string; title: string; traveller: string; plural: string; color: string; start: { to: string; w: number }[]; nodes: Record<string, FlowNode>; ride?: string };
+export type Flow = { id: string; title: string; traveller: string; plural: string; color: string; start: { to: string; w: number }[]; nodes: Record<string, FlowNode> };
 export type RoutePoint = { lat: number; lon: number; alt: number; node: string };
 export type Roll = { forkStep: string; target: string; share: number };
 export type Route = { flow: string; pts: RoutePoint[]; odds: number; rolls: Roll[]; speed: number; phase: number };
@@ -40,7 +40,7 @@ function raindrop(): Flow {
     add("estuary", b.estuary, 0.5, { step: "s_4pmhj59kg", alt: 0, next: [{ to: `${k}-back` }] });
     add("back", b.back, 0.6, { alt: 0, next: [{ to: `${k}-sea` }] });
   }
-  return { id: "raindrop", title: "A raindrop", traveller: "one water molecule", plural: "raindrops", color: "#7fd0ff", start, nodes, ride: "/journey/raindrop" };
+  return { id: "raindrop", title: "A raindrop", traveller: "one water molecule", plural: "raindrops", color: "#7fd0ff", start, nodes };
 }
 
 // ---------- a carbon atom: from a city's exhaust to the air, the sea or a forest ----------
