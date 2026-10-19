@@ -39,11 +39,11 @@ export default function Atlas({ data }: { data: AtlasData }) {
   useEffect(() => {
     const el = host.current, canvas = canvasRef.current; if (!el || !canvas) return;
     const ctx = canvas.getContext("2d")!; const { root, byId, colorOf } = layout;
-    let W = el.clientWidth, H = el.clientHeight, dpr = Math.min(2, window.devicePixelRatio || 1);
+    let W = el.clientWidth, H = el.clientHeight, dpr = Math.min(2, window.devicePixelRatio || 1); let dirty = true;
     const resize = () => { W = el.clientWidth; H = el.clientHeight; canvas.width = W * dpr; canvas.height = H * dpr; canvas.style.width = W + "px"; canvas.style.height = H + "px"; dirty = true; };
     // view transform: screen = world * k + (x, y)
     const fit = (n: N) => { const k = (0.86 * Math.min(W, H)) / (2 * n.r); return { k, x: W / 2 - n.x * k, y: H / 2 - n.y * k }; };
-    resize(); let view = fit(root); let anim: { from: typeof view; to: typeof view; t0: number; dur: number } | null = null; let dirty = true;
+    resize(); let view = fit(root); let anim: { from: typeof view; to: typeof view; t0: number; dur: number } | null = null;
     let hover: N | null = null; let hoverPt = { x: 0, y: 0 }; let focusNode: N = root;
     const nodes: N[] = []; root.each(n => nodes.push(n));
     const leafPos = new Map<string, N>(); root.leaves().forEach(l => leafPos.set(l.data.id, l));
