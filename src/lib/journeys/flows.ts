@@ -43,34 +43,90 @@ function raindrop(): Flow {
   return { id: "raindrop", title: "A raindrop", traveller: "one water molecule", plural: "raindrops", color: "#7fd0ff", start, nodes };
 }
 
-// ---------- a carbon atom: from a city's exhaust to the air, the sea or a forest ----------
+// ---------- a carbon atom: the long cycle. Air, leaf, wood, soil, fire, sea surface, plankton, deep water, sediment,
+// rock, volcano, and back to the air. Every fork below is a real fork on the map with the map's shares. ----------
 const CITIES: [string, string, number, number, number][] = [["houston", "Houston", 29.8, -95.4, 22], ["shanghai", "Shanghai", 31.2, 121.5, 26], ["rotterdam", "Rotterdam", 51.9, 4.5, 14], ["delhi", "Delhi", 28.6, 77.2, 16], ["joburg", "Johannesburg", -26.2, 28.0, 10], ["saopaulo", "São Paulo", -23.5, -46.6, 12]];
-const OCEANS: [string, string, number, number][] = [["natl", "North Atlantic sink", 45, -30], ["south", "Southern Ocean sink", -55, 40], ["npac", "North Pacific sink", 40, -165]];
-const FORESTS: [string, string, number, number, number][] = [["amazon", "Amazon forest", -3, -60, 2], ["congo", "Congo forest", 0, 20, 1], ["boreal", "Boreal Canada", 55, -100, 1], ["siberia", "Siberian taiga", 60, 100, 1], ["seasia", "Southeast Asian forest", 2, 110, 1]];
+const OCEANS: [string, string, number, number, number][] = [["natl", "North Atlantic", 45, -30, 3], ["south", "Southern Ocean", -55, 40, 3], ["npac", "North Pacific", 40, -165, 3], ["trop", "Tropical Pacific", -5, -140, 2]];
+const UPWELL: [string, string, number, number, number][] = [["peru", "Peru upwelling", -12, -78, 4], ["namibia", "Benguela upwelling", -22, 13, 3], ["calif", "California upwelling", 37, -124, 3], ["eqpac", "Equatorial Pacific upwelling", 0, -120, 3]];
+const FORESTS: [string, string, number, number, number][] = [["amazon", "Amazon forest", -3, -60, 3], ["congo", "Congo forest", 0, 20, 2], ["boreal", "Boreal Canada", 55, -100, 2], ["siberia", "Siberian taiga", 60, 100, 2], ["seasia", "Borneo rainforest", 2, 110, 1], ["corn", "Corn Belt, Iowa", 42, -93, 2], ["sahel", "Sahel grassland", 14, 2, 1]];
+const VOLCANOES: [string, string, number, number][] = [["andes", "Andean volcano, Chile", -23, -68], ["japan", "Volcanic arc, Japan", 36, 138], ["etna", "Etna, Sicily", 37.7, 15]];
+const RANGES: [string, string, number, number][] = [["himalaya", "The Himalaya, uplifted", 28, 84], ["alps", "The Alps, uplifted", 46.5, 8], ["rockies", "The Rockies, uplifted", 40, -106]];
 function carbon(): Flow {
-  const nodes: Record<string, FlowNode> = {};
+  const n: Record<string, FlowNode> = {};
   const start: { to: string; w: number }[] = [];
+  const toMixed = [{ to: "mixed" }];
+  // ---- the air ----
   for (const [k, name, lat, lon, w] of CITIES) {
     start.push({ to: `src-${k}`, w });
-    nodes[`src-${k}`] = node(`src-${k}`, name, lat, lon, 0.8, { step: "s_dzyajn8fa", alt: 0, next: [{ to: `aloft-${k}` }] });
-    nodes[`aloft-${k}`] = node(`aloft-${k}`, `Aloft over ${name}`, lat + 6, lon + 14, 6, { step: "s_259nwe8fj", alt: 0.1, next: [
+    n[`src-${k}`] = node(`src-${k}`, name, lat, lon, 0.8, { step: "s253", alt: 0, next: [{ to: `aloft-${k}` }] });
+    n[`aloft-${k}`] = node(`aloft-${k}`, `Aloft over ${name}`, lat + 6, lon + 14, 6, { step: "s_259nwe8fj", alt: 0.1, next: [
       { to: `stays-${k}`, forkStep: "s_259nwe8fj", target: "s_cwebgs8fs", share: 41 },
-      ...OCEANS.map(([o]) => ({ to: `ocean-${o}`, forkStep: "s_259nwe8fj", target: "s_vvn1ha8g0", share: 25, w: 1 })),
-      ...FORESTS.map(([f, , , , fw]) => ({ to: `forest-${f}`, forkStep: "s_259nwe8fj", target: "s_cl8rw78g8", share: 34, w: fw })),
+      ...OCEANS.map(([o, , , , ow]) => ({ to: `surface-${o}`, forkStep: "s_259nwe8fj", target: "s_vvn1ha8g0", share: 25, w: ow })),
+      ...FORESTS.map(([f, , , , fw]) => ({ to: `canopy-${f}`, forkStep: "s_259nwe8fj", target: "s_cl8rw78g8", share: 34, w: fw })),
     ] });
-    nodes[`stays-${k}`] = node(`stays-${k}`, "Stays in the atmosphere, drifting east", lat + 12, lon + 70, 9, { step: "s_cwebgs8fs", alt: 0.12, next: [{ to: "mixed" }] });
+    n[`stays-${k}`] = node(`stays-${k}`, "Stays in the atmosphere, drifting east", lat + 12, lon + 70, 9, { step: "s_cwebgs8fs", alt: 0.12, next: toMixed });
   }
-  // the atmosphere mixes within about a year, so carbon that stays aloft or returns to the air meets the fork again anywhere
-  nodes.mixed = node("mixed", "Mixed through the whole atmosphere", 10, 0, 40, { step: "s_cwebgs8fs", alt: 0.14, auto: true, next: CITIES.map(([k, , , , w]) => ({ to: `aloft-${k}`, w })) });
-  for (const [o, name, lat, lon] of OCEANS) { nodes[`ocean-${o}`] = node(`ocean-${o}`, name, lat, lon, 8, { step: "s_vvn1ha8g0", alt: 0, next: [{ to: `outgas-${o}` }] }); nodes[`outgas-${o}`] = node(`outgas-${o}`, `Given back across the sea surface, ${name.replace(" sink", "")}`, lat + 4, lon + 10, 8, { step: "s242", alt: 0.05, next: [{ to: "mixed" }] }); }
+  // the atmosphere mixes within about a year; every return meets the cycle's own fork again, somewhere
+  const REGIONS: [string, string, number, number][] = [["pac", "Over the Pacific", 10, -160], ["atl", "Over the Atlantic", 20, -40], ["afr", "Over Africa", 5, 20], ["asia", "Over Asia", 30, 100]];
+  n.mixed = node("mixed", "Mixed through the whole atmosphere", 10, 0, 40, { step: "s229", alt: 0.14, auto: true, next: REGIONS.map(([r]) => ({ to: `budget-${r}` })) });
+  for (const [r, name, lat, lon] of REGIONS) n[`budget-${r}`] = node(`budget-${r}`, `${name}: where does this carbon go?`, lat, lon, 12, { step: "s219", alt: 0.12, next: [
+    { to: "stays-again", forkStep: "s219", target: "s229", share: 45 },
+    ...OCEANS.map(([o, , , , ow]) => ({ to: `surface-${o}`, forkStep: "s219", target: "s223", share: 26, w: ow })),
+    ...FORESTS.map(([f, , , , fw]) => ({ to: `canopy-${f}`, forkStep: "s219", target: "s220", share: 29, w: fw })),
+  ] });
+  n["stays-again"] = node("stays-again", "Another year in the air, trapping heat", 20, 60, 30, { step: "s229", alt: 0.14, next: toMixed });
+  // ---- the land: leaf, wood, litter, soil, fire ----
   for (const [f, name, lat, lon] of FORESTS) {
-    nodes[`forest-${f}`] = node(`forest-${f}`, name, lat, lon, 4, { step: "s_cl8rw78g8", alt: 0.01, next: [{ to: `fixed-${f}` }] });
-    nodes[`fixed-${f}`] = node(`fixed-${f}`, `Fixed by leaves, ${name}`, lat, lon, 3, { step: "s_sxbirk6fh", alt: 0, next: [{ to: `respired-${f}`, forkStep: "s_2jquon6fr", target: "s_0sk8px6fz", share: 57 }, { to: `stored-${f}`, forkStep: "s_2jquon6fr", target: "s_2ctusx6g8", share: 43 }] });
-    nodes[`respired-${f}`] = node(`respired-${f}`, `Breathed back out, ${name}`, lat + 3, lon + 4, 4, { step: "s_0sk8px6fz", alt: 0.06, next: [{ to: "mixed" }] });
-    nodes[`stored-${f}`] = node(`stored-${f}`, `Stored as wood and soil, ${name}`, lat, lon, 3, { step: "s_2ctusx6g8", alt: 0, next: [{ to: `decay-${f}` }] }); nodes[`decay-${f}`] = node(`decay-${f}`, `Decades later, soil respiration returns it, ${name}`, lat + 2, lon + 3, 3, { step: "s1267", alt: 0.04, next: [{ to: "mixed" }] });
+    const at = (suffix: string, label: string, spread: number, extra: Partial<FlowNode>) => { n[`${suffix}-${f}`] = node(`${suffix}-${f}`, `${label}, ${name}`, lat, lon, spread, extra); };
+    at("canopy", "Reaches a canopy", 3, { step: "s_cl8rw78g8", alt: 0.03, next: [{ to: `leaf-${f}` }] });
+    at("leaf", "Inside a leaf: which kind of plant?", 2, { step: "s_2m89pxm7k", alt: 0.01, next: [
+      { to: `rubisco-${f}`, forkStep: "s_2m89pxm7k", target: "s_iq0rnnm6m", share: 75 }, { to: `c4-${f}`, forkStep: "s_2m89pxm7k", target: "s_vcyi0rm7t", share: 23 }, { to: `cam-${f}`, forkStep: "s_2m89pxm7k", target: "s_51hl2mm83", share: 2 }] });
+    at("c4", "A C4 plant pumps CO2 to Rubisco", 2, { step: "s_vcyi0rm7t", alt: 0.01, next: [{ to: `fixed-${f}` }] });
+    at("cam", "A CAM plant stores CO2 overnight as malic acid", 2, { step: "s_51hl2mm83", alt: 0.01, next: [{ to: `fixed-${f}` }] });
+    at("rubisco", "Rubisco: CO2 or oxygen?", 2, { step: "s_rsp2ixm6w", alt: 0.01, next: [{ to: `fixed-${f}`, forkStep: "s_rsp2ixm6w", target: "s179", share: 80 }, { to: `photoresp-${f}`, forkStep: "s_rsp2ixm6w", target: "s_8qvprpm7b", share: 20 }] });
+    at("photoresp", "Photorespiration: released again within minutes", 2, { step: "s_8qvprpm7b", alt: 0.03, next: toMixed });
+    at("fixed", "Fixed into sugar", 2, { step: "s231", alt: 0.01, next: [{ to: `gpp-${f}` }] });
+    at("gpp", "Fate of the sugar", 2, { step: "s232", alt: 0.01, next: [{ to: `autoresp-${f}`, forkStep: "s232", target: "s233", share: 50 }, { to: `npp-${f}`, forkStep: "s232", target: "s234", share: 50 }] });
+    at("autoresp", "Respired by the plant itself", 2, { step: "s233", alt: 0.03, next: toMixed });
+    at("npp", "Built into wood, root or leaf", 2, { step: "s234", alt: 0.01, next: [{ to: `fire-${f}`, forkStep: "s235", target: "s236", share: 15 }, { to: `litter-${f}`, forkStep: "s235", target: "s237", share: 85 }] });
+    at("fire", "Fire or a grazing animal releases it", 2, { step: "s236", alt: 0.04, next: toMixed });
+    at("litter", "Falls as litter or dies as a root", 2, { step: "s237", alt: 0, next: [{ to: `decomp-${f}` }] });
+    at("decomp", "Soil microbes get to work: is the soil aerated?", 2, { step: "s238", alt: 0, next: [{ to: `aerobic-${f}`, forkStep: "s271", target: "s272", share: 70 }, { to: `anaerobic-${f}`, forkStep: "s271", target: "s273", share: 30 }] });
+    at("anaerobic", "Waterlogged: made into methane", 2, { step: "s273", alt: 0, next: [{ to: `methane-${f}` }] });
+    at("methane", "Methane escapes, oxidised to CO2 in the air over about a decade", 3, { step: "s_wo7m7mp1b", alt: 0.06, next: toMixed });
+    at("aerobic", "Aerobic decomposition: fate of the carbon", 2, { step: "s239", alt: 0, next: [{ to: `heteroresp-${f}`, forkStep: "s239", target: "s240", share: 70 }, { to: `stable-${f}`, forkStep: "s239", target: "s241", share: 30 }] });
+    at("heteroresp", "Breathed out by soil microbes", 2, { step: "s240", alt: 0.03, next: toMixed });
+    at("stable", "Stabilised in soil organic matter: the soil's fate", 2, { step: "s241", alt: 0, next: [{ to: `soilgain-${f}`, forkStep: "s454", target: "s455", share: 55 }, { to: `soilloss-${f}`, forkStep: "s454", target: "s456", share: 45 }] });
+    at("soilgain", "Held in soil for decades to centuries", 2, { step: "s455", alt: 0, next: [{ to: `decomp-${f}` }] });
+    at("soilloss", "Disturbed soil loses it: respired", 2, { step: "s456", alt: 0.03, next: toMixed });
   }
-  return { id: "carbon", title: "A carbon atom", traveller: "one carbon atom from a tailpipe", plural: "carbon atoms", color: "#ffd27f", start, nodes };
+  // ---- the sea: surface, plankton, deep water, sediment, rock, volcano ----
+  for (const [o, name, lat, lon] of OCEANS) {
+    const at = (suffix: string, label: string, spread: number, extra: Partial<FlowNode>) => { n[`${suffix}-${o}`] = node(`${suffix}-${o}`, `${label}, ${name}`, lat, lon, spread, extra); };
+    at("surface", "Dissolves across the sea surface", 7, { step: "s242", alt: 0, next: [{ to: `dic-${o}` }] });
+    at("dic", "Bicarbonate now: fate of dissolved carbon", 6, { step: "s244", alt: 0, next: [
+      { to: `plankton-${o}`, forkStep: "s244", target: "s245", share: 25 }, { to: `sink-${o}`, forkStep: "s244", target: "s246", share: 55 },
+      ...UPWELL.map(([u, , , , uw]) => ({ to: `upwell-${u}`, forkStep: "s244", target: "s247", share: 20, w: uw })) ] });
+    at("plankton", "Taken up by phytoplankton", 5, { step: "s181", alt: 0, next: [{ to: `export-${o}`, forkStep: "s182", target: "s183", share: 35 }, { to: `loop-${o}`, forkStep: "s182", target: "s184", share: 65 }] });
+    at("loop", "Eaten and respired in the sunlit surface", 5, { step: "s184", alt: 0, next: [{ to: `outgas-${o}` }] });
+    at("export", "Sinks as marine snow: fate of exported carbon", 5, { step: "s_v2dx0obr4", alt: 0, next: [
+      { to: `reminer-${o}`, forkStep: "s248", target: "s249", share: 89 }, { to: `buried-${o}`, forkStep: "s248", target: "s250", share: 1 }, { to: `deep-${o}`, forkStep: "s248", target: "s246", share: 10 }] });
+    at("reminer", "Remineralised by bacteria in the twilight zone", 5, { step: "s249", alt: 0, next: [{ to: `deep-${o}` }] });
+    at("sink", "Carried down by sinking cold water", 6, { step: "s246", alt: 0, next: [{ to: `deep-${o}` }] });
+    at("deep", "Deep water: out of touch with the air for a century or more", 7, { step: "s_zlvgjjbrn", alt: 0, next: UPWELL.map(([u, , , , uw]) => ({ to: `upwell-${u}`, w: uw })), auto: true });
+    at("outgas", "Given back across the sea surface", 6, { step: "s242", alt: 0.05, next: toMixed });
+    at("buried", "Buried in seafloor sediment", 4, { step: "s250", alt: 0, next: [{ to: `rock-${o}` }] });
+    at("rock", "Buried deeper, cemented into rock over millions of years", 4, { step: "s87", alt: 0, next: [
+      ...VOLCANOES.map(([v]) => ({ to: `meta-${v}`, forkStep: "s88", target: "s89", share: 50, w: 1 })), ...RANGES.map(([r]) => ({ to: `uplift-${r}`, forkStep: "s88", target: "s90", share: 50, w: 1 })) ] });
+  }
+  for (const [u, name, lat, lon] of UPWELL) n[`upwell-${u}`] = node(`upwell-${u}`, name, lat, lon, 3, { step: "s247", alt: 0, next: [{ to: `resurface-${u}` }] });
+  for (const [u, name, lat, lon] of UPWELL) n[`resurface-${u}`] = node(`resurface-${u}`, `Back at the surface, ${name.replace(" upwelling", "")}: fate of dissolved carbon`, lat, lon, 3, { step: "s244", alt: 0, next: [
+    { to: `plankton-${nearestOcean(lat, lon)}`, forkStep: "s244", target: "s245", share: 25 }, { to: `sink-${nearestOcean(lat, lon)}`, forkStep: "s244", target: "s246", share: 55 }, { to: `outgas-${nearestOcean(lat, lon)}`, forkStep: "s244", target: "s247", share: 20 }] });
+  for (const [v, name, lat, lon] of VOLCANOES) { n[`meta-${v}`] = node(`meta-${v}`, "Heat and pressure: calcite and quartz give up CO2", lat, lon, 2, { step: "s_q0p6v6srw", alt: 0, next: [{ to: `volcano-${v}` }] }); n[`volcano-${v}`] = node(`volcano-${v}`, name, lat, lon, 1, { step: "s254", alt: 0.08, next: toMixed }); }
+  for (const [r, name, lat, lon] of RANGES) { n[`uplift-${r}`] = node(`uplift-${r}`, name, lat, lon, 2, { step: "s90", alt: 0, next: [{ to: `erode-${r}` }] }); n[`erode-${r}`] = node(`erode-${r}`, "Erosion exposes the rock carbon and it oxidises", lat, lon, 3, { step: "s_n1qstnkue", alt: 0.03, next: toMixed }); }
+  return { id: "carbon", title: "A carbon atom", traveller: "one carbon atom from a tailpipe", plural: "carbon atoms", color: "#ffd27f", start, nodes: n };
 }
+function nearestOcean(lat: number, lon: number): string { let best = OCEANS[0][0], bd = 1e9; for (const [o, , olat, olon] of OCEANS) { const d = Math.hypot(lat - olat, Math.min(Math.abs(lon - olon), 360 - Math.abs(lon - olon))); if (d < bd) { bd = d; best = o; } } return best; }
 
 // ---------- a grain of dust: lifted from a desert, carried across an ocean ----------
 function dust(): Flow {
