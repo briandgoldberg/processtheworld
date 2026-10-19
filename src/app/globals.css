@@ -335,3 +335,35 @@ body.hide-fb .fb-btn,body.hide-fb .fb-panel{display:none}
 .jy-globe-place{margin-top:6px;font-size:12px;font-weight:700;color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.6);letter-spacing:.01em}
 .jy-where{text-transform:none;letter-spacing:0;font-weight:600;color:var(--accent)}
 @media(max-width:700px){.jy-globe{right:10px;top:10px;width:96px}.jy-globe-canvas{width:96px;height:96px}.jy-globe-place{display:none}}
+
+/* The living Earth */
+.wd-page{margin:0}
+body:has(.wd-page) .site-footer{display:none}
+.wd{position:relative;height:calc(100vh - 62px);height:calc(100dvh - 62px);min-height:480px;background:#04070f;overflow:hidden;color:#fff}
+.wd-canvas{position:absolute;inset:0;cursor:grab}
+.wd-canvas canvas{display:block}
+.wd-legend{position:absolute;left:16px;top:14px;display:flex;gap:8px;flex-wrap:wrap;z-index:3}
+.wd-flow{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.18);background:rgba(10,16,28,.7);color:#fff;border-radius:999px;padding:7px 12px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;backdrop-filter:blur(8px);opacity:.55}
+.wd-flow.on{opacity:1}
+.wd-flow i{width:10px;height:10px;border-radius:50%;display:inline-block;box-shadow:0 0 10px currentColor}
+.wd-flow .muted{color:rgba(255,255,255,.6)}
+.wd-intro{position:absolute;left:50%;bottom:8%;transform:translateX(-50%);width:min(560px,calc(100% - 32px));background:rgba(10,16,28,.78);border:1px solid rgba(255,255,255,.14);border-radius:18px;padding:22px 24px;backdrop-filter:blur(10px);z-index:3;animation:jy-in .5s ease-out}
+.wd-intro h1{margin:0 0 8px;font-size:clamp(26px,3.6vw,38px);color:#fff}
+.wd-intro p{margin:0 0 14px;color:rgba(255,255,255,.85);font-size:15.5px;line-height:1.5}
+.wd-panel{position:absolute;right:16px;top:14px;bottom:14px;width:min(380px,calc(100% - 32px));overflow:auto;background:rgba(10,16,28,.82);border:1px solid rgba(255,255,255,.14);border-radius:18px;padding:18px 20px 22px;backdrop-filter:blur(10px);z-index:4;animation:jy-in .35s ease-out}
+.wd-panel .x{position:absolute;right:12px;top:12px;border:0;background:rgba(255,255,255,.12);color:#fff;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:18px}
+.wd-panel h2{margin:4px 28px 6px 0;font-size:22px;line-height:1.2;color:#fff}
+.wd-panel h3{margin:16px 0 6px;font-size:14px;letter-spacing:.04em;text-transform:uppercase;color:rgba(255,255,255,.7)}
+.wd-panel p{color:rgba(255,255,255,.88)}
+.wd-panel a{color:#9fd4ff}
+.wd-panel .muted{color:rgba(255,255,255,.6)}
+.wd-kicker{font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:800;color:rgba(255,255,255,.75)}
+.wd-odds{font-size:15px;margin:0 0 10px}
+.wd-legs{margin:0 0 14px;padding-left:20px}
+.wd-legs li{margin:7px 0;font-size:14px}
+.wd-per{list-style:none;margin:0;padding:0}
+.wd-per li{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:14px}
+.wd-per i{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
+.wd-q{margin:0;padding-left:18px}
+.wd-q li{margin:6px 0;font-size:14px}
+@media(max-width:700px){.wd{height:calc(100vh - 100px);height:calc(100dvh - 100px)}.wd-legend{left:10px;top:10px}.wd-flow{padding:6px 10px;font-size:12px}.wd-panel{left:10px;right:10px;top:auto;bottom:10px;width:auto;max-height:58%}.wd-intro{bottom:4%}}
