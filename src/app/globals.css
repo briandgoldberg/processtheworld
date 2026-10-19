@@ -382,3 +382,37 @@ body:has(.wd-page) .site-footer{display:none}
 .wd-q{margin:0;padding-left:18px}
 .wd-q li{margin:6px 0;font-size:14px}
 @media(max-width:700px){.wd{height:calc(100vh - 100px);height:calc(100dvh - 100px)}.wd-legend{left:10px;top:10px}.wd-flow{padding:6px 10px;font-size:12px}.wd-panel{left:10px;right:10px;top:auto;bottom:10px;width:auto;max-height:58%}.wd-intro{bottom:4%}}
+
+/* The atlas: nested circles on a canvas */
+.at-page{margin:0}
+body:has(.at-page) .site-footer{display:none}
+.at{position:relative;height:calc(100vh - 62px);height:calc(100dvh - 62px);min-height:480px;background:#05080f;overflow:hidden;color:#fff}
+.at-canvas{position:absolute;inset:0;display:block;cursor:grab;touch-action:none}
+.at-top{position:absolute;left:14px;right:14px;top:12px;display:flex;gap:12px;align-items:center;z-index:3;pointer-events:none}
+.at-crumbs{display:flex;gap:4px;align-items:center;flex-wrap:wrap;background:rgba(10,16,28,.72);border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:6px 12px;backdrop-filter:blur(8px);pointer-events:auto;font-size:13.5px}
+.at-crumbs .asbtn{color:rgba(255,255,255,.8);font-weight:600}
+.at-crumbs .asbtn:hover{color:#fff}
+.at-crumbs span:last-child .asbtn{color:#fff}
+.at-crumbs .sep{opacity:.5;margin:0 4px}
+.at-search{position:relative;margin-left:auto;pointer-events:auto;width:min(320px,45vw)}
+.at-search input{width:100%;box-sizing:border-box;border:1px solid rgba(255,255,255,.18);background:rgba(10,16,28,.72);color:#fff;border-radius:12px;padding:9px 12px;font-size:14px;backdrop-filter:blur(8px)}
+.at-search input::placeholder{color:rgba(255,255,255,.5)}
+.at-hits{position:absolute;left:0;right:0;top:calc(100% + 6px);background:rgba(10,16,28,.95);border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:6px;max-height:50vh;overflow:auto}
+.at-hits button{display:flex;width:100%;justify-content:space-between;gap:10px;padding:7px 8px;border:0;background:transparent;border-radius:8px;text-align:left;color:#fff;font:inherit;font-size:13.5px;cursor:pointer}
+.at-hits button:hover{background:rgba(255,255,255,.08)}
+.at-hits .muted{color:rgba(255,255,255,.5);flex:none}
+.at-panel{position:absolute;right:14px;bottom:14px;width:min(340px,calc(100% - 28px));max-height:52%;overflow:auto;background:rgba(10,16,28,.8);border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:16px 18px 18px;backdrop-filter:blur(10px);z-index:3}
+.at-panel .x{position:absolute;right:10px;top:10px;border:0;background:rgba(255,255,255,.12);color:#fff;border-radius:8px;width:28px;height:28px;cursor:pointer;font-size:17px}
+.at-panel h2{margin:4px 26px 6px 0;font-size:20px;line-height:1.2;color:#fff}
+.at-panel p{color:rgba(255,255,255,.85)}
+.at-panel .muted{color:rgba(255,255,255,.62)}
+.at-panel a{color:#9fd4ff}
+.at-panel .btn{margin-top:8px;color:#fff;border-color:rgba(255,255,255,.25)}
+.at-panel .btn.primary{color:var(--accent-ink)}
+.at-kicker{font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:800;color:rgba(255,255,255,.7)}
+.at-kids{list-style:none;margin:6px 0 4px;padding:0;columns:2;column-gap:14px}
+.at-kids li{margin:3px 0;font-size:13.5px;break-inside:avoid}
+.at-kids .asbtn.link{color:#9fd4ff;text-decoration:none}
+.at-kids .asbtn.link:hover{text-decoration:underline}
+.at-hint{margin:12px 0 0;font-size:12px}
+@media(max-width:700px){.at{height:calc(100vh - 100px);height:calc(100dvh - 100px)}.at-top{flex-wrap:wrap}.at-search{width:100%;margin:0}.at-panel{left:10px;right:10px;bottom:10px;width:auto;max-height:42%;padding:12px 14px 14px}.at-kids{columns:1}.at-hint{display:none}}
